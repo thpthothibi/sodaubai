@@ -1596,6 +1596,15 @@
     box-shadow:0 3px 10px rgba(180,120,20,.12);
     white-space:nowrap;
   }
+  /* V49: lời chào luôn hiện trên cả máy tính và điện thoại. */
+  @media(min-width:761px){
+    #headerGreetingV48{
+      display:inline-flex!important;
+      visibility:visible!important;
+      opacity:1!important;
+    }
+  }
+
   @media(max-width:1100px){
     .overview-period-v20{min-width:0;width:100%;margin-left:0;}
     .overview-week-line-v28{justify-content:flex-start;}
@@ -2157,27 +2166,50 @@
   }
 
   .header-greeting-v33{
-    display:inline-flex;
+    display:inline-flex!important;
+    visibility:visible!important;
+    opacity:1!important;
     align-items:center;
-    gap:7px;
-    margin-left:14px;
-    padding:6px 12px;
-    border-radius:999px;
-    background:linear-gradient(135deg,#fff8d9 0%,#fff1b8 55%,#f1fae9 100%);
-    border:1px solid #efd27a;
-    color:#6f5b2a;
+    gap:9px;
+    margin-left:12px;
+    padding:7px 13px;
+    border-radius:14px;
+    background:linear-gradient(135deg,#fff7cc 0%,#ffefaa 48%,#edf8dd 100%);
+    border:1px solid #e8c858;
+    color:#594813;
     font-size:.76rem;
     font-weight:800;
-    line-height:1.15;
-    white-space:nowrap;
-    box-shadow:0 2px 8px rgba(161,121,28,.08);
+    line-height:1.18;
+    box-shadow:0 4px 12px rgba(142,104,15,.14);
   }
   .header-greeting-icon-v33{
     display:inline-flex;
     align-items:center;
     justify-content:center;
-    font-size:.9rem;
-    color:#d9a400;
+    width:28px;
+    height:28px;
+    flex:0 0 28px;
+    border-radius:50%;
+    background:rgba(255,255,255,.72);
+    font-size:1rem;
+    color:#c58a00;
+    box-shadow:0 2px 7px rgba(151,108,0,.12);
+  }
+  .header-greeting-copy-v48{
+    display:flex;
+    flex-direction:column;
+    gap:1px;
+  }
+  .header-greeting-time-v48{
+    color:#143b7d;
+    font-size:.82rem;
+    font-weight:900;
+    letter-spacing:.1px;
+  }
+  .header-greeting-wish-v48{
+    color:#6b571f;
+    font-size:.72rem;
+    font-weight:750;
   }
 
   /* Cho khối user header và lời chúc nằm cùng hàng */
@@ -2190,16 +2222,29 @@
 
   @media(max-width:1100px){
     .header-greeting-v33{
-      font-size:.7rem;
-      padding:5px 9px;
-      max-width:430px;
-      white-space:normal;
+      margin-left:8px;
+      padding:6px 9px;
+      max-width:470px;
     }
+    .header-greeting-time-v48{font-size:.76rem;}
+    .header-greeting-wish-v48{font-size:.67rem;}
   }
   @media(max-width:760px){
+    .app-userbar-v4{align-items:flex-start!important;}
+    .app-userbar-v4 > .d-flex:first-child{flex-wrap:wrap;}
     .header-greeting-v33{
-      display:none!important;
+      display:flex!important;
+      visibility:visible!important;
+      opacity:1!important;
+      width:100%;
+      max-width:none;
+      margin:6px 0 0 0;
+      padding:6px 9px;
+      border-radius:11px;
     }
+    .header-greeting-icon-v33{width:25px;height:25px;flex-basis:25px;font-size:.9rem;}
+    .header-greeting-time-v48{font-size:.73rem;}
+    .header-greeting-wish-v48{font-size:.64rem;}
   }
 
 
@@ -2584,10 +2629,14 @@
       <div class="user-avatar-v4" id="appUserAvatarV4">GV</div>
       <div>
         <div class="fw-bold" id="appUserNameV4">Người dùng</div>
-        <div class="small text-muted" id="appUserMetaV4"></div><div class="header-greeting-v33" title="Lời chúc ngày mới">
-      <span class="header-greeting-icon-v33">☀</span>
-      <span>Chúc quý Thầy/Cô một ngày làm việc tràn đầy năng lượng!</span>
-    </div>
+        <div class="small text-muted" id="appUserMetaV4"></div>
+        <div class="header-greeting-v33" id="headerGreetingV48" title="Lời chào theo thời gian trong ngày">
+          <span class="header-greeting-icon-v33" id="headerGreetingIconV48" aria-hidden="true">☀️</span>
+          <span class="header-greeting-copy-v48">
+            <strong class="header-greeting-time-v48" id="headerGreetingTimeV48">Chào buổi sáng!</strong>
+            <span class="header-greeting-wish-v48">Chúc quý Thầy/Cô một ngày làm việc tràn đầy năng lượng!.</span>
+          </span>
+        </div>
       </div>
     </div>
     <div class="d-flex flex-wrap align-items-center gap-2">
@@ -4430,6 +4479,7 @@
     document.getElementById('appUserMetaV4').textContent='Trường THPT Hồ Thị Bi';
     const initials=(profile.ten||'GV').trim().split(/\s+/).slice(-2).map(x=>x[0]||'').join('').toUpperCase();document.getElementById('appUserAvatarV4').textContent=initials||'GV';
     document.getElementById('appRoleBadgesV4').innerHTML=(res.roles||[]).map(r=>`<span class="role-chip-v4">${roleLabelV4(r)}</span>`).join('');
+    capNhatLoiChaoTheoGioV48();
 
     document.getElementById('loginScreenV4').classList.add('d-none');
     document.getElementById('appShellV4').classList.remove('d-none');
@@ -4443,6 +4493,22 @@
     // ở nền trong lúc hệ thống đang chuyển đến mô-đun mặc định của vai trò.
     resetOverviewV20();
   }
+
+  // V48: Lời chào nổi bật trên thanh tiêu đề, tự đổi theo giờ thiết bị.
+  function capNhatLoiChaoTheoGioV48(){
+    const now=new Date();
+    const hour=now.getHours();
+    const greeting=hour<12?'Chào buổi sáng!':'Chào buổi trưa!';
+    const icon=hour<12?'☀️':'🌤️';
+    const textEl=document.getElementById('headerGreetingTimeV48');
+    const iconEl=document.getElementById('headerGreetingIconV48');
+    if(textEl)textEl.textContent=greeting;
+    if(iconEl)iconEl.textContent=icon;
+  }
+
+  // Cập nhật ngay và tự đổi nếu trang được mở qua thời điểm 12:00.
+  capNhatLoiChaoTheoGioV48();
+  setInterval(capNhatLoiChaoTheoGioV48,60000);
 
   function khoiPhucPhienTapTrungV4(){
     let raw='';try{raw=sessionStorage.getItem('SODB_V4_UNIFIED_LOGIN')||'';}catch(e){}

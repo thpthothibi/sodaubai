@@ -2906,6 +2906,13 @@
 }
 </style>
 
+
+<style id="v67-supabase-khbd-style">
+  .khbd-my-card-v67 .table td{vertical-align:middle}
+  .khbd-my-check-v67{width:1.15rem;height:1.15rem;cursor:pointer}
+  #khbd-my-nav-v67 .nav-link{font-weight:800}
+  #khbd-my-nav-v67 .nav-link.active{background:#0f766e!important;color:#fff!important}
+</style>
 </head>
 <!-- MODAL THÔNG TIN XÁC NHẬN ĐIỆN TỬ -->
 <div class="modal fade" id="modalChuKySoDetail" tabindex="-1" aria-hidden="true">
@@ -3789,6 +3796,9 @@
               <li class="nav-item" role="presentation">
                 <button class="nav-link" id="khbd-view-tab-v38" data-bs-toggle="pill" data-bs-target="#khbd-view-pane-v38" type="button" role="tab" aria-controls="khbd-view-pane-v38" aria-selected="false">Xem KHBD</button>
               </li>
+              <li class="nav-item d-none" role="presentation" id="khbd-my-nav-v67">
+                <button class="nav-link" id="khbd-my-tab-v67" data-bs-toggle="pill" data-bs-target="#khbd-my-pane-v67" type="button" role="tab" aria-controls="khbd-my-pane-v67" aria-selected="false" onclick="taiKhbdCaNhanV67()">KHBD của tôi</button>
+              </li>
               <li class="nav-item d-none" role="presentation" id="khbd-approval-nav-v50">
                 <button class="nav-link" id="khbd-approval-tab-v50" data-bs-toggle="pill" data-bs-target="#khbd-approval-pane-v50" type="button" role="tab" aria-controls="khbd-approval-pane-v50" aria-selected="false" onclick="taiHangDoiDuyetKHBDV50()">Duyệt KHBD <span class="badge text-bg-warning ms-1 d-none" id="khbdPendingBadgeV50"></span></button>
               </li>
@@ -3893,6 +3903,35 @@
                         <tr><th>STT</th><th>Môn</th><th>Tuần</th><th>Tiết PPCT</th><th>Nội dung bài dạy</th><th>Yêu cầu cần đạt</th></tr>
                       </thead>
                       <tbody id="khbdViewBodyV36"><tr><td colspan="6" class="text-center text-muted py-3">Chọn Khối, Môn và bấm “Xem KHBD”.</td></tr></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tab-pane fade" id="khbd-my-pane-v67" role="tabpanel" aria-labelledby="khbd-my-tab-v67" tabindex="0">
+                <div class="card p-4 mx-auto border khbd-my-card-v67" style="max-width:1200px;background:#fff;">
+                  <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+                    <div>
+                      <h5 class="fw-bold text-primary mb-1">KHBD ĐÃ DUYỆT CỦA GIÁO VIÊN</h5>
+                      <div class="small text-muted">Sau khi Phó Hiệu trưởng duyệt, giáo viên phải <strong>tích nhận</strong> KHBD. Chỉ tuần đã tích mới xuất hiện trong tab <strong>Nhập tiết</strong>.</div>
+                    </div>
+                    <span class="badge text-bg-primary" id="khbdMyCountV67">0 tuần đã tích</span>
+                  </div>
+                  <div class="row g-3 align-items-end mb-3 p-3 bg-light border rounded">
+                    <div class="col-md-3"><label class="form-label fw-bold">Khối</label><select id="khbdMyKhoiV67" class="form-select" onchange="taiKhbdCaNhanV67()"><option value="10">Khối 10</option><option value="11">Khối 11</option><option value="12">Khối 12</option></select></div>
+                    <div class="col-md-5"><label class="form-label fw-bold">Môn</label><select id="khbdMyMonV67" class="form-select" onchange="taiKhbdCaNhanV67()"></select></div>
+                    <div class="col-md-4 d-grid"><button class="btn btn-outline-primary fw-bold" type="button" onclick="taiKhbdCaNhanV67(true)">Làm mới</button></div>
+                  </div>
+                  <div class="d-flex flex-wrap gap-2 mb-3">
+                    <button class="btn btn-success fw-bold" type="button" onclick="luuKhbdDaTichV67()">✓ Lưu các tuần đã tích</button>
+                    <button class="btn btn-primary fw-bold" type="button" onclick="chonToanBoKhbdV67()">✓ Tích toàn bộ KHBD đã duyệt</button>
+                    <button class="btn btn-outline-secondary" type="button" onclick="boChonKhbdV67()">Bỏ chọn tất cả</button>
+                  </div>
+                  <div id="khbdMyStatusV67" class="small text-muted mb-2">Chưa tải danh sách.</div>
+                  <div class="table-responsive border rounded">
+                    <table class="table table-sm table-hover align-middle mb-0">
+                      <thead class="table-light"><tr><th class="text-center" style="width:70px">Chọn</th><th class="text-center">Tuần</th><th class="text-center">Khối</th><th>Môn</th><th class="text-center">Số bài</th><th>Nội dung chính</th><th>Đã nhận lúc</th></tr></thead>
+                      <tbody id="khbdMyBodyV67"><tr><td colspan="7" class="text-center text-muted py-4">Chọn Khối/Môn để xem KHBD đã duyệt.</td></tr></tbody>
                     </table>
                   </div>
                 </div>
@@ -4305,12 +4344,24 @@
      file Code_GitHub_API.gs.
      ======================================================================== */
   const SODB_API_URL = "https://script.google.com/macros/s/AKfycbz9MXRTWMHFul61vWxTr3gOVNpfsL6R7zMZ8s-e_jh17wqmC6cYp9u25J-4onRhaJfnbA/exec";
-  // V66: login + Dashboard nhanh qua Supabase Edge. Publishable key an toàn để dùng ở browser; Secret key tuyệt đối không nằm tại đây.
+  // V67: Supabase-first cho đăng nhập, Dashboard, KHBD, Sổ đầu bài và dữ liệu vận hành. Publishable key an toàn để dùng ở browser; Secret key tuyệt đối không nằm tại đây.
   const SODB_SUPABASE_URL_V66 = "https://mlwhxxpmnhrrkbkivvye.supabase.co";
   const SODB_SUPABASE_PUBLISHABLE_KEY_V66 = "sb_publishable_Hq6KRH5KDT1eiOYLwwQhkw_c45sZkgi";
-  const SODB_EDGE_URL_V66 = SODB_SUPABASE_URL_V66 + "/functions/v1/sodb-fast-v66";
-  const SODB_FRONTEND_VERSION = "V66.2";
+  const SODB_EDGE_URL_V66 = SODB_SUPABASE_URL_V66 + "/functions/v1/sodb-core-v67";
+  const SODB_FRONTEND_VERSION = "V67";
   window.__SODB_BACKEND_VERSION__ = "UNKNOWN";
+
+  // V67: các RPC dữ liệu vận hành chạy trực tiếp trên Supabase Edge.
+  // Các chức năng Google Drive/backup đặc thù vẫn đi Apps Script.
+  const SODB_EDGE_RPC_METHODS_V67 = new Set([
+    'getDanhSachBaiDayTheoMon','layDanhSachKHBDTheoKhoiV36','capNhatKeHoachBaiDay',
+    'layDanhSachDuyetKHBDV50','xuLyDuyetKHBDV50','layKhbdCaNhanV67','chonKhbdCaNhanV67',
+    'layTrangSoDauBaiV24','layDuLieuSoDauBaiTuanGop','luuSoDauBai','luuChotTuanGVCN',
+    'kiemTraTrangThaiKhoaTuan','adminMoKhoaTuan','layNhatKyV4',
+    'getDanhSachMonAdminV7','getDanhSachMonKHBD','getDanhSachGVTheoMon','luuCauHinhV4',
+    'traCuuChiTietGiamThi','kiemTraNhapTreGiamThi','traCuuThongKeTheoKhoiNgay',
+    'kiemTraTrungTietAdmin','doiSoatKHBDGiamThi'
+  ]);
 
   (function installSodbGithubBridgeV59(){
     // Nếu đang chạy bên trong HtmlService của Apps Script thì dùng cầu nối gốc.
@@ -4411,7 +4462,11 @@
           if(prop==='then') return undefined;
           return function(){
             const args=Array.prototype.slice.call(arguments);
-            callAppsScriptRpcV59(String(prop),args)
+            const method=String(prop);
+            const rpcPromise=SODB_EDGE_RPC_METHODS_V67.has(method)
+              ? callSodbEdgeRpcV67(method,args)
+              : callAppsScriptRpcV59(method,args);
+            rpcPromise
               .then(function(result){ if(successHandler) successHandler(result); })
               .catch(function(error){
                 if(failureHandler) failureHandler(error);
@@ -4441,6 +4496,11 @@
       if(e&&e.name==='AbortError')throw new Error('Supabase Edge phản hồi quá 12 giây.');
       throw e;
     }finally{clearTimeout(timeout);}
+  }
+  async function callSodbEdgeRpcV67(method,args){
+    const data=await callSodbEdgeV66({action:'rpc',method:String(method||''),args:Array.isArray(args)?args:[]});
+    if(!data||data.success!==true)throw new Error(data&&data.message?data.message:'Supabase V67 không thực hiện được yêu cầu.');
+    return data.result;
   }
   window.__SODB_EDGE_URL_V66__=SODB_EDGE_URL_V66;
 
@@ -4656,21 +4716,11 @@
     p.type=p.type==='password'?'text':'password';
   }
 
-  function getTeacherPasswordSessionV662(){
-    const sessions=(currentUnifiedLoginV4&&currentUnifiedLoginV4.sessions)||{};
-    // GVBM, GIÁM THỊ và BGH đều xác thực từ cùng hồ sơ giáo viên.
-    for(const role of ['GVBM','GIAM_THI','BGH']){
-      const x=sessions[role];
-      if(x&&x.sessionToken&&x.sdt)return {role:role,sdt:String(x.sdt||''),sessionToken:x.sessionToken};
-    }
-    return null;
-  }
-
   function moDoiMatKhauToanCucV36(){
     const sessions=(currentUnifiedLoginV4&&currentUnifiedLoginV4.sessions)||{};
     if(sessions.ADMIN){doiMatKhauAdminUiV4();return;}
-    // V66.2: GVBM / GIÁM THỊ / BGH dùng chung mật khẩu nguồn tại Danh mục Giáo viên.
-    if(getTeacherPasswordSessionV662()){moModalDoiMatKhauGVBM();return;}
+    // Giáo viên là nguồn mật khẩu chuẩn; đổi tại đây sẽ đồng bộ GVCN/TTCM/BGH.
+    if(sessions.GVBM&&gvbmDangNhapInfo){moModalDoiMatKhauGVBM();return;}
     if(sessions.GVCN&&gvcnDangNhapInfo){moModalDoiMatKhau();return;}
     if(sessions.TTCM&&ttcmDangNhapInfo){moModalDoiMatKhauTTCM();return;}
     alertV13('Không xác định được tài khoản để đổi mật khẩu. Vui lòng đăng nhập lại.');
@@ -4770,7 +4820,7 @@
     btn.disabled=false;txt.textContent='Đăng nhập';
     if(!res||!res.success){setCentralLoginStatusV4(res&&res.message?res.message:'Không đăng nhập được.','danger');return;}
     document.getElementById('centralPasswordV4').value='';
-    console.info('[V66.2 PERF] Login tổng:',Math.round(performance.now()-loginStarted)+'ms','server:',(res.serverMs??'—')+'ms','path:',res.loginPath||source,'dashboard gộp:',(res.dashboardBundledMs??'—')+'ms','backend:',res.backendVersion||source,'source:',source);
+    console.info('[V67 PERF] Login tổng:',Math.round(performance.now()-loginStarted)+'ms','server:',(res.serverMs??'—')+'ms','path:',res.loginPath||source,'dashboard gộp:',(res.dashboardBundledMs??'—')+'ms','backend:',res.backendVersion||source,'source:',source);
     apDungPhanQuyenV4(res,true);
   }
 
@@ -4785,30 +4835,11 @@
     try{
       const edgeRes=await callSodbEdgeV66({action:'login',account,password});
       if(edgeRes&&edgeRes.success){
-        if(String(edgeRes.backendVersion||'')!=='V66_1_EDGE')throw new Error('Edge Function chưa đúng V66.1.');
+        if(String(edgeRes.backendVersion||'')!=='V67_EDGE')throw new Error('Edge Function chưa đúng V67.');
         handleLoginResponseV66(edgeRes,loginPerfStartedV66,'SUPABASE_EDGE',btn,txt);return;
       }
-      // V66.1 hotfix: nếu Edge báo sai mật khẩu, đối chiếu 1 lần bằng Apps Script.
-      // Nếu Apps Script đúng, cho đăng nhập để không khóa người dùng và backend tự đồng bộ lại credential Supabase.
-      if(edgeRes&&edgeRes.success===false){
-        const edgeMsg=String(edgeRes.message||'');
-        if(/tài khoản hoặc mật khẩu không đúng/i.test(edgeMsg)){
-          console.warn('[V66.1 EDGE AUTH] Edge từ chối credential; đang đối chiếu Apps Script một lần.');
-          setCentralLoginStatusV4('Đang đối chiếu thông tin đăng nhập với máy chủ dự phòng...','info');
-          google.script.run.withSuccessHandler(function(res){
-            if(res&&res.success){
-              console.warn('[V66.1 EDGE AUTH] Apps Script xác thực đúng. Cần kiểm tra Pepper/credential Edge. Repair:',res.edgeCredentialRepair||null);
-              handleLoginResponseV66(res,loginPerfStartedV66,'APPS_SCRIPT_AUTH_REPAIR',btn,txt);
-            }else{
-              handleLoginResponseV66(edgeRes,loginPerfStartedV66,'SUPABASE_EDGE',btn,txt);
-            }
-          }).withFailureHandler(function(){
-            handleLoginResponseV66(edgeRes,loginPerfStartedV66,'SUPABASE_EDGE',btn,txt);
-          }).dangNhapHeThongV66Fallback(account,password);
-          return;
-        }
-        handleLoginResponseV66(edgeRes,loginPerfStartedV66,'SUPABASE_EDGE',btn,txt);return;
-      }
+      // Sai tài khoản/mật khẩu hoặc bị khóa: không gọi fallback để tránh nhân đôi lần thử.
+      if(edgeRes&&edgeRes.success===false){handleLoginResponseV66(edgeRes,loginPerfStartedV66,'SUPABASE_EDGE',btn,txt);return;}
       throw new Error('Edge Function không trả dữ liệu hợp lệ.');
     }catch(edgeErr){
       console.warn('[V66 EDGE] Fallback Apps Script:',edgeErr);
@@ -5125,6 +5156,45 @@
   }
 
 
+  let khbdMyRowsV67=[];
+  function configureTeacherKhbdV67(){
+    const sessions=currentUnifiedLoginV4&&currentUnifiedLoginV4.sessions||{};
+    const hasTeacher=!!sessions.GVBM, hasManage=!!sessions.TTCM||!!sessions.BGH||!!sessions.ADMIN;
+    const nav=document.getElementById('khbd-my-nav-v67');if(nav)nav.classList.toggle('d-none',!hasTeacher);
+    if(!hasTeacher)return;
+    document.getElementById('ttcmMainContent')?.classList.remove('d-none');
+    const gv=sessions.GVBM;
+    const monSel=document.getElementById('khbdMyMonV67');
+    if(monSel){const old=monSel.value;monSel.innerHTML='';expandGdtcSubjectsV25(gv.dsMonGV||[]).forEach(m=>monSel.add(new Option(m,m)));if([...monSel.options].some(o=>o.value===old))monSel.value=old;}
+    if(!hasManage){
+      document.getElementById('khbd-upload-tab-v38')?.parentElement?.classList.add('d-none');
+      document.getElementById('khbd-view-tab-v38')?.parentElement?.classList.add('d-none');
+      document.getElementById('khbd-approval-nav-v50')?.classList.add('d-none');
+      const w=document.getElementById('ttcmWelcomeMsg');if(w)w.textContent=`✅ ${gv.tenGV||''} — chọn KHBD đã được Phó Hiệu trưởng duyệt để sử dụng khi Nhập tiết.`;
+      setTimeout(()=>{const t=document.getElementById('khbd-my-tab-v67');if(t&&window.bootstrap)bootstrap.Tab.getOrCreateInstance(t).show();},80);
+    }
+  }
+  function getKhbdMyAuthV67(){return {token:gvbmDangNhapInfo&&gvbmDangNhapInfo.sessionToken||''};}
+  function taiKhbdCaNhanV67(force){
+    if(!gvbmDangNhapInfo||!gvbmDangNhapInfo.sessionToken)return;
+    const khoi=Number(document.getElementById('khbdMyKhoiV67')?.value||10),mon=String(document.getElementById('khbdMyMonV67')?.value||'').trim();
+    const body=document.getElementById('khbdMyBodyV67'),status=document.getElementById('khbdMyStatusV67');if(!body||!status||!mon)return;
+    body.innerHTML='<tr><td colspan="7" class="text-center py-4"><span class="spinner-border spinner-border-sm me-2"></span>Đang tải KHBD đã duyệt từ Supabase...</td></tr>';
+    google.script.run.withSuccessHandler(function(res){
+      if(!res||!res.success){body.innerHTML='<tr><td colspan="7" class="text-center text-danger py-4">Không tải được KHBD.</td></tr>';status.textContent=res&&res.message||'Không tải được dữ liệu.';return;}
+      khbdMyRowsV67=res.data||[];const count=khbdMyRowsV67.filter(x=>x.selected).length;document.getElementById('khbdMyCountV67').textContent=`${count} tuần đã tích`;
+      status.textContent=res.message||`Có ${khbdMyRowsV67.length} tuần KHBD đã duyệt.`;
+      body.innerHTML=khbdMyRowsV67.length?khbdMyRowsV67.map((x,i)=>`<tr><td class="text-center"><input class="form-check-input khbd-my-check-v67" type="checkbox" data-week="${escapeHtml(x.tuan)}" ${x.selected?'checked':''}></td><td class="text-center fw-bold">${escapeHtml(x.tuan)}</td><td class="text-center">${escapeHtml(x.khoi)}</td><td class="fw-semibold">${escapeHtml(x.mon)}</td><td class="text-center">${escapeHtml(x.rowCount||0)}</td><td>${escapeHtml((x.lessons||[]).slice(0,3).join(' · '))}${(x.lessons||[]).length>3?' …':''}</td><td>${escapeHtml(x.selectedAt||'—')}</td></tr>`).join(''):'<tr><td colspan="7" class="text-center text-muted py-4">Chưa có KHBD đã duyệt phù hợp với phân công.</td></tr>';
+    }).withFailureHandler(function(err){body.innerHTML='<tr><td colspan="7" class="text-center text-danger py-4">Lỗi Supabase.</td></tr>';status.textContent=String(err&&err.message||err);}).layKhbdCaNhanV67({khoi,mon},getKhbdMyAuthV67());
+  }
+  function luuKhbdDaTichV67(){
+    const khoi=Number(document.getElementById('khbdMyKhoiV67')?.value||10),mon=String(document.getElementById('khbdMyMonV67')?.value||'').trim();const weeks=[...document.querySelectorAll('.khbd-my-check-v67:checked')].map(x=>Number(x.dataset.week)).filter(Boolean);
+    setBusyV13(true,'Đang lưu lựa chọn KHBD...');google.script.run.withSuccessHandler(function(res){setBusyV13(false);if(!res||!res.success){alertV13('❌ '+(res&&res.message||'Không lưu được'));return;}Object.keys(lessonPlanCache).forEach(k=>{if(k.includes('|'+mon+'|'))delete lessonPlanCache[k];});showToastV9(res.message||'Đã lưu KHBD đã chọn.','success');taiKhbdCaNhanV67(true);}).withFailureHandler(function(err){setBusyV13(false);alertV13('❌ '+String(err&&err.message||err));}).chonKhbdCaNhanV67({mode:'SYNC_WEEKS',khoi,mon,weeks},getKhbdMyAuthV67());
+  }
+  function chonToanBoKhbdV67(){google.script.run.withSuccessHandler(function(res){if(!res||!res.success){alertV13('❌ '+(res&&res.message||''));return;}showToastV9(res.message,'success');lessonPlanCache={};taiKhbdCaNhanV67(true);}).chonKhbdCaNhanV67({mode:'SELECT_ALL_ASSIGNED'},getKhbdMyAuthV67());}
+  function boChonKhbdV67(){const khoi=Number(document.getElementById('khbdMyKhoiV67')?.value||10),mon=String(document.getElementById('khbdMyMonV67')?.value||'').trim();google.script.run.withSuccessHandler(function(res){if(res&&res.success){showToastV9(res.message,'success');lessonPlanCache={};taiKhbdCaNhanV67(true);}}).chonKhbdCaNhanV67({mode:'CLEAR_SCOPE',khoi,mon},getKhbdMyAuthV67());}
+
+
   function moTabMacDinhV33(res){
     setTimeout(function(){
       const btn=document.getElementById('dashboard-tab-v9');
@@ -5151,7 +5221,7 @@
     setTopTabVisibleV4('input-tab',!!sessions.GVBM);
     setTopTabVisibleV4('gvcn-tab',!!sessions.GVCN);
     setTopTabVisibleV4('giamthi-tab',!!sessions.GIAM_THI);
-    setTopTabVisibleV4('ttcm-tab',!!sessions.TTCM||!!sessions.BGH);
+    setTopTabVisibleV4('ttcm-tab',!!sessions.TTCM||!!sessions.BGH||!!sessions.GVBM);
     setTopTabVisibleV4('admin-tab',isAdmin);
     rebuildMobileRoleNavV54();
 
@@ -5176,6 +5246,7 @@
     }
 
     if(isAdmin){adminDangNhapInfo=sessions.ADMIN;document.getElementById('adminMainContent').classList.remove('d-none');}
+    configureTeacherKhbdV67();
 
     moTabMacDinhV33(res);
 
@@ -5277,6 +5348,7 @@
     if(viewTab)viewTab.addEventListener('shown.bs.tab',refreshClassCatalogV29);
     const ttcmTab=document.getElementById('ttcm-tab'); if(ttcmTab)ttcmTab.addEventListener('shown.bs.tab',function(){
       lazyLoadAdminSubjectsV7();
+      if(hasRoleV4('GVBM')){const my=document.getElementById('khbd-my-tab-v67');if(my&&my.classList.contains('active'))taiKhbdCaNhanV67();}
       if(isKhbdApproverClientV50()){
         const approval=document.getElementById('khbd-approval-tab-v50');
         if(approval&&approval.classList.contains('active'))taiHangDoiDuyetKHBDV50();
@@ -6154,14 +6226,9 @@ function xuatExcelNhapTreGiamThi() {
       return;
     }
 
-    const pwSessionV662=getTeacherPasswordSessionV662();
-    if(!pwSessionV662){
-      alertV13("⚠️ Không tìm thấy phiên tài khoản giáo viên hợp lệ. Vui lòng đăng nhập lại.");
-      return;
-    }
     google.script.run.withSuccessHandler(function(res) {
       if (res.success) {
-        showToastV9(res.message || "Đã đổi mật khẩu.", "success");
+        showToastV9(res.message || "Đã lưu dữ liệu.", "success");
         let modalElem = document.getElementById('modalDoiMatKhauGVBM');
         let modal = bootstrap.Modal.getInstance(modalElem);
         if (modal) modal.hide();
@@ -6169,9 +6236,7 @@ function xuatExcelNhapTreGiamThi() {
       } else {
         alertV13("❌ " + res.message);
       }
-    }).withFailureHandler(function(err){
-      alertV13("❌ Không đổi được mật khẩu: "+((err&&err.message)?err.message:err));
-    }).doiMatKhauGiaovien(pwSessionV662.sdt, passCu, passMoi, {token: pwSessionV662.sessionToken});
+    }).doiMatKhauGiaovien(gvbmDangNhapInfo.sdt, passCu, passMoi, {token: gvbmDangNhapInfo.sessionToken});
   }
 
   function traCuuGiamThi() {
@@ -7022,7 +7087,7 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
       fillLessonSelect(selectBai, danhSachBaiDay1);
       document.getElementById('khbdWeekNotice').innerText = danhSachBaiDay1.length
         ? `Đã nạp ${danhSachBaiDay1.length} bài: Khối ${khoi} — ${mon} — Tuần ${tuan}.`
-        : `Không có bài KHBD khả dụng cho Khối ${khoi} — ${mon} — Tuần ${tuan} (có thể đã dùng hết hoặc chưa được duyệt); có thể chọn “Nhập tên bài dạy khác”.`;
+        : `Không có KHBD khả dụng cho Khối ${khoi} — ${mon} — Tuần ${tuan}. Có thể KHBD chưa được duyệt, giáo viên chưa tích nhận tuần này, hoặc bài đã dùng hết. Vào Kế hoạch bài dạy → KHBD của tôi để tích nhận.`;
       return;
     }
 
@@ -7046,7 +7111,7 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
         fillLessonSelect(selectBai, danhSachBaiDay1);
         document.getElementById('khbdWeekNotice').innerText = danhSachBaiDay1.length
           ? `Còn ${danhSachBaiDay1.length} bài chưa dùng: Khối ${khoi} — ${mon} — Tuần ${tuan}.`
-          : `Không còn bài KHBD chưa dùng cho Khối ${khoi} — ${mon} — Tuần ${tuan}; có thể chọn “Nhập tên bài dạy khác”.`;
+          : `Không còn KHBD khả dụng cho Khối ${khoi} — ${mon} — Tuần ${tuan}. Kiểm tra Kế hoạch bài dạy → KHBD của tôi hoặc bài đã dùng hết.`;
       })
       .withFailureHandler(function(err) {
         if(lessonPlanRequestSerialV55[cacheKey]!==requestSerial)return;

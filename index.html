@@ -4173,7 +4173,7 @@
                   <button class="btn btn-success fw-bold" type="button" onclick="kiemTraSupabaseKHBDV61Ui()">Kiểm tra Supabase KHBD</button>
                   <button class="btn btn-success fw-bold" type="button" onclick="kiemTraSupabaseSoDauBaiV62Ui()">Kiểm tra Supabase SĐB</button>
                   <button class="btn btn-outline-success fw-bold" type="button" onclick="dongBoSoDauBaiSupabaseV62Ui()">Đồng bộ SĐB → Supabase</button>
-                  <button class="btn btn-outline-primary fw-bold" type="button" onclick="lamNongCacheV62Ui()">Làm nóng cache V63</button>
+                  <button class="btn btn-outline-primary fw-bold" type="button" onclick="lamNongCacheV62Ui()">Làm nóng cache V64</button>
                   <button class="btn btn-dark" type="button" onclick="taiNhatKyAdminV4()">Làm mới nhật ký</button>
                 </div>
                 <div class="row g-2 mb-3 p-3 border rounded bg-light">
@@ -4182,7 +4182,7 @@
                   <div class="col-md-3"><label class="form-label small fw-bold">TKB bắt buộc khớp</label><select id="cfgTkbStrictV4" class="form-select"><option value="FALSE">Không</option><option value="TRUE">Có</option></select></div>
                   <div class="col-md-3 d-flex align-items-end"><button type="button" class="btn btn-success w-100" onclick="luuCauHinhUiV4()">Lưu cấu hình</button></div>
                 </div>
-                <div class="alert alert-info border py-2 mb-2"><b>V63:</b> tối ưu sâu 3 đường tải chính: <b>Đăng nhập</b> dùng snapshot bền vững, <b>Dashboard</b> cache theo phiên/phạm vi và <b>Xem sổ</b> lấy dữ liệu + chốt tuần từ Supabase khi PRIMARY. Hãy bấm <b>Làm nóng cache</b> một lần sau khi Deploy V63.</div>
+                <div class="alert alert-info border py-2 mb-2"><b>V64:</b> giảm số vòng RPC. <b>Đăng nhập + bootstrap + Dashboard đầu tiên</b> được gộp trong một phản hồi; Dashboard sau đó vẫn dùng cache/Supabase. Hãy bấm <b>Làm nóng cache</b> một lần sau khi Deploy V64.</div>
                 <div id="systemStatusV4" class="alert alert-light border">Hệ thống tự động sao lưu hằng ngày sau khi chạy khởi tạo.</div>
                 <div class="row g-2 mb-3 p-3 border rounded">
                   <div class="col-md-8">
@@ -4737,7 +4737,7 @@
         btn.disabled=false;txt.textContent='Đăng nhập';
         if(!res||!res.success){setCentralLoginStatusV4(res&&res.message?res.message:'Không đăng nhập được.','danger');return;}
         document.getElementById('centralPasswordV4').value='';
-        console.info('[V63 PERF] Login tổng:',Math.round(performance.now()-loginPerfStartedV63)+'ms','server:',(res.serverMs??'—')+'ms','path:',res.loginPath||'DEFAULT');
+        console.info('[V64 PERF] Login tổng:',Math.round(performance.now()-loginPerfStartedV63)+'ms','server:',(res.serverMs??'—')+'ms','path:',res.loginPath||'DEFAULT','dashboard gộp:',(res.dashboardBundledMs??'—')+'ms');
         apDungPhanQuyenV4(res,true);
       })
       .withFailureHandler(function(err){
@@ -5116,7 +5116,7 @@
     document.getElementById('appShellV4').classList.remove('d-none');
     document.body.classList.remove('auth-locked-v4');
     setCentralLoginStatusV4('', '');
-    if(saveSession){try{sessionStorage.setItem('SODB_V4_UNIFIED_LOGIN',JSON.stringify(res));}catch(e){}}
+    if(saveSession){try{const savedLoginV64=JSON.parse(JSON.stringify(res));delete savedLoginV64.initialDashboardV64;sessionStorage.setItem('SODB_V4_UNIFIED_LOGIN',JSON.stringify(savedLoginV64));}catch(e){}}
     // V63: bootstrap ưu tiên snapshot bền vững từ backend; không gọi request thứ hai khi đã có.
     if(res.bootstrap&&res.bootstrap.success)applyBootstrapV6(res.bootstrap);
     // Nếu chưa có bootstrap ấm, ưu tiên cache sessionStorage theo đúng tài khoản; chỉ gọi server khi thật sự cần.
@@ -6672,7 +6672,7 @@ function xuatExcelNhapTreGiamThi() {
     const viewPerfStartedV63=performance.now();
     google.script.run
       .withSuccessHandler(function(payload){
-        console.info('[V63 PERF] Xem sổ tổng:',Math.round(performance.now()-viewPerfStartedV63)+'ms','server:',(payload&&payload.serverMs!==undefined?payload.serverMs:'—')+'ms',lop,'Tuần '+tuan,bookMode);
+        console.info('[V64 PERF] Xem sổ tổng:',Math.round(performance.now()-viewPerfStartedV63)+'ms','server:',(payload&&payload.serverMs!==undefined?payload.serverMs:'—')+'ms',lop,'Tuần '+tuan,bookMode);
         renderPageV10(payload);
       })
       .withFailureHandler(function(err){
@@ -7989,10 +7989,9 @@ document.getElementById('overviewScopeV20').textContent='Đang tải tổng quan
       document.getElementById('overviewMetricsV20').innerHTML=[1,2,3,4].map(()=>'<div class="overview-metric-v20"><span>Chưa có dữ liệu</span><strong>—</strong></div>').join('');
       document.getElementById('overviewRowsV20').innerHTML='<tr><td colspan="5" class="overview-empty-v20">Chưa tải được danh sách.</td></tr>';
     }
-    const dashPerfStartedV63=performance.now();
-    google.script.run.withSuccessHandler(function(res){
+    function handleDashboardSuccessV64(res,source,elapsedMs){
       if(!current())return;
-      console.info('[V63 PERF] Dashboard tổng:',Math.round(performance.now()-dashPerfStartedV63)+'ms','server:',(res&&res.serverMs!==undefined?res.serverMs:'—')+'ms','cache:',!!(res&&res.cacheHit),role);
+      console.info('[V64 PERF] Dashboard tổng:',Math.round(Number(elapsedMs)||0)+'ms','server:',(res&&res.serverMs!==undefined?res.serverMs:'—')+'ms','cache:',!!(res&&res.cacheHit),'source:',source,role);
       if(!res||!res.success){fail(res&&res.message);return;}
       finish();overviewStateV20.key=key;overviewStateV20.loadedAt=Date.now();overviewStateV20.data=res;
 
@@ -8024,6 +8023,25 @@ document.getElementById('overviewScopeV20').textContent='Đang tải tổng quan
       const candidateKeys=['unsigned','mixed','late','recent'];
       const first=candidateKeys.find(k=>res.lists[k]&&res.lists[k].total>0)||'recent';
       selectOverviewListV20(first);
+    }
+
+    // V64: nếu Dashboard đã được backend gộp trong phản hồi đăng nhập thì hiển thị ngay,
+    // không tạo thêm một vòng GitHub Pages → Apps Script (thường tốn ~2 giây dù server xử lý rất nhanh).
+    const initialDashV64=login&&login.initialDashboardV64;
+    if(force!==true&&initialDashV64&&initialDashV64.data&&initialDashV64.data.success&&initialDashV64.role===role){
+      const initialOptionsV64=initialDashV64.options||{};
+      const sameDateV64=String(initialOptionsV64.date||'')===String(options.date||'');
+      const sameClassV64=role!=='GVCN'||String(initialOptionsV64.lop||'')===String(options.lop||'');
+      if(sameDateV64&&sameClassV64){
+        delete login.initialDashboardV64;
+        handleDashboardSuccessV64(initialDashV64.data,'LOGIN_BUNDLE',0);
+        return;
+      }
+    }
+
+    const dashPerfStartedV64=performance.now();
+    google.script.run.withSuccessHandler(function(res){
+      handleDashboardSuccessV64(res,'RPC',performance.now()-dashPerfStartedV64);
     }).withFailureHandler(()=>fail('Kết nối không thành công. Bấm Cập nhật để thử lại.')).layDashboardChuyenNghiepV20(options,{token:session.sessionToken});
   }
   function renderNeNepChartV52(rows){

@@ -4305,7 +4305,11 @@
      file Code_GitHub_API.gs.
      ======================================================================== */
   const SODB_API_URL = "https://script.google.com/macros/s/AKfycbz9MXRTWMHFul61vWxTr3gOVNpfsL6R7zMZ8s-e_jh17wqmC6cYp9u25J-4onRhaJfnbA/exec";
-  const SODB_FRONTEND_VERSION = "V65";
+  // V66: login + Dashboard nhanh qua Supabase Edge. Publishable key an toàn để dùng ở browser; Secret key tuyệt đối không nằm tại đây.
+  const SODB_SUPABASE_URL_V66 = "https://mlwhxxpmnhrrkbkivvye.supabase.co";
+  const SODB_SUPABASE_PUBLISHABLE_KEY_V66 = "sb_publishable_Hq6KRH5KDT1eiOYLwwQhkw_c45sZkgi";
+  const SODB_EDGE_URL_V66 = SODB_SUPABASE_URL_V66 + "/functions/v1/sodb-fast-v66";
+  const SODB_FRONTEND_VERSION = "V66.1";
   window.__SODB_BACKEND_VERSION__ = "UNKNOWN";
 
   (function installSodbGithubBridgeV59(){
@@ -4423,6 +4427,22 @@
     window.google.script.run=makeRunnerV59(null,null);
     window.__SODB_GITHUB_MODE__=true;
   })();
+
+  async function callSodbEdgeV66(payload){
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),12000);
+    try{
+      const r=await fetch(SODB_EDGE_URL_V66,{method:'POST',mode:'cors',credentials:'omit',cache:'no-store',headers:{'Content-Type':'application/json','apikey':SODB_SUPABASE_PUBLISHABLE_KEY_V66},body:JSON.stringify(payload||{}),signal:controller.signal});
+      let data=null;try{data=await r.json();}catch(_e){}
+      if(r.ok)return data;
+      if(data&&data.success===false&&[400,401,403,429].includes(r.status))return data;
+      throw new Error(data&&data.message?data.message:('Supabase Edge HTTP '+r.status));
+    }catch(e){
+      if(e&&e.name==='AbortError')throw new Error('Supabase Edge phản hồi quá 12 giây.');
+      throw e;
+    }finally{clearTimeout(timeout);}
+  }
+  window.__SODB_EDGE_URL_V66__=SODB_EDGE_URL_V66;
 
   let varDiemTB = 10;
   let varXepLoai = "Loại A (Tốt)";
@@ -4736,35 +4756,61 @@
     google.script.run.withSuccessHandler(function(data){bootstrapPendingV47=false;applyBootstrapV6(data);}).withFailureHandler(function(){bootstrapPendingV47=false;showToastV9('Không tải được dữ liệu khởi tạo. Vui lòng thử lại.','danger');}).getBootstrapClientV6(tokenMap);
   }
 
-  function dangNhapTapTrungV4(){
-    const loginPerfStartedV63=performance.now();
+  function handleLoginResponseV66(res,loginStarted,source,btn,txt){
+    btn.disabled=false;txt.textContent='Đăng nhập';
+    if(!res||!res.success){setCentralLoginStatusV4(res&&res.message?res.message:'Không đăng nhập được.','danger');return;}
+    document.getElementById('centralPasswordV4').value='';
+    console.info('[V66.1 PERF] Login tổng:',Math.round(performance.now()-loginStarted)+'ms','server:',(res.serverMs??'—')+'ms','path:',res.loginPath||source,'dashboard gộp:',(res.dashboardBundledMs??'—')+'ms','backend:',res.backendVersion||source,'source:',source);
+    apDungPhanQuyenV4(res,true);
+  }
+
+  async function dangNhapTapTrungV4(){
+    const loginPerfStartedV66=performance.now();
     const account=(document.getElementById('centralAccountV4').value||'').trim();
     const password=document.getElementById('centralPasswordV4').value||'';
     const btn=document.getElementById('centralLoginBtnV4'), txt=document.getElementById('centralLoginBtnTextV4');
     if(!account||!password){setCentralLoginStatusV4('Vui lòng nhập đầy đủ tài khoản và mật khẩu.','danger');return;}
-    btn.disabled=true; txt.innerHTML='<span class="spinner-border spinner-border-sm me-2"></span>Đang xác thực...';
-    setCentralLoginStatusV4('Đang xác thực...','info');
-    google.script.run
-      .withSuccessHandler(function(res){
-        btn.disabled=false;txt.textContent='Đăng nhập';
-        if(!res||!res.success){setCentralLoginStatusV4(res&&res.message?res.message:'Không đăng nhập được.','danger');return;}
-        if(String(res.backendVersion||'')!=='V65'){
-          btn.disabled=false;txt.textContent='Đăng nhập';
-          setCentralLoginStatusV4('Frontend V65 nhưng backend chưa phải V65. Hãy Deploy Apps Script thành New version rồi Ctrl+F5.','danger');
-          console.error('[V65 VERSION] Backend response:',res.backendVersion||'UNKNOWN',res);
+    btn.disabled=true;txt.innerHTML='<span class="spinner-border spinner-border-sm me-2"></span>Đang xác thực nhanh...';
+    setCentralLoginStatusV4('Đang xác thực qua máy chủ dữ liệu...','info');
+    try{
+      const edgeRes=await callSodbEdgeV66({action:'login',account,password});
+      if(edgeRes&&edgeRes.success){
+        if(String(edgeRes.backendVersion||'')!=='V66_1_EDGE')throw new Error('Edge Function chưa đúng V66.1.');
+        handleLoginResponseV66(edgeRes,loginPerfStartedV66,'SUPABASE_EDGE',btn,txt);return;
+      }
+      // V66.1 hotfix: nếu Edge báo sai mật khẩu, đối chiếu 1 lần bằng Apps Script.
+      // Nếu Apps Script đúng, cho đăng nhập để không khóa người dùng và backend tự đồng bộ lại credential Supabase.
+      if(edgeRes&&edgeRes.success===false){
+        const edgeMsg=String(edgeRes.message||'');
+        if(/tài khoản hoặc mật khẩu không đúng/i.test(edgeMsg)){
+          console.warn('[V66.1 EDGE AUTH] Edge từ chối credential; đang đối chiếu Apps Script một lần.');
+          setCentralLoginStatusV4('Đang đối chiếu thông tin đăng nhập với máy chủ dự phòng...','info');
+          google.script.run.withSuccessHandler(function(res){
+            if(res&&res.success){
+              console.warn('[V66.1 EDGE AUTH] Apps Script xác thực đúng. Cần kiểm tra Pepper/credential Edge. Repair:',res.edgeCredentialRepair||null);
+              handleLoginResponseV66(res,loginPerfStartedV66,'APPS_SCRIPT_AUTH_REPAIR',btn,txt);
+            }else{
+              handleLoginResponseV66(edgeRes,loginPerfStartedV66,'SUPABASE_EDGE',btn,txt);
+            }
+          }).withFailureHandler(function(){
+            handleLoginResponseV66(edgeRes,loginPerfStartedV66,'SUPABASE_EDGE',btn,txt);
+          }).dangNhapHeThongV66Fallback(account,password);
           return;
         }
-        document.getElementById('centralPasswordV4').value='';
-        console.info('[V65 PERF] Login tổng:',Math.round(performance.now()-loginPerfStartedV63)+'ms','server:',(res.serverMs??'—')+'ms','path:',res.loginPath||'DEFAULT','dashboard gộp:',(res.dashboardBundledMs??'—')+'ms','backend:',res.backendVersion||window.__SODB_BACKEND_VERSION__);
-        apDungPhanQuyenV4(res,true);
-      })
-      .withFailureHandler(function(err){
+        handleLoginResponseV66(edgeRes,loginPerfStartedV66,'SUPABASE_EDGE',btn,txt);return;
+      }
+      throw new Error('Edge Function không trả dữ liệu hợp lệ.');
+    }catch(edgeErr){
+      console.warn('[V66 EDGE] Fallback Apps Script:',edgeErr);
+      setCentralLoginStatusV4('Edge tạm không sẵn sàng, đang dùng máy chủ dự phòng...','warning');
+      google.script.run.withSuccessHandler(function(res){
+        handleLoginResponseV66(res,loginPerfStartedV66,'APPS_SCRIPT_FALLBACK',btn,txt);
+      }).withFailureHandler(function(err){
         btn.disabled=false;txt.textContent='Đăng nhập';
         const detail=(err&&err.message)?String(err.message):String(err||'Không rõ lỗi kết nối.');
-        setCentralLoginStatusV4(detail+' Mở đường dẫn kiểm tra máy chủ nếu cần: '+(window.__SODB_API_HEALTH_URL__||SODB_API_URL+'?health=1'),'danger');
-        console.error('[SODB LOGIN]',err);
-      })
-      .dangNhapHeThongV65(account,password);
+        setCentralLoginStatusV4(detail,'danger');console.error('[SODB LOGIN FALLBACK]',err);
+      }).dangNhapHeThongV66Fallback(account,password);
+    }
   }
 
   function setTopTabVisibleV4(buttonId,visible){
@@ -6690,7 +6736,7 @@ function xuatExcelNhapTreGiamThi() {
     const viewPerfStartedV63=performance.now();
     google.script.run
       .withSuccessHandler(function(payload){
-        console.info('[V65 PERF] Xem sổ tổng:',Math.round(performance.now()-viewPerfStartedV63)+'ms','server:',(payload&&payload.serverMs!==undefined?payload.serverMs:'—')+'ms',lop,'Tuần '+tuan,bookMode);
+        console.info('[V66 PERF] Xem sổ tổng:',Math.round(performance.now()-viewPerfStartedV63)+'ms','server:',(payload&&payload.serverMs!==undefined?payload.serverMs:'—')+'ms',lop,'Tuần '+tuan,bookMode);
         renderPageV10(payload);
       })
       .withFailureHandler(function(err){
@@ -8009,7 +8055,7 @@ document.getElementById('overviewScopeV20').textContent='Đang tải tổng quan
     }
     function handleDashboardSuccessV64(res,source,elapsedMs){
       if(!current())return;
-      console.info('[V65 PERF] Dashboard tổng:',Math.round(Number(elapsedMs)||0)+'ms','server:',(res&&res.serverMs!==undefined?res.serverMs:'—')+'ms','cache:',!!(res&&res.cacheHit),'source:',source,role);
+      console.info('[V66 PERF] Dashboard tổng:',Math.round(Number(elapsedMs)||0)+'ms','server:',(res&&res.serverMs!==undefined?res.serverMs:'—')+'ms','cache:',!!(res&&res.cacheHit),'source:',source,role);
       if(!res||!res.success){fail(res&&res.message);return;}
       finish();overviewStateV20.key=key;overviewStateV20.loadedAt=Date.now();overviewStateV20.data=res;
 
@@ -8043,7 +8089,7 @@ document.getElementById('overviewScopeV20').textContent='Đang tải tổng quan
       selectOverviewListV20(first);
     }
 
-    // V65: nếu Dashboard đã được backend gộp trong phản hồi đăng nhập thì hiển thị ngay,
+    // V66: nếu Dashboard đã được Edge/backend gộp trong phản hồi đăng nhập thì hiển thị ngay,
     // không tạo thêm một vòng GitHub Pages → Apps Script (thường tốn ~2 giây dù server xử lý rất nhanh).
     const initialDashV64=login&&login.initialDashboardV64;
     if(force!==true&&initialDashV64&&initialDashV64.data&&initialDashV64.data.success&&initialDashV64.role===role){
@@ -8057,10 +8103,23 @@ document.getElementById('overviewScopeV20').textContent='Đang tải tổng quan
       }
     }
 
-    const dashPerfStartedV64=performance.now();
+    const dashPerfStartedV66=performance.now();
+    const tokenV66=String(session.sessionToken||'');
+    if(tokenV66.startsWith('v66.')){
+      callSodbEdgeV66({action:'dashboard',token:tokenV66,options}).then(function(res){
+        if(res&&res.success){handleDashboardSuccessV64(res,'EDGE',performance.now()-dashPerfStartedV66);return;}
+        throw new Error(res&&res.message?res.message:'Không tải được Dashboard Edge.');
+      }).catch(function(edgeErr){
+        console.warn('[V66 DASH EDGE] Fallback Apps Script:',edgeErr);
+        const fallbackStarted=performance.now();
+        google.script.run.withSuccessHandler(function(res){handleDashboardSuccessV64(res,'RPC_FALLBACK',performance.now()-fallbackStarted);})
+          .withFailureHandler(()=>fail('Kết nối không thành công. Bấm Cập nhật để thử lại.')).layDashboardChuyenNghiepV66Fallback(options,{token:tokenV66});
+      });
+      return;
+    }
     google.script.run.withSuccessHandler(function(res){
-      handleDashboardSuccessV64(res,'RPC',performance.now()-dashPerfStartedV64);
-    }).withFailureHandler(()=>fail('Kết nối không thành công. Bấm Cập nhật để thử lại.')).layDashboardChuyenNghiepV65(options,{token:session.sessionToken});
+      handleDashboardSuccessV64(res,'RPC_FALLBACK',performance.now()-dashPerfStartedV66);
+    }).withFailureHandler(()=>fail('Kết nối không thành công. Bấm Cập nhật để thử lại.')).layDashboardChuyenNghiepV66Fallback(options,{token:session.sessionToken});
   }
   function renderNeNepChartV52(rows){
     const el=document.getElementById('overviewNeNepChartV52');if(!el)return;

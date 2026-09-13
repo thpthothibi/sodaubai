@@ -4171,6 +4171,9 @@
                   <button class="btn btn-primary" type="button" onclick="saoLuuNgayV4()">Sao lưu ngay</button>
                   <button class="btn btn-warning" type="button" onclick="kiemTraToanVenV4()">Kiểm tra toàn vẹn</button>
                   <button class="btn btn-success fw-bold" type="button" onclick="kiemTraSupabaseKHBDV61Ui()">Kiểm tra Supabase KHBD</button>
+                  <button class="btn btn-success fw-bold" type="button" onclick="kiemTraSupabaseSoDauBaiV62Ui()">Kiểm tra Supabase SĐB</button>
+                  <button class="btn btn-outline-success fw-bold" type="button" onclick="dongBoSoDauBaiSupabaseV62Ui()">Đồng bộ SĐB → Supabase</button>
+                  <button class="btn btn-outline-primary fw-bold" type="button" onclick="lamNongCacheV62Ui()">Làm nóng cache</button>
                   <button class="btn btn-dark" type="button" onclick="taiNhatKyAdminV4()">Làm mới nhật ký</button>
                 </div>
                 <div class="row g-2 mb-3 p-3 border rounded bg-light">
@@ -4179,7 +4182,7 @@
                   <div class="col-md-3"><label class="form-label small fw-bold">TKB bắt buộc khớp</label><select id="cfgTkbStrictV4" class="form-select"><option value="FALSE">Không</option><option value="TRUE">Có</option></select></div>
                   <div class="col-md-3 d-flex align-items-end"><button type="button" class="btn btn-success w-100" onclick="luuCauHinhUiV4()">Lưu cấu hình</button></div>
                 </div>
-                <div class="alert alert-info border py-2 mb-2"><b>V61:</b> Supabase là nguồn dữ liệu chính cho Kế hoạch bài dạy. Khi giáo viên chọn Môn + Khối + Tuần, máy chủ chỉ truy vấn đúng phạm vi cần dùng; Google Sheet tiếp tục được đồng bộ làm bản dự phòng. Secret key chỉ nằm trong Apps Script.</div>
+                <div class="alert alert-info border py-2 mb-2"><b>V62:</b> tối ưu đăng nhập/bootstrap và chuyển Sổ đầu bài sang Supabase theo chế độ an toàn. Trước khi đồng bộ, SĐB ở chế độ MIRROR; bấm <b>Đồng bộ SĐB → Supabase</b> một lần để tự bật PRIMARY. Google Sheet vẫn được giữ làm bản dự phòng.</div>
                 <div id="systemStatusV4" class="alert alert-light border">Hệ thống tự động sao lưu hằng ngày sau khi chạy khởi tạo.</div>
                 <div class="row g-2 mb-3 p-3 border rounded">
                   <div class="col-md-8">
@@ -4657,6 +4660,14 @@
     return out;
   }
 
+  function bootstrapCacheKeyV62(){
+    const login=currentUnifiedLoginV4||{};
+    const profile=login.profile||{};
+    const account=String(profile.taiKhoan||profile.sdt||'guest').replace(/[^A-Za-z0-9_-]/g,'_').slice(0,60);
+    const roles=(login.roles||[]).slice().sort().join('_')||'none';
+    return 'SODB_V62_BOOTSTRAP_'+account+'_'+roles;
+  }
+
   function applyBootstrapV6(data){
     if(!data||!data.success)return;
     const cfg=data.config||{};
@@ -4698,13 +4709,13 @@
       const viewWeek=document.getElementById('viewTuan');if(viewWeek&&!viewWeek.value)viewWeek.value=data.currentWeek;
     }
     chonKhoiLopView();chonKhoiLopInput();chonKhoiLopLogin();chonKhoiLopAdmin();khoiTaoDanhSachLopGiamThi();capNhatTuanVaThu();bootstrapLoadedV6=true;classCatalogLoadedAtV47=Date.now();
-    try{sessionStorage.setItem('SODB_V6_BOOTSTRAP',JSON.stringify({ts:Date.now(),data:data}));}catch(e){}
+    try{sessionStorage.setItem(bootstrapCacheKeyV62(),JSON.stringify({ts:Date.now(),data:data}));}catch(e){}
   }
 
   function taiBootstrapV6(force){
     if(bootstrapLoadedV6&&!force)return;
     if(!force){
-      try{const raw=sessionStorage.getItem('SODB_V6_BOOTSTRAP');if(raw){const x=JSON.parse(raw);if(x&&Date.now()-Number(x.ts||0)<1800000)applyBootstrapV6(x.data);}}catch(e){}
+      try{const raw=sessionStorage.getItem(bootstrapCacheKeyV62());if(raw){const x=JSON.parse(raw);if(x&&Date.now()-Number(x.ts||0)<1800000)applyBootstrapV6(x.data);}}catch(e){}
       if(bootstrapLoadedV6)return;
     }
     if(bootstrapPendingV47)return;
@@ -5047,8 +5058,9 @@
           else btn.click();
         }catch(e){try{btn.click();}catch(_e){}}
       }
-      refreshDashboardV9(true);
-    },60);
+      const runDash=()=>refreshDashboardV9(false);
+      if('requestIdleCallback' in window)requestIdleCallback(runDash,{timeout:350});else setTimeout(runDash,120);
+    },40);
   }
 
   function apDungPhanQuyenV4(res,saveSession){
@@ -5103,8 +5115,10 @@
     document.body.classList.remove('auth-locked-v4');
     setCentralLoginStatusV4('', '');
     if(saveSession){try{sessionStorage.setItem('SODB_V4_UNIFIED_LOGIN',JSON.stringify(res));}catch(e){}}
-    // Hiện ứng dụng trước, nạp cấu hình/danh sách lớp ở nền để cảm giác đăng nhập tức thời.
-    setTimeout(()=>taiBootstrapV6(true),0);
+    // V62: nếu backend trả bootstrap từ cache đã ấm thì dùng ngay, không gọi request thứ hai.
+    if(res.bootstrap&&res.bootstrap.success)applyBootstrapV6(res.bootstrap);
+    // Nếu chưa có bootstrap ấm, ưu tiên cache sessionStorage theo đúng tài khoản; chỉ gọi server khi thật sự cần.
+    setTimeout(()=>{if(!bootstrapLoadedV6)taiBootstrapV6(false);},0);
 
     // V47: Dashboard chỉ tải khi người dùng thực sự mở tab; tránh quét sổ tuần
     // ở nền trong lúc hệ thống đang chuyển đến mô-đun mặc định của vai trò.
@@ -7555,6 +7569,36 @@ function xemChiTietChuKySo(teacherLookup, thoiGianKy) {
   }
 
 
+  function kiemTraSupabaseSoDauBaiV62Ui(){
+    if(!adminDangNhapInfo||!adminDangNhapInfo.sessionToken){alertV13('⚠️ Phiên Admin không hợp lệ.');return;}
+    const status=document.getElementById('systemStatusV4');setBusyV13(true,'Đang kiểm tra Supabase Sổ đầu bài...');
+    google.script.run.withSuccessHandler(function(res){
+      setBusyV13(false);if(!res||!res.success){if(status)status.textContent='❌ Supabase SĐB: '+(res&&res.message?res.message:'Không kiểm tra được.');return;}
+      const count=(res.count===null||res.count===undefined)?'?':res.count;
+      if(status)status.textContent=`✅ Supabase SĐB hoạt động · ${count} bản ghi · ${res.latencyMs||0} ms · chế độ ${res.mode||'MIRROR'}.`;
+      showToastV9('Supabase Sổ đầu bài đang hoạt động.','success');
+    }).withFailureHandler(function(err){setBusyV13(false);if(status)status.textContent='❌ '+(err&&err.message?err.message:'Không kết nối được máy chủ.');})
+      .kiemTraSupabaseSoDauBaiV62({token:adminDangNhapInfo.sessionToken});
+  }
+  async function dongBoSoDauBaiSupabaseV62Ui(){
+    if(!adminDangNhapInfo||!adminDangNhapInfo.sessionToken){alertV13('⚠️ Phiên Admin không hợp lệ.');return;}
+    const ok=await confirmV13('Đồng bộ toàn bộ bản ghi Sổ đầu bài hiện có Record ID từ Google Sheet sang Supabase? Sau khi thành công hệ thống sẽ tự chuyển SĐB sang chế độ PRIMARY. Google Sheet không bị xóa.',{title:'Đồng bộ Sổ đầu bài',confirmText:'Đồng bộ và bật PRIMARY'});if(!ok)return;
+    const status=document.getElementById('systemStatusV4');setBusyV13(true,'Đang đồng bộ Sổ đầu bài sang Supabase...');
+    google.script.run.withSuccessHandler(function(res){
+      setBusyV13(false);if(!res||!res.success){if(status)status.textContent='❌ '+(res&&res.message?res.message:'Đồng bộ thất bại.');return;}
+      if(status)status.textContent=`✅ ${res.message} Đã quét ${res.scanned||0} dòng, bỏ qua ${res.skipped||0} dòng cũ chưa có Record ID.`;
+      showToastV9('Đã bật Supabase PRIMARY cho Sổ đầu bài.','success');
+    }).withFailureHandler(function(err){setBusyV13(false);if(status)status.textContent='❌ '+(err&&err.message?err.message:'Không đồng bộ được.');})
+      .dongBoSoDauBaiSupabaseV62({token:adminDangNhapInfo.sessionToken});
+  }
+  function lamNongCacheV62Ui(){
+    if(!adminDangNhapInfo||!adminDangNhapInfo.sessionToken){alertV13('⚠️ Phiên Admin không hợp lệ.');return;}
+    const status=document.getElementById('systemStatusV4');setBusyV13(true,'Đang làm nóng cache đăng nhập...');
+    google.script.run.withSuccessHandler(function(res){setBusyV13(false);if(status)status.textContent=(res&&res.success?'⚡ '+res.message+' '+(res.elapsedMs||0)+' ms.':'❌ '+(res&&res.message||'Không làm nóng được cache.'));})
+      .withFailureHandler(function(err){setBusyV13(false);if(status)status.textContent='❌ '+(err&&err.message?err.message:'Không kết nối được máy chủ.');})
+      .lamNongCacheV62({token:adminDangNhapInfo.sessionToken});
+  }
+
   function taiFileMauLopV23(){
     if (retryWithXlsxV7(() => taiFileMauLopV23())) return;
     const rows=[["Khối","Tên lớp","Nhóm sổ","Môn/KHBD","Trạng thái","Thứ tự"]];
@@ -7607,7 +7651,7 @@ function xemChiTietChuKySo(teacherLookup, thoiGianKy) {
       dsLopTheoKhoi[k]=cls[k]||[...(dsLopChinhTheoKhoiV22[k]||[]),...(dsLopDacBietTheoKhoiV22[k]||[])];
     });
     chonKhoiLopView();chonKhoiLopInput();chonKhoiLopLogin();chonKhoiLopAdmin();khoiTaoDanhSachLopGiamThi();
-    try{sessionStorage.removeItem('SODB_V6_BOOTSTRAP');}catch(e){}
+    try{sessionStorage.removeItem('SODB_V6_BOOTSTRAP');sessionStorage.removeItem(bootstrapCacheKeyV62());}catch(e){}
   }
 
 

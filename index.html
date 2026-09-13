@@ -2695,7 +2695,217 @@
     #tabDashboardV9 .overview-metric-v20 strong,#tabDashboardV9 .overview-metric-v20.needs-attention strong{font-size:1.55rem!important;}
   }
 
+
+  /* ===== V54: MOBILE NAV GỌN THEO VAI TRÒ ===== */
+  .mobile-role-nav-v54{display:none}
+  @media (max-width:767.98px){
+    #sodbTab{display:none!important}
+    .mobile-role-nav-v54{
+      display:flex;position:sticky;top:64px;z-index:1015;
+      gap:6px;padding:7px;margin:0 0 10px;border:1px solid #dce5f1;border-radius:13px;
+      background:rgba(255,255,255,.97);box-shadow:0 7px 20px rgba(31,55,95,.10);
+      backdrop-filter:blur(10px)
+    }
+    .mobile-role-nav-v54 .mobile-main-btn-v54{
+      flex:1 1 0;min-width:0;border:0;border-radius:9px;padding:9px 6px;
+      background:#f3f6fb;color:#36506f;font-size:.74rem;font-weight:800;white-space:nowrap
+    }
+    .mobile-role-nav-v54 .mobile-main-btn-v54.active{background:#143b7d;color:#fff}
+    .mobile-role-nav-v54 .mobile-more-wrap-v54{position:relative;flex:0 0 52px}
+    .mobile-role-nav-v54 .mobile-more-btn-v54{width:100%;height:100%;border:0;border-radius:9px;background:#eef2f8;color:#243b63;font-size:1.05rem;font-weight:900}
+    .mobile-more-menu-v54{
+      position:absolute;right:0;top:calc(100% + 7px);width:min(250px,78vw);
+      padding:7px;border:1px solid #dce5f1;border-radius:12px;background:#fff;
+      box-shadow:0 16px 36px rgba(31,55,95,.18)
+    }
+    .mobile-more-menu-v54.d-none{display:none!important}
+    .mobile-more-menu-v54 button{
+      display:block;width:100%;border:0;background:transparent;border-radius:8px;
+      padding:9px 10px;text-align:left;color:#334b69;font-size:.8rem;font-weight:750
+    }
+    .mobile-more-menu-v54 button:hover,.mobile-more-menu-v54 button:focus{background:#eef4ff;color:#143b7d}
+  }
+
 </style>
+
+<style id="v56-a3-tracuu-only">
+/* V57 extends V56 with optional 5-week compact pages for GDTC/Chuyên đề. */
+/* ===== V56: Xem sổ chỉ để xem; A3 chỉ in từ tab Tra cứu ===== */
+#a3PrintRootV56{display:none;}
+.a3-cell-clamp-v56{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;line-height:1.02;max-height:2.04em;}
+.a3-one-line-v56{-webkit-line-clamp:1;max-height:1.05em;white-space:nowrap;text-overflow:ellipsis;}
+
+@media print{
+  @page{size:A3 landscape;margin:3mm!important;}
+
+  body.a3-tracuu-v56{margin:0!important;padding:0!important;background:#fff!important;}
+  body.a3-tracuu-v56 > *:not(#a3PrintRootV56){display:none!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56{display:block!important;width:100%!important;margin:0!important;padding:0!important;}
+
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-week-page-v56{
+    --a3-fit:1!important;
+    width:410mm!important;
+    height:286mm!important;
+    min-height:286mm!important;
+    max-height:286mm!important;
+    margin:0 auto!important;
+    padding:1mm 1.2mm!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
+    zoom:1!important;
+    transform:none!important;
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content:flex-start!important;
+    page-break-inside:avoid!important;
+    break-inside:avoid-page!important;
+    page-break-after:always!important;
+    break-after:page!important;
+    background:#fff!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-week-page-v56:last-child{
+    page-break-after:auto!important;
+    break-after:auto!important;
+  }
+
+  body.a3-tracuu-v56 #a3PrintRootV56 .so-header-print{
+    flex:0 0 11.5mm!important;
+    min-height:11.5mm!important;
+    max-height:11.5mm!important;
+    margin:0 0 .5mm!important;
+    padding:0!important;
+    overflow:hidden!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .school-logo{width:27px!important;height:27px!important;top:0!important;right:0!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .so-title{font-size:8.2pt!important;line-height:1!important;margin:0!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .so-subhead{font-size:5.8pt!important;line-height:1!important;margin:0!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .so-header-print .text-uppercase{font-size:5.1pt!important;line-height:1!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .so-header-print .fw-bold.text-dark{font-size:5.6pt!important;line-height:1!important;}
+
+  body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb{
+    flex:0 1 auto!important;
+    width:100%!important;
+    table-layout:fixed!important;
+    border-collapse:collapse!important;
+    margin:0!important;
+    font-size:5.45pt!important;
+    line-height:.92!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb thead{display:table-header-group!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb th{
+    height:5.2mm!important;
+    min-height:5.2mm!important;
+    max-height:5.2mm!important;
+    padding:.2mm .18mm!important;
+    font-size:5.2pt!important;
+    line-height:.94!important;
+    vertical-align:middle!important;
+    overflow:hidden!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb tbody tr{
+    height:3.72mm!important;
+    min-height:3.72mm!important;
+    max-height:3.72mm!important;
+    break-inside:avoid!important;
+    page-break-inside:avoid!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb td{
+    height:3.72mm!important;
+    min-height:3.72mm!important;
+    max-height:3.72mm!important;
+    padding:.06mm .16mm!important;
+    font-size:5.25pt!important;
+    line-height:.92!important;
+    vertical-align:middle!important;
+    overflow:hidden!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .row-day-start td{border-top-width:1px!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .row-chieu-start td{border-top-width:.7px!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .buoi-tag,
+  body.a3-tracuu-v56 #a3PrintRootV56 .badge-daybu,
+  body.a3-tracuu-v56 #a3PrintRootV56 .mixed-badge{font-size:4.5pt!important;padding:0 .15mm!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-cell-clamp-v56{font-size:5.15pt!important;line-height:.96!important;max-height:1.92em!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-one-line-v56{max-height:.98em!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .mixed-entry{padding:0!important;margin:0!important;line-height:.92!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .mixed-entry + .mixed-entry{padding-top:.05mm!important;margin-top:0!important;}
+
+  body.a3-tracuu-v56 #a3PrintRootV56 .sig-container{
+    display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;
+    align-items:center!important;justify-content:flex-start!important;
+    gap:.45mm!important;min-height:0!important;padding:0!important;overflow:hidden!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .sig-img-preview{max-height:11px!important;max-width:34px!important;object-fit:contain!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .sig-name{font-size:4.8pt!important;line-height:.9!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .sig-stack-mixed-v14{
+    display:flex!important;flex-direction:row!important;align-items:center!important;gap:.35mm!important;overflow:hidden!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .sig-stack-mixed-v14 .sig-container{
+    flex:1 1 50%!important;min-width:0!important;gap:.25mm!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-cell-clamp-v56 .mixed-entry{display:inline!important;border:0!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-cell-clamp-v56 .mixed-entry + .mixed-entry::before{content:" / ";}
+
+  body.a3-tracuu-v56 #a3PrintRootV56 .summary-box{
+    flex:0 0 24mm!important;
+    height:24mm!important;
+    max-height:24mm!important;
+    margin:.5mm 0 0!important;
+    padding:.3mm .8mm!important;
+    font-size:5.25pt!important;
+    line-height:.94!important;
+    overflow:hidden!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .summary-title{font-size:5.7pt!important;margin:0 0 .15mm!important;padding:0!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .signature-footer{margin-top:0!important;font-size:5pt!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .signature-title{font-size:5pt!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .signature-space{height:11px!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .sig-gvcn-print{max-height:10px!important;max-width:68px!important;}
+
+  body.a3-tracuu-v56 #a3PrintRootV56 .compact-special-book-v29 tbody tr{
+    height:auto!important;min-height:3.8mm!important;max-height:none!important;
+  }
+
+  /* ===== V57: GDTC / CHUYÊN ĐỀ CÓ THỂ GỘP TỐI ĐA 5 TUẦN / 1 TRANG ===== */
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-special-multi-page-v57{
+    width:410mm!important;height:286mm!important;min-height:286mm!important;max-height:286mm!important;
+    margin:0 auto!important;padding:1mm 1.2mm!important;box-sizing:border-box!important;overflow:hidden!important;
+    background:#fff!important;display:flex!important;flex-direction:column!important;gap:.65mm!important;
+    page-break-inside:avoid!important;break-inside:avoid-page!important;page-break-after:always!important;break-after:page!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-special-multi-page-v57:last-child{page-break-after:auto!important;break-after:auto!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-special-multi-head-v57{
+    position:relative!important;flex:0 0 12mm!important;min-height:12mm!important;max-height:12mm!important;
+    text-align:center!important;border-bottom:.35mm solid #1f3f75!important;margin:0!important;padding:0 12mm .5mm 2mm!important;overflow:hidden!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-special-multi-head-v57 .school-logo{width:27px!important;height:27px!important;position:absolute!important;right:0!important;top:0!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-special-multi-title-v57{font-size:8.4pt!important;font-weight:900!important;line-height:1!important;text-transform:uppercase!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-special-multi-sub-v57{font-size:5.6pt!important;line-height:1!important;margin-top:.35mm!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-special-weeks-grid-v57{
+    flex:1 1 auto!important;min-height:0!important;display:flex!important;flex-direction:column!important;gap:.55mm!important;overflow:hidden!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-special-week-block-v57{
+    min-height:0!important;overflow:hidden!important;border:.25mm solid #8aa0bf!important;border-radius:.7mm!important;padding:.35mm .45mm!important;box-sizing:border-box!important;
+    display:flex!important;flex-direction:column!important;background:#fff!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-special-week-title-v57{
+    flex:0 0 auto!important;font-size:5.8pt!important;font-weight:900!important;line-height:1!important;color:#173c74!important;margin:0 0 .25mm!important;
+    display:flex!important;justify-content:space-between!important;gap:2mm!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-special-week-block-v57 .table-sodb{font-size:4.7pt!important;line-height:.88!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-special-week-block-v57 .table-sodb th{height:3.7mm!important;min-height:3.7mm!important;max-height:3.7mm!important;font-size:4.45pt!important;padding:.08mm .12mm!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-special-week-block-v57 .table-sodb td{height:auto!important;min-height:2.75mm!important;max-height:none!important;font-size:4.45pt!important;line-height:.86!important;padding:.02mm .12mm!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-special-week-block-v57 .a3-cell-clamp-v56{font-size:4.35pt!important;line-height:.88!important;max-height:1.76em!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-special-week-block-v57 .sig-img-preview{max-height:8px!important;max-width:26px!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-special-week-block-v57 .sig-name{font-size:4pt!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-special-week-summary-v57{
+    flex:0 0 auto!important;margin-top:.15mm!important;padding-top:.12mm!important;border-top:.2mm solid #c9d3e2!important;
+    font-size:4.3pt!important;line-height:.9!important;display:flex!important;justify-content:space-between!important;gap:1.2mm!important;white-space:nowrap!important;overflow:hidden!important;
+  }
+}
+</style>
+
 </head>
 <!-- MODAL THÔNG TIN XÁC NHẬN ĐIỆN TỬ -->
 <div class="modal fade" id="modalChuKySoDetail" tabindex="-1" aria-hidden="true">
@@ -2864,6 +3074,16 @@
     </li>
   </ul>
 
+  <div class="mobile-role-nav-v54 no-print" id="mobileRoleNavV54" aria-label="Điều hướng nhanh trên điện thoại">
+    <button type="button" class="mobile-main-btn-v54" id="mobileDashboardV54" data-target-tab="dashboard-tab-v9">Tổng quan</button>
+    <button type="button" class="mobile-main-btn-v54" id="mobileInputV54" data-target-tab="input-tab">Nhập tiết</button>
+    <button type="button" class="mobile-main-btn-v54" id="mobileViewV54" data-target-tab="view-tab">Xem sổ</button>
+    <div class="mobile-more-wrap-v54">
+      <button type="button" class="mobile-more-btn-v54" id="mobileMoreBtnV54" aria-label="Mở thêm chức năng">☰</button>
+      <div class="mobile-more-menu-v54 d-none" id="mobileMoreMenuV54"></div>
+    </div>
+  </div>
+
   <div class="tab-content" id="sodbTabContent">
     
 
@@ -2920,7 +3140,7 @@
       </section>
     </div>
 
-    <!-- TAB 1: XEM & IN SỔ KHỔ A3 NGANG -->
+    <!-- TAB 1: XEM SỔ ĐẦU BÀI -->
     <div class="tab-pane fade" id="tabView" role="tabpanel">
       <div class="card no-print mb-3 shadow-sm">
         <div class="card-body p-3">
@@ -2954,9 +3174,8 @@
       </div>
 
       <div class="so-paper">
-        <div class="d-flex justify-content-between align-items-center no-print mb-1">
+        <div class="no-print mb-1">
           <span class="text-muted small">TRƯỜNG THPT HỒ THỊ BI</span>
-          <button onclick="inSoA3FinalV14()" class="btn btn-success btn-sm fw-bold">In A3 ngang</button>
         </div>
 
         <div id="printPageSingle">
@@ -3169,6 +3388,7 @@
                 <div id="sigSaveStatusV21" class="small mt-2 d-none"></div>
               </div>
               <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" id="btnSubmit">Lưu vào Sổ Đầu Bài</button>
+              <div id="saveSuccessV54" class="alert alert-success py-2 px-3 mt-2 mb-0 d-none fw-semibold" role="status" aria-live="polite"></div>
                 <button type="button" id="btnRequestEditV4" class="btn btn-outline-warning w-100 mt-2 fw-bold d-none" onclick="guiYeuCauSuaBanGhiV4()">Yêu cầu chỉnh sửa bản ghi vừa lưu</button>
                 <button type="button" id="btnCancelEditV4" class="btn btn-outline-secondary w-100 mt-2 fw-bold d-none" onclick="huyCheDoSuaV4()">↩Hủy chế độ chỉnh sửa</button>
             </form>
@@ -3283,7 +3503,7 @@
 </li>
 <!-- DÁN BỔ SUNG NÚT NÀY VÀO TRONG <ul class="nav nav-pills..." id="gt-pills-tab"> -->
 <li class="nav-item" role="presentation">
-  <button class="nav-link fw-bold btn-outline-info text-dark" id="gt-pills-printa3-tab" data-bs-toggle="pill" data-bs-target="#gt-pills-printa3" type="button">In / Xuất PDF A3 Đa Tuần</button>
+  <button class="nav-link fw-bold btn-outline-info text-dark" id="gt-pills-printa3-tab" data-bs-toggle="pill" data-bs-target="#gt-pills-printa3" type="button">In A3 theo tuần</button>
 </li>
             </ul>
 
@@ -3457,7 +3677,7 @@
     Vui lòng chọn Khối / Lớp và Thời gian ngày dạy để bấm <strong>'Kiểm Tra'</strong>.
   </div>
 </div>
-<!-- KHỐI 5: SUB-TAB TRA CỨU - IN / XUẤT A3 ĐA TUẦN (V45: đồng bộ Xem sổ đầu bài) -->
+<!-- KHỐI 5: SUB-TAB TRA CỨU - IN A3, MỖI TUẦN 1 TRANG -->
 <div class="tab-pane fade" id="gt-pills-printa3" role="tabpanel">
   <div class="row g-3 mb-3 p-3 bg-light rounded border align-items-end mx-auto" style="max-width: 1320px;">
     <div class="col-lg-2 col-md-4">
@@ -3480,10 +3700,18 @@
       </select>
     </div>
     <div class="col-lg-3 col-md-6">
-      <label class="form-label fw-bold mb-1">4. Chế độ in / xuất</label>
+      <label class="form-label fw-bold mb-1">4. Phạm vi tuần</label>
       <select class="form-select form-select-sm border-primary fw-semibold" id="gtPrintModeIn" onchange="chuyenCheDoInGiamThi()">
-        <option value="SINGLE">1 tuần</option>
-        <option value="MULTI">Nhiều tuần - A3 ngang</option>
+        <option value="SINGLE">Một tuần</option>
+        <option value="MULTI">Nhiều tuần</option>
+      </select>
+    </div>
+
+    <div class="col-lg-3 col-md-6 d-none" id="gtPrintLayoutWrapV57">
+      <label class="form-label fw-bold mb-1">5. Cách dàn trang</label>
+      <select class="form-select form-select-sm border-success fw-semibold" id="gtPrintLayoutV57" onchange="capNhatGhiChuInA3V57()">
+        <option value="ONE_WEEK">1 tuần / 1 trang A3</option>
+        <option value="FIVE_WEEKS">Gộp tối đa 5 tuần / 1 trang A3</option>
       </select>
     </div>
 
@@ -3508,20 +3736,20 @@
     </div>
 
     <div class="col-12 d-flex flex-wrap justify-content-between align-items-center gap-2 pt-1">
-      <div class="small text-muted" id="gtPrintBookNoteV45">Chọn loại sổ giống tab Xem sổ đầu bài. Lớp chuyên đề sẽ tự chuyển sang Sổ đầu bài Chuyên đề.</div>
-      <button type="button" class="btn btn-info btn-sm fw-bold text-white px-4" id="btnGtPrintSearch" onclick="traCuuInSodbGiamThiHandler()">Tải sổ A3</button>
+      <div class="small text-muted" id="gtPrintBookNoteV45">Mỗi tuần được dàn thành đúng 1 trang A3 ngang. Lớp chuyên đề sẽ tự chuyển sang Sổ đầu bài Chuyên đề.</div>
+      <button type="button" class="btn btn-info btn-sm fw-bold text-white px-4" id="btnGtPrintSearch" onclick="traCuuInSodbGiamThiHandler()">Tải bản in</button>
     </div>
   </div>
 
   <div class="so-paper mx-auto" style="max-width: 1750px;">
     <div class="d-flex justify-content-between align-items-center no-print mb-2">
-      <span class="text-muted small fw-bold">TRƯỜNG THPT HỒ THỊ BI - DÀNH CHO GIÁM THỊ</span>
-      <button onclick="window.print()" class="btn btn-success btn-sm fw-bold fs-6 px-3">In / Xuất File PDF A3 Ngang</button>
+      <span class="text-muted small fw-bold">TRƯỜNG THPT HỒ THỊ BI · In A3 theo tuần</span>
+      <button type="button" onclick="inA3TraCuuV56()" class="btn btn-success btn-sm fw-bold fs-6 px-3">In / Lưu PDF A3</button>
     </div>
 
     <!-- VÙNG HIỂN THỊ CÁC TRANG A3 NỐI TIẾP -->
     <div id="gtPrintPagesContainer">
-      <div class="text-center py-5 text-muted">Vui lòng chọn Khối / Lớp, Khoảng tuần và bấm <strong>'Tải Sổ Đầu Bài'</strong> để chuẩn bị cuốn sổ A3.</div>
+      <div class="text-center py-5 text-muted">Vui lòng chọn Khối / Lớp / Tuần và bấm <strong>'Tải bản in'</strong>. Sổ GDTC/Chuyên đề có thể gộp tối đa 5 tuần trên một trang A3 ngang.</div>
     </div>
   </div>
 </div>
@@ -3942,6 +4170,7 @@
                 <div class="d-flex flex-wrap gap-2 mb-3">
                   <button class="btn btn-primary" type="button" onclick="saoLuuNgayV4()">Sao lưu ngay</button>
                   <button class="btn btn-warning" type="button" onclick="kiemTraToanVenV4()">Kiểm tra toàn vẹn</button>
+                  <button class="btn btn-success fw-bold" type="button" onclick="kiemTraSupabaseKHBDV61Ui()">Kiểm tra Supabase KHBD</button>
                   <button class="btn btn-dark" type="button" onclick="taiNhatKyAdminV4()">Làm mới nhật ký</button>
                 </div>
                 <div class="row g-2 mb-3 p-3 border rounded bg-light">
@@ -3950,7 +4179,8 @@
                   <div class="col-md-3"><label class="form-label small fw-bold">TKB bắt buộc khớp</label><select id="cfgTkbStrictV4" class="form-select"><option value="FALSE">Không</option><option value="TRUE">Có</option></select></div>
                   <div class="col-md-3 d-flex align-items-end"><button type="button" class="btn btn-success w-100" onclick="luuCauHinhUiV4()">Lưu cấu hình</button></div>
                 </div>
-                <div id="systemStatusV4" class="alert alert-light border">V4 tự động sao lưu hằng ngày sau khi chạy khởi tạo.</div>
+                <div class="alert alert-info border py-2 mb-2"><b>V61:</b> Supabase là nguồn dữ liệu chính cho Kế hoạch bài dạy. Khi giáo viên chọn Môn + Khối + Tuần, máy chủ chỉ truy vấn đúng phạm vi cần dùng; Google Sheet tiếp tục được đồng bộ làm bản dự phòng. Secret key chỉ nằm trong Apps Script.</div>
+                <div id="systemStatusV4" class="alert alert-light border">Hệ thống tự động sao lưu hằng ngày sau khi chạy khởi tạo.</div>
                 <div class="row g-2 mb-3 p-3 border rounded">
                   <div class="col-md-8">
                     <label class="form-label small fw-bold">Bản sao lưu để khôi phục dữ liệu</label>
@@ -4061,7 +4291,7 @@
 
 
   /* ========================================================================
-     GITHUB PAGES BRIDGE V48
+     GITHUB PAGES BRIDGE V58
      ------------------------------------------------------------------------
      - Khi index chạy trong Google Apps Script: giữ nguyên google.script.run.
      - Khi index chạy trên GitHub Pages: mô phỏng google.script.run và gửi RPC
@@ -4071,27 +4301,50 @@
      Thay URL bên dưới bằng URL Web App kết thúc bằng /exec sau khi Deploy lại
      file Code_GitHub_API.gs.
      ======================================================================== */
-  const SODB_API_URL = "https://script.google.com/macros/s/AKfycbzlO9GuNmpo27TKiXF5rucQ1gM8Jd2LkS121D8gK-GilPB7n7e4LnzuURImpdygF3g3Ug/exec";
+  const SODB_API_URL = "https://script.google.com/macros/s/AKfycbz9MXRTWMHFul61vWxTr3gOVNpfsL6R7zMZ8s-e_jh17wqmC6cYp9u25J-4onRhaJfnbA/exec";
 
-  (function installSodbGithubBridgeV48(){
+  (function installSodbGithubBridgeV59(){
     // Nếu đang chạy bên trong HtmlService của Apps Script thì dùng cầu nối gốc.
     if (window.google && window.google.script && window.google.script.run) return;
 
-    function assertApiUrlV48(){
+    function assertApiUrlV59(){
       const url=String(SODB_API_URL||'').trim();
       if(!/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec(?:[?#].*)?$/.test(url) || url.includes('PASTE_DEPLOYMENT_ID_HERE')){
-        throw new Error('Chưa cấu hình SODB_API_URL. Hãy dán URL Web App Apps Script kết thúc bằng /exec vào đầu phần GITHUB PAGES BRIDGE V48 trong index.html.');
+        throw new Error('Chưa cấu hình SODB_API_URL. Hãy dán URL Web App Apps Script kết thúc bằng /exec vào đầu phần GITHUB PAGES BRIDGE V58 trong index.html.');
       }
       return url;
     }
 
-    async function callAppsScriptRpcV48(action,args){
-      const apiUrl=assertApiUrlV48();
+    function apiHelpUrlV58(){
+      try{
+        const u=new URL(assertApiUrlV59());
+        u.searchParams.set('health','1');
+        return u.toString();
+      }catch(_e){ return String(SODB_API_URL||''); }
+    }
+
+    function apiHtmlErrorV58(raw){
+      const text=String(raw||'');
+      if(/accounts\.google\.com|servicelogin|đăng nhập.*google|sign in.*google|authorization required/i.test(text)){
+        return 'Web App đang yêu cầu đăng nhập Google. Hãy vào Deploy → Manage deployments và đặt Execute as: Me; Who has access: Anyone.';
+      }
+      if(/script function not found|function.*not found/i.test(text)){
+        return 'Deployment đang chạy phiên bản mã không có API cần thiết. Hãy Deploy → Manage deployments → Edit → New version → Deploy.';
+      }
+      if(/page not found|requested url was not found|deployment.*not found/i.test(text)){
+        return 'Không tìm thấy deployment Apps Script. Kiểm tra lại URL /exec và deployment đang hoạt động.';
+      }
+      return 'Apps Script trả về HTML thay vì JSON. Kiểm tra quyền Web App: Execute as = Me và Who has access = Anyone.';
+    }
+
+    async function callAppsScriptRpcV59(action,args){
+      const apiUrl=assertApiUrlV59();
       const controller=new AbortController();
       const timeout=setTimeout(()=>controller.abort(),60000);
       try{
         const response=await fetch(apiUrl,{
           method:'POST',
+          mode:'cors',
           redirect:'follow',
           credentials:'omit',
           cache:'no-store',
@@ -4100,22 +4353,23 @@
           signal:controller.signal
         });
         const raw=await response.text();
+        if(!response.ok){
+          throw new Error('Apps Script HTTP '+response.status+'. '+(raw?String(raw).replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim().slice(0,180):'Không có nội dung phản hồi.'));
+        }
         let payload;
         try{ payload=JSON.parse(raw); }
         catch(parseErr){
           const looksHtml=/^\s*</.test(raw||'');
-          throw new Error(looksHtml
-            ? 'Apps Script trả về trang HTML thay vì JSON. Hãy kiểm tra URL phải là /exec và Deployment cho phép truy cập phù hợp.'
-            : 'Phản hồi API không phải JSON hợp lệ.');
+          throw new Error(looksHtml ? apiHtmlErrorV58(raw) : 'Phản hồi API không phải JSON hợp lệ.');
         }
         if(!payload || payload.ok!==true){
           throw new Error(payload&&payload.error?payload.error:'API không thực hiện được yêu cầu.');
         }
         return payload.result;
       }catch(err){
-        if(err&&err.name==='AbortError') throw new Error('Máy chủ phản hồi quá lâu. Vui lòng thử lại.');
+        if(err&&err.name==='AbortError') throw new Error('Máy chủ phản hồi quá 60 giây. Kiểm tra Apps Script hoặc thử lại.');
         if(err instanceof TypeError){
-          throw new Error('Không kết nối được Apps Script API. Kiểm tra URL /exec, quyền triển khai Web App và kết nối mạng/CORS.');
+          throw new Error('Trình duyệt không kết nối được Apps Script (Failed to fetch/CORS). URL /exec đã cấu hình; hãy kiểm tra Deploy → Manage deployments → Execute as: Me → Who has access: Anyone.');
         }
         throw err;
       }finally{
@@ -4123,20 +4377,22 @@
       }
     }
 
-    function makeRunnerV48(successHandler,failureHandler){
+    window.__SODB_API_HEALTH_URL__=apiHelpUrlV58();
+
+    function makeRunnerV59(successHandler,failureHandler){
       return new Proxy({}, {
         get:function(_target,prop){
           if(prop==='withSuccessHandler'){
-            return function(fn){ return makeRunnerV48(typeof fn==='function'?fn:null,failureHandler); };
+            return function(fn){ return makeRunnerV59(typeof fn==='function'?fn:null,failureHandler); };
           }
           if(prop==='withFailureHandler'){
-            return function(fn){ return makeRunnerV48(successHandler,typeof fn==='function'?fn:null); };
+            return function(fn){ return makeRunnerV59(successHandler,typeof fn==='function'?fn:null); };
           }
           // Tránh bị coi như Promise/thenable khi trình duyệt hoặc thư viện kiểm tra object.
           if(prop==='then') return undefined;
           return function(){
             const args=Array.prototype.slice.call(arguments);
-            callAppsScriptRpcV48(String(prop),args)
+            callAppsScriptRpcV59(String(prop),args)
               .then(function(result){ if(successHandler) successHandler(result); })
               .catch(function(error){
                 if(failureHandler) failureHandler(error);
@@ -4149,7 +4405,7 @@
 
     window.google=window.google||{};
     window.google.script=window.google.script||{};
-    window.google.script.run=makeRunnerV48(null,null);
+    window.google.script.run=makeRunnerV59(null,null);
     window.__SODB_GITHUB_MODE__=true;
   })();
 
@@ -4179,6 +4435,8 @@
   let classCatalogLoadedAtV47 = 0;
   const CLASS_CATALOG_REFRESH_MS_V47 = 120000;
   const lessonPlanPendingV47 = new Set();
+  // V55: phiên bản request KHBD theo từng Lớp/Môn/Tuần để bỏ qua phản hồi cũ về trễ.
+  const lessonPlanRequestSerialV55 = Object.create(null);
 
   function invalidateSodbViewCacheV47(lop,tuan){
     const prefix=String(lop)+'|'+String(tuan)+'|';
@@ -4415,16 +4673,44 @@
       if(Array.isArray(cls[k]))dsLopTheoKhoi[k]=cls[k];
       else dsLopTheoKhoi[k]=[...(dsLopChinhTheoKhoiV22[k]||[]),...(dsLopDacBietTheoKhoiV22[k]||[])];
     });
+    if(gvbmDangNhapInfo&&data.assignments){
+      Object.assign(gvbmDangNhapInfo,{
+        phanCongLopTheoMon:data.assignments.phanCongLopTheoMon||gvbmDangNhapInfo.phanCongLopTheoMon||{},
+        dsLopDay:data.assignments.dsLopDay||gvbmDangNhapInfo.dsLopDay||[],
+        dsMonGV:(data.assignments.dsMonDay&&data.assignments.dsMonDay.length)?data.assignments.dsMonDay:gvbmDangNhapInfo.dsMonGV
+      });
+      if(data.signature&&data.signature.url){
+        gvbmDangNhapInfo.urlChuKy=data.signature.url;
+        capNhatTrangThaiChuKyV21(data.signature.url);
+      }
+    }
+    // V54: môn học đi cùng bootstrap, không cần request riêng sau đăng nhập.
+    if(Array.isArray(data.subjects)&&data.subjects.length){
+      const expanded=expandGdtcSubjectsV25(data.subjects);
+      ['khbdUploadMon','khbdViewMon'].forEach(id=>{
+        const sel=document.getElementById(id);if(!sel)return;
+        const current=sel.value;sel.innerHTML='';expanded.forEach(m=>sel.add(new Option(m,m)));
+        if([...sel.options].some(o=>o.value===current))sel.value=current;
+      });
+      if(hasRoleV4('ADMIN'))adminSubjectsLoadedV7=true;
+    }
+    if(data.currentWeek){
+      const viewWeek=document.getElementById('viewTuan');if(viewWeek&&!viewWeek.value)viewWeek.value=data.currentWeek;
+    }
     chonKhoiLopView();chonKhoiLopInput();chonKhoiLopLogin();chonKhoiLopAdmin();khoiTaoDanhSachLopGiamThi();capNhatTuanVaThu();bootstrapLoadedV6=true;classCatalogLoadedAtV47=Date.now();
     try{sessionStorage.setItem('SODB_V6_BOOTSTRAP',JSON.stringify({ts:Date.now(),data:data}));}catch(e){}
   }
 
-  function taiBootstrapV6(){
-    if(bootstrapLoadedV6)return;
-    try{const raw=sessionStorage.getItem('SODB_V6_BOOTSTRAP');if(raw){const x=JSON.parse(raw);if(x&&Date.now()-Number(x.ts||0)<1800000)applyBootstrapV6(x.data);}}catch(e){}
-    if(bootstrapLoadedV6||bootstrapPendingV47)return;
+  function taiBootstrapV6(force){
+    if(bootstrapLoadedV6&&!force)return;
+    if(!force){
+      try{const raw=sessionStorage.getItem('SODB_V6_BOOTSTRAP');if(raw){const x=JSON.parse(raw);if(x&&Date.now()-Number(x.ts||0)<1800000)applyBootstrapV6(x.data);}}catch(e){}
+      if(bootstrapLoadedV6)return;
+    }
+    if(bootstrapPendingV47)return;
     bootstrapPendingV47=true;
-    google.script.run.withSuccessHandler(function(data){bootstrapPendingV47=false;applyBootstrapV6(data);}).withFailureHandler(function(){bootstrapPendingV47=false;showToastV9('Không tải được dữ liệu khởi tạo. Vui lòng thử lại.','danger');}).getBootstrapClientV6();
+    const tokenMap=tokenMapFromLoginV4(currentUnifiedLoginV4);
+    google.script.run.withSuccessHandler(function(data){bootstrapPendingV47=false;applyBootstrapV6(data);}).withFailureHandler(function(){bootstrapPendingV47=false;showToastV9('Không tải được dữ liệu khởi tạo. Vui lòng thử lại.','danger');}).getBootstrapClientV6(tokenMap);
   }
 
   function dangNhapTapTrungV4(){
@@ -4443,14 +4729,59 @@
       })
       .withFailureHandler(function(err){
         btn.disabled=false;txt.textContent='Đăng nhập';
-        setCentralLoginStatusV4('Không thể kết nối máy chủ. Vui lòng thử lại.','danger');
-        console.error(err);
+        const detail=(err&&err.message)?String(err.message):String(err||'Không rõ lỗi kết nối.');
+        setCentralLoginStatusV4(detail+' Mở đường dẫn kiểm tra máy chủ nếu cần: '+(window.__SODB_API_HEALTH_URL__||SODB_API_URL+'?health=1'),'danger');
+        console.error('[SODB LOGIN]',err);
       })
       .dangNhapHeThongV4(account,password);
   }
 
   function setTopTabVisibleV4(buttonId,visible){
     const b=document.getElementById(buttonId); if(b&&b.parentElement)b.parentElement.classList.toggle('d-none',!visible);
+  }
+
+  function isTopTabVisibleV54(id){
+    const b=document.getElementById(id);
+    return !!(b&&b.parentElement&&!b.parentElement.classList.contains('d-none'));
+  }
+  function openRoleTabV54(id){
+    const b=document.getElementById(id);if(!b||!isTopTabVisibleV54(id))return;
+    try{if(window.bootstrap)bootstrap.Tab.getOrCreateInstance(b).show();else b.click();}catch(e){try{b.click();}catch(_e){}}
+    document.getElementById('mobileMoreMenuV54')?.classList.add('d-none');
+    syncMobileRoleNavV54(id);
+  }
+  function syncMobileRoleNavV54(activeId){
+    document.querySelectorAll('#mobileRoleNavV54 [data-target-tab]').forEach(btn=>{
+      btn.classList.toggle('active',btn.dataset.targetTab===activeId);
+    });
+  }
+  function rebuildMobileRoleNavV54(){
+    const dash=document.getElementById('mobileDashboardV54');
+    const input=document.getElementById('mobileInputV54');
+    const view=document.getElementById('mobileViewV54');
+    if(dash)dash.classList.toggle('d-none',!isTopTabVisibleV54('dashboard-tab-v9'));
+    if(input)input.classList.toggle('d-none',!isTopTabVisibleV54('input-tab'));
+    if(view)view.classList.toggle('d-none',!isTopTabVisibleV54('view-tab'));
+    const more=document.getElementById('mobileMoreMenuV54');
+    if(more){
+      const extras=[
+        ['gvcn-tab','Chủ nhiệm'],
+        ['giamthi-tab','Tra cứu, thống kê'],
+        ['ttcm-tab','Kế hoạch bài dạy'],
+        ['admin-tab','Quản trị']
+      ].filter(x=>isTopTabVisibleV54(x[0]));
+      more.innerHTML=extras.map(x=>`<button type="button" data-mobile-extra="${x[0]}">${x[1]}</button>`).join('');
+      extras.forEach(x=>{
+        const b=more.querySelector(`[data-mobile-extra="${x[0]}"]`);
+        if(b)b.onclick=()=>openRoleTabV54(x[0]);
+      });
+      document.getElementById('mobileMoreBtnV54')?.parentElement?.classList.toggle('d-none',extras.length===0);
+    }
+    document.querySelectorAll('#mobileRoleNavV54 [data-target-tab]').forEach(btn=>{
+      btn.onclick=()=>openRoleTabV54(btn.dataset.targetTab);
+    });
+    const active=document.querySelector('#sodbTab .nav-link.active');
+    syncMobileRoleNavV54(active?active.id:'dashboard-tab-v9');
   }
 
   function ensureAdminReadonlyNoteV4(tabId,id,title,text){
@@ -4700,7 +5031,6 @@
       setTimeout(()=>{
         const tab=document.getElementById('khbd-approval-tab-v50');
         if(tab&&window.bootstrap)bootstrap.Tab.getOrCreateInstance(tab).show();
-        taiHangDoiDuyetKHBDV50();
       },80);
     }else if(isBgh){
       setTimeout(()=>{const tab=document.getElementById('khbd-view-tab-v38');if(tab&&window.bootstrap)bootstrap.Tab.getOrCreateInstance(tab).show();},80);
@@ -4727,15 +5057,15 @@
     const sessions=res.sessions||{}, roles=res.roles||[], isAdmin=roles.includes('ADMIN'), isBgh=roles.includes('BGH');
     gvbmDangNhapInfo=null;gvcnDangNhapInfo=null;giamThiDangNhapInfo=null;ttcmDangNhapInfo=null;adminDangNhapInfo=null;
 
-    // V49: quyền tab lấy trực tiếp từ sessions do backend cấp theo sheet PHÂN QUYỀN.
-    // Admin vẫn nhìn thấy các mô-đun kiểm tra; các thao tác ký/ghi thay vẫn bị backend chặn.
+    // V54: chỉ hiện đúng mô-đun thuộc vai trò đang có; tài khoản nhiều vai trò dùng hợp quyền.
     setTopTabVisibleV4('dashboard-tab-v9',true);
-    setTopTabVisibleV4('view-tab',true);
-    setTopTabVisibleV4('input-tab',!!sessions.GVBM||isAdmin);
-    setTopTabVisibleV4('gvcn-tab',!!sessions.GVCN||isAdmin);
-    setTopTabVisibleV4('giamthi-tab',!!sessions.GIAM_THI||isAdmin);
-    setTopTabVisibleV4('ttcm-tab',!!sessions.TTCM||!!sessions.BGH||isAdmin);
+    setTopTabVisibleV4('view-tab',!!sessions.GVBM||!!sessions.GVCN||!!sessions.BGH);
+    setTopTabVisibleV4('input-tab',!!sessions.GVBM);
+    setTopTabVisibleV4('gvcn-tab',!!sessions.GVCN);
+    setTopTabVisibleV4('giamthi-tab',!!sessions.GIAM_THI);
+    setTopTabVisibleV4('ttcm-tab',!!sessions.TTCM||!!sessions.BGH);
     setTopTabVisibleV4('admin-tab',isAdmin);
+    rebuildMobileRoleNavV54();
 
     // Reset module bodies before applying current role set.
     ['gvbmMainContent','gvcnMainContent','giamThiMainContent','ttcmMainContent','adminMainContent'].forEach(id=>{const x=document.getElementById(id);if(x)x.classList.add('d-none');});
@@ -4774,7 +5104,7 @@
     setCentralLoginStatusV4('', '');
     if(saveSession){try{sessionStorage.setItem('SODB_V4_UNIFIED_LOGIN',JSON.stringify(res));}catch(e){}}
     // Hiện ứng dụng trước, nạp cấu hình/danh sách lớp ở nền để cảm giác đăng nhập tức thời.
-    setTimeout(taiBootstrapV6,0);
+    setTimeout(()=>taiBootstrapV6(true),0);
 
     // V47: Dashboard chỉ tải khi người dùng thực sự mở tab; tránh quét sổ tuần
     // ở nền trong lúc hệ thống đang chuyển đến mô-đun mặc định của vai trò.
@@ -4824,7 +5154,7 @@
 
   function resetLogoutUiV6(){
     resetOverviewV20();
-    inputLessonLoadedV7=false; adminSubjectsLoadedV7=false;
+    inputLessonLoadedV7=false; adminSubjectsLoadedV7=false; bootstrapLoadedV6=false; bootstrapPendingV47=false;
     currentUnifiedLoginV4=null;gvbmDangNhapInfo=null;gvcnDangNhapInfo=null;giamThiDangNhapInfo=null;ttcmDangNhapInfo=null;adminDangNhapInfo=null;
     document.getElementById('appShellV4').classList.add('d-none');document.getElementById('loginScreenV4').classList.remove('d-none');document.body.classList.add('auth-locked-v4');
     const a=document.getElementById('centralAccountV4');if(a)setTimeout(()=>a.focus(),30);
@@ -4855,7 +5185,13 @@
     if(inputTab)inputTab.addEventListener('shown.bs.tab',function(){refreshClassCatalogV29();lazyLoadInputLessonV7();});
     const viewTab=document.getElementById('view-tab');
     if(viewTab)viewTab.addEventListener('shown.bs.tab',refreshClassCatalogV29);
-    const ttcmTab=document.getElementById('ttcm-tab'); if(ttcmTab)ttcmTab.addEventListener('shown.bs.tab',lazyLoadAdminSubjectsV7);
+    const ttcmTab=document.getElementById('ttcm-tab'); if(ttcmTab)ttcmTab.addEventListener('shown.bs.tab',function(){
+      lazyLoadAdminSubjectsV7();
+      if(isKhbdApproverClientV50()){
+        const approval=document.getElementById('khbd-approval-tab-v50');
+        if(approval&&approval.classList.contains('active'))taiHangDoiDuyetKHBDV50();
+      }
+    });
 
     // Màn hình đăng nhập hiển thị trước; các danh sách lớn chỉ khởi tạo sau khi xác thực.
     khoiPhucPhienTapTrungV4();
@@ -6171,11 +6507,11 @@ function xuatExcelNhapTreGiamThi() {
         }
         out+=`
           <td class="compact-slot-v29"><span class="badge ${r.buoi==='Sang'?'text-primary':'text-danger'} buoi-tag">${buoiLabel}</span> ${r.tiet}</td>
-          <td class="text-left-cell">${renderMixedField(c,'mon')} ${c.isDayBu?'<span class="badge-daybu">Dạy bù</span>':''}</td>
+          <td class="text-left-cell"><div class="a3-cell-clamp-v56 a3-one-line-v56">${renderMixedField(c,'mon')} ${c.isDayBu?'<span class="badge-daybu">Dạy bù</span>':''}</div></td>
           <td class="fw-bold text-primary">${renderMixedField(c,'tietCT')}</td>
-          <td class="text-left-cell" style="font-size:.7rem;">${escapeHtml(c.hsVang||'')}</td>
-          <td class="text-left-cell">${renderMixedField(c,'tenBai')}</td>
-          <td class="text-left-cell" style="font-size:.7rem;">${escapeHtml(sodbNhanXetSafeV83(c))}</td>
+          <td class="text-left-cell"><div class="a3-cell-clamp-v56 a3-one-line-v56">${escapeHtml(c.hsVang||'')}</div></td>
+          <td class="text-left-cell"><div class="a3-cell-clamp-v56">${renderMixedField(c,'tenBai')}</div></td>
+          <td class="text-left-cell"><div class="a3-cell-clamp-v56">${escapeHtml(sodbNhanXetSafeV83(c))}</div></td>
           <td>${c.diemHT||''}</td>
           <td>${c.diemKL||''}</td>
           <td>${c.diemNN||''}</td>
@@ -6366,6 +6702,31 @@ function capNhatTuanVaThu() {
 /* KHÓA CHỐNG TRÙNG LẶP / LƯU 2 LẦN KHI BẤM NÚT LƯU SỔ ĐẦU BÀI */
 let isSodbSubmitting = false; // Biến cờ khóa trạng thái gửi
 
+function newClientRequestIdV54(){
+  try{return crypto.randomUUID();}catch(e){return 'REQ-'+Date.now()+'-'+Math.random().toString(36).slice(2,10);}
+}
+function showSaveSuccessV54(message){
+  const box=document.getElementById('saveSuccessV54');
+  if(!box)return;
+  box.textContent=message;
+  box.classList.remove('d-none');
+  clearTimeout(showSaveSuccessV54._t);
+  showSaveSuccessV54._t=setTimeout(()=>box.classList.add('d-none'),6500);
+}
+function resetPeriodFormAfterSaveV54(){
+  // Giữ nguyên đúng các trường thao tác liên tục: Ngày - Lớp - Môn.
+  const idsToBlank=['tietDay','tietCT','tenHSVang','nhanXet'];
+  idsToBlank.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const absent=document.getElementById('hsVang');if(absent)absent.value='0';
+  ['diemHocTap','diemKyLuat','diemNeNep'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='10';});
+  const lesson=document.getElementById('tenBaiDaySelect');if(lesson)lesson.value='';
+  const custom=document.getElementById('tenBaiDayCustom');if(custom){custom.value='';custom.classList.add('d-none');custom.required=false;}
+  const mixed=document.getElementById('isTietTron');if(mixed)mixed.checked=false;
+  const c2=document.getElementById('gdtcClass2V26'),c3=document.getElementById('gdtcClass3V26');
+  if(c2)c2.value='';if(c3)c3.value='';syncGdtcClassMixNoteV26();
+  tinhDiemTB();
+}
+
 document.getElementById('sodbForm').addEventListener('submit', function(e) {
   e.preventDefault();
   e.stopPropagation();
@@ -6430,7 +6791,8 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
     nhanXet: document.getElementById('nhanXet').value,
     trangThaiKySo: urlChuKyGlobal ? ("IMAGE:" + urlChuKyGlobal) : "Đã ký",
     isTietTron: isMixed,
-    gdtcClasses: getGdtcClassMixV26()
+    gdtcClasses: getGdtcClassMixV26(),
+    clientRequestId: newClientRequestIdV54()
   };
 
   let wasEditingV4 = !!editingRecordIdV4;
@@ -6440,8 +6802,12 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
       btn.disabled = false;
       btn.innerText = "Lưu vào Sổ Đầu Bài";
 
-      if (res.success) { 
-        alertV13("✅ " + res.message);
+      if (res.success) {
+        const savedText=wasEditingV4
+          ? `✓ Đã cập nhật Tiết ${formData.tietDay} – ${formData.monHoc} – ${formData.lop}`
+          : `✓ Đã lưu Tiết ${formData.tietDay} – ${formData.monHoc} – ${formData.lop}`;
+        showSaveSuccessV54(savedText);
+        showToastV9(savedText,'success');
         overviewStateV20.loadedAt=0;
         lastSavedRecordV4 = {recordId:res.recordId, lop:formData.lop, tuan:formData.tuanHoc, ngay:formData.ngayDay, buoi:formData.buoiDay, tiet:formData.tietDay};
         let reqBtn=document.getElementById('btnRequestEditV4'); if(reqBtn) reqBtn.classList.remove('d-none');
@@ -6449,14 +6815,16 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
           editingRecordIdV4=null;
           document.getElementById('btnCancelEditV4').classList.add('d-none');
           btn.classList.remove('btn-warning'); btn.classList.add('btn-primary');
+        }else{
+          resetPeriodFormAfterSaveV54();
         }
-        document.getElementById('nhanXet').value = "";
-        if (isMixed && !wasEditingV4) document.getElementById('isTietTron').checked = false;
-        if(!wasEditingV4){const c2=document.getElementById('gdtcClass2V26'),c3=document.getElementById('gdtcClass3V26');if(c2)c2.value='';if(c3)c3.value='';syncGdtcClassMixNoteV26();}
         invalidateSodbViewCacheV47(formData.lop,formData.tuanHoc);
+        delete lessonPlanCache[[formData.khoi,formData.lop,formData.monHoc,formData.tuanHoc].join('|')];
         document.getElementById('viewLop').value=formData.lop;document.getElementById('viewTuan').value=formData.tuanHoc;
-        // Không tải cả sổ tuần ở nền sau mỗi lần lưu. Khi mở tab Xem sổ,
-        // người dùng bấm Tra cứu và nhận dữ liệu mới từ cache đã được vô hiệu hóa.
+        // V55: ẩn ngay bài vừa dùng, sau đó bắt buộc hỏi lại backend để đồng bộ
+        // toàn bộ danh sách còn lại của đúng Lớp + Môn + Tuần.
+        hideJustUsedLessonV55(formData.tenBaiDay);
+        loadDanhSachBaiDay(true);
       } else { 
         showToastV9("Lỗi: " + (res.message || "Không thể lưu dữ liệu."), "danger"); 
       }
@@ -6507,7 +6875,25 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
     selectElement.add(new Option("➕ Nhập tên bài dạy khác...", "KHAC"));
   }
 
-  function loadDanhSachBaiDay() {
+  function hideJustUsedLessonV55(lessonName){
+    const key=normalizeTextKey(lessonName||'');
+    if(!key)return;
+    // Ẩn ngay trên giao diện, không chờ request backend hoàn tất.
+    danhSachBaiDay1=(danhSachBaiDay1||[]).filter(p=>normalizeTextKey(p&&p.tenBai||'')!==key);
+    const sel=document.getElementById('tenBaiDaySelect');
+    if(sel)fillLessonSelect(sel,danhSachBaiDay1);
+  }
+
+  function lessonPlanCacheKeyV54(){
+    return [
+      document.getElementById('khoi')?.value||'',
+      document.getElementById('lop')?.value||'',
+      getEffectiveMonHocV25(),
+      document.getElementById('tuanHoc')?.value||''
+    ].join('|');
+  }
+
+  function loadDanhSachBaiDay(forceRefresh) {
     const metaV26=getClassMetaClientV26(document.getElementById('lop')?.value||'');
     if(metaV26&&metaV26.type==='CHUYEN_DE'&&metaV26.subject){
       ensureTeacherSubjectOptionV26(metaV26.subject);
@@ -6529,40 +6915,47 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
       return;
     }
 
-    let cacheKey = [khoi, mon, tuan].join('|');
-    if (lessonPlanCache[cacheKey]) {
+    let cacheKey = [khoi, document.getElementById('lop').value, mon, tuan].join('|');
+    if (!forceRefresh && lessonPlanCache[cacheKey]) {
       danhSachBaiDay1 = lessonPlanCache[cacheKey];
       fillLessonSelect(selectBai, danhSachBaiDay1);
       document.getElementById('khbdWeekNotice').innerText = danhSachBaiDay1.length
         ? `Đã nạp ${danhSachBaiDay1.length} bài: Khối ${khoi} — ${mon} — Tuần ${tuan}.`
-        : `Chưa có kế hoạch Khối ${khoi} — ${mon} — Tuần ${tuan}; có thể chọn “Nhập tên bài dạy khác”.`;
+        : `Không có bài KHBD khả dụng cho Khối ${khoi} — ${mon} — Tuần ${tuan} (có thể đã dùng hết hoặc chưa được duyệt); có thể chọn “Nhập tên bài dạy khác”.`;
       return;
     }
 
+    if(forceRefresh)delete lessonPlanCache[cacheKey];
     selectBai.innerHTML = '<option value="">-- Đang tải kế hoạch tuần... --</option>';
-    if(lessonPlanPendingV47.has(cacheKey))return;
+    // Request thường không chồng nhau; nhưng forceRefresh sau khi Lưu luôn được phép
+    // tạo request mới. Phản hồi của request cũ sẽ bị serial bên dưới loại bỏ.
+    if(lessonPlanPendingV47.has(cacheKey) && !forceRefresh)return;
+    const requestSerial=(lessonPlanRequestSerialV55[cacheKey]||0)+1;
+    lessonPlanRequestSerialV55[cacheKey]=requestSerial;
     lessonPlanPendingV47.add(cacheKey);
     google.script.run
       .withSuccessHandler(function(dsBai) {
+        if(lessonPlanRequestSerialV55[cacheKey]!==requestSerial)return;
         lessonPlanPendingV47.delete(cacheKey);
         const rows=dsBai||[];
         lessonPlanCache[cacheKey]=rows;
-        const currentKey=[document.getElementById('khoi').value,getEffectiveMonHocV25(),document.getElementById('tuanHoc').value].join('|');
+        const currentKey=[document.getElementById('khoi').value,document.getElementById('lop').value,getEffectiveMonHocV25(),document.getElementById('tuanHoc').value].join('|');
         if(currentKey!==cacheKey)return;
         danhSachBaiDay1 = rows;
         fillLessonSelect(selectBai, danhSachBaiDay1);
         document.getElementById('khbdWeekNotice').innerText = danhSachBaiDay1.length
-          ? `Đã nạp ${danhSachBaiDay1.length} bài: Khối ${khoi} — ${mon} — Tuần ${tuan}.`
-          : `Chưa có kế hoạch Khối ${khoi} — ${mon} — Tuần ${tuan}; có thể chọn “Nhập tên bài dạy khác”.`;
+          ? `Còn ${danhSachBaiDay1.length} bài chưa dùng: Khối ${khoi} — ${mon} — Tuần ${tuan}.`
+          : `Không còn bài KHBD chưa dùng cho Khối ${khoi} — ${mon} — Tuần ${tuan}; có thể chọn “Nhập tên bài dạy khác”.`;
       })
       .withFailureHandler(function(err) {
+        if(lessonPlanRequestSerialV55[cacheKey]!==requestSerial)return;
         lessonPlanPendingV47.delete(cacheKey);
-        const currentKey=[document.getElementById('khoi').value,getEffectiveMonHocV25(),document.getElementById('tuanHoc').value].join('|');
+        const currentKey=[document.getElementById('khoi').value,document.getElementById('lop').value,getEffectiveMonHocV25(),document.getElementById('tuanHoc').value].join('|');
         if(currentKey!==cacheKey)return;
         selectBai.innerHTML = '<option value="KHAC">➕ Nhập tên bài dạy khác...</option>';
         document.getElementById('khbdWeekNotice').innerText = "Không tải được kế hoạch: " + err;
       })
-      .getDanhSachBaiDayTheoMon(mon, khoi, tuan, '');
+      .getDanhSachBaiDayTheoMon(mon, khoi, tuan, '', document.getElementById('lop').value, {token: gvbmDangNhapInfo ? gvbmDangNhapInfo.sessionToken : ''});
   }
 
   function dongBoTenBaiDay() {
@@ -6753,10 +7146,34 @@ function capNhatDanhSachLopPrintA3GiamThi() {
   capNhatLoaiSoPrintA3GiamThiV45();
 }
 
+function laSoGop5TuanV57(){
+  const bookMode=document.getElementById('gtPrintBookMode')?.value||'LOP_CHINH';
+  return bookMode==='GDTC'||bookMode==='CHUYEN_DE';
+}
+
+function capNhatGhiChuInA3V57(){
+  const note=document.getElementById('gtPrintBookNoteV45');
+  if(!note)return;
+  const bookMode=document.getElementById('gtPrintBookMode')?.value||'LOP_CHINH';
+  const layout=document.getElementById('gtPrintLayoutV57')?.value||'ONE_WEEK';
+  if(bookMode==='GDTC'){
+    note.textContent=layout==='FIVE_WEEKS'
+      ? 'Sổ GDTC chỉ hiển thị các tiết thực tế phát sinh; khi in sẽ gộp tối đa 5 tuần liên tiếp trên 1 trang A3 ngang.'
+      : 'Sổ GDTC chỉ hiển thị các tiết thực tế phát sinh; mỗi tuần in trên 1 trang A3 ngang.';
+  }else if(bookMode==='CHUYEN_DE'){
+    note.textContent=layout==='FIVE_WEEKS'
+      ? 'Sổ Chuyên đề chỉ hiển thị các tiết thực tế phát sinh; khi in sẽ gộp tối đa 5 tuần liên tiếp trên 1 trang A3 ngang.'
+      : 'Sổ Chuyên đề chỉ hiển thị các tiết thực tế phát sinh; mỗi tuần in trên 1 trang A3 ngang.';
+  }else{
+    note.textContent='Sổ đầu bài lớp chính luôn giữ 1 tuần = 1 trang A3 ngang để bảo đảm đủ nội dung, tổng kết và chữ ký.';
+  }
+}
+
 function capNhatLoaiSoPrintA3GiamThiV45(){
   const lop=document.getElementById('gtPrintLop')?.value||'';
   const sel=document.getElementById('gtPrintBookMode');
-  const note=document.getElementById('gtPrintBookNoteV45');
+  const layoutWrap=document.getElementById('gtPrintLayoutWrapV57');
+  const layoutSel=document.getElementById('gtPrintLayoutV57');
   if(!sel)return;
 
   let specialOpt=[...sel.options].find(o=>o.value==='CHUYEN_DE');
@@ -6770,15 +7187,14 @@ function capNhatLoaiSoPrintA3GiamThiV45(){
   sel.disabled=special;
   if(special){
     sel.value='CHUYEN_DE';
-    if(note) note.textContent='Lớp chuyên đề được xuất đúng Sổ đầu bài Chuyên đề; mỗi tuần chỉ hiển thị các tiết thực tế phát sinh.';
-  }else{
-    if(sel.value==='CHUYEN_DE')sel.value='LOP_CHINH';
-    if(note){
-      note.textContent=sel.value==='GDTC'
-        ? 'Sổ đầu bài GDTC của lớp; mỗi tuần chỉ hiển thị các tiết GDTC thực tế phát sinh.'
-        : 'Sổ đầu bài lớp chính; cấu trúc, tổng kết và chữ ký chốt tuần giống tab Xem sổ đầu bài.';
-    }
+  }else if(sel.value==='CHUYEN_DE'){
+    sel.value='LOP_CHINH';
   }
+
+  const allowFiveWeeks=laSoGop5TuanV57();
+  if(layoutWrap)layoutWrap.classList.toggle('d-none',!allowFiveWeeks);
+  if(layoutSel&&!allowFiveWeeks)layoutSel.value='ONE_WEEK';
+  capNhatGhiChuInA3V57();
 }
 
 function chuyenCheDoInGiamThi() {
@@ -6793,6 +7209,7 @@ function chuyenCheDoInGiamThi() {
     boxSingle.classList.add('d-none');
     boxMulti.classList.remove('d-none');
   }
+  capNhatGhiChuInA3V57();
 }
 
 /* Đóng gói 1 hoặc nhiều tuần; loại sổ giống tab Xem sổ đầu bài. */
@@ -6850,11 +7267,15 @@ async function taiVaHienThiDanhSachTuanGiamThi(lop, dsTuan, bookMode) {
   }
 
   btn.disabled = false;
-  btn.innerText = oldText || 'Tải sổ A3';
+  btn.innerText = oldText || 'Tải bản in';
 
   if (htmlAllPages) {
     container.innerHTML = htmlAllPages;
-    showToastV9(`Đã chuẩn bị ${loaded}/${dsTuan.length} trang A3 - ${bookLabel}.`,'success');
+    const layout=(laSoGop5TuanV57()?document.getElementById('gtPrintLayoutV57')?.value:'ONE_WEEK')||'ONE_WEEK';
+    const msg=layout==='FIVE_WEEKS'
+      ? `Đã chuẩn bị ${loaded}/${dsTuan.length} tuần · khi in sẽ gộp tối đa 5 tuần / trang A3 - ${bookLabel}.`
+      : `Đã chuẩn bị ${loaded}/${dsTuan.length} tuần · 1 tuần / trang A3 - ${bookLabel}.`;
+    showToastV9(msg,'success');
   } else {
     container.innerHTML = `<div class="text-center py-5 text-warning fw-bold">⚠️ Không tìm thấy dữ liệu phù hợp cho lớp ${escapeHtml(lop)}!</div>`;
   }
@@ -6895,11 +7316,11 @@ function taoRowsSoDacBietPrintA3V45(res,mondayOfWeek){
       if(i===0)out+=`<td rowspan="${dayRows.length}" class="compact-day-v29 text-center align-middle"><div>${escapeHtml(thu)}</div><div>${dateFormatted}</div></td>`;
       out+=`
         <td class="compact-slot-v29"><span class="badge ${r.buoi==='Sang'?'text-primary':'text-danger'} buoi-tag">${buoiLabel}</span> ${r.tiet}</td>
-        <td class="text-left-cell">${renderMixedField(c,'mon')} ${c.isDayBu?'<span class="badge-daybu">Dạy bù</span>':''}</td>
+        <td class="text-left-cell"><div class="a3-cell-clamp-v56 a3-one-line-v56">${renderMixedField(c,'mon')} ${c.isDayBu?'<span class="badge-daybu">Dạy bù</span>':''}</div></td>
         <td class="fw-bold text-primary">${renderMixedField(c,'tietCT')}</td>
-        <td class="text-left-cell" style="font-size:.7rem;">${escapeHtml(c.hsVang||'')}</td>
-        <td class="text-left-cell">${renderMixedField(c,'tenBai')}</td>
-        <td class="text-left-cell" style="font-size:.7rem;">${escapeHtml(sodbNhanXetSafeV83(c))}</td>
+        <td class="text-left-cell"><div class="a3-cell-clamp-v56 a3-one-line-v56">${escapeHtml(c.hsVang||'')}</div></td>
+        <td class="text-left-cell"><div class="a3-cell-clamp-v56">${renderMixedField(c,'tenBai')}</div></td>
+        <td class="text-left-cell"><div class="a3-cell-clamp-v56">${escapeHtml(sodbNhanXetSafeV83(c))}</div></td>
         <td>${c.diemHT||''}</td><td>${c.diemKL||''}</td><td>${c.diemNN||''}</td>
         <td class="fw-bold">${c.diemTB||''}</td><td>${sigCell}</td>
       </tr>`;
@@ -6950,11 +7371,11 @@ function layHtmlOnePageA3GiamThi(lop, tuan, bookMode) {
               if (i === 0) tableBodyHtml += `<td rowspan="10" class="fw-bold align-middle bg-light text-center"><div>${thuObj.name}</div><div class="text-dark" style="font-size:0.55rem;">${dateFormatted}</div></td>`;
               tableBodyHtml += `
                 <td class="fw-bold"><span class="badge ${buoi === 'Sang' ? 'text-primary' : 'text-danger'} buoi-tag">${buoi === 'Sang' ? 'S' : 'C'}</span> ${tiet}</td>
-                <td class="text-left-cell">${renderMixedField(cellData, 'mon')} ${cellData.isDayBu ? '<span class="badge-daybu">Dạy bù</span>' : ''}</td>
+                <td class="text-left-cell"><div class="a3-cell-clamp-v56 a3-one-line-v56">${renderMixedField(cellData, 'mon')} ${cellData.isDayBu ? '<span class="badge-daybu">Dạy bù</span>' : ''}</div></td>
                 <td class="fw-bold text-primary">${renderMixedField(cellData, 'tietCT')}</td>
-                <td class="text-left-cell" style="font-size: 0.65rem;">${escapeHtml(cellData.hsVang || '')}</td>
-                <td class="text-left-cell">${renderMixedField(cellData, 'tenBai')}</td>
-                <td class="text-left-cell" style="font-size: 0.65rem;">${escapeHtml(sodbNhanXetSafeV83(cellData))}</td>
+                <td class="text-left-cell"><div class="a3-cell-clamp-v56 a3-one-line-v56">${escapeHtml(cellData.hsVang || '')}</div></td>
+                <td class="text-left-cell"><div class="a3-cell-clamp-v56">${renderMixedField(cellData, 'tenBai')}</div></td>
+                <td class="text-left-cell"><div class="a3-cell-clamp-v56">${escapeHtml(sodbNhanXetSafeV83(cellData))}</div></td>
                 <td>${cellData.diemHT || ''}</td><td>${cellData.diemKL || ''}</td><td>${cellData.diemNN || ''}</td>
                 <td class="fw-bold">${cellData.diemTB || ''}</td><td>${sigCell}</td>
               </tr>`;
@@ -6982,7 +7403,7 @@ function layHtmlOnePageA3GiamThi(lop, tuan, bookMode) {
         const tableClass='table-sodb'+(isSpecial?' compact-special-book-v29':'');
 
         const fullPageHtml = `
-        <div class="print-page-block" data-book-mode="${escapeHtml(resolvedMode)}" data-week="${tuan}">
+        <div class="print-page-block a3-week-page-v56" data-book-mode="${escapeHtml(resolvedMode)}" data-week="${tuan}">
           <div class="so-header-print">
             <img src="${document.querySelector('#printPageSingle .school-logo')?.src||''}" alt="Logo" class="school-logo">
             <div class="text-uppercase fw-bold text-secondary" style="font-size: 0.65rem;">SỞ GIÁO DỤC VÀ ĐÀO TẠO TP. HỒ CHÍ MINH</div>
@@ -7109,6 +7530,29 @@ function xemChiTietChuKySo(teacherLookup, thoiGianKy) {
     }).kiemTraToanVenDuLieuV4({token:adminDangNhapInfo.sessionToken});
   }
 
+  function kiemTraSupabaseKHBDV61Ui(){
+    if(!adminDangNhapInfo||!adminDangNhapInfo.sessionToken){
+      alertV13('⚠️ Phiên Admin không hợp lệ.');return;
+    }
+    setBusyV13(true,'Đang kiểm tra Supabase...');
+    const status=document.getElementById('systemStatusV4');
+    google.script.run
+      .withSuccessHandler(function(res){
+        setBusyV13(false);
+        if(!res||!res.success){
+          if(status)status.textContent='❌ Supabase: '+(res&&res.message?res.message:'Không kiểm tra được kết nối.');
+          return;
+        }
+        const count=(res.khbdCount===null||res.khbdCount===undefined)?'?':res.khbdCount;
+        if(status)status.textContent=`✅ Supabase KHBD hoạt động bình thường · ${count} dòng KHBD · ${res.latencyMs||0} ms · chế độ ${res.mode||'PRIMARY'}.`;
+        showToastV9('Supabase KHBD đang hoạt động.','success');
+      })
+      .withFailureHandler(function(err){
+        setBusyV13(false);
+        if(status)status.textContent='❌ '+(err&&err.message?err.message:'Không kết nối được máy chủ.');
+      })
+      .kiemTraSupabaseKHBDV61({token:adminDangNhapInfo.sessionToken});
+  }
 
 
   function taiFileMauLopV23(){
@@ -7223,7 +7667,7 @@ function xemChiTietChuKySo(teacherLookup, thoiGianKy) {
         alertV13((res&&res.success?'✅ ':'❌ ')+(res?res.message:''));
         if(res&&res.success){
           document.getElementById('lopPreviewV23').innerText=`Sheet "${res.sheetName}" hiện có ${res.rows} lớp.`;
-          google.script.run.withSuccessHandler(applyBootstrapV6).getBootstrapClientV6();
+          google.script.run.withSuccessHandler(applyBootstrapV6).getBootstrapClientV6(tokenMapFromLoginV4(currentUnifiedLoginV4));
         }
       })
       .taoSheetLopV23({token:adminDangNhapInfo.sessionToken});
@@ -7368,21 +7812,6 @@ function xemChiTietChuKySo(teacherLookup, thoiGianKy) {
   }
 
 
-
-  /* V8.3: in một tuần gọn đúng 1 trang A3 ngang. */
-  function inSoA3MotTrangV83(){
-    const page=document.getElementById('printPageSingle');
-    if(!page){ window.print(); return; }
-    document.body.classList.add('a3-print-v83');
-    // Cho ảnh chữ ký đang lazy-load một nhịp ngắn trước khi mở Print Preview.
-    const imgs=[...page.querySelectorAll('img')];
-    const pending=imgs.filter(img=>!img.complete).map(img=>new Promise(resolve=>{
-      const done=()=>resolve(); img.addEventListener('load',done,{once:true}); img.addEventListener('error',done,{once:true});
-      setTimeout(done,450);
-    }));
-    Promise.all(pending).finally(()=>setTimeout(()=>window.print(),40));
-  }
-  window.addEventListener('afterprint',()=>document.body.classList.remove('a3-print-v83'));
 
 
   /* ===== V9 DASHBOARD + UX ===== */
@@ -7642,6 +8071,15 @@ document.getElementById('overviewScopeV20').textContent='Đang tải tổng quan
     initInputCompactV16();
     const dashboardBtn=document.getElementById('dashboard-tab-v9');
     if(dashboardBtn) dashboardBtn.addEventListener('shown.bs.tab',refreshDashboardV9);
+    document.querySelectorAll('#sodbTab .nav-link').forEach(btn=>{
+      btn.addEventListener('shown.bs.tab',()=>syncMobileRoleNavV54(btn.id));
+    });
+    const moreBtn=document.getElementById('mobileMoreBtnV54'),moreMenu=document.getElementById('mobileMoreMenuV54');
+    if(moreBtn&&moreMenu){
+      moreBtn.addEventListener('click',function(e){e.stopPropagation();moreMenu.classList.toggle('d-none');});
+      document.addEventListener('click',function(e){if(!moreMenu.contains(e.target)&&e.target!==moreBtn)moreMenu.classList.add('d-none');});
+    }
+    rebuildMobileRoleNavV54();
   });
 
 
@@ -7881,23 +8319,83 @@ document.getElementById('overviewScopeV20').textContent='Đang tải tổng quan
     }));
   }
 
-  async function inSoA3FinalV14(){
-    const page=document.getElementById('printPageSingle');
-    document.body.classList.add('a3-print-v14');
-    setBusyV13(true,'Chuẩn bị bản in A3...');
+
+  window.addEventListener('afterprint',function(){
+    document.body.classList.remove('a3-tracuu-v56');
+    const root=document.getElementById('a3PrintRootV56');
+    if(root)root.remove();
+    setBusyV13(false);
+  });
+
+
+  /* ===== V57: NGOẠI LỆ IN GỘP GDTC / CHUYÊN ĐỀ ===== */
+  function taoTrangGop5TuanV57(group){
+    if(!group||!group.length)return '';
+    const first=group[0];
+    const firstHeader=first.querySelector('.so-header-print');
+    const logo=firstHeader?.querySelector('.school-logo')?.src||'';
+    const title=firstHeader?.querySelector('.so-title')?.textContent?.trim()||'SỔ ĐẦU BÀI';
+    const sub=firstHeader?.querySelector('.so-subhead')?.textContent?.replace(/\s+/g,' ').trim()||'';
+    const yearMatch=sub.match(/Năm học:\s*(.+)$/i);
+    const schoolYear=yearMatch?yearMatch[1].trim():'2026 - 2027';
+    const weeks=group.map(p=>p.dataset.week||'').filter(Boolean);
+    const range=weeks.length===1?`Tuần ${weeks[0]}`:`Tuần ${weeks[0]} – ${weeks[weeks.length-1]}`;
+    const blocks=group.map(page=>{
+      const week=page.dataset.week||'';
+      const table=page.querySelector('.table-sodb');
+      const summary=page.querySelector('.summary-box');
+      const summaryText=summary?summary.innerText.replace(/\s+/g,' ').trim():'';
+      const dtb=(summaryText.match(/Điểm TB tuần:\s*([^\s(]+)/i)||[])[1]||'';
+      const chuaKy=(summaryText.match(/Chưa ký:\s*(\d+)/i)||[])[1]||'0';
+      const vang=(summaryText.match(/Vắng:\s*([^|]+\|\s*[^\s]+)/i)||[])[1]||'';
+      const rowCount=table?Math.max(1,table.querySelectorAll('tbody tr').length):1;
+      const weight=Math.max(4,rowCount+3);
+      return `<section class="a3-special-week-block-v57" data-week="${escapeHtml(week)}" style="flex:${weight} 1 0">\n        <div class="a3-special-week-title-v57"><span>TUẦN ${escapeHtml(week)}</span><span>${escapeHtml(title)}</span></div>\n        ${table?table.outerHTML:'<div class="text-center">Không có dữ liệu</div>'}\n        <div class="a3-special-week-summary-v57"><span><strong>Vắng:</strong> ${escapeHtml(vang||'0 | 0')}</span><span><strong>ĐTB:</strong> ${escapeHtml(dtb||'0.0')}</span><span><strong>Chưa ký:</strong> ${escapeHtml(chuaKy)} tiết</span></div>\n      </section>`;
+    }).join('');
+    return `<div class="a3-special-multi-page-v57" data-book-mode="${escapeHtml(first.dataset.bookMode||'')}" style="--week-count-v57:${group.length}">\n      <div class="a3-special-multi-head-v57">\n        ${logo?`<img src="${escapeHtml(logo)}" alt="Logo" class="school-logo">`:''}\n        <div style="font-size:5.1pt;font-weight:800;line-height:1">SỞ GIÁO DỤC VÀ ĐÀO TẠO TP. HỒ CHÍ MINH</div>\n        <div style="font-size:5.6pt;font-weight:900;line-height:1">TRƯỜNG THPT HỒ THỊ BI</div>\n        <div class="a3-special-multi-title-v57">${escapeHtml(title)}</div>\n        <div class="a3-special-multi-sub-v57">${escapeHtml(range)} &nbsp;|&nbsp; Năm học: ${escapeHtml(schoolYear)}</div>\n      </div>\n      <div class="a3-special-weeks-grid-v57">${blocks}</div>\n    </div>`;
+  }
+
+  function taoHtmlInTraCuuV57(pages){
+    const layout=(laSoGop5TuanV57()?document.getElementById('gtPrintLayoutV57')?.value:'ONE_WEEK')||'ONE_WEEK';
+    if(layout!=='FIVE_WEEKS')return pages.map(p=>p.outerHTML).join('');
+    const eligible=pages.every(p=>['GDTC','CHUYEN_DE'].includes(String(p.dataset.bookMode||'').toUpperCase()));
+    if(!eligible)return pages.map(p=>p.outerHTML).join('');
+    let html='';
+    for(let i=0;i<pages.length;i+=5)html+=taoTrangGop5TuanV57(pages.slice(i,i+5));
+    return html;
+  }
+
+  /* ===== V56/V57: CHỈ IN A3 TỪ TAB TRA CỨU ===== */
+  async function inA3TraCuuV56(){
+    const source=document.getElementById('gtPrintPagesContainer');
+    const pages=source?[...source.querySelectorAll('.print-page-block')]:[];
+    if(!source||!pages.length){
+      alertV13('⚠️ Vui lòng tải dữ liệu tuần trước khi in A3.');
+      return;
+    }
+
+    const old=document.getElementById('a3PrintRootV56');
+    if(old)old.remove();
+    const root=document.createElement('div');
+    root.id='a3PrintRootV56';
+    root.setAttribute('aria-hidden','true');
+    root.innerHTML=taoHtmlInTraCuuV57(pages);
+    document.body.appendChild(root);
+    document.body.classList.add('a3-tracuu-v56');
+    const layout=(laSoGop5TuanV57()?document.getElementById('gtPrintLayoutV57')?.value:'ONE_WEEK')||'ONE_WEEK';
+    setBusyV13(true,layout==='FIVE_WEEKS'?'Đang gộp tối đa 5 tuần trên mỗi trang A3...':'Đang dàn mỗi tuần thành 1 trang A3...');
     try{
-      await preloadPrintImagesV14(page||document.body);
+      await preloadPrintImagesV14(root);
       await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
       window.print();
-    }finally{
+    }catch(err){
+      console.error('Lỗi chuẩn bị bản in A3',err);
+      alertV13('❌ Không chuẩn bị được bản in A3. Vui lòng thử lại.');
+      document.body.classList.remove('a3-tracuu-v56');
+      root.remove();
       setBusyV13(false);
     }
   }
-
-  window.addEventListener('afterprint',function(){
-    document.body.classList.remove('a3-print-v14','a3-print-v83');
-    setBusyV13(false);
-  });
 
 
   function capNhatLoaiLopV22(selectId,noteId){

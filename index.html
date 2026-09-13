@@ -2969,6 +2969,95 @@
 }
 </style>
 
+
+<style id="v684-bgh-cover-mobile">
+/* ===== V68.4: BGH duyệt tuần + mobile header + trang bìa A3 ===== */
+#bghWeekApprovalV684 textarea{resize:vertical;min-height:58px;}
+#bghWeekApprovalV684 .badge{font-size:.72rem;padding:.45em .7em;}
+#printBGHSigSpace img,.sig-bgh-print{max-height:62px;max-width:150px;object-fit:contain;mix-blend-mode:multiply;filter:contrast(125%);}
+
+.a3-cover-page-v684{
+  width:min(100%,1600px);
+  aspect-ratio:410/286;
+  margin:0 auto 14px;
+  padding:14px;
+  box-sizing:border-box;
+  background:#fff;
+  border:1px solid #aeb6c2;
+  display:flex;
+  position:relative;
+  color:#202020;
+  font-family:'Times New Roman',Times,serif;
+}
+.a3-cover-page-v684::before{
+  content:'';
+  position:absolute;
+  inset:4px;
+  border:1px solid #6f7780;
+  pointer-events:none;
+}
+.a3-cover-inner-v684{
+  position:relative;
+  z-index:1;
+  width:100%;
+  height:100%;
+  display:grid;
+  grid-template-rows:19% 1fr 28%;
+  text-align:center;
+  padding:12px 34px 18px;
+  box-sizing:border-box;
+}
+.a3-cover-top-v684{align-self:start;padding-top:12px;font-weight:700;font-size:1.2rem;line-height:1.45;}
+.a3-cover-title-v684{align-self:center;font-size:2.25rem;font-weight:900;letter-spacing:.02em;}
+.a3-cover-bottom-v684{align-self:end;font-weight:700;font-size:1.05rem;line-height:1.45;}
+.a3-cover-class-v684{font-size:1.12rem;margin-bottom:10px;}
+.a3-cover-year-v684{margin-top:34px;}
+
+@media (max-width:767.98px){
+  #printPageSingle .so-header-print{padding-left:4px!important;padding-right:4px!important;}
+  #printPageSingle .so-title{font-size:.9rem!important;line-height:1.05!important;white-space:nowrap!important;}
+  #printPageSingle .so-subhead,
+  #gtPrintPagesContainer .so-subhead{
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    font-size:.62rem!important;
+    line-height:1.05!important;
+  }
+  #bghWeekApprovalV684{padding:10px!important;}
+  #bghWeekApprovalV684 .row{--bs-gutter-x:.5rem;--bs-gutter-y:.45rem;}
+  #bghApprovalNoteV684{min-height:48px!important;font-size:.78rem;}
+  .a3-cover-page-v684{min-width:900px;margin-bottom:8px;}
+}
+
+@media print{
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-cover-page-v684{
+    width:410mm!important;
+    height:286mm!important;
+    min-height:286mm!important;
+    max-height:286mm!important;
+    margin:0!important;
+    padding:4mm!important;
+    box-sizing:border-box!important;
+    border:.35mm solid #767676!important;
+    display:flex!important;
+    page-break-after:always!important;
+    break-after:page!important;
+    page-break-inside:avoid!important;
+    break-inside:avoid-page!important;
+    overflow:hidden!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-cover-page-v684::before{inset:1.4mm;border:.25mm solid #555!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-cover-inner-v684{padding:7mm 14mm 8mm!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-cover-top-v684{font-size:13pt!important;line-height:1.35!important;padding-top:4mm!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-cover-title-v684{font-size:31pt!important;line-height:1!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-cover-bottom-v684{font-size:12pt!important;line-height:1.35!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-cover-class-v684{font-size:13pt!important;margin-bottom:4mm!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-cover-year-v684{margin-top:12mm!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .sig-bgh-print{max-height:10px!important;max-width:68px!important;}
+}
+</style>
+
 </head>
 <!-- MODAL THÔNG TIN XÁC NHẬN ĐIỆN TỬ -->
 <div class="modal fade" id="modalChuKySoDetail" tabindex="-1" aria-hidden="true">
@@ -3285,11 +3374,31 @@
               </div>
               <div class="signature-box">
                 <div class="signature-title">HIỆU TRƯỞNG</div>
-                <div class="signature-space"></div>
-                
+                <div class="signature-space" id="printBGHSigSpace"><span class="text-muted" style="font-size:0.55rem;">Chưa duyệt</span></div>
+                <div class="fw-bold" id="printBGHName"></div>
               </div>
             </div>
           </div>
+        </div>
+
+        <div id="bghWeekApprovalV684" class="no-print d-none mt-2 p-3 border rounded-3 bg-light">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+            <div>
+              <div class="fw-bold text-primary">Duyệt sổ cuối tuần - Ban Giám hiệu</div>
+              <div class="small text-muted" id="bghApprovalHintV684">Sau khi GVCN ký chốt, BGH có thể duyệt bất kỳ thời điểm nào.</div>
+            </div>
+            <span class="badge bg-secondary" id="bghApprovalStateV684">Chưa duyệt</span>
+          </div>
+          <div class="row g-2 align-items-end">
+            <div class="col-lg-9 col-md-8">
+              <label class="form-label small fw-bold mb-1" for="bghApprovalNoteV684">Ý kiến BGH (không bắt buộc)</label>
+              <textarea id="bghApprovalNoteV684" class="form-control form-control-sm" rows="2" placeholder="Nhận xét hoặc lưu ý sau khi kiểm tra sổ tuần..."></textarea>
+            </div>
+            <div class="col-lg-3 col-md-4">
+              <button type="button" class="btn btn-primary btn-sm w-100 fw-bold" id="bghApproveBtnV684" onclick="guiDuyetTuanBGHV684()">Duyệt &amp; ký chốt</button>
+            </div>
+          </div>
+          <div class="small mt-2 text-muted" id="bghApprovalMetaV684"></div>
         </div>
 
       </div>
@@ -3888,11 +3997,11 @@
     </div>
     <div class="col-lg-3 col-md-4">
       <label class="form-label fw-bold mb-1">2. Chọn lớp</label>
-      <select class="form-select form-select-sm" id="gtPrintLop" onchange="capNhatLoaiSoPrintA3GiamThiV45()"></select>
+      <select class="form-select form-select-sm" id="gtPrintLop" onchange="capNhatLoaiSoPrintA3GiamThiV45();capNhatTrangBiaPreviewV684()"></select>
     </div>
     <div class="col-lg-2 col-md-4">
       <label class="form-label fw-bold mb-1">3. Loại sổ</label>
-      <select class="form-select form-select-sm" id="gtPrintBookMode" onchange="capNhatLoaiSoPrintA3GiamThiV45()">
+      <select class="form-select form-select-sm" id="gtPrintBookMode" onchange="capNhatLoaiSoPrintA3GiamThiV45();capNhatTrangBiaPreviewV684()">
         <option value="LOP_CHINH">Sổ đầu bài lớp</option>
         <option value="GDTC">Sổ đầu bài GDTC</option>
       </select>
@@ -3934,7 +4043,13 @@
     </div>
 
     <div class="col-12 d-flex flex-wrap justify-content-between align-items-center gap-2 pt-1">
-      <div class="small text-muted" id="gtPrintBookNoteV45">Mỗi tuần được dàn thành đúng 1 trang A3 ngang. Lớp chuyên đề sẽ tự chuyển sang Sổ đầu bài Chuyên đề.</div>
+      <div class="d-flex flex-column gap-1">
+        <div class="small text-muted" id="gtPrintBookNoteV45">Mỗi tuần được dàn thành đúng 1 trang A3 ngang. Lớp chuyên đề sẽ tự chuyển sang Sổ đầu bài Chuyên đề.</div>
+        <div class="form-check form-check-inline mb-0">
+          <input class="form-check-input" type="checkbox" id="gtPrintCoverV684" checked onchange="capNhatTrangBiaPreviewV684()">
+          <label class="form-check-label fw-semibold small" for="gtPrintCoverV684">In trang bìa A3 ngang</label>
+        </div>
+      </div>
       <button type="button" class="btn btn-info btn-sm fw-bold text-white px-4" id="btnGtPrintSearch" onclick="traCuuInSodbGiamThiHandler()">Tải bản in</button>
     </div>
   </div>
@@ -4559,7 +4674,7 @@
   const SODB_SUPABASE_URL_V66 = "https://mlwhxxpmnhrrkbkivvye.supabase.co";
   const SODB_SUPABASE_PUBLISHABLE_KEY_V66 = "sb_publishable_Hq6KRH5KDT1eiOYLwwQhkw_c45sZkgi";
   const SODB_EDGE_URL_V66 = SODB_SUPABASE_URL_V66 + "/functions/v1/sodb-core-v68";
-  const SODB_FRONTEND_VERSION = "V68.3";
+  const SODB_FRONTEND_VERSION = "V68.4";
   window.__SODB_BACKEND_VERSION__ = "UNKNOWN";
 
   function normalizeSignatureUrlV67_1(raw){
@@ -4639,7 +4754,7 @@
   const SODB_EDGE_RPC_METHODS_V67 = new Set([
     'getDanhSachBaiDayTheoMon','layDanhSachKHBDTheoKhoiV36','capNhatKeHoachBaiDay',
     'layDanhSachDuyetKHBDV50','xuLyDuyetKHBDV50','layKhbdCaNhanV67','chonKhbdCaNhanV67',
-    'layTrangSoDauBaiV24','layDuLieuSoDauBaiTuanGop','luuSoDauBai','luuChotTuanGVCN',
+    'layTrangSoDauBaiV24','layDuLieuSoDauBaiTuanGop','luuSoDauBai','luuChotTuanGVCN','duyetTuanBGHV684',
     'kiemTraTrangThaiKhoaTuan','adminMoKhoaTuan','layNhatKyV4',
     'getDanhSachMonAdminV7','getDanhSachMonKHBD','getDanhSachGVTheoMon','luuCauHinhV4',
     'traCuuChiTietGiamThi','kiemTraNhapTreGiamThi','traCuuThongKeTheoKhoiNgay',
@@ -4786,7 +4901,7 @@
   async function callSodbEdgeRpcV67(method,args){
     try{
       const data=await callSodbEdgeV66({action:'rpc',method:String(method||''),args:Array.isArray(args)?args:[]});
-      if(!data||data.success!==true)throw new Error(data&&data.message?data.message:'Supabase V68.3 không thực hiện được yêu cầu.');
+      if(!data||data.success!==true)throw new Error(data&&data.message?data.message:'Supabase V68.4 không thực hiện được yêu cầu.');
       return data.result;
     }catch(err){
       const msg=String(err&&err.message?err.message:err||'');
@@ -5124,7 +5239,7 @@
     btn.disabled=false;txt.textContent='Đăng nhập';
     if(!res||!res.success){setCentralLoginStatusV4(res&&res.message?res.message:'Không đăng nhập được.','danger');return;}
     document.getElementById('centralPasswordV4').value='';
-    console.info('[V68.3 PERF] Login tổng:',Math.round(performance.now()-loginStarted)+'ms','server:',(res.serverMs??'—')+'ms','path:',res.loginPath||source,'dashboard gộp:',(res.dashboardBundledMs??'—')+'ms','backend:',res.backendVersion||source,'source:',source);
+    console.info('[V68.4 PERF] Login tổng:',Math.round(performance.now()-loginStarted)+'ms','server:',(res.serverMs??'—')+'ms','path:',res.loginPath||source,'dashboard gộp:',(res.dashboardBundledMs??'—')+'ms','backend:',res.backendVersion||source,'source:',source);
     apDungPhanQuyenV4(res,true);
   }
 
@@ -5139,7 +5254,7 @@
     try{
       const edgeRes=await callSodbEdgeV66({action:'login',account,password});
       if(edgeRes&&edgeRes.success){
-        if(String(edgeRes.backendVersion||'')!=='V68_3_EDGE')throw new Error('Edge Function chưa đúng V68.3.');
+        if(String(edgeRes.backendVersion||'')!=='V68_4_EDGE')throw new Error('Edge Function chưa đúng V68.4.');
         handleLoginResponseV66(edgeRes,loginPerfStartedV66,'SUPABASE_EDGE',btn,txt);return;
       }
       // Sai tài khoản/mật khẩu hoặc bị khóa: không gọi fallback để tránh nhân đôi lần thử.
@@ -7043,6 +7158,78 @@ function xuatExcelNhapTreGiamThi() {
     tbody.innerHTML=out;
   }
 
+  function getBghSessionV684(){
+    return currentUnifiedLoginV4&&currentUnifiedLoginV4.sessions?currentUnifiedLoginV4.sessions.BGH:null;
+  }
+  function applyBghApprovalV684(approval,chot){
+    const space=document.getElementById('printBGHSigSpace');
+    const name=document.getElementById('printBGHName');
+    const panel=document.getElementById('bghWeekApprovalV684');
+    const state=document.getElementById('bghApprovalStateV684');
+    const note=document.getElementById('bghApprovalNoteV684');
+    const meta=document.getElementById('bghApprovalMetaV684');
+    const hint=document.getElementById('bghApprovalHintV684');
+    const btn=document.getElementById('bghApproveBtnV684');
+    const hasApproval=!!(approval&&approval.success);
+    if(space&&name){
+      if(hasApproval){
+        const sigRaw=String(approval.chuKyBGH||approval.kySo||approval.signatureRef||'');
+        const sigUrl=normalizeSignatureUrlV67_1(sigRaw);
+        if(sigUrl){
+          space.innerHTML=`<img src="${escapeHtml(sigUrl)}" class="sig-bgh-print" alt="Chữ ký Hiệu trưởng" onerror="handleSignatureImageErrorV682(this)">`;
+        }else{
+          space.innerHTML='<span class="badge bg-primary" style="font-size:.55rem;">✓ Đã duyệt</span>';
+        }
+        name.textContent=approval.tenBGH||'';
+      }else{
+        space.innerHTML='<span class="text-muted" style="font-size:.55rem;">Chưa duyệt</span>';
+        name.textContent='';
+      }
+    }
+    const bgh=getBghSessionV684();
+    const isMain=String(document.getElementById('viewBookMode')?.value||'LOP_CHINH')==='LOP_CHINH';
+    if(panel)panel.classList.toggle('d-none',!(bgh&&bgh.sessionToken&&isMain));
+    if(!(bgh&&bgh.sessionToken&&isMain))return;
+    if(note)note.value=hasApproval?(approval.ykien||''):'';
+    if(state){
+      state.textContent=hasApproval?'Đã duyệt':'Chưa duyệt';
+      state.className='badge '+(hasApproval?'bg-primary':'bg-secondary');
+    }
+    if(meta)meta.textContent=hasApproval?`Đã duyệt bởi ${approval.tenBGH||'BGH'}${approval.time?' · '+approval.time:''}${approval.chucVu?' · '+approval.chucVu:''}`:'';
+    const gvcnClosed=!!(chot&&chot.success);
+    if(btn){
+      btn.disabled=!gvcnClosed;
+      btn.textContent=hasApproval?'Cập nhật duyệt & ký':'Duyệt & ký chốt';
+    }
+    if(hint){
+      hint.textContent=gvcnClosed
+        ? 'BGH có thể duyệt/cập nhật duyệt bất kỳ thời điểm nào; không áp dụng mốc 12h/18h hoặc giới hạn ngày.'
+        : 'GVCN chưa ký chốt tuần. BGH sẽ duyệt sau khi GVCN hoàn tất ký chốt.';
+    }
+  }
+  async function guiDuyetTuanBGHV684(){
+    const bgh=getBghSessionV684();
+    if(!bgh?.sessionToken){showToastV9('Tài khoản hiện tại không có quyền BGH.','danger');return;}
+    const lop=String(document.getElementById('viewLop')?.value||'').trim();
+    const tuan=Math.max(1,Math.min(52,parseInt(document.getElementById('viewTuan')?.value)||1));
+    const ykien=String(document.getElementById('bghApprovalNoteV684')?.value||'').trim();
+    if(!lop){showToastV9('Chưa chọn lớp cần duyệt.','danger');return;}
+    const ok=await confirmV13(`Xác nhận BGH duyệt và ký chốt lớp ${lop} - Tuần ${tuan}?`,{title:'Duyệt sổ cuối tuần',confirmText:'Duyệt & ký',danger:false});
+    if(!ok)return;
+    const btn=document.getElementById('bghApproveBtnV684'),old=btn?.textContent||'Duyệt & ký chốt';
+    if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner-border spinner-border-sm me-1"></span>Đang duyệt...';}
+    try{
+      const r=await callSodbEdgeRpcV67('duyetTuanBGHV684',[{lop,tuan,ykien},{token:bgh.sessionToken}]);
+      if(!r?.success)throw new Error(r?.message||'Không duyệt được tuần.');
+      showToastV9(r.message||'Đã duyệt tuần.','success');
+      [...sodbViewCacheV6.keys()].filter(k=>String(k).startsWith(lop+'|'+tuan+'|')).forEach(k=>sodbViewCacheV6.delete(k));
+      setTimeout(()=>traCuuSoDauBaiTuanGop(true),100);
+    }catch(e){
+      showToastV9(e&&e.message?e.message:String(e),'danger');
+      if(btn){btn.disabled=false;btn.textContent=old;}
+    }
+  }
+
   function traCuuSoDauBaiTuanGop(forceRefreshV6) {
     const lop=document.getElementById('viewLop').value;
     const tuan=parseInt(document.getElementById('viewTuan').value)||1;
@@ -7073,8 +7260,10 @@ function xuatExcelNhapTreGiamThi() {
       if(chotRes&&chotRes.success){
         ykienElem.innerText=chotRes.ykien||'Không có ý kiến.';
         nameElem.innerText=chotRes.tenGVCN||'';
-        if(chotRes.chuKyGVCN&&String(chotRes.chuKyGVCN).indexOf('IMAGE:')!==-1){
-          space.innerHTML=`<img src="${escapeHtml(normalizeSignatureUrlV67_1(String(chotRes.chuKyGVCN)))}" class="sig-gvcn-print" alt="Chữ ký GVCN">`;
+        const gvcnSigRaw=String(chotRes.chuKyGVCN||chotRes.kySo||chotRes.signatureRef||'');
+        const gvcnSigUrl=normalizeSignatureUrlV67_1(gvcnSigRaw);
+        if(gvcnSigUrl){
+          space.innerHTML=`<img src="${escapeHtml(gvcnSigUrl)}" class="sig-gvcn-print" alt="Chữ ký GVCN" onerror="handleSignatureImageErrorV682(this)">`;
         }else{
           space.innerHTML='<span class="badge bg-success" style="font-size:.55rem;">✓ Đã ký chốt</span>';
         }
@@ -7098,6 +7287,7 @@ function xuatExcelNhapTreGiamThi() {
       if(res.foundCount===0){
         tbody.innerHTML=`<tr><td colspan="12" class="text-warning py-3 text-center">Chưa có dữ liệu lớp ${escapeHtml(lop)} - Tuần ${tuan}</td></tr>`;
         applyChotV10(payload&&payload.chot);
+        applyBghApprovalV684(payload&&payload.bghDuyet,payload&&payload.chot);
         return;
       }
 
@@ -7109,6 +7299,7 @@ function xuatExcelNhapTreGiamThi() {
         document.getElementById('sumXepLoai').innerText=Number(res.summary.dtbTuan)>=8?'Loại A':(Number(res.summary.dtbTuan)>=6.5?'Loại B':'Loại C');
         document.getElementById('sumTietChuaKy').innerText=res.summary.soTietChuaKy;
         applyChotV10(payload&&payload.chot);
+        applyBghApprovalV684(payload&&payload.bghDuyet,payload&&payload.chot);
         sodbViewCacheV6.set(cacheKey,{ts:Date.now(),res:payload});
         const stamp=document.getElementById('sodbLoadedAtV10');
         if(stamp)stamp.textContent=payload&&payload.serverTime?('Cập nhật: '+payload.serverTime):'';
@@ -7158,6 +7349,7 @@ function xuatExcelNhapTreGiamThi() {
       document.getElementById('sumXepLoai').innerText=Number(res.summary.dtbTuan)>=8?'Loại A':(Number(res.summary.dtbTuan)>=6.5?'Loại B':'Loại C');
       document.getElementById('sumTietChuaKy').innerText=res.summary.soTietChuaKy;
       applyChotV10(payload&&payload.chot);
+      applyBghApprovalV684(payload&&payload.bghDuyet,payload&&payload.chot);
       sodbViewCacheV6.set(cacheKey,{ts:Date.now(),res:payload});
       const stamp=document.getElementById('sodbLoadedAtV10');
       if(stamp)stamp.textContent=payload&&payload.serverTime?('Cập nhật: '+payload.serverTime):'';
@@ -7826,6 +8018,36 @@ function traCuuInSodbGiamThiHandler() {
   taiVaHienThiDanhSachTuanGiamThi(lop, dsTuanArr, bookMode);
 }
 
+function taoTrangBiaA3V684(lop,bookMode){
+  const schoolYear=String(document.getElementById('printSchoolYearV20')?.textContent||'2026 - 2027').trim();
+  const classLabel=String(lop||document.getElementById('gtPrintLop')?.value||'').trim();
+  return `<div class="a3-cover-page-v684" data-cover="true" data-book-mode="${escapeHtml(bookMode||'LOP_CHINH')}">
+    <div class="a3-cover-inner-v684">
+      <div class="a3-cover-top-v684">
+        <div>SỞ GIÁO DỤC VÀ ĐÀO TẠO</div>
+        <div>THPT HỒ THỊ BI</div>
+      </div>
+      <div class="a3-cover-title-v684">SỔ GHI ĐẦU BÀI</div>
+      <div class="a3-cover-bottom-v684">
+        <div class="a3-cover-class-v684">LỚP: ${escapeHtml(classLabel)}</div>
+        <div>THPT HỒ THỊ BI</div>
+        <div>THÀNH PHỐ HỒ CHÍ MINH</div>
+        <div class="a3-cover-year-v684">NĂM HỌC: ${escapeHtml(schoolYear)}</div>
+      </div>
+    </div>
+  </div>`;
+}
+function capNhatTrangBiaPreviewV684(){
+  const container=document.getElementById('gtPrintPagesContainer');if(!container)return;
+  container.querySelectorAll('.a3-cover-page-v684').forEach(x=>x.remove());
+  const checked=!!document.getElementById('gtPrintCoverV684')?.checked;
+  if(!checked)return;
+  const lop=document.getElementById('gtPrintLop')?.value||'';
+  if(!lop)return;
+  const mode=document.getElementById('gtPrintBookMode')?.value||'LOP_CHINH';
+  container.insertAdjacentHTML('afterbegin',taoTrangBiaA3V684(lop,mode));
+}
+
 async function taiVaHienThiDanhSachTuanGiamThi(lop, dsTuan, bookMode) {
   const container = document.getElementById('gtPrintPagesContainer');
   const btn = document.getElementById('btnGtPrintSearch');
@@ -7853,7 +8075,8 @@ async function taiVaHienThiDanhSachTuanGiamThi(lop, dsTuan, bookMode) {
   btn.innerText = oldText || 'Tải bản in';
 
   if (htmlAllPages) {
-    container.innerHTML = htmlAllPages;
+    const coverHtml=document.getElementById('gtPrintCoverV684')?.checked?taoTrangBiaA3V684(lop,bookMode):'';
+    container.innerHTML = coverHtml + htmlAllPages;
     const layout=(laSoGop5TuanV57()?document.getElementById('gtPrintLayoutV57')?.value:'ONE_WEEK')||'ONE_WEEK';
     const msg=layout==='FIVE_WEEKS'
       ? `Đã chuẩn bị ${loaded}/${dsTuan.length} tuần · khi in sẽ gộp tối đa 5 tuần / trang A3 - ${bookLabel}.`
@@ -7973,11 +8196,24 @@ function layHtmlOnePageA3GiamThi(lop, tuan, bookMode) {
         if (chotResData) {
           ykienText = chotResData.ykien || 'Không có ý kiến.';
           gvcnNameText = chotResData.tenGVCN || '';
-          if (chotResData.chuKyGVCN && String(chotResData.chuKyGVCN).indexOf('IMAGE:') !== -1) {
-            sigSpaceHtml = `<img src="${escapeHtml(normalizeSignatureUrlV67_1(String(chotResData.chuKyGVCN)))}" class="sig-gvcn-print" alt="Chữ ký GVCN">`;
+          const gvcnSigRaw=String(chotResData.chuKyGVCN||chotResData.kySo||chotResData.signatureRef||'');
+          const gvcnSigUrl=normalizeSignatureUrlV67_1(gvcnSigRaw);
+          if (gvcnSigUrl) {
+            sigSpaceHtml = `<img src="${escapeHtml(gvcnSigUrl)}" class="sig-gvcn-print" alt="Chữ ký GVCN">`;
           } else {
             sigSpaceHtml = '<span class="badge bg-success" style="font-size: 0.55rem;">✓ Đã ký chốt</span>';
           }
+        }
+        let bghNameText='';
+        let bghSigSpaceHtml='<span class="text-muted" style="font-size:0.55rem;">Chưa duyệt</span>';
+        const bghResData=payload.bghDuyet&&payload.bghDuyet.success?payload.bghDuyet:null;
+        if(bghResData){
+          bghNameText=bghResData.tenBGH||'';
+          const bghSigRaw=String(bghResData.chuKyBGH||bghResData.kySo||bghResData.signatureRef||'');
+          const bghSigUrl=normalizeSignatureUrlV67_1(bghSigRaw);
+          bghSigSpaceHtml=bghSigUrl
+            ? `<img src="${escapeHtml(bghSigUrl)}" class="sig-bgh-print" alt="Chữ ký Hiệu trưởng">`
+            : '<span class="badge bg-primary" style="font-size:0.55rem;">✓ Đã duyệt</span>';
         }
 
         const dtbNum = parseFloat(res.summary?.dtbTuan) || 0;
@@ -8013,7 +8249,7 @@ function layHtmlOnePageA3GiamThi(lop, tuan, bookMode) {
             <div><strong>Ý kiến GVCN:</strong> <span class="fst-italic text-secondary">${escapeHtml(ykienText)}</span></div>
             <div class="signature-footer">
               <div class="signature-box"><div class="signature-title">GIÁO VIÊN CHỦ NHIỆM</div><div class="signature-space">${sigSpaceHtml}</div><div class="fw-bold" style="font-size:8pt;">${escapeHtml(gvcnNameText)}</div></div>
-              <div class="signature-box"><div class="signature-title">HIỆU TRƯỞNG</div><div class="signature-space"></div><div class="fst-italic">(Ký và ghi rõ họ tên)</div></div>
+              <div class="signature-box"><div class="signature-title">HIỆU TRƯỞNG</div><div class="signature-space">${bghSigSpaceHtml}</div><div class="fw-bold" style="font-size:8pt;">${escapeHtml(bghNameText)}</div></div>
             </div>
           </div>
         </div>`;
@@ -9025,7 +9261,10 @@ document.getElementById('overviewScopeV20').textContent='Đang tải tổng quan
     const root=document.createElement('div');
     root.id='a3PrintRootV56';
     root.setAttribute('aria-hidden','true');
-    root.innerHTML=taoHtmlInTraCuuV57(pages);
+    const coverHtml=document.getElementById('gtPrintCoverV684')?.checked
+      ? taoTrangBiaA3V684(document.getElementById('gtPrintLop')?.value||'',document.getElementById('gtPrintBookMode')?.value||'LOP_CHINH')
+      : '';
+    root.innerHTML=coverHtml+taoHtmlInTraCuuV57(pages);
     document.body.appendChild(root);
     document.body.classList.add('a3-tracuu-v56');
     const layout=(laSoGop5TuanV57()?document.getElementById('gtPrintLayoutV57')?.value:'ONE_WEEK')||'ONE_WEEK';

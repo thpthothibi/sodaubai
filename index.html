@@ -1501,6 +1501,67 @@
     .overview-v20 :focus-visible,#sodbTab :focus-visible{outline:3px solid #7caddf;outline-offset:3px;}
     @media(max-width:900px){.overview-metrics-v20{grid-template-columns:repeat(2,minmax(0,1fr));}.overview-period-v20{margin-left:0;}.overview-heading-v20{align-items:flex-start;}}
     @media(max-width:575px){body{padding:10px;}#sodbTab{flex-wrap:nowrap;overflow-x:auto;}#sodbTab .nav-link{white-space:nowrap;padding:9px 12px;}.overview-heading-v20{flex-direction:column;gap:12px;}.overview-heading-v20 h1{font-size:1.5rem;}.overview-toolbar-v20{gap:12px;padding:12px;}.overview-toolbar-v20>div{flex:1;}.overview-toolbar-v20 .form-select{min-width:130px;}.overview-metrics-v20{gap:10px;margin:12px 0;}.overview-metric-v20{padding:14px;min-height:133px;}.overview-metric-v20.needs-attention{padding-top:12px;}.overview-metric-v20 strong{font-size:1.65rem;}.overview-progress-v20{flex-direction:column;align-items:stretch;gap:10px;}.overview-meter-v20{flex:auto;}.overview-records-head-v20{padding:16px 12px 12px;}.overview-list-tabs-v20{padding-left:12px;padding-right:12px;}.overview-pagination-v20{padding:12px;}}
+
+    @media(max-width:575px){
+      #tabDashboardV9 .overview-toolbar-v20{
+        display:grid!important;
+        grid-template-columns:1fr!important;
+        align-items:stretch!important;
+      }
+      #tabDashboardV9 .overview-toolbar-v20 > div,
+      #tabDashboardV9 .overview-toolbar-v20 > button,
+      #tabDashboardV9 .overview-toolbar-v20 #overviewRoleWrapV20,
+      #tabDashboardV9 .overview-toolbar-v20 #overviewClassWrapV20{
+        width:100%!important;
+        min-width:0!important;
+        flex:0 0 100%!important;
+      }
+      #tabDashboardV9 .overview-toolbar-v20 .form-select,
+      #tabDashboardV9 .overview-toolbar-v20 .form-control,
+      #tabDashboardV9 .overview-toolbar-v20 input[type="date"]{
+        min-width:0!important;
+        width:100%!important;
+      }
+      #tabDashboardV9 .overview-period-v20{
+        width:100%!important;
+        margin-left:0!important;
+        gap:6px!important;
+        overflow:hidden!important;
+      }
+      #tabDashboardV9 .overview-week-line-v28{
+        width:100%!important;
+        justify-content:flex-start!important;
+        align-items:flex-start!important;
+        flex-wrap:nowrap!important;
+        overflow:hidden!important;
+      }
+      #tabDashboardV9 .overview-week-line-v28 #overviewWeekV20{
+        display:block!important;
+        width:100%!important;
+        max-width:100%!important;
+        white-space:nowrap!important;
+        overflow:hidden!important;
+        text-overflow:ellipsis!important;
+        line-height:1.12!important;
+        font-size:clamp(1rem,5vw,1.35rem)!important;
+      }
+      #tabDashboardV9 #overviewUpdatedV20{
+        display:block!important;
+        max-width:100%!important;
+        white-space:normal!important;
+        word-break:break-word!important;
+        line-height:1.18!important;
+      }
+      #tabDashboardV9 #overviewRefreshV20{
+        width:100%!important;
+        min-height:44px!important;
+      }
+    }
+    @media(max-width:430px){
+      #tabDashboardV9 .overview-toolbar-v20{padding:10px!important;gap:10px!important;}
+      #tabDashboardV9 .overview-week-line-v28 #overviewWeekV20{font-size:clamp(.92rem,4.9vw,1.16rem)!important;}
+      #tabDashboardV9 #overviewUpdatedV20{font-size:.92rem!important;}
+    }
   }
 
 

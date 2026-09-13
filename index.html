@@ -4309,7 +4309,7 @@
   const SODB_SUPABASE_URL_V66 = "https://mlwhxxpmnhrrkbkivvye.supabase.co";
   const SODB_SUPABASE_PUBLISHABLE_KEY_V66 = "sb_publishable_Hq6KRH5KDT1eiOYLwwQhkw_c45sZkgi";
   const SODB_EDGE_URL_V66 = SODB_SUPABASE_URL_V66 + "/functions/v1/sodb-fast-v66";
-  const SODB_FRONTEND_VERSION = "V66.1";
+  const SODB_FRONTEND_VERSION = "V66.2";
   window.__SODB_BACKEND_VERSION__ = "UNKNOWN";
 
   (function installSodbGithubBridgeV59(){
@@ -4656,11 +4656,21 @@
     p.type=p.type==='password'?'text':'password';
   }
 
+  function getTeacherPasswordSessionV662(){
+    const sessions=(currentUnifiedLoginV4&&currentUnifiedLoginV4.sessions)||{};
+    // GVBM, GIÁM THỊ và BGH đều xác thực từ cùng hồ sơ giáo viên.
+    for(const role of ['GVBM','GIAM_THI','BGH']){
+      const x=sessions[role];
+      if(x&&x.sessionToken&&x.sdt)return {role:role,sdt:String(x.sdt||''),sessionToken:x.sessionToken};
+    }
+    return null;
+  }
+
   function moDoiMatKhauToanCucV36(){
     const sessions=(currentUnifiedLoginV4&&currentUnifiedLoginV4.sessions)||{};
     if(sessions.ADMIN){doiMatKhauAdminUiV4();return;}
-    // Giáo viên là nguồn mật khẩu chuẩn; đổi tại đây sẽ đồng bộ GVCN/TTCM/BGH.
-    if(sessions.GVBM&&gvbmDangNhapInfo){moModalDoiMatKhauGVBM();return;}
+    // V66.2: GVBM / GIÁM THỊ / BGH dùng chung mật khẩu nguồn tại Danh mục Giáo viên.
+    if(getTeacherPasswordSessionV662()){moModalDoiMatKhauGVBM();return;}
     if(sessions.GVCN&&gvcnDangNhapInfo){moModalDoiMatKhau();return;}
     if(sessions.TTCM&&ttcmDangNhapInfo){moModalDoiMatKhauTTCM();return;}
     alertV13('Không xác định được tài khoản để đổi mật khẩu. Vui lòng đăng nhập lại.');
@@ -4760,7 +4770,7 @@
     btn.disabled=false;txt.textContent='Đăng nhập';
     if(!res||!res.success){setCentralLoginStatusV4(res&&res.message?res.message:'Không đăng nhập được.','danger');return;}
     document.getElementById('centralPasswordV4').value='';
-    console.info('[V66.1 PERF] Login tổng:',Math.round(performance.now()-loginStarted)+'ms','server:',(res.serverMs??'—')+'ms','path:',res.loginPath||source,'dashboard gộp:',(res.dashboardBundledMs??'—')+'ms','backend:',res.backendVersion||source,'source:',source);
+    console.info('[V66.2 PERF] Login tổng:',Math.round(performance.now()-loginStarted)+'ms','server:',(res.serverMs??'—')+'ms','path:',res.loginPath||source,'dashboard gộp:',(res.dashboardBundledMs??'—')+'ms','backend:',res.backendVersion||source,'source:',source);
     apDungPhanQuyenV4(res,true);
   }
 
@@ -6144,9 +6154,14 @@ function xuatExcelNhapTreGiamThi() {
       return;
     }
 
+    const pwSessionV662=getTeacherPasswordSessionV662();
+    if(!pwSessionV662){
+      alertV13("⚠️ Không tìm thấy phiên tài khoản giáo viên hợp lệ. Vui lòng đăng nhập lại.");
+      return;
+    }
     google.script.run.withSuccessHandler(function(res) {
       if (res.success) {
-        showToastV9(res.message || "Đã lưu dữ liệu.", "success");
+        showToastV9(res.message || "Đã đổi mật khẩu.", "success");
         let modalElem = document.getElementById('modalDoiMatKhauGVBM');
         let modal = bootstrap.Modal.getInstance(modalElem);
         if (modal) modal.hide();
@@ -6154,7 +6169,9 @@ function xuatExcelNhapTreGiamThi() {
       } else {
         alertV13("❌ " + res.message);
       }
-    }).doiMatKhauGiaovien(gvbmDangNhapInfo.sdt, passCu, passMoi, {token: gvbmDangNhapInfo.sessionToken});
+    }).withFailureHandler(function(err){
+      alertV13("❌ Không đổi được mật khẩu: "+((err&&err.message)?err.message:err));
+    }).doiMatKhauGiaovien(pwSessionV662.sdt, passCu, passMoi, {token: pwSessionV662.sessionToken});
   }
 
   function traCuuGiamThi() {

@@ -4299,13 +4299,13 @@
      Thay URL bên dưới bằng URL Web App kết thúc bằng /exec sau khi Deploy lại
      file Code_GitHub_API.gs.
      ======================================================================== */
-  const SODB_API_URL = "https://script.google.com/macros/s/AKfycbzlO9GuNmpo27TKiXF5rucQ1gM8Jd2LkS121D8gK-GilPB7n7e4LnzuURImpdygF3g3Ug/exec";
+  const SODB_API_URL = "https://script.google.com/macros/s/AKfycbz9MXRTWMHFul61vWxTr3gOVNpfsL6R7zMZ8s-e_jh17wqmC6cYp9u25J-4onRhaJfnbA/exec";
 
-  (function installSodbGithubBridgeV48(){
+  (function installSodbGithubBridgeV59(){
     // Nếu đang chạy bên trong HtmlService của Apps Script thì dùng cầu nối gốc.
     if (window.google && window.google.script && window.google.script.run) return;
 
-    function assertApiUrlV48(){
+    function assertApiUrlV59(){
       const url=String(SODB_API_URL||'').trim();
       if(!/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec(?:[?#].*)?$/.test(url) || url.includes('PASTE_DEPLOYMENT_ID_HERE')){
         throw new Error('Chưa cấu hình SODB_API_URL. Hãy dán URL Web App Apps Script kết thúc bằng /exec vào đầu phần GITHUB PAGES BRIDGE V58 trong index.html.');
@@ -4315,7 +4315,7 @@
 
     function apiHelpUrlV58(){
       try{
-        const u=new URL(assertApiUrlV48());
+        const u=new URL(assertApiUrlV59());
         u.searchParams.set('health','1');
         return u.toString();
       }catch(_e){ return String(SODB_API_URL||''); }
@@ -4335,8 +4335,8 @@
       return 'Apps Script trả về HTML thay vì JSON. Kiểm tra quyền Web App: Execute as = Me và Who has access = Anyone.';
     }
 
-    async function callAppsScriptRpcV48(action,args){
-      const apiUrl=assertApiUrlV48();
+    async function callAppsScriptRpcV59(action,args){
+      const apiUrl=assertApiUrlV59();
       const controller=new AbortController();
       const timeout=setTimeout(()=>controller.abort(),60000);
       try{
@@ -4377,20 +4377,20 @@
 
     window.__SODB_API_HEALTH_URL__=apiHelpUrlV58();
 
-    function makeRunnerV48(successHandler,failureHandler){
+    function makeRunnerV59(successHandler,failureHandler){
       return new Proxy({}, {
         get:function(_target,prop){
           if(prop==='withSuccessHandler'){
-            return function(fn){ return makeRunnerV48(typeof fn==='function'?fn:null,failureHandler); };
+            return function(fn){ return makeRunnerV59(typeof fn==='function'?fn:null,failureHandler); };
           }
           if(prop==='withFailureHandler'){
-            return function(fn){ return makeRunnerV48(successHandler,typeof fn==='function'?fn:null); };
+            return function(fn){ return makeRunnerV59(successHandler,typeof fn==='function'?fn:null); };
           }
           // Tránh bị coi như Promise/thenable khi trình duyệt hoặc thư viện kiểm tra object.
           if(prop==='then') return undefined;
           return function(){
             const args=Array.prototype.slice.call(arguments);
-            callAppsScriptRpcV48(String(prop),args)
+            callAppsScriptRpcV59(String(prop),args)
               .then(function(result){ if(successHandler) successHandler(result); })
               .catch(function(error){
                 if(failureHandler) failureHandler(error);
@@ -4403,7 +4403,7 @@
 
     window.google=window.google||{};
     window.google.script=window.google.script||{};
-    window.google.script.run=makeRunnerV48(null,null);
+    window.google.script.run=makeRunnerV59(null,null);
     window.__SODB_GITHUB_MODE__=true;
   })();
 

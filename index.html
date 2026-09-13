@@ -4289,7 +4289,7 @@
 
 
   /* ========================================================================
-     GITHUB PAGES BRIDGE V48
+     GITHUB PAGES BRIDGE V58
      ------------------------------------------------------------------------
      - Khi index chạy trong Google Apps Script: giữ nguyên google.script.run.
      - Khi index chạy trên GitHub Pages: mô phỏng google.script.run và gửi RPC
@@ -4308,9 +4308,31 @@
     function assertApiUrlV48(){
       const url=String(SODB_API_URL||'').trim();
       if(!/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec(?:[?#].*)?$/.test(url) || url.includes('PASTE_DEPLOYMENT_ID_HERE')){
-        throw new Error('Chưa cấu hình SODB_API_URL. Hãy dán URL Web App Apps Script kết thúc bằng /exec vào đầu phần GITHUB PAGES BRIDGE V48 trong index.html.');
+        throw new Error('Chưa cấu hình SODB_API_URL. Hãy dán URL Web App Apps Script kết thúc bằng /exec vào đầu phần GITHUB PAGES BRIDGE V58 trong index.html.');
       }
       return url;
+    }
+
+    function apiHelpUrlV58(){
+      try{
+        const u=new URL(assertApiUrlV48());
+        u.searchParams.set('health','1');
+        return u.toString();
+      }catch(_e){ return String(SODB_API_URL||''); }
+    }
+
+    function apiHtmlErrorV58(raw){
+      const text=String(raw||'');
+      if(/accounts\.google\.com|servicelogin|đăng nhập.*google|sign in.*google|authorization required/i.test(text)){
+        return 'Web App đang yêu cầu đăng nhập Google. Hãy vào Deploy → Manage deployments và đặt Execute as: Me; Who has access: Anyone.';
+      }
+      if(/script function not found|function.*not found/i.test(text)){
+        return 'Deployment đang chạy phiên bản mã không có API cần thiết. Hãy Deploy → Manage deployments → Edit → New version → Deploy.';
+      }
+      if(/page not found|requested url was not found|deployment.*not found/i.test(text)){
+        return 'Không tìm thấy deployment Apps Script. Kiểm tra lại URL /exec và deployment đang hoạt động.';
+      }
+      return 'Apps Script trả về HTML thay vì JSON. Kiểm tra quyền Web App: Execute as = Me và Who has access = Anyone.';
     }
 
     async function callAppsScriptRpcV48(action,args){
@@ -4320,6 +4342,7 @@
       try{
         const response=await fetch(apiUrl,{
           method:'POST',
+          mode:'cors',
           redirect:'follow',
           credentials:'omit',
           cache:'no-store',
@@ -4328,28 +4351,31 @@
           signal:controller.signal
         });
         const raw=await response.text();
+        if(!response.ok){
+          throw new Error('Apps Script HTTP '+response.status+'. '+(raw?String(raw).replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim().slice(0,180):'Không có nội dung phản hồi.'));
+        }
         let payload;
         try{ payload=JSON.parse(raw); }
         catch(parseErr){
           const looksHtml=/^\s*</.test(raw||'');
-          throw new Error(looksHtml
-            ? 'Apps Script trả về trang HTML thay vì JSON. Hãy kiểm tra URL phải là /exec và Deployment cho phép truy cập phù hợp.'
-            : 'Phản hồi API không phải JSON hợp lệ.');
+          throw new Error(looksHtml ? apiHtmlErrorV58(raw) : 'Phản hồi API không phải JSON hợp lệ.');
         }
         if(!payload || payload.ok!==true){
           throw new Error(payload&&payload.error?payload.error:'API không thực hiện được yêu cầu.');
         }
         return payload.result;
       }catch(err){
-        if(err&&err.name==='AbortError') throw new Error('Máy chủ phản hồi quá lâu. Vui lòng thử lại.');
+        if(err&&err.name==='AbortError') throw new Error('Máy chủ phản hồi quá 60 giây. Kiểm tra Apps Script hoặc thử lại.');
         if(err instanceof TypeError){
-          throw new Error('Không kết nối được Apps Script API. Kiểm tra URL /exec, quyền triển khai Web App và kết nối mạng/CORS.');
+          throw new Error('Trình duyệt không kết nối được Apps Script (Failed to fetch/CORS). URL /exec đã cấu hình; hãy kiểm tra Deploy → Manage deployments → Execute as: Me → Who has access: Anyone.');
         }
         throw err;
       }finally{
         clearTimeout(timeout);
       }
     }
+
+    window.__SODB_API_HEALTH_URL__=apiHelpUrlV58();
 
     function makeRunnerV48(successHandler,failureHandler){
       return new Proxy({}, {
@@ -4701,8 +4727,9 @@
       })
       .withFailureHandler(function(err){
         btn.disabled=false;txt.textContent='Đăng nhập';
-        setCentralLoginStatusV4('Không thể kết nối máy chủ. Vui lòng thử lại.','danger');
-        console.error(err);
+        const detail=(err&&err.message)?String(err.message):String(err||'Không rõ lỗi kết nối.');
+        setCentralLoginStatusV4(detail+' Mở đường dẫn kiểm tra máy chủ nếu cần: '+(window.__SODB_API_HEALTH_URL__||SODB_API_URL+'?health=1'),'danger');
+        console.error('[SODB LOGIN]',err);
       })
       .dangNhapHeThongV4(account,password);
   }

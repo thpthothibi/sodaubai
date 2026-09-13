@@ -2550,6 +2550,151 @@
   @media(max-width:900px){.overview-analytics-v52{grid-template-columns:1fr;}#tabDashboardV9 .overview-heading-v20{align-items:flex-start!important;flex-direction:column!important;}#tabDashboardV9 .overview-actions-v20{justify-content:flex-start!important;width:100%!important;}}
   @media(max-width:575px){.overview-chart-card-v52,.overview-alert-card-v52{padding:12px;}.overview-chart-v52{min-height:225px}.overview-chart-v52 svg{height:205px}.overview-card-head-v52{flex-direction:column}.overview-metrics-v20{grid-template-columns:repeat(2,minmax(0,1fr))!important;}}
 
+
+  /* ===== V53: DASHBOARD MÀU NỔI BẬT - PHÂN BIỆT THEO VAI TRÒ ===== */
+  #tabDashboardV9{
+    --dash-main:#2563eb;
+    --dash-dark:#173f78;
+    --dash-soft:#eff6ff;
+    --dash-shadow:rgba(37,99,235,.18);
+  }
+  #tabDashboardV9.overview-role-bgh-v52{--dash-main:#0b63ce;--dash-dark:#063b82;--dash-soft:#eaf4ff;--dash-shadow:rgba(11,99,206,.22);}
+  #tabDashboardV9.overview-role-giamthi-v52{--dash-main:#e8790b;--dash-dark:#9a4700;--dash-soft:#fff5e8;--dash-shadow:rgba(232,121,11,.22);}
+  #tabDashboardV9.overview-role-gvbm-v52{--dash-main:#0787c9;--dash-dark:#075985;--dash-soft:#e9f8ff;--dash-shadow:rgba(7,135,201,.20);}
+  #tabDashboardV9.overview-role-gvcn-v52{--dash-main:#0c9a67;--dash-dark:#056348;--dash-soft:#eafbf4;--dash-shadow:rgba(12,154,103,.20);}
+  #tabDashboardV9.overview-role-ttcm-v52{--dash-main:#7c3aed;--dash-dark:#5521a8;--dash-soft:#f4efff;--dash-shadow:rgba(124,58,237,.20);}
+  #tabDashboardV9.overview-role-admin-v52{--dash-main:#d7334a;--dash-dark:#8f1730;--dash-soft:#fff0f3;--dash-shadow:rgba(215,51,74,.20);}
+
+  /* Hero đầu dashboard: màu nhận diện vai trò */
+  #tabDashboardV9 .overview-heading-v20{
+    position:relative!important;
+    overflow:hidden!important;
+    padding:20px 22px!important;
+    border:0!important;
+    background:linear-gradient(125deg,var(--dash-dark) 0%,var(--dash-main) 68%,color-mix(in srgb,var(--dash-main) 72%,#ffffff) 100%)!important;
+    box-shadow:0 12px 28px var(--dash-shadow)!important;
+  }
+  #tabDashboardV9 .overview-heading-v20::after{
+    content:""!important;
+    display:block!important;
+    position:absolute!important;
+    width:190px!important;height:190px!important;
+    right:-70px!important;top:-105px!important;
+    border-radius:50%!important;
+    background:rgba(255,255,255,.10)!important;
+    box-shadow:0 0 0 34px rgba(255,255,255,.045)!important;
+    pointer-events:none!important;
+  }
+  #tabDashboardV9 .overview-heading-copy-v52,
+  #tabDashboardV9 .overview-actions-v20{position:relative;z-index:1;}
+  #tabDashboardV9 .overview-kicker-v52{color:rgba(255,255,255,.76)!important;}
+  #tabDashboardV9 #overviewTitleV52{color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.12);}
+  #tabDashboardV9 .overview-role-line-v52{color:rgba(255,255,255,.84)!important;}
+  #tabDashboardV9 .overview-role-badge-v52,
+  #tabDashboardV9.overview-role-bgh-v52 .overview-role-badge-v52{
+    color:#fff!important;
+    background:rgba(255,255,255,.16)!important;
+    border-color:rgba(255,255,255,.35)!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.12);
+  }
+  #tabDashboardV9 .overview-actions-v20 .btn-primary{
+    color:var(--dash-dark)!important;background:#fff!important;border-color:#fff!important;
+    box-shadow:0 5px 14px rgba(0,0,0,.13)!important;
+  }
+  #tabDashboardV9 .overview-actions-v20 .btn-outline-primary{
+    color:#fff!important;background:rgba(255,255,255,.10)!important;border-color:rgba(255,255,255,.46)!important;
+  }
+  #tabDashboardV9 .overview-actions-v20 .btn-outline-primary:hover{background:rgba(255,255,255,.20)!important;}
+
+  /* Thanh lọc */
+  #tabDashboardV9 .overview-toolbar-v20{
+    border-color:color-mix(in srgb,var(--dash-main) 20%,#dfe7f1)!important;
+    background:linear-gradient(135deg,#fff 0%,var(--dash-soft) 100%)!important;
+    box-shadow:0 5px 16px rgba(31,55,95,.07)!important;
+  }
+  #tabDashboardV9 .overview-toolbar-v20 label{color:var(--dash-dark)!important;font-weight:750!important;}
+  #tabDashboardV9 .overview-week-line-v28 #overviewWeekV20{color:var(--dash-main)!important;}
+  #tabDashboardV9 #overviewRefreshV20{color:var(--dash-main)!important;border-color:color-mix(in srgb,var(--dash-main) 42%,#fff)!important;background:#fff!important;}
+  #tabDashboardV9 #overviewRefreshV20:hover{color:#fff!important;background:var(--dash-main)!important;border-color:var(--dash-main)!important;}
+
+  /* KPI: mỗi ô một màu để đọc nhanh */
+  #tabDashboardV9 .overview-metrics-v20{gap:13px!important;margin:15px 0!important;}
+  #tabDashboardV9 .overview-metric-v20,
+  #tabDashboardV9 .overview-metric-v20.needs-attention{
+    --metric:#2563eb;--metric-dark:#17428c;--metric-soft:#edf5ff;
+    position:relative!important;
+    min-height:112px!important;
+    padding:17px 18px 16px 19px!important;
+    border:1px solid color-mix(in srgb,var(--metric) 22%,#e5eaf1)!important;
+    border-radius:15px!important;
+    background:linear-gradient(145deg,#fff 18%,var(--metric-soft) 100%)!important;
+    box-shadow:0 7px 18px color-mix(in srgb,var(--metric) 12%,transparent)!important;
+    overflow:hidden!important;
+  }
+  #tabDashboardV9 .overview-metric-v20::before,
+  #tabDashboardV9 .overview-metric-v20.needs-attention::before{
+    content:""!important;display:block!important;position:absolute!important;
+    left:0!important;top:0!important;bottom:0!important;width:5px!important;background:var(--metric)!important;
+  }
+  #tabDashboardV9 .overview-metric-v20::after{
+    content:"";position:absolute;right:-22px;top:-25px;width:72px;height:72px;border-radius:50%;background:color-mix(in srgb,var(--metric) 9%,transparent);pointer-events:none;
+  }
+  #tabDashboardV9 .overview-metric-v20:nth-child(1){--metric:#0b82d4;--metric-dark:#075b97;--metric-soft:#eaf7ff;}
+  #tabDashboardV9 .overview-metric-v20:nth-child(2){--metric:#10a36f;--metric-dark:#08734f;--metric-soft:#eafbf4;}
+  #tabDashboardV9 .overview-metric-v20:nth-child(3){--metric:#f08a13;--metric-dark:#a85a05;--metric-soft:#fff5e8;}
+  #tabDashboardV9 .overview-metric-v20:nth-child(4){--metric:#7c4bd6;--metric-dark:#552a9d;--metric-soft:#f5efff;}
+  #tabDashboardV9 .overview-metric-v20.needs-attention{--metric:#df3f4f;--metric-dark:#a51f31;--metric-soft:#fff0f2;}
+  #tabDashboardV9 .overview-metric-v20 span{color:#55677e!important;font-size:.78rem!important;font-weight:760!important;}
+  #tabDashboardV9 .overview-metric-v20 strong,
+  #tabDashboardV9 .overview-metric-v20.needs-attention strong{color:var(--metric-dark)!important;font-size:1.82rem!important;font-weight:850!important;}
+  #tabDashboardV9 .overview-metric-v20 small{color:#78879b!important;font-size:.68rem!important;}
+  #tabDashboardV9 button.overview-metric-v20:hover{transform:translateY(-2px);box-shadow:0 10px 24px color-mix(in srgb,var(--metric) 18%,transparent)!important;}
+
+  /* Biểu đồ và cảnh báo */
+  #tabDashboardV9 .overview-chart-card-v52{
+    border:1px solid #cfe1f5!important;
+    background:linear-gradient(145deg,#ffffff 0%,#f1f8ff 100%)!important;
+    box-shadow:0 8px 22px rgba(30,95,160,.10)!important;
+  }
+  #tabDashboardV9 .overview-chart-card-v52 .overview-card-head-v52 strong{color:#12528f!important;font-size:.94rem!important;}
+  #tabDashboardV9 .overview-chart-card-v52 .overview-chip-v52{background:#e1efff!important;color:#185a9a!important;border:1px solid #c7def8;}
+  #tabDashboardV9 .overview-alert-card-v52{
+    border:1px solid #f2d5a5!important;
+    background:linear-gradient(145deg,#fff 0%,#fff8ea 100%)!important;
+    box-shadow:0 8px 22px rgba(199,120,15,.10)!important;
+  }
+  #tabDashboardV9 .overview-alert-card-v52 .overview-card-head-v52 strong{color:#a55a08!important;font-size:.94rem!important;}
+  #tabDashboardV9 .overview-class-row-v52:hover{background:rgba(245,158,11,.075);border-radius:9px;}
+  #tabDashboardV9 .overview-rank-v52{background:#fff1d8!important;color:#a45b08!important;border:1px solid #f4deb5;}
+  #tabDashboardV9 .overview-class-row-v52:nth-child(-n+3) .overview-rank-v52{background:#ffe1a8!important;color:#8a4500!important;}
+  #tabDashboardV9 .overview-class-row-v52 b{color:#c26707!important;}
+
+  /* Danh sách kiểm tra */
+  #tabDashboardV9 .overview-records-v20{
+    border:1px solid #dbe5f1!important;
+    border-radius:15px!important;
+    box-shadow:0 7px 20px rgba(31,55,95,.075)!important;
+    overflow:hidden!important;
+  }
+  #tabDashboardV9 .overview-records-head-v20{
+    background:linear-gradient(90deg,var(--dash-soft),#fff)!important;
+    border-bottom:1px solid color-mix(in srgb,var(--dash-main) 15%,#e7ebf1)!important;
+  }
+  #tabDashboardV9 .overview-records-head-v20 h2{color:var(--dash-dark)!important;}
+  #tabDashboardV9 .overview-list-tabs-v20 button.active{
+    color:#fff!important;background:var(--dash-main)!important;border-color:var(--dash-main)!important;box-shadow:0 4px 10px var(--dash-shadow)!important;
+  }
+  #tabDashboardV9 .overview-table-v20 thead th{background:#f3f7fc!important;color:#4b607b!important;}
+  #tabDashboardV9 .overview-table-v20 tbody tr:hover td{background:#f8fbff!important;}
+
+  @media(max-width:575px){
+    #tabDashboardV9 .overview-heading-v20{padding:17px!important;border-radius:14px!important;}
+    #tabDashboardV9 #overviewTitleV52{font-size:1.32rem!important;}
+    #tabDashboardV9 .overview-metrics-v20{gap:9px!important;}
+    #tabDashboardV9 .overview-metric-v20,#tabDashboardV9 .overview-metric-v20.needs-attention{min-height:106px!important;padding:14px 13px 13px 16px!important;}
+    #tabDashboardV9 .overview-metric-v20 strong,#tabDashboardV9 .overview-metric-v20.needs-attention strong{font-size:1.55rem!important;}
+  }
+
 </style>
 </head>
 <!-- MODAL THÔNG TIN XÁC NHẬN ĐIỆN TỬ -->

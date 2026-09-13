@@ -4348,8 +4348,20 @@
   const SODB_SUPABASE_URL_V66 = "https://mlwhxxpmnhrrkbkivvye.supabase.co";
   const SODB_SUPABASE_PUBLISHABLE_KEY_V66 = "sb_publishable_Hq6KRH5KDT1eiOYLwwQhkw_c45sZkgi";
   const SODB_EDGE_URL_V66 = SODB_SUPABASE_URL_V66 + "/functions/v1/sodb-core-v67";
-  const SODB_FRONTEND_VERSION = "V67";
+  const SODB_FRONTEND_VERSION = "V67.1";
   window.__SODB_BACKEND_VERSION__ = "UNKNOWN";
+
+  function normalizeSignatureUrlV67_1(raw){
+    let url=String(raw||'').trim();
+    if(!url)return '';
+    url=url.replace(/^IMAGE:/i,'').trim();
+    if(/^(data:image\/|blob:)/i.test(url))return url;
+    if(/drive\.google\.com/i.test(url)){
+      const m=url.match(/[-\w]{25,}/);
+      if(m)return 'https://drive.google.com/thumbnail?id='+encodeURIComponent(m[0])+'&sz=w480';
+    }
+    return url;
+  }
 
   // V67: các RPC dữ liệu vận hành chạy trực tiếp trên Supabase Edge.
   // Các chức năng Google Drive/backup đặc thù vẫn đi Apps Script.
@@ -4820,7 +4832,7 @@
     btn.disabled=false;txt.textContent='Đăng nhập';
     if(!res||!res.success){setCentralLoginStatusV4(res&&res.message?res.message:'Không đăng nhập được.','danger');return;}
     document.getElementById('centralPasswordV4').value='';
-    console.info('[V67 PERF] Login tổng:',Math.round(performance.now()-loginStarted)+'ms','server:',(res.serverMs??'—')+'ms','path:',res.loginPath||source,'dashboard gộp:',(res.dashboardBundledMs??'—')+'ms','backend:',res.backendVersion||source,'source:',source);
+    console.info('[V67.1 PERF] Login tổng:',Math.round(performance.now()-loginStarted)+'ms','server:',(res.serverMs??'—')+'ms','path:',res.loginPath||source,'dashboard gộp:',(res.dashboardBundledMs??'—')+'ms','backend:',res.backendVersion||source,'source:',source);
     apDungPhanQuyenV4(res,true);
   }
 
@@ -4835,7 +4847,7 @@
     try{
       const edgeRes=await callSodbEdgeV66({action:'login',account,password});
       if(edgeRes&&edgeRes.success){
-        if(String(edgeRes.backendVersion||'')!=='V67_EDGE')throw new Error('Edge Function chưa đúng V67.');
+        if(String(edgeRes.backendVersion||'')!=='V67_1_EDGE')throw new Error('Edge Function chưa đúng V67.1.');
         handleLoginResponseV66(edgeRes,loginPerfStartedV66,'SUPABASE_EDGE',btn,txt);return;
       }
       // Sai tài khoản/mật khẩu hoặc bị khóa: không gọi fallback để tránh nhân đôi lần thử.
@@ -5087,7 +5099,7 @@
     document.getElementById('gvcnMainContent').classList.remove('d-none');
     document.getElementById('gvcnWelcomeMsg').innerText=`✅ Xin chào GVCN ${res.tenGVCN} - Lớp ${res.lop}`;
     if(res.urlChuKy){
-      urlGVCNGlobal=res.urlChuKy;const img=document.getElementById('gvcnSigImage');img.src=res.urlChuKy;img.classList.remove('d-none');document.getElementById('gvcnSigPlaceholder').classList.add('d-none');
+      urlGVCNGlobal=normalizeSignatureUrlV67_1(res.urlChuKy);const img=document.getElementById('gvcnSigImage');img.src=urlGVCNGlobal;img.classList.remove('d-none');document.getElementById('gvcnSigPlaceholder').classList.add('d-none');
     }
     const ds=(res.dsLop||[]).filter(Boolean);
     if(ds.length>1){
@@ -6159,9 +6171,9 @@ function xuatExcelNhapTreGiamThi() {
           else ensureAssignmentDataV39();
 
           if (res.urlChuKy) {
-            urlChuKyGlobal = res.urlChuKy;
+            urlChuKyGlobal = normalizeSignatureUrlV67_1(res.urlChuKy);
             let img = document.getElementById('sigImage');
-            img.src = res.urlChuKy;
+            img.src = urlChuKyGlobal;
             img.classList.remove('d-none');
             document.getElementById('sigPlaceholder').classList.add('d-none');
           }
@@ -6432,9 +6444,9 @@ function xuatExcelNhapTreGiamThi() {
         document.getElementById('gvcnMainContent').classList.remove('d-none');
         document.getElementById('gvcnWelcomeMsg').innerText = `✅ Xin chào GVCN ${res.tenGVCN} - Lớp ${res.lop}`;
         if (res.urlChuKy) {
-          urlGVCNGlobal = res.urlChuKy;
+          urlGVCNGlobal = normalizeSignatureUrlV67_1(res.urlChuKy);
           let imgElem = document.getElementById('gvcnSigImage');
-          imgElem.src = res.urlChuKy;
+          imgElem.src = urlGVCNGlobal;
           imgElem.classList.remove('d-none');
           document.getElementById('gvcnSigPlaceholder').classList.add('d-none');
         }
@@ -6582,7 +6594,7 @@ function xuatExcelNhapTreGiamThi() {
     const entries=getCellEntries(cellData).filter(entry=>{
       const name=String(entry&&entry.tenGV||'').trim();
       const kySo=String(entry&&entry.kySo||'').trim();
-      const sigUrl=String(entry&&entry.signatureUrl||(kySo.indexOf('IMAGE:')===0?kySo.replace('IMAGE:',''):'')).trim();
+      const sigUrl=normalizeSignatureUrlV67_1(entry&&entry.signatureUrl||(kySo.indexOf('IMAGE:')===0?kySo.replace('IMAGE:',''):''));
       return !!(name || sigUrl);
     });
     if(!entries.length) return '';
@@ -6595,7 +6607,7 @@ function xuatExcelNhapTreGiamThi() {
       const encodedTime=encodeURIComponent(time).replace(/'/g,'%27');
       const clickAttr=clickable&&lookup?` onclick="xemChiTietChuKySo(decodeURIComponent('${encodedLookup}'), decodeURIComponent('${encodedTime}'))" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}" style="cursor:pointer;" title="Bấm xem thông tin xác nhận điện tử"`:'';
       const kySo=String(entry.kySo||'');
-      const sigUrl=String(entry.signatureUrl||(kySo.indexOf('IMAGE:')===0?kySo.replace('IMAGE:',''):'')).trim();
+      const sigUrl=normalizeSignatureUrlV67_1(entry.signatureUrl||(kySo.indexOf('IMAGE:')===0?kySo.replace('IMAGE:',''):''));
       const nameHtml=name?`<div class="sig-name">${escapeHtml(name)}</div>`:'';
       if(sigUrl){
         const altText=name?`Chữ ký ${name}`:'Chữ ký giáo viên';
@@ -6716,7 +6728,7 @@ function xuatExcelNhapTreGiamThi() {
         ykienElem.innerText=chotRes.ykien||'Không có ý kiến.';
         nameElem.innerText=chotRes.tenGVCN||'';
         if(chotRes.chuKyGVCN&&String(chotRes.chuKyGVCN).indexOf('IMAGE:')!==-1){
-          space.innerHTML=`<img src="${escapeHtml(String(chotRes.chuKyGVCN).replace('IMAGE:',''))}" class="sig-gvcn-print" alt="Chữ ký GVCN">`;
+          space.innerHTML=`<img src="${escapeHtml(normalizeSignatureUrlV67_1(String(chotRes.chuKyGVCN)))}" class="sig-gvcn-print" alt="Chữ ký GVCN">`;
         }else{
           space.innerHTML='<span class="badge bg-success" style="font-size:.55rem;">✓ Đã ký chốt</span>';
         }
@@ -7172,7 +7184,7 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
   }
 
   function capNhatTrangThaiChuKyV21(url){
-    url=String(url||'').trim();
+    url=normalizeSignatureUrlV67_1(url);
     urlChuKyGlobal=url;
     const img=document.getElementById('sigImage');
     const placeholder=document.getElementById('sigPlaceholder');
@@ -7557,7 +7569,7 @@ function layHtmlOnePageA3GiamThi(lop, tuan, bookMode) {
           ykienText = chotResData.ykien || 'Không có ý kiến.';
           gvcnNameText = chotResData.tenGVCN || '';
           if (chotResData.chuKyGVCN && String(chotResData.chuKyGVCN).indexOf('IMAGE:') !== -1) {
-            sigSpaceHtml = `<img src="${escapeHtml(String(chotResData.chuKyGVCN).replace('IMAGE:', ''))}" class="sig-gvcn-print" alt="Chữ ký GVCN">`;
+            sigSpaceHtml = `<img src="${escapeHtml(normalizeSignatureUrlV67_1(String(chotResData.chuKyGVCN)))}" class="sig-gvcn-print" alt="Chữ ký GVCN">`;
           } else {
             sigSpaceHtml = '<span class="badge bg-success" style="font-size: 0.55rem;">✓ Đã ký chốt</span>';
           }
@@ -7620,7 +7632,7 @@ function xemChiTietChuKySo(teacherLookup, thoiGianKy) {
         document.getElementById('certThoiGianKy').innerText = res.thoiGianKy || thoiGianKy || "Đã xác thực";
         let imgCert = document.getElementById('certSigImage');
         if (res.urlChuKy) {
-          imgCert.src = res.urlChuKy;
+          imgCert.src = normalizeSignatureUrlV67_1(res.urlChuKy);
           imgCert.classList.remove('d-none');
         } else {
           imgCert.removeAttribute('src');

@@ -2913,6 +2913,62 @@
   #khbd-my-nav-v67 .nav-link{font-weight:800}
   #khbd-my-nav-v67 .nav-link.active{background:#0f766e!important;color:#fff!important}
 </style>
+
+<style id="v681-gvcn-redesign">
+/* ===== V68.1 GVCN: bố cục chủ nhiệm chuyên nghiệp, Supabase-first ===== */
+#gvcnMainContent{max-width:1180px!important;margin:0 auto!important;padding:0 4px 14px!important;}
+#gvcnMainContent .gvcn-head-v681{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:14px 16px;margin:0 0 10px;border:1px solid #dfe6ef;border-radius:14px;background:#fff;}
+#gvcnMainContent .gvcn-head-v681 h4{font-size:1.05rem;font-weight:800;color:#1e3656;}
+#gvcnMainContent .gvcn-week-state-v681{display:inline-flex;align-items:center;min-height:29px;padding:5px 10px;border-radius:999px;font-size:.72rem;font-weight:800;border:1px solid #dbe3ed;background:#f6f8fb;color:#5a687a;white-space:nowrap;}
+#gvcnMainContent .gvcn-week-state-v681.state-open{background:#edf8f1;color:#24653b;border-color:#cce7d5;}
+#gvcnMainContent .gvcn-week-state-v681.state-warning{background:#fff8e7;color:#8a5b04;border-color:#f1ddb1;}
+#gvcnMainContent .gvcn-week-state-v681.state-closed{background:#eef3fa;color:#294e7a;border-color:#cfdbeb;}
+#gvcnMainContent .gvcn-week-state-v681.state-danger{background:#fff0f0;color:#9d3030;border-color:#efcaca;}
+#gvcnMainContent .gvcn-toolbar-v681{display:grid;grid-template-columns:minmax(220px,1fr) 180px auto;gap:10px;align-items:end;padding:11px 12px;margin-bottom:10px;border:1px solid #e1e7ef;border-radius:12px;background:#f8fafc;}
+#gvcnMainContent .gvcn-control-v681 label{display:block;margin:0 0 4px;font-size:.72rem;font-weight:700;color:#526177;}
+#gvcnMainContent .gvcn-toolbar-action-v681 .btn{min-height:31px;}
+#gvcnMainContent .gvcn-empty-v681{text-align:center;padding:38px 12px;border:1px dashed #d7e0eb;border-radius:12px;color:#728096;background:#fbfcfe;}
+#gvcnMainContent .gvcn-kpi-grid-v681{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin:0 0 10px;}
+#gvcnMainContent .gvcn-kpi-v681{padding:12px;border:1px solid #e0e6ee;border-radius:12px;background:#fff;min-height:88px;}
+#gvcnMainContent .gvcn-kpi-v681 span{display:block;font-size:.7rem;color:#6f7d90;font-weight:700;margin-bottom:4px;}
+#gvcnMainContent .gvcn-kpi-v681 strong{display:block;font-size:1.35rem;line-height:1.1;color:#213c5f;}
+#gvcnMainContent .gvcn-kpi-v681 small{display:block;margin-top:5px;font-size:.65rem;color:#8a96a7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#gvcnMainContent .gvcn-kpi-attention-v681 strong{color:#a35e12;}
+#gvcnMainContent .gvcn-progress-card-v681,#gvcnMainContent .gvcn-detail-card-v681,#gvcnMainContent .gvcn-comment-card-v681,#gvcnMainContent .gvcn-signature-card-v681{border:1px solid #e0e6ee;border-radius:12px;background:#fff;}
+#gvcnMainContent .gvcn-progress-card-v681{padding:11px 13px;margin-bottom:10px;}
+#gvcnMainContent .gvcn-progress-card-v681 .progress{height:8px;background:#edf1f6;}
+#gvcnMainContent .gvcn-detail-card-v681{margin-bottom:10px;overflow:hidden;}
+#gvcnMainContent .gvcn-section-head-v681{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 13px;border-bottom:1px solid #e5eaf0;background:#fbfcfe;}
+#gvcnMainContent .gvcn-detail-scroll-v681{max-height:330px;overflow:auto;}
+#gvcnMainContent .gvcn-detail-table-v681{font-size:.76rem;}
+#gvcnMainContent .gvcn-detail-table-v681 thead th{position:sticky;top:0;z-index:2;background:#f1f5f9;color:#42536a;border-bottom:1px solid #d8e0ea;white-space:nowrap;}
+#gvcnMainContent .gvcn-detail-table-v681 td{vertical-align:middle;}
+#gvcnMainContent .gvcn-row-unsigned-v681 td{background:#fff9ee!important;}
+#gvcnMainContent .gvcn-close-grid-v681{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(320px,.65fr);gap:10px;margin-bottom:10px;}
+#gvcnMainContent .gvcn-comment-card-v681,#gvcnMainContent .gvcn-signature-card-v681{padding:12px;}
+#gvcnMainContent #gvcnYKien{min-height:104px!important;height:auto!important;font-size:.82rem!important;}
+#gvcnMainContent .gvcn-signature-preview-v681{min-height:108px;display:flex;align-items:center;justify-content:center;border:1px dashed #d6dee8;border-radius:10px;background:#fbfcfe;padding:6px;}
+#gvcnMainContent .gvcn-signature-preview-v681 img{max-height:92px;max-width:100%;object-fit:contain;mix-blend-mode:multiply;filter:contrast(130%);}
+#gvcnMainContent .gvcn-close-actions-v681{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:11px 13px;border:1px solid #dbe5de;border-radius:12px;background:#f6fbf7;}
+#gvcnMainContent .gvcn-close-actions-v681 .btn{min-width:190px;}
+@media(max-width:900px){
+  #gvcnMainContent .gvcn-toolbar-v681{grid-template-columns:1fr 150px;}
+  #gvcnMainContent .gvcn-toolbar-action-v681{grid-column:1/-1;}
+  #gvcnMainContent .gvcn-toolbar-action-v681 .btn{width:100%;}
+  #gvcnMainContent .gvcn-kpi-grid-v681{grid-template-columns:repeat(2,minmax(0,1fr));}
+  #gvcnMainContent .gvcn-close-grid-v681{grid-template-columns:1fr;}
+}
+@media(max-width:576px){
+  #gvcnMainContent .gvcn-head-v681{flex-direction:column;}
+  #gvcnMainContent .gvcn-toolbar-v681{grid-template-columns:1fr;}
+  #gvcnMainContent .gvcn-toolbar-action-v681{grid-column:auto;}
+  #gvcnMainContent .gvcn-kpi-grid-v681{grid-template-columns:1fr 1fr;}
+  #gvcnMainContent .gvcn-kpi-v681:first-child{grid-column:1/-1;}
+  #gvcnMainContent .gvcn-close-actions-v681{flex-direction:column;align-items:stretch;}
+  #gvcnMainContent .gvcn-close-actions-v681 .btn{width:100%;min-width:0;}
+}
+</style>
+
 </head>
 <!-- MODAL THÔNG TIN XÁC NHẬN ĐIỆN TỬ -->
 <div class="modal fade" id="modalChuKySoDetail" tabindex="-1" aria-hidden="true">
@@ -3387,7 +3443,7 @@
                     <button type="button" id="btnDeleteSignatureV21" class="btn btn-outline-danger btn-sm d-none" onclick="xoaChuKyGiaoVienV21Ui()">Xóa chữ ký</button>
                   </div>
                 </div>
-                <div id="sigHelpV21" class="small text-muted mb-2">Lưu trên Google Drive, tự dùng lại lần sau.</div>
+                <div id="sigHelpV21" class="small text-muted mb-2">Lưu trên Supabase Storage, tự dùng lại lần sau và hiển thị nhanh trên mọi thiết bị.</div>
                 <div class="signature-preview-v21">
                   <span id="sigPlaceholder" class="text-muted">Chưa có chữ ký</span>
                   <img id="sigImage" src="" class="d-none" alt="Chữ ký giáo viên">
@@ -3434,44 +3490,111 @@
             <button type="button" class="btn btn-success w-100 py-2 fw-bold" onclick="xuLyDangNhapGVCN()">Đăng Nhập</button>
           </div>
 
-          <div id="gvcnMainContent" class="d-none"><div class="module-head-v13 mb-3"><div><div class="section-title-v13">Giáo viên chủ nhiệm</div><h4 class="mb-0">Theo dõi và chốt tuần</h4></div><div class="small text-muted">Kiểm tra tình hình lớp và xác nhận sổ đầu bài</div></div>
-            <div class="alert alert-success py-2 px-3 fw-bold mb-3">
-              <span id="gvcnWelcomeMsg"></span>
+          <div id="gvcnMainContent" class="d-none">
+            <div class="gvcn-head-v681">
+              <div>
+                <div class="section-title-v13">Giáo viên chủ nhiệm</div>
+                <h4 class="mb-1">Theo dõi lớp và ký chốt tuần</h4>
+                <div class="small text-muted" id="gvcnWelcomeMsg">Đang tải thông tin chủ nhiệm...</div>
+              </div>
+              <div class="d-flex gap-2 flex-wrap align-items-center justify-content-end">
+                <span class="gvcn-week-state-v681 state-idle" id="gvcnWeekStateV681">Chưa tải dữ liệu</span>
+                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="moSoTuGvcnV681()">Xem sổ tuần</button>
+              </div>
             </div>
 
-            <div class="row g-3 mb-4 p-3 bg-light rounded border align-items-center">
-              <div class="col-md-8">
-                <label class="form-label fw-bold">Tuần ký chốt</label>
-                <input type="number" class="form-control" id="gvcnTuan" value="1" min="1" max="52">
+            <div class="gvcn-toolbar-v681">
+              <div id="gvcnClassSwitcherV4" class="gvcn-control-v681">
+                <label for="gvcnAuthorizedClassV4">Lớp chủ nhiệm</label>
+                <select id="gvcnAuthorizedClassV4" class="form-select form-select-sm"></select>
               </div>
-              <div class="col-md-4 d-flex align-items-end">
-                <button type="button" class="btn btn-success w-100 fw-bold" onclick="taiThongTinChotTuan()">Xem tổng kết</button>
+              <div class="gvcn-control-v681 gvcn-week-control-v681">
+                <label for="gvcnTuan">Tuần</label>
+                <div class="input-group input-group-sm">
+                  <button class="btn btn-outline-secondary" type="button" onclick="gvcnShiftWeekV681(-1)" aria-label="Tuần trước">‹</button>
+                  <input type="number" class="form-control text-center fw-bold" id="gvcnTuan" value="1" min="1" max="52" onchange="taiThongTinChotTuan()">
+                  <button class="btn btn-outline-secondary" type="button" onclick="gvcnShiftWeekV681(1)" aria-label="Tuần sau">›</button>
+                </div>
+              </div>
+              <div class="gvcn-toolbar-action-v681">
+                <button type="button" class="btn btn-primary btn-sm fw-bold" id="gvcnLoadBtnV681" onclick="taiThongTinChotTuan()">Tải dữ liệu tuần</button>
               </div>
             </div>
+
+            <div id="gvcnPlaceholderMsg" class="gvcn-empty-v681">
+              <div class="fw-bold mb-1">Chọn lớp và tuần để kiểm tra trước khi ký chốt.</div>
+              <div class="small">Dữ liệu được lấy trực tiếp từ Supabase.</div>
+            </div>
+
             <div id="gvcnSummaryContent" class="d-none">
-              <div class="row g-3 mb-4">
-                <div class="col-md-4"><div class="p-3 border rounded bg-white text-center"><div class="text-muted small">Vắng </div><div class="fs-4 fw-bold text-danger"><span id="gvcnVangP">0</span> | <span id="gvcnVangKP">0</span> </div></div></div>
-                <div class="col-md-4"><div class="p-3 border rounded bg-white text-center"><div class="text-muted small">Điểm TB</div><div class="fs-4 fw-bold text-primary" id="gvcnDTB">10.0</div></div></div>
-                <div class="col-md-4"><div class="p-3 border rounded bg-white text-center"><div class="text-muted small">Chưa ký</div><div class="fs-4 fw-bold text-warning" id="gvcnChuaKy">0 tiết</div></div></div>
+              <div class="gvcn-kpi-grid-v681">
+                <div class="gvcn-kpi-v681"><span>Số tiết đã ghi</span><strong id="gvcnTongTietV681">0</strong><small>tiết trong tuần</small></div>
+                <div class="gvcn-kpi-v681"><span>Vắng có phép</span><strong id="gvcnVangP">0</strong><small>lượt</small></div>
+                <div class="gvcn-kpi-v681"><span>Vắng không phép</span><strong id="gvcnVangKP">0</strong><small>lượt</small></div>
+                <div class="gvcn-kpi-v681"><span>Điểm trung bình</span><strong id="gvcnDTB">0.0</strong><small id="gvcnXepLoaiV681">—</small></div>
+                <div class="gvcn-kpi-v681 gvcn-kpi-attention-v681"><span>Chưa ký</span><strong id="gvcnChuaKy">0 tiết</strong><small id="gvcnMonChuaKyV681">Không có</small></div>
               </div>
-              <div class="mb-3">
-                <label class="form-label fw-bold">Ý kiến GVCN</label>
-                <textarea class="form-control" id="gvcnYKien" rows="3" placeholder="Nhận xét..."></textarea>
-              </div>
-              <div class="mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                  <label class="form-label fw-semibold mb-0">Chữ ký GVCN</label>
-                  <input type="file" id="gvcnFileInput" accept="image/*" class="d-none" onchange="xuLyTaiAnhGVCN(event)">
+
+              <div class="gvcn-progress-card-v681">
+                <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap">
+                  <div>
+                    <div class="fw-bold">Mức độ hoàn tất sổ tuần</div>
+                    <div class="small text-muted" id="gvcnProgressTextV681">Chưa có dữ liệu.</div>
+                  </div>
+                  <strong id="gvcnProgressPctV681">0%</strong>
                 </div>
-                <div class="small text-muted mb-1">Chữ ký đã xác thực của GVCN.</div>
-                <div class="border p-2 text-center rounded bg-white" style="min-height:80px;">
-                  <span id="gvcnSigPlaceholder" class="text-muted">Chưa có chữ ký</span>
-                  <img id="gvcnSigImage" src="" class="d-none" style="max-height:75px; mix-blend-mode: multiply; filter: contrast(130%);">
+                <div class="progress mt-2" role="progressbar" aria-label="Tiến độ ký sổ" aria-valuemin="0" aria-valuemax="100">
+                  <div class="progress-bar" id="gvcnProgressBarV681" style="width:0%"></div>
                 </div>
               </div>
-              <button type="button" class="btn btn-success w-100 py-3 fw-bold fs-5" onclick="guiChotTuanGVCN()">Xác Nhận Ký Chốt</button>
+
+              <div class="gvcn-detail-card-v681">
+                <div class="gvcn-section-head-v681">
+                  <div>
+                    <div class="fw-bold">Rà soát các tiết đã ghi</div>
+                    <div class="small text-muted">Xem nhanh môn, giáo viên và trạng thái ký trước khi chốt.</div>
+                  </div>
+                  <span class="small text-muted" id="gvcnDetailCountV681"></span>
+                </div>
+                <div class="table-responsive gvcn-detail-scroll-v681">
+                  <table class="table table-sm align-middle mb-0 gvcn-detail-table-v681">
+                    <thead><tr><th>Thứ/Buổi/Tiết</th><th>Môn</th><th>Giáo viên</th><th>Bài dạy</th><th>Trạng thái</th></tr></thead>
+                    <tbody id="gvcnDetailBodyV681"></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="gvcn-close-grid-v681">
+                <div class="gvcn-comment-card-v681">
+                  <label class="form-label fw-bold" for="gvcnYKien">Ý kiến GVCN</label>
+                  <textarea class="form-control" id="gvcnYKien" rows="4" placeholder="Nhận xét tình hình lớp trong tuần, đề nghị hoặc lưu ý cần thiết..."></textarea>
+                  <div class="small text-muted mt-2" id="gvcnClosedMetaV681"></div>
+                </div>
+                <div class="gvcn-signature-card-v681">
+                  <div class="d-flex justify-content-between align-items-center gap-2 mb-2">
+                    <div>
+                      <div class="fw-bold">Chữ ký GVCN</div>
+                      <div class="small text-muted">Lưu tại Supabase Storage và tự dùng lại.</div>
+                    </div>
+                    <div class="d-flex gap-1 flex-wrap justify-content-end">
+                      <input type="file" id="gvcnFileInput" accept="image/png,image/jpeg,image/webp" class="d-none" onchange="xuLyTaiAnhGVCN(event)">
+                      <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('gvcnFileInput').click()">Tải/đổi chữ ký</button>
+                      <button type="button" class="btn btn-outline-danger btn-sm" id="gvcnDeleteSigBtnV681" onclick="xoaChuKyGvcnV681()">Xóa</button>
+                    </div>
+                  </div>
+                  <div class="gvcn-signature-preview-v681">
+                    <span id="gvcnSigPlaceholder" class="text-muted">Chưa có chữ ký</span>
+                    <img id="gvcnSigImage" src="" class="d-none" alt="Chữ ký GVCN">
+                  </div>
+                  <div class="small mt-2" id="gvcnSigStatusV681"></div>
+                </div>
+              </div>
+
+              <div class="gvcn-close-actions-v681">
+                <div class="small text-muted" id="gvcnCloseHintV681">Chỉ ký chốt khi đã rà soát đủ dữ liệu tuần.</div>
+                <button type="button" class="btn btn-success fw-bold" id="gvcnCloseBtnV681" onclick="guiChotTuanGVCN()">Ký chốt tuần</button>
+              </div>
             </div>
-            <div id="gvcnPlaceholderMsg" class="text-center py-5 text-muted">Bấm tải tổng kết để ký chốt.</div>
           </div>
         </div>
       </div>
@@ -4344,17 +4467,21 @@
      file Code_GitHub_API.gs.
      ======================================================================== */
   const SODB_API_URL = "https://script.google.com/macros/s/AKfycbz9MXRTWMHFul61vWxTr3gOVNpfsL6R7zMZ8s-e_jh17wqmC6cYp9u25J-4onRhaJfnbA/exec";
-  // V67: Supabase-first cho đăng nhập, Dashboard, KHBD, Sổ đầu bài và dữ liệu vận hành. Publishable key an toàn để dùng ở browser; Secret key tuyệt đối không nằm tại đây.
+  // V68: Supabase-first cho đăng nhập, Dashboard, KHBD, Sổ đầu bài và dữ liệu vận hành. Publishable key an toàn để dùng ở browser; Secret key tuyệt đối không nằm tại đây.
   const SODB_SUPABASE_URL_V66 = "https://mlwhxxpmnhrrkbkivvye.supabase.co";
   const SODB_SUPABASE_PUBLISHABLE_KEY_V66 = "sb_publishable_Hq6KRH5KDT1eiOYLwwQhkw_c45sZkgi";
-  const SODB_EDGE_URL_V66 = SODB_SUPABASE_URL_V66 + "/functions/v1/sodb-core-v67";
-  const SODB_FRONTEND_VERSION = "V67.1";
+  const SODB_EDGE_URL_V66 = SODB_SUPABASE_URL_V66 + "/functions/v1/sodb-core-v68";
+  const SODB_FRONTEND_VERSION = "V68";
   window.__SODB_BACKEND_VERSION__ = "UNKNOWN";
 
   function normalizeSignatureUrlV67_1(raw){
     let url=String(raw||'').trim();
     if(!url)return '';
     url=url.replace(/^IMAGE:/i,'').trim();
+    if(/^STORAGE:/i.test(url)){
+      const path=url.replace(/^STORAGE:/i,'').replace(/^\/+/, '');
+      return SODB_SUPABASE_URL_V66+'/storage/v1/object/public/teacher-signatures/'+path.split('/').map(encodeURIComponent).join('/');
+    }
     if(/^(data:image\/|blob:)/i.test(url))return url;
     if(/drive\.google\.com/i.test(url)){
       const m=url.match(/[-\w]{25,}/);
@@ -4363,7 +4490,7 @@
     return url;
   }
 
-  // V67: các RPC dữ liệu vận hành chạy trực tiếp trên Supabase Edge.
+  // V68: các RPC dữ liệu vận hành chạy trực tiếp trên Supabase Edge.
   // Các chức năng Google Drive/backup đặc thù vẫn đi Apps Script.
   const SODB_EDGE_RPC_METHODS_V67 = new Set([
     'getDanhSachBaiDayTheoMon','layDanhSachKHBDTheoKhoiV36','capNhatKeHoachBaiDay',
@@ -4372,7 +4499,8 @@
     'kiemTraTrangThaiKhoaTuan','adminMoKhoaTuan','layNhatKyV4',
     'getDanhSachMonAdminV7','getDanhSachMonKHBD','getDanhSachGVTheoMon','luuCauHinhV4',
     'traCuuChiTietGiamThi','kiemTraNhapTreGiamThi','traCuuThongKeTheoKhoiNgay',
-    'kiemTraTrungTietAdmin','doiSoatKHBDGiamThi'
+    'kiemTraTrungTietAdmin','doiSoatKHBDGiamThi',
+    'luuChuKyGiaoVienV21','xoaChuKyGiaoVienV21','traCuuChuKyTheoCCCD'
   ]);
 
   (function installSodbGithubBridgeV59(){
@@ -4511,7 +4639,7 @@
   }
   async function callSodbEdgeRpcV67(method,args){
     const data=await callSodbEdgeV66({action:'rpc',method:String(method||''),args:Array.isArray(args)?args:[]});
-    if(!data||data.success!==true)throw new Error(data&&data.message?data.message:'Supabase V67 không thực hiện được yêu cầu.');
+    if(!data||data.success!==true)throw new Error(data&&data.message?data.message:'Supabase V68 không thực hiện được yêu cầu.');
     return data.result;
   }
   window.__SODB_EDGE_URL_V66__=SODB_EDGE_URL_V66;
@@ -4832,7 +4960,7 @@
     btn.disabled=false;txt.textContent='Đăng nhập';
     if(!res||!res.success){setCentralLoginStatusV4(res&&res.message?res.message:'Không đăng nhập được.','danger');return;}
     document.getElementById('centralPasswordV4').value='';
-    console.info('[V67.1 PERF] Login tổng:',Math.round(performance.now()-loginStarted)+'ms','server:',(res.serverMs??'—')+'ms','path:',res.loginPath||source,'dashboard gộp:',(res.dashboardBundledMs??'—')+'ms','backend:',res.backendVersion||source,'source:',source);
+    console.info('[V68 PERF] Login tổng:',Math.round(performance.now()-loginStarted)+'ms','server:',(res.serverMs??'—')+'ms','path:',res.loginPath||source,'dashboard gộp:',(res.dashboardBundledMs??'—')+'ms','backend:',res.backendVersion||source,'source:',source);
     apDungPhanQuyenV4(res,true);
   }
 
@@ -4847,7 +4975,7 @@
     try{
       const edgeRes=await callSodbEdgeV66({action:'login',account,password});
       if(edgeRes&&edgeRes.success){
-        if(String(edgeRes.backendVersion||'')!=='V67_1_EDGE')throw new Error('Edge Function chưa đúng V67.1.');
+        if(String(edgeRes.backendVersion||'')!=='V68_EDGE')throw new Error('Edge Function chưa đúng V68.');
         handleLoginResponseV66(edgeRes,loginPerfStartedV66,'SUPABASE_EDGE',btn,txt);return;
       }
       // Sai tài khoản/mật khẩu hoặc bị khóa: không gọi fallback để tránh nhân đôi lần thử.
@@ -7222,25 +7350,25 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
       tempImg.src=e.target.result;
       tempImg.onload=function(){
         xoaNenAnhChuKy(tempImg,function(processedDataUrl){
-          // Preview ảnh đã xử lý trước khi gửi Drive.
+          // Preview ảnh đã xử lý trước khi gửi Supabase Storage.
           capNhatTrangThaiChuKyV21(processedDataUrl);
-          setSigStatusV21('Đang lưu chữ ký vào Google Drive...','saving');
+          setSigStatusV21('Đang lưu chữ ký vào Supabase Storage...','saving');
 
           google.script.run
             .withSuccessHandler(function(res){
               if(res&&res.success){
                 capNhatTrangThaiChuKyV21(res.urlChuKy||'');
-                if(gvbmDangNhapInfo)gvbmDangNhapInfo.urlChuKy=res.urlChuKy||'';
+                if(gvbmDangNhapInfo){gvbmDangNhapInfo.urlChuKy=res.urlChuKy||'';gvbmDangNhapInfo.signatureRef=res.signatureRef||'';gvbmDangNhapInfo.signaturePath=res.signaturePath||'';}
                 if(currentUnifiedLoginV4&&currentUnifiedLoginV4.sessions){
-                  if(currentUnifiedLoginV4.sessions.GVBM)currentUnifiedLoginV4.sessions.GVBM.urlChuKy=res.urlChuKy||'';
-                  if(currentUnifiedLoginV4.sessions.GVCN)currentUnifiedLoginV4.sessions.GVCN.urlChuKy=res.urlChuKy||'';
+                  if(currentUnifiedLoginV4.sessions.GVBM){currentUnifiedLoginV4.sessions.GVBM.urlChuKy=res.urlChuKy||'';currentUnifiedLoginV4.sessions.GVBM.signatureRef=res.signatureRef||'';currentUnifiedLoginV4.sessions.GVBM.signaturePath=res.signaturePath||'';}
+                  if(currentUnifiedLoginV4.sessions.GVCN){currentUnifiedLoginV4.sessions.GVCN.urlChuKy=res.urlChuKy||'';currentUnifiedLoginV4.sessions.GVCN.signatureRef=res.signatureRef||'';currentUnifiedLoginV4.sessions.GVCN.signaturePath=res.signaturePath||'';}
                 }
                 if(gvcnDangNhapInfo){
                   gvcnDangNhapInfo.urlChuKy=res.urlChuKy||'';
                   urlGVCNGlobal=res.urlChuKy||'';
                 }
                 setSigStatusV21(res.message||'Đã lưu chữ ký.','success');
-                showToastV9('Đã lưu chữ ký vào Google Drive.','success');
+                showToastV9('Đã lưu chữ ký vào Supabase Storage.','success');
               }else{
                 capNhatTrangThaiChuKyV21('');
                 setSigStatusV21((res&&res.message)||'Không lưu được chữ ký.','error');
@@ -7277,10 +7405,10 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
       .withSuccessHandler(function(res){
         if(res&&res.success){
           capNhatTrangThaiChuKyV21('');
-          if(gvbmDangNhapInfo)gvbmDangNhapInfo.urlChuKy='';
+          if(gvbmDangNhapInfo){gvbmDangNhapInfo.urlChuKy='';gvbmDangNhapInfo.signatureRef='';gvbmDangNhapInfo.signaturePath='';}
           if(currentUnifiedLoginV4&&currentUnifiedLoginV4.sessions){
-            if(currentUnifiedLoginV4.sessions.GVBM)currentUnifiedLoginV4.sessions.GVBM.urlChuKy='';
-            if(currentUnifiedLoginV4.sessions.GVCN)currentUnifiedLoginV4.sessions.GVCN.urlChuKy='';
+            if(currentUnifiedLoginV4.sessions.GVBM){currentUnifiedLoginV4.sessions.GVBM.urlChuKy='';currentUnifiedLoginV4.sessions.GVBM.signatureRef='';currentUnifiedLoginV4.sessions.GVBM.signaturePath='';}
+            if(currentUnifiedLoginV4.sessions.GVCN){currentUnifiedLoginV4.sessions.GVCN.urlChuKy='';currentUnifiedLoginV4.sessions.GVCN.signatureRef='';currentUnifiedLoginV4.sessions.GVCN.signaturePath='';}
           }
           if(gvcnDangNhapInfo){gvcnDangNhapInfo.urlChuKy='';urlGVCNGlobal='';}
           setSigStatusV21(res.message||'Đã xóa chữ ký.','success');
@@ -8661,6 +8789,206 @@ document.getElementById('overviewScopeV20').textContent='Đang tải tổng quan
       sel.insertAdjacentElement('afterend',note);
     });
   });
+
+
+
+  /* ===== V68.1 GVCN: Supabase-first, rà soát + ký chốt ===== */
+  let gvcnLastBookV681=null;
+  let gvcnLastCloseV681=null;
+  let gvcnLastLockV681=null;
+
+  function gvcnCurrentWeekV681(){
+    try{
+      const start=new Date(START_DATE_WEEK1_STR+'T00:00:00');
+      const now=new Date();now.setHours(0,0,0,0);
+      return Math.max(1,Math.min(52,Math.floor((now-start)/86400000/7)+1));
+    }catch(_e){return 1;}
+  }
+  function gvcnSignedV681(v){
+    const s=normalizeTextKey(String(v||''));
+    return !!String(v||'').trim() && !s.includes('chua ky') && !s.includes('chua xac nhan');
+  }
+  function gvcnSetBusyV681(on,text){
+    const b=document.getElementById('gvcnLoadBtnV681');
+    if(b){b.disabled=!!on;b.innerHTML=on?'<span class="spinner-border spinner-border-sm me-1"></span>'+(text||'Đang tải...'):'Tải dữ liệu tuần';}
+  }
+  function gvcnSetStateV681(text,state){
+    const el=document.getElementById('gvcnWeekStateV681');if(!el)return;
+    el.textContent=text||'Chưa tải dữ liệu';
+    el.className='gvcn-week-state-v681 state-'+(state||'idle');
+  }
+  function gvcnWeekLabelV681(lockRes,chot){
+    if(chot&&chot.success)return ['Đã ký chốt','closed'];
+    const state=String(lockRes&&lockRes.state||'').toUpperCase();
+    if(state==='TEMP_UNLOCK')return ['Đang mở tạm','warning'];
+    if(state==='OVERDUE')return ['Tuần đã qua','warning'];
+    if(lockRes&&lockRes.locked)return ['Đang khóa','danger'];
+    return ['Đang mở','open'];
+  }
+  function gvcnXepLoaiV681(dtb){
+    const n=Number(dtb)||0;return n>=8?'Loại A':(n>=6.5?'Loại B':'Loại C');
+  }
+  function gvcnSlotOrderV681(key){
+    const p=String(key||'').split('_');
+    const day={'Thứ 2':0,'Thứ 3':1,'Thứ 4':2,'Thứ 5':3,'Thứ 6':4,'Thứ 7':5,'Chủ Nhật':6}[p[0]]??9;
+    const buoi=normalizeTextKey(p[1]).includes('chieu')?1:0;
+    return day*100+buoi*20+(Number(p[2])||0);
+  }
+  function gvcnSlotLabelV681(key){
+    const p=String(key||'').split('_');
+    const buoi=normalizeTextKey(p[1]).includes('chieu')?'Chiều':'Sáng';
+    return `${p[0]||''} · ${buoi} · Tiết ${p[2]||''}`;
+  }
+  function gvcnRenderDetailV681(res){
+    const body=document.getElementById('gvcnDetailBodyV681');if(!body)return;
+    const matrix=res&&res.matrix||{};
+    const keys=Object.keys(matrix).filter(k=>{const c=matrix[k]||{};return !!(c.mon||c.tenBai||(Array.isArray(c.entries)&&c.entries.length));}).sort((a,b)=>gvcnSlotOrderV681(a)-gvcnSlotOrderV681(b));
+    document.getElementById('gvcnDetailCountV681').textContent=keys.length?`${keys.length} tiết có dữ liệu`:'Chưa có tiết';
+    if(!keys.length){body.innerHTML='<tr><td colspan="5" class="text-center text-muted py-4">Tuần này chưa có dữ liệu sổ đầu bài.</td></tr>';return;}
+    body.innerHTML=keys.map(k=>{
+      const c=matrix[k]||{},entries=Array.isArray(c.entries)&&c.entries.length?c.entries:[c];
+      const signed=entries.every(e=>gvcnSignedV681(e.kySo||e.signatureUrl||c.kySo||c.signatureUrl));
+      const mons=entries.map(e=>e.mon||'').filter(Boolean).join(' / ')||c.mon||'';
+      const teachers=entries.map(e=>e.tenGV||'').filter(Boolean).join(' / ')||c.tenGV||'';
+      const lessons=entries.map(e=>e.tenBai||'').filter(Boolean).join(' / ')||c.tenBai||'';
+      return `<tr class="${signed?'':'gvcn-row-unsigned-v681'}"><td class="fw-semibold text-nowrap">${escapeHtml(gvcnSlotLabelV681(k))}</td><td>${escapeHtml(mons)}</td><td>${escapeHtml(teachers)}</td><td>${escapeHtml(lessons)}</td><td class="text-nowrap">${signed?'<span class="badge text-bg-success">Đã ký</span>':'<span class="badge text-bg-warning">Chưa ký</span>'}</td></tr>`;
+    }).join('');
+  }
+  function gvcnApplySummaryV681(payload,lockRes){
+    const res=payload&&payload.sodb?payload.sodb:payload;
+    if(!res||!res.success)throw new Error((res&&res.message)||'Không tải được dữ liệu tuần.');
+    gvcnLastBookV681=res;gvcnLastCloseV681=payload&&payload.chot&&payload.chot.success?payload.chot:null;gvcnLastLockV681=lockRes||null;
+    const s=res.summary||{},total=Number(res.foundCount||0),unsigned=Number(s.soTietChuaKy||0),signed=Math.max(0,total-unsigned),pct=total?Math.round(signed*100/total):0;
+    document.getElementById('gvcnTongTietV681').textContent=String(total);
+    document.getElementById('gvcnVangP').textContent=String(s.vangP??0);
+    document.getElementById('gvcnVangKP').textContent=String(s.vangKP??0);
+    document.getElementById('gvcnDTB').textContent=String(s.dtbTuan??'0.0');
+    document.getElementById('gvcnXepLoaiV681').textContent=total?gvcnXepLoaiV681(s.dtbTuan):'Chưa có dữ liệu';
+    document.getElementById('gvcnChuaKy').textContent=unsigned+' tiết';
+    document.getElementById('gvcnMonChuaKyV681').textContent=unsigned?('Môn: '+String(s.monChuaKy||'Chưa xác định')):'Tất cả đã ký';
+    document.getElementById('gvcnProgressPctV681').textContent=pct+'%';
+    document.getElementById('gvcnProgressTextV681').textContent=total?`Đã ký ${signed}/${total} tiết có dữ liệu.`:'Tuần này chưa có tiết được ghi.';
+    const bar=document.getElementById('gvcnProgressBarV681');bar.style.width=pct+'%';bar.className='progress-bar '+(pct===100?'bg-success':unsigned?'bg-warning':'');
+    gvcnRenderDetailV681(res);
+    const chot=gvcnLastCloseV681, yk=document.getElementById('gvcnYKien'), meta=document.getElementById('gvcnClosedMetaV681');
+    if(chot){
+      if(yk)yk.value=chot.ykien||'';
+      if(meta)meta.textContent=`Đã ký chốt bởi ${chot.tenGVCN||'GVCN'}${chot.time?' · '+chot.time:''}`;
+    }else if(meta)meta.textContent='';
+    const state=gvcnWeekLabelV681(lockRes,chot);gvcnSetStateV681(state[0],state[1]);
+    const btn=document.getElementById('gvcnCloseBtnV681'),hint=document.getElementById('gvcnCloseHintV681');
+    const canClose=!chot&&total>0&&unsigned===0;
+    if(btn){btn.disabled=!canClose;btn.textContent=chot?'Đã ký chốt':(unsigned>0?'Còn tiết chưa ký':'Ký chốt tuần');}
+    if(hint){
+      if(chot)hint.textContent='Tuần đã được GVCN ký chốt và khóa.';
+      else if(!total)hint.textContent='Chưa có dữ liệu tiết học nên chưa thể ký chốt.';
+      else if(unsigned>0)hint.textContent=`Cần giáo viên xác nhận đủ ${unsigned} tiết còn thiếu chữ ký trước khi chốt.`;
+      else hint.textContent='Dữ liệu đã đủ chữ ký. GVCN có thể nhập ý kiến và ký chốt tuần.';
+    }
+    document.getElementById('gvcnPlaceholderMsg').classList.add('d-none');
+    document.getElementById('gvcnSummaryContent').classList.remove('d-none');
+  }
+
+  function populateGVCNFromUnifiedV4(res){
+    gvcnDangNhapInfo=res;
+    document.getElementById('gvcnMainContent').classList.remove('d-none');
+    const name=res.tenGVCN||res.tenGV||'';
+    const ds=(res.dsLop||[res.lop]).filter(Boolean).filter((x,i,a)=>a.indexOf(x)===i);
+    if(!gvcnDangNhapInfo.lop&&ds.length)gvcnDangNhapInfo.lop=ds[0];
+    const welcome=document.getElementById('gvcnWelcomeMsg');if(welcome)welcome.textContent=`${name?name+' · ':''}Theo dõi lớp chủ nhiệm trên Supabase`;
+    const sel=document.getElementById('gvcnAuthorizedClassV4');
+    if(sel){sel.innerHTML='';ds.forEach(l=>sel.add(new Option(l,l)));if(gvcnDangNhapInfo.lop)sel.value=gvcnDangNhapInfo.lop;sel.onchange=function(){gvcnDangNhapInfo.lop=this.value;document.getElementById('gvcnSummaryContent').classList.add('d-none');document.getElementById('gvcnPlaceholderMsg').classList.remove('d-none');taiThongTinChotTuan();};}
+    const week=document.getElementById('gvcnTuan');if(week&&!Number(week.value))week.value=gvcnCurrentWeekV681();else if(week)week.value=gvcnCurrentWeekV681();
+    urlGVCNGlobal=normalizeSignatureUrlV67_1(res.urlChuKy||'');
+    const img=document.getElementById('gvcnSigImage'),ph=document.getElementById('gvcnSigPlaceholder'),del=document.getElementById('gvcnDeleteSigBtnV681');
+    if(urlGVCNGlobal){if(img){img.src=urlGVCNGlobal;img.classList.remove('d-none');}ph?.classList.add('d-none');del?.classList.remove('d-none');}
+    else{if(img){img.src='';img.classList.add('d-none');}ph?.classList.remove('d-none');del?.classList.add('d-none');}
+    setTimeout(()=>taiThongTinChotTuan(),80);
+  }
+
+  function gvcnShiftWeekV681(delta){
+    const el=document.getElementById('gvcnTuan');if(!el)return;
+    el.value=String(Math.max(1,Math.min(52,(parseInt(el.value)||1)+Number(delta||0))));
+    taiThongTinChotTuan();
+  }
+
+  async function taiThongTinChotTuan(){
+    if(!gvcnDangNhapInfo||!gvcnDangNhapInfo.sessionToken)return;
+    const lop=String(gvcnDangNhapInfo.lop||document.getElementById('gvcnAuthorizedClassV4')?.value||'').trim();
+    const tuan=Math.max(1,Math.min(52,parseInt(document.getElementById('gvcnTuan')?.value)||1));
+    if(!lop){showToastV9('Chưa xác định lớp chủ nhiệm.','danger');return;}
+    gvcnSetBusyV681(true,'Đang tải');gvcnSetStateV681('Đang tải dữ liệu','idle');
+    try{
+      const auth={token:gvcnDangNhapInfo.sessionToken};
+      const [payload,lockRes]=await Promise.all([
+        callSodbEdgeRpcV67('layTrangSoDauBaiV24',[lop,tuan,'LOP_CHINH',auth]),
+        callSodbEdgeRpcV67('kiemTraTrangThaiKhoaTuan',[lop,tuan])
+      ]);
+      gvcnApplySummaryV681(payload,lockRes);
+    }catch(err){
+      console.error('[GVCN V68.1]',err);gvcnSetStateV681('Không tải được dữ liệu','danger');
+      showToastV9('Không tải được dữ liệu chủ nhiệm: '+(err&&err.message?err.message:err),'danger');
+    }finally{gvcnSetBusyV681(false);}
+  }
+
+  function xuLyTaiAnhGVCN(event){
+    const file=event?.target?.files?.[0];if(!file)return;
+    if(!/^image\/(png|jpeg|webp)$/i.test(file.type||'')){showToastV9('Chỉ nhận ảnh PNG, JPG hoặc WEBP.','danger');return;}
+    const status=document.getElementById('gvcnSigStatusV681');if(status)status.textContent='Đang xử lý ảnh chữ ký...';
+    const reader=new FileReader();
+    reader.onload=function(e){
+      const tempImg=document.createElement('img');tempImg.src=e.target.result;
+      tempImg.onload=function(){
+        xoaNenAnhChuKy(tempImg,function(processedDataUrl){
+          const img=document.getElementById('gvcnSigImage'),ph=document.getElementById('gvcnSigPlaceholder');if(img){img.src=processedDataUrl;img.classList.remove('d-none');}ph?.classList.add('d-none');
+          if(status)status.textContent='Đang lưu vào Supabase Storage...';
+          google.script.run.withSuccessHandler(function(res){
+            if(res&&res.success){
+              urlGVCNGlobal=normalizeSignatureUrlV67_1(res.urlChuKy||'');if(img)img.src=urlGVCNGlobal||processedDataUrl;
+              if(gvcnDangNhapInfo)gvcnDangNhapInfo.urlChuKy=res.urlChuKy||'';
+              const sess=currentUnifiedLoginV4?.sessions||{};if(sess.GVCN)sess.GVCN.urlChuKy=res.urlChuKy||'';if(sess.GVBM)sess.GVBM.urlChuKy=res.urlChuKy||'';
+              document.getElementById('gvcnDeleteSigBtnV681')?.classList.remove('d-none');if(status)status.textContent='Đã lưu chữ ký trên Supabase.';showToastV9('Đã lưu chữ ký GVCN.','success');
+            }else{if(status)status.textContent=(res&&res.message)||'Không lưu được chữ ký.';showToastV9((res&&res.message)||'Không lưu được chữ ký.','danger');}
+          }).withFailureHandler(function(err){if(status)status.textContent='Không lưu được chữ ký.';showToastV9(err&&err.message?err.message:String(err),'danger');}).luuChuKyGiaoVienV21(processedDataUrl,{token:gvcnDangNhapInfo.sessionToken});
+        });
+      };
+    };
+    reader.readAsDataURL(file);event.target.value='';
+  }
+
+  async function xoaChuKyGvcnV681(){
+    if(!gvcnDangNhapInfo?.sessionToken)return;
+    const ok=await confirmV13('Xóa chữ ký đang lưu trên Supabase?',{title:'Xóa chữ ký GVCN',confirmText:'Xóa chữ ký',danger:true});if(!ok)return;
+    const status=document.getElementById('gvcnSigStatusV681');if(status)status.textContent='Đang xóa...';
+    google.script.run.withSuccessHandler(function(res){
+      if(res&&res.success){urlGVCNGlobal='';gvcnDangNhapInfo.urlChuKy='';const img=document.getElementById('gvcnSigImage');if(img){img.src='';img.classList.add('d-none');}document.getElementById('gvcnSigPlaceholder')?.classList.remove('d-none');document.getElementById('gvcnDeleteSigBtnV681')?.classList.add('d-none');if(status)status.textContent='Đã xóa chữ ký.';showToastV9('Đã xóa chữ ký GVCN.','success');}
+      else{if(status)status.textContent=(res&&res.message)||'Không xóa được chữ ký.';showToastV9((res&&res.message)||'Không xóa được chữ ký.','danger');}
+    }).withFailureHandler(function(err){if(status)status.textContent='Không xóa được chữ ký.';showToastV9(err&&err.message?err.message:String(err),'danger');}).xoaChuKyGiaoVienV21({token:gvcnDangNhapInfo.sessionToken});
+  }
+
+  async function guiChotTuanGVCN(){
+    if(!gvcnDangNhapInfo?.sessionToken)return;
+    const res=gvcnLastBookV681, unsigned=Number(res?.summary?.soTietChuaKy||0),total=Number(res?.foundCount||0);
+    if(!total){showToastV9('Tuần này chưa có dữ liệu để ký chốt.','warning');return;}
+    if(unsigned>0){showToastV9(`Còn ${unsigned} tiết chưa ký. Chưa thể chốt tuần.`,'danger');return;}
+    if(gvcnLastCloseV681){showToastV9('Tuần này đã được ký chốt.','warning');return;}
+    const ok=await confirmV13(`Xác nhận ký chốt lớp ${gvcnDangNhapInfo.lop} - Tuần ${document.getElementById('gvcnTuan').value}? Sau khi chốt, dữ liệu tuần sẽ bị khóa.`,{title:'Ký chốt tuần',confirmText:'Ký chốt',danger:false});if(!ok)return;
+    const btn=document.getElementById('gvcnCloseBtnV681'),old=btn?.textContent||'Ký chốt tuần';if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner-border spinner-border-sm me-1"></span>Đang ký chốt...';}
+    const payload={lop:gvcnDangNhapInfo.lop,tuan:Number(document.getElementById('gvcnTuan').value),ykien:document.getElementById('gvcnYKien').value,tenGVCN:gvcnDangNhapInfo.tenGVCN||''};
+    google.script.run.withSuccessHandler(function(r){
+      if(r&&r.success){showToastV9(r.message||'Đã ký chốt tuần.','success');setTimeout(()=>taiThongTinChotTuan(),150);}
+      else{showToastV9((r&&r.message)||'Không ký chốt được.','danger');if(btn){btn.disabled=false;btn.textContent=old;}}
+    }).withFailureHandler(function(err){showToastV9(err&&err.message?err.message:String(err),'danger');if(btn){btn.disabled=false;btn.textContent=old;}}).luuChotTuanGVCN(payload,{token:gvcnDangNhapInfo.sessionToken});
+  }
+
+  function moSoTuGvcnV681(){
+    if(!gvcnDangNhapInfo)return;
+    const lop=String(gvcnDangNhapInfo.lop||''),tuan=Number(document.getElementById('gvcnTuan')?.value||1),khoi=(lop.match(/^(10|11|12)/)||[])[1]||'';
+    if(khoi){const k=document.getElementById('viewKhoi');if(k){k.value=khoi;try{chonKhoiLopView();}catch(_e){}}}
+    const sel=document.getElementById('viewLop');if(sel){const norm=x=>String(x).replace(/([A-Z])0+(\d+)$/,'$1$2');const opt=[...sel.options].find(o=>norm(o.value)===norm(lop));if(opt)sel.value=opt.value;}
+    const mode=document.getElementById('viewBookMode');if(mode)mode.value='LOP_CHINH';const w=document.getElementById('viewTuan');if(w)w.value=String(tuan);
+    openTopTabV9('view-tab');setTimeout(()=>traCuuSoDauBaiTuanGop(true),80);
+  }
 
 </script>
 

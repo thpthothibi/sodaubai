@@ -4671,6 +4671,39 @@
   </div>
 </div>
 
+<!-- V68.5.3: MODAL ĐỔI MẬT KHẨU THỐNG NHẤT MỌI VAI TRÒ -->
+<div class="modal fade" id="modalDoiMatKhauUnifiedV6853" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title fw-bold">ĐỔI MẬT KHẨU TÀI KHOẢN</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="alert alert-info py-2 small">Mật khẩu mới sẽ áp dụng cho <strong>tất cả vai trò</strong> của cùng tài khoản. Mật khẩu hiện tại được xác thực trực tiếp trên Supabase.</div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="passUnifiedOldV6853">Mật khẩu hiện tại</label>
+          <input type="password" class="form-control" id="passUnifiedOldV6853" autocomplete="current-password">
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="passUnifiedNewV6853">Mật khẩu mới</label>
+          <input type="password" class="form-control" id="passUnifiedNewV6853" autocomplete="new-password">
+          <div class="form-text">Ít nhất 8 ký tự, gồm chữ và số.</div>
+        </div>
+        <div class="mb-0">
+          <label class="form-label fw-semibold" for="passUnifiedConfirmV6853">Xác nhận mật khẩu mới</label>
+          <input type="password" class="form-control" id="passUnifiedConfirmV6853" autocomplete="new-password" onkeypress="if(event.key==='Enter'){event.preventDefault();thucHienDoiMatKhauUnifiedV6853();}">
+        </div>
+        <div id="passwordUnifiedStatusV6853" class="d-none" role="alert"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        <button type="button" class="btn btn-primary fw-bold" id="btnSaveUnifiedPasswordV6853" onclick="thucHienDoiMatKhauUnifiedV6853()">Lưu mật khẩu mới</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL ĐỔI MẬT KHẨU GVCN -->
 <div class="modal fade" id="modalDoiMatKhau" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
@@ -4772,7 +4805,7 @@
   const SODB_SUPABASE_URL_V66 = "https://mlwhxxpmnhrrkbkivvye.supabase.co";
   const SODB_SUPABASE_PUBLISHABLE_KEY_V66 = "sb_publishable_Hq6KRH5KDT1eiOYLwwQhkw_c45sZkgi";
   const SODB_EDGE_URL_V66 = SODB_SUPABASE_URL_V66 + "/functions/v1/sodb-core-v68";
-  const SODB_FRONTEND_VERSION = "V68.5";
+  const SODB_FRONTEND_VERSION = "V68.5.3";
   window.__SODB_BACKEND_VERSION__ = "UNKNOWN";
 
   function normalizeSignatureUrlV67_1(raw){
@@ -5244,12 +5277,41 @@
 
   function moDoiMatKhauToanCucV36(){
     const sessions=(currentUnifiedLoginV4&&currentUnifiedLoginV4.sessions)||{};
-    if(sessions.ADMIN){doiMatKhauAdminUiV4();return;}
-    // Giáo viên là nguồn mật khẩu chuẩn; đổi tại đây sẽ đồng bộ GVCN/TTCM/BGH.
-    if(sessions.GVBM&&gvbmDangNhapInfo){moModalDoiMatKhauGVBM();return;}
-    if(sessions.GVCN&&gvcnDangNhapInfo){moModalDoiMatKhau();return;}
-    if(sessions.TTCM&&ttcmDangNhapInfo){moModalDoiMatKhauTTCM();return;}
-    alertV13('Không xác định được tài khoản để đổi mật khẩu. Vui lòng đăng nhập lại.');
+    const hasSession=Object.values(sessions).some(x=>x&&x.sessionToken);
+    if(!hasSession){alertV13('Không xác định được tài khoản để đổi mật khẩu. Vui lòng đăng nhập lại.');return;}
+    const oldEl=document.getElementById('passUnifiedOldV6853');
+    const newEl=document.getElementById('passUnifiedNewV6853');
+    const confirmEl=document.getElementById('passUnifiedConfirmV6853');
+    const status=document.getElementById('passwordUnifiedStatusV6853');
+    if(oldEl)oldEl.value='';if(newEl)newEl.value='';if(confirmEl)confirmEl.value='';
+    if(status){status.textContent='';status.classList.add('d-none');}
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalDoiMatKhauUnifiedV6853')).show();
+    setTimeout(()=>oldEl?.focus(),120);
+  }
+
+  async function thucHienDoiMatKhauUnifiedV6853(){
+    const oldPw=String(document.getElementById('passUnifiedOldV6853')?.value||'');
+    const newPw=String(document.getElementById('passUnifiedNewV6853')?.value||'');
+    const confirmPw=String(document.getElementById('passUnifiedConfirmV6853')?.value||'');
+    const btn=document.getElementById('btnSaveUnifiedPasswordV6853');
+    const status=document.getElementById('passwordUnifiedStatusV6853');
+    const showStatus=(msg,type)=>{if(!status)return;status.textContent=msg;status.className='alert py-2 mt-3 mb-0 '+(type==='success'?'alert-success':'alert-danger');};
+    if(!oldPw||!newPw||!confirmPw){showStatus('Vui lòng nhập đầy đủ 3 ô mật khẩu.','danger');return;}
+    if(newPw!==confirmPw){showStatus('Mật khẩu mới và xác nhận mật khẩu không trùng nhau.','danger');return;}
+    if(newPw.length<8||!/[A-Za-zÀ-ỹ]/.test(newPw)||!/\d/.test(newPw)){showStatus('Mật khẩu mới cần ít nhất 8 ký tự, gồm chữ và số.','danger');return;}
+    if(oldPw===newPw){showStatus('Mật khẩu mới phải khác mật khẩu hiện tại.','danger');return;}
+    const auth=getAnyAuthV6();
+    if(!auth||!auth.token){showStatus('Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại.','danger');return;}
+    if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner-border spinner-border-sm me-1"></span>Đang đổi...';}
+    google.script.run
+      .withSuccessHandler(function(res){
+        if(btn){btn.disabled=false;btn.textContent='Lưu mật khẩu mới';}
+        if(!res||!res.success){showStatus((res&&res.message)||'Không đổi được mật khẩu.','danger');return;}
+        showStatus(res.message||'Đổi mật khẩu thành công.','success');
+        setTimeout(()=>{bootstrap.Modal.getInstance(document.getElementById('modalDoiMatKhauUnifiedV6853'))?.hide();dangXuatTapTrungV4();},900);
+      })
+      .withFailureHandler(function(err){if(btn){btn.disabled=false;btn.textContent='Lưu mật khẩu mới';}showStatus(err&&err.message?err.message:String(err),'danger');})
+      .doiMatKhauTaiKhoanV6853(oldPw,newPw,auth);
   }
 
   function tokenMapFromLoginV4(login){
@@ -5346,7 +5408,7 @@
     btn.disabled=false;txt.textContent='Đăng nhập';
     if(!res||!res.success){setCentralLoginStatusV4(res&&res.message?res.message:'Không đăng nhập được.','danger');return;}
     document.getElementById('centralPasswordV4').value='';
-    console.info('[V68.5 PERF] Login tổng:',Math.round(performance.now()-loginStarted)+'ms','server:',(res.serverMs??'—')+'ms','path:',res.loginPath||source,'dashboard gộp:',(res.dashboardBundledMs??'—')+'ms','backend:',res.backendVersion||source,'source:',source);
+    console.info('[V68.5.3 PERF] Login tổng:',Math.round(performance.now()-loginStarted)+'ms','server:',(res.serverMs??'—')+'ms','path:',res.loginPath||source,'dashboard gộp:',(res.dashboardBundledMs??'—')+'ms','backend:',res.backendVersion||source,'source:',source);
     apDungPhanQuyenV4(res,true);
   }
 

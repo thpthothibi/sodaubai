@@ -5682,9 +5682,12 @@
     return {token:ttcmDangNhapInfo&&ttcmDangNhapInfo.sessionToken||''};
   }
   function populateTTCMFromUnifiedV4(res,fullAccessLabel){
-    const isBgh=hasRoleV4('BGH'), isAdmin=hasRoleV4('ADMIN'), isPht=isPhoHieuTruongClientV50();
-    const bghSession=currentUnifiedLoginV4&&currentUnifiedLoginV4.sessions&&currentUnifiedLoginV4.sessions.BGH;
-    const effectiveRes=(isBgh&&bghSession)?bghSession:res;
+    const isTtcm=hasRoleV4('TTCM'), isBgh=hasRoleV4('BGH'), isAdmin=hasRoleV4('ADMIN'), isPht=isPhoHieuTruongClientV50();
+    const sessions=currentUnifiedLoginV4&&currentUnifiedLoginV4.sessions||{};
+    const bghSession=sessions.BGH;
+    // V68.5.2: nếu một tài khoản đồng thời có TTCM + BGH thì phải ưu tiên phiên TTCM
+    // để giữ đúng danh sách môn và quyền TẢI KHBD của Tổ trưởng/Tổ phó.
+    const effectiveRes=(isTtcm&&sessions.TTCM)?sessions.TTCM:((isBgh&&bghSession)?bghSession:res);
     ttcmDangNhapInfo=effectiveRes;
     document.getElementById('ttcmMainContent').classList.remove('d-none');
     const mons=effectiveRes.dsMon||[];
@@ -5700,18 +5703,26 @@
     const summary=document.getElementById('khbdViewSummaryV36');if(summary){summary.textContent='Chưa tải danh sách.';delete summary.dataset.loaded;}
     const approvalBox=document.getElementById('khbdApprovalBoxV50');if(approvalBox)approvalBox.classList.add('d-none');
 
-    // V50: BGH chỉ xem; riêng Phó Hiệu trưởng được Duyệt/Trả lại. TTCM mới được tải/chỉnh KHBD.
+    // V68.5.2: TTCM/Tổ phó luôn được thấy tab Tải KHBD, kể cả khi cùng tài khoản có thêm quyền BGH.
+    // BGH thuần chỉ xem; riêng Phó Hiệu trưởng được Duyệt/Trả lại. Admin vẫn có toàn quyền.
     const uploadNav=document.getElementById('khbd-upload-tab-v38')?.parentElement;
     const approvalNav=document.getElementById('khbd-approval-nav-v50');
-    if(uploadNav)uploadNav.classList.toggle('d-none',isBgh&&!isAdmin);
+    const canUploadKhbd=isTtcm||isAdmin;
+    if(uploadNav)uploadNav.classList.toggle('d-none',!canUploadKhbd);
     if(approvalNav)approvalNav.classList.toggle('d-none',!(isPht||isAdmin));
-    if((isPht||isAdmin)){
+    if((isPht||isAdmin)&&!isTtcm){
       setTimeout(()=>{
         const tab=document.getElementById('khbd-approval-tab-v50');
         if(tab&&window.bootstrap)bootstrap.Tab.getOrCreateInstance(tab).show();
       },80);
-    }else if(isBgh){
+    }else if(isBgh&&!isTtcm){
       setTimeout(()=>{const tab=document.getElementById('khbd-view-tab-v38');if(tab&&window.bootstrap)bootstrap.Tab.getOrCreateInstance(tab).show();},80);
+    }else if(isTtcm){
+      setTimeout(()=>{
+        ensureTtcmUploadUiV6852();
+        const tab=document.getElementById('khbd-upload-tab-v38');
+        if(tab&&window.bootstrap)bootstrap.Tab.getOrCreateInstance(tab).show();
+      },80);
     }
   }
 
@@ -5732,6 +5743,20 @@
       document.getElementById('khbd-approval-nav-v50')?.classList.add('d-none');
       const w=document.getElementById('ttcmWelcomeMsg');if(w)w.textContent=`✅ ${gv.tenGV||''} — chọn KHBD đã được Phó Hiệu trưởng duyệt để sử dụng khi Nhập tiết.`;
       setTimeout(()=>{const t=document.getElementById('khbd-my-tab-v67');if(t&&window.bootstrap)bootstrap.Tab.getOrCreateInstance(t).show();},80);
+    }
+  }
+  function ensureTtcmUploadUiV6852(){
+    const sessions=currentUnifiedLoginV4&&currentUnifiedLoginV4.sessions||{};
+    if(!sessions.TTCM)return;
+    const uploadTab=document.getElementById('khbd-upload-tab-v38');
+    const uploadNav=uploadTab?.parentElement;
+    const uploadPane=document.getElementById('khbd-upload-pane-v38');
+    if(uploadNav)uploadNav.classList.remove('d-none');
+    if(uploadPane)uploadPane.classList.remove('d-none');
+    // Nếu tab đang active là một tab vừa bị ẩn do chuyển tài khoản, trả TTCM về tab Tải KHBD.
+    const active=document.querySelector('#khbdSubTabsV38 .nav-link.active');
+    if(!active || active.closest('li')?.classList.contains('d-none')){
+      if(uploadTab&&window.bootstrap)bootstrap.Tab.getOrCreateInstance(uploadTab).show();
     }
   }
   function getKhbdMyAuthV67(){return {token:gvbmDangNhapInfo&&gvbmDangNhapInfo.sessionToken||''};}
@@ -5908,6 +5933,7 @@
     if(viewTab)viewTab.addEventListener('shown.bs.tab',refreshClassCatalogV29);
     const ttcmTab=document.getElementById('ttcm-tab'); if(ttcmTab)ttcmTab.addEventListener('shown.bs.tab',function(){
       lazyLoadAdminSubjectsV7();
+      ensureTtcmUploadUiV6852();
       if(hasRoleV4('GVBM')){const my=document.getElementById('khbd-my-tab-v67');if(my&&my.classList.contains('active'))taiKhbdCaNhanV67();}
       if(isKhbdApproverClientV50()){
         const approval=document.getElementById('khbd-approval-tab-v50');

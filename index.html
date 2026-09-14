@@ -4868,7 +4868,7 @@
   const SODB_SUPABASE_URL_V66 = "https://mlwhxxpmnhrrkbkivvye.supabase.co";
   const SODB_SUPABASE_PUBLISHABLE_KEY_V66 = "sb_publishable_Hq6KRH5KDT1eiOYLwwQhkw_c45sZkgi";
   const SODB_EDGE_URL_V66 = SODB_SUPABASE_URL_V66 + "/functions/v1/sodb-core-v68";
-  const SODB_FRONTEND_VERSION = "V68.5.9";
+  const SODB_FRONTEND_VERSION = "V68.6";
   window.__SODB_BACKEND_VERSION__ = "UNKNOWN";
 
   function normalizeSignatureUrlV67_1(raw){
@@ -4943,6 +4943,7 @@
     }
   }
 
+  // V68.6 CORE-INTEGRITY: Sổ đầu bài, KHBD, chỉnh sửa và phiên đăng nhập dùng Supabase làm nguồn chuẩn duy nhất.
   // V68: các RPC dữ liệu vận hành chạy trực tiếp trên Supabase Edge.
   // Các chức năng Google Drive/backup đặc thù vẫn đi Apps Script.
   const SODB_EDGE_RPC_METHODS_V67 = new Set([
@@ -4955,7 +4956,8 @@
     'kiemTraTrungTietAdmin','doiSoatKHBDGiamThi',
     'kiemTraHanNhapTietV683','adminMoKhoaNhapTietV683','layMoKhoaNhapTietV683',
     'ghiTrangThaiTietGiamThiV683','traCuuTrangThaiTietGiamThiV683',
-    'luuChuKyGiaoVienV21','xoaChuKyGiaoVienV21','traCuuChuKyTheoCCCD','doiMatKhauTaiKhoanV6853'
+    'luuChuKyGiaoVienV21','xoaChuKyGiaoVienV21','traCuuChuKyTheoCCCD','doiMatKhauTaiKhoanV6853',
+    'capNhatSoDauBaiV4','guiYeuCauChinhSuaV4','layYeuCauCuaToiV4','layYeuCauChinhSuaV4','xuLyYeuCauChinhSuaV4','layBanGhiCuaToiV4'
   ]);
 
   (function installSodbGithubBridgeV59(){
@@ -5109,19 +5111,9 @@
     }finally{clearTimeout(timeout);}
   }
   async function callSodbEdgeRpcV67(method,args){
-    try{
-      const data=await callSodbEdgeV66({action:'rpc',method:String(method||''),args:Array.isArray(args)?args:[]});
-      if(!data||data.success!==true)throw new Error(data&&data.message?sodbErrorTextV658(data.message):'Supabase V68.5.9 không thực hiện được yêu cầu.');
-      return data.result;
-    }catch(err){
-      const msg=String(err&&err.message?err.message:err||'');
-      const canFallback=['layTrangSoDauBaiV24','layDuLieuSoDauBaiTuanGop','luuChotTuanGVCN','kiemTraTrangThaiKhoaTuan'].includes(String(method||''));
-      if(canFallback && /buildBookSupabase\s+is\s+not\s+defined/i.test(msg)){
-        console.warn('[V68.2 FALLBACK] Edge thiếu buildBookSupabase, chuyển tạm sang Apps Script cho', method);
-        return await callAppsScriptRpcV59(method,args);
-      }
-      throw err;
-    }
+    const data=await callSodbEdgeV66({action:'rpc',method:String(method||''),args:Array.isArray(args)?args:[]});
+    if(!data||data.success!==true)throw new Error(data&&data.message?sodbErrorTextV658(data.message):'Supabase V68.6 không thực hiện được yêu cầu.');
+    return data.result;
   }
   window.__SODB_EDGE_URL_V66__=SODB_EDGE_URL_V66;
 
@@ -5525,7 +5517,7 @@
     btn.disabled=false;txt.textContent='Đăng nhập';
     if(!res||!res.success){setCentralLoginStatusV4(res&&res.message?res.message:'Không đăng nhập được.','danger');return;}
     document.getElementById('centralPasswordV4').value='';
-    console.info('[V68.5.5 PERF] Login tổng:',Math.round(performance.now()-loginStarted)+'ms','server:',(res.serverMs??'—')+'ms','path:',res.loginPath||source,'dashboard gộp:',(res.dashboardBundledMs??'—')+'ms','backend:',res.backendVersion||source,'source:',source);
+    console.info('[V68.6 PERF] Login tổng:',Math.round(performance.now()-loginStarted)+'ms','server:',(res.serverMs??'—')+'ms','path:',res.loginPath||source,'dashboard gộp:',(res.dashboardBundledMs??'—')+'ms','backend:',res.backendVersion||source,'source:',source);
     apDungPhanQuyenV4(res,true);
   }
 
@@ -5540,22 +5532,17 @@
     try{
       const edgeRes=await callSodbEdgeV66({action:'login',account,password});
       if(edgeRes&&edgeRes.success){
-        if(String(edgeRes.backendVersion||'')!=='V68_5_9_EDGE')throw new Error('Edge Function chưa đúng V68.5.9.');
+        if(String(edgeRes.backendVersion||'')!=='V68_6_EDGE')throw new Error('Edge Function chưa đúng V68.6 CORE-INTEGRITY.');
         handleLoginResponseV66(edgeRes,loginPerfStartedV66,'SUPABASE_EDGE',btn,txt);return;
       }
       // Sai tài khoản/mật khẩu hoặc bị khóa: không gọi fallback để tránh nhân đôi lần thử.
       if(edgeRes&&edgeRes.success===false){handleLoginResponseV66(edgeRes,loginPerfStartedV66,'SUPABASE_EDGE',btn,txt);return;}
       throw new Error('Edge Function không trả dữ liệu hợp lệ.');
     }catch(edgeErr){
-      console.warn('[V66 EDGE] Fallback Apps Script:',edgeErr);
-      setCentralLoginStatusV4('Edge tạm không sẵn sàng, đang dùng máy chủ dự phòng...','warning');
-      google.script.run.withSuccessHandler(function(res){
-        handleLoginResponseV66(res,loginPerfStartedV66,'APPS_SCRIPT_FALLBACK',btn,txt);
-      }).withFailureHandler(function(err){
-        btn.disabled=false;txt.textContent='Đăng nhập';
-        const detail=(err&&err.message)?String(err.message):String(err||'Không rõ lỗi kết nối.');
-        setCentralLoginStatusV4(detail,'danger');console.error('[SODB LOGIN FALLBACK]',err);
-      }).dangNhapHeThongV66Fallback(account,password);
+      btn.disabled=false;txt.textContent='Đăng nhập';
+      const detail=(edgeErr&&edgeErr.message)?String(edgeErr.message):String(edgeErr||'Không rõ lỗi kết nối.');
+      console.error('[V68.6 LOGIN] Supabase Edge không sẵn sàng:',edgeErr);
+      setCentralLoginStatusV4('Không thể xác thực an toàn qua Supabase Edge: '+detail+' V68.6 không dùng đăng nhập fallback qua Google Sheet để tránh lệch nguồn dữ liệu.','danger');
     }
   }
 

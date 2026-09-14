@@ -3032,7 +3032,7 @@
 
 
 <style id="v684-bgh-cover-mobile">
-/* ===== V68.4: BGH duyệt tuần + mobile header + trang bìa A3 ===== */
+/* ===== V68.5: BGH duyệt tuần + mobile header + trang bìa A3 ===== */
 #bghWeekApprovalV684 textarea{resize:vertical;min-height:58px;}
 #bghWeekApprovalV684 .badge{font-size:.72rem;padding:.45em .7em;}
 #printBGHSigSpace img,.sig-bgh-print{max-height:62px;max-width:150px;object-fit:contain;mix-blend-mode:multiply;filter:contrast(125%);}
@@ -3535,6 +3535,7 @@
               <div id="inputDeadlineStatusV683" class="alert alert-info border py-2 px-3 mb-3 small">
                 <strong>Thời hạn ký:</strong> Buổi sáng ký trước <strong>12:00</strong>; buổi chiều/dạy bù ký trước <strong>18:00</strong>. Ngày đã qua tự động khóa; Admin có thể mở khóa có thời hạn khi cần bổ sung.
               </div>
+              <div id="bulkWeekUnlockNoticeV685" class="alert alert-success border py-2 px-3 mb-3 small d-none"></div>
               <div class="row g-2 mb-2 input-main-row-v30">
                 <div class="col-lg-3 col-md-4">
                   <label class="form-label fw-semibold">Môn</label>
@@ -4363,7 +4364,7 @@
                 <button class="nav-link active fw-bold btn-outline-danger" id="pills-check-tab" data-bs-toggle="pill" data-bs-target="#pills-check" type="button">Kiểm Dò Trùng Tiết Theo Ngày</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link fw-bold btn-outline-secondary" id="pills-unlock-tab" data-bs-toggle="pill" data-bs-target="#pills-unlock" type="button">Mở Khóa Tuần Ký Chốt</button>
+                <button class="nav-link fw-bold btn-outline-secondary" id="pills-unlock-tab" data-bs-toggle="pill" data-bs-target="#pills-unlock" type="button" onclick="setTimeout(taiMoKhoaTuanHangLoatV685,80)">Mở Khóa Tuần Ký Chốt</button>
               </li>
               <li class="nav-item" role="presentation">
                 <button class="nav-link fw-bold btn-outline-warning text-dark" id="pills-input-unlock-tab-v683" data-bs-toggle="pill" data-bs-target="#pills-input-unlock-v683" type="button" onclick="khoiTaoMoKhoaNhapTietV683()">Mở Khóa Nhập Tiết</button>
@@ -4492,26 +4493,45 @@
 
               <!-- KHỐI 3: MỞ KHÓA TUẦN -->
               <div class="tab-pane fade" id="pills-unlock" role="tabpanel">
-                <div class="mx-auto" style="max-width: 500px;">
-                  <div class="mb-3">
-                    <label class="form-label fw-bold">Khối</label>
-                    <select class="form-select" id="adminKhoi" onchange="chonKhoiLopAdmin()">
-                      <option value="10">Khối 10</option><option value="11">Khối 11</option><option value="12">Khối 12</option>
-                    </select>
+                <div class="mx-auto" style="max-width: 920px;">
+                  <div class="card border-danger-subtle mb-3">
+                    <div class="card-header bg-danger-subtle fw-bold">Mở khóa một lớp / một tuần</div>
+                    <div class="card-body">
+                      <div class="row g-3 align-items-end">
+                        <div class="col-md-3"><label class="form-label fw-bold">Khối</label><select class="form-select" id="adminKhoi" onchange="chonKhoiLopAdmin()"><option value="10">Khối 10</option><option value="11">Khối 11</option><option value="12">Khối 12</option></select></div>
+                        <div class="col-md-3"><label class="form-label fw-bold">Lớp</label><select class="form-select" id="adminLop"></select></div>
+                        <div class="col-md-2"><label class="form-label fw-bold">Tuần</label><input type="number" class="form-control" id="adminTuan" value="1" min="1" max="52"></div>
+                        <div class="col-md-4"><label class="form-label fw-bold">Lý do</label><input type="text" class="form-control" id="adminUnlockReasonV4" placeholder="Nhập lý do mở khóa"></div>
+                        <div class="col-12 text-end"><button type="button" class="btn btn-outline-danger fw-bold" onclick="thucHienMoKhoaAdmin()">Mở khóa lớp này 24 giờ</button></div>
+                      </div>
+                    </div>
                   </div>
-                  <div class="mb-3">
-                    <label class="form-label fw-bold">Lớp Cần Mở Khóa</label>
-                    <select class="form-select" id="adminLop"></select>
+
+                  <div class="card border-primary">
+                    <div class="card-header bg-primary-subtle fw-bold">Mở khóa toàn bộ tuần cũ</div>
+                    <div class="card-body">
+                      <div class="alert alert-info border py-2 small">
+                        Dùng khi cần quay lại dữ liệu cũ. Khoảng tuần được mở sẽ bỏ khóa ngày cũ và khóa 12:00/18:00. Nếu tích <strong>Cho phép giáo viên thấy toàn bộ lớp</strong>, hệ thống cũng bỏ kiểm tra lớp theo phân công hiện tại trong khoảng tuần này.
+                      </div>
+                      <div class="row g-3 align-items-end">
+                        <div class="col-md-2"><label class="form-label fw-bold">Từ tuần</label><input type="number" class="form-control" id="adminBulkFromWeekV685" min="1" max="52" value="1"></div>
+                        <div class="col-md-2"><label class="form-label fw-bold">Đến tuần</label><input type="number" class="form-control" id="adminBulkToWeekV685" min="1" max="52" value="1"></div>
+                        <div class="col-md-2"><label class="form-label fw-bold">Số giờ mở</label><input type="number" class="form-control" id="adminBulkHoursV685" min="1" max="168" value="24"></div>
+                        <div class="col-md-6"><label class="form-label fw-bold">Lý do</label><input type="text" class="form-control" id="adminBulkReasonV685" placeholder="VD: Cho phép giáo viên hoàn thiện sổ các tuần cũ..."></div>
+                        <div class="col-12">
+                          <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="adminBulkAllClassesV685">
+                            <label class="form-check-label fw-bold" for="adminBulkAllClassesV685">Cho phép giáo viên thấy toàn bộ lớp trong khoảng tuần được mở</label>
+                          </div>
+                          <div class="small text-muted mt-1">Chỉ bỏ ràng buộc <strong>lớp theo phân công hiện tại</strong>; giáo viên vẫn phải đúng môn/chuyên môn và KHBD đã được duyệt, đã tích nhận.</div>
+                        </div>
+                        <div class="col-12 text-end"><button type="button" class="btn btn-primary fw-bold px-4" onclick="moKhoaTuanHangLoatV685()">Mở khóa toàn trường</button></div>
+                      </div>
+                      <hr>
+                      <div class="d-flex justify-content-between align-items-center gap-2"><strong>Các khoảng tuần đang mở</strong><button type="button" class="btn btn-outline-secondary btn-sm" onclick="taiMoKhoaTuanHangLoatV685()">Làm mới</button></div>
+                      <div id="adminBulkUnlockListV685" class="mt-2 small text-muted">Chưa tải.</div>
+                    </div>
                   </div>
-                  <div class="mb-3">
-                    <label class="form-label fw-bold">Tuần Cần Mở Khóa</label>
-                    <input type="number" class="form-control" id="adminTuan" value="1" min="1" max="52">
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label fw-bold">Lý do mở khóa</label>
-                    <textarea class="form-control" id="adminUnlockReasonV4" rows="2" placeholder="Nhập lý do mở khóa"></textarea>
-                  </div>
-                  <button type="button" class="btn btn-danger w-100 py-2 fw-bold" onclick="thucHienMoKhoaAdmin()">Mở Khóa Tạm 24 Giờ</button>
                 </div>
               </div>
 
@@ -4735,7 +4755,7 @@
   const SODB_SUPABASE_URL_V66 = "https://mlwhxxpmnhrrkbkivvye.supabase.co";
   const SODB_SUPABASE_PUBLISHABLE_KEY_V66 = "sb_publishable_Hq6KRH5KDT1eiOYLwwQhkw_c45sZkgi";
   const SODB_EDGE_URL_V66 = SODB_SUPABASE_URL_V66 + "/functions/v1/sodb-core-v68";
-  const SODB_FRONTEND_VERSION = "V68.4";
+  const SODB_FRONTEND_VERSION = "V68.5";
   window.__SODB_BACKEND_VERSION__ = "UNKNOWN";
 
   function normalizeSignatureUrlV67_1(raw){
@@ -4816,7 +4836,7 @@
     'getDanhSachBaiDayTheoMon','layDanhSachKHBDTheoKhoiV36','capNhatKeHoachBaiDay',
     'layDanhSachDuyetKHBDV50','xuLyDuyetKHBDV50','layKhbdCaNhanV67','chonKhbdCaNhanV67',
     'layTrangSoDauBaiV24','layDuLieuSoDauBaiTuanGop','luuSoDauBai','luuChotTuanGVCN','duyetTuanBGHV684',
-    'kiemTraTrangThaiKhoaTuan','adminMoKhoaTuan','layNhatKyV4',
+    'kiemTraTrangThaiKhoaTuan','adminMoKhoaTuan','adminMoKhoaTuanHangLoatV685','layMoKhoaTuanHangLoatV685','dongMoKhoaTuanHangLoatV685','kiemTraMoKhoaTuanHangLoatV685','layNhatKyV4',
     'getDanhSachMonAdminV7','getDanhSachMonKHBD','getDanhSachGVTheoMon','luuCauHinhV4',
     'traCuuChiTietGiamThi','kiemTraNhapTreGiamThi','traCuuThongKeTheoKhoiNgay',
     'kiemTraTrungTietAdmin','doiSoatKHBDGiamThi',
@@ -4962,7 +4982,7 @@
   async function callSodbEdgeRpcV67(method,args){
     try{
       const data=await callSodbEdgeV66({action:'rpc',method:String(method||''),args:Array.isArray(args)?args:[]});
-      if(!data||data.success!==true)throw new Error(data&&data.message?data.message:'Supabase V68.4 không thực hiện được yêu cầu.');
+      if(!data||data.success!==true)throw new Error(data&&data.message?data.message:'Supabase V68.5 không thực hiện được yêu cầu.');
       return data.result;
     }catch(err){
       const msg=String(err&&err.message?err.message:err||'');
@@ -4998,6 +5018,8 @@
   const sodbViewCacheV6 = new Map();
   const SODB_VIEW_CACHE_MS_V6 = 180000; // 3 phút trên trình duyệt
   let bootstrapLoadedV6 = false;
+  let bulkWeekUnlockStateV685={week:0,active:false,allowAllClasses:false};
+  let bulkWeekUnlockRequestV685=0;
   const SPECIAL_PROXY_SIGNER_ACCOUNT_V682 = '0373205285';
   let bootstrapPendingV47 = false;
   let classCatalogLoadedAtV47 = 0;
@@ -5147,6 +5169,13 @@
       khoiSel.innerHTML='';['10','11','12'].forEach(k=>khoiSel.add(new Option('Khối '+k,k)));khoiSel.value=['10','11','12'].includes(oldK)?oldK:'10';
       napLopVaoSelectV22(lopSel,khoiSel.value,true);if(oldL&&[...lopSel.options].some(o=>o.value===oldL))lopSel.value=oldL;
       const note=document.getElementById('phanCongDayNoteV39');if(note){note.textContent='Chế độ dạy thay: được chọn lớp ngoài phân công thường xuyên; môn học vẫn phải thuộc chuyên môn của tài khoản đang đăng nhập.';note.className='small text-warning fw-semibold mb-2';}
+      onInputClassChangedV26();capNhatHanNhapTietV683();return;
+    }
+    if(bulkWeekUnlockStateV685.active&&bulkWeekUnlockStateV685.allowAllClasses&&Number(document.getElementById('tuanHoc')?.value||0)===Number(bulkWeekUnlockStateV685.week||0)){
+      const oldK=String(khoiSel.value||'10'),oldL=String(lopSel.value||'');
+      khoiSel.innerHTML='';['10','11','12'].forEach(k=>khoiSel.add(new Option('Khối '+k,k)));khoiSel.value=['10','11','12'].includes(oldK)?oldK:'10';
+      napLopVaoSelectV22(lopSel,khoiSel.value,true);if(oldL&&[...lopSel.options].some(o=>o.value===oldL))lopSel.value=oldL;
+      const note=document.getElementById('phanCongDayNoteV39');if(note){note.textContent=`Admin đang mở khóa Tuần ${bulkWeekUnlockStateV685.fromWeek}–${bulkWeekUnlockStateV685.toWeek}: được chọn toàn bộ lớp; hệ thống không đối chiếu lớp theo phân công hiện tại trong khoảng này.`;note.className='small text-success fw-bold mb-2';}
       onInputClassChangedV26();capNhatHanNhapTietV683();return;
     }
     const subject=String(monSel.value||'').trim();
@@ -5300,7 +5329,7 @@
     btn.disabled=false;txt.textContent='Đăng nhập';
     if(!res||!res.success){setCentralLoginStatusV4(res&&res.message?res.message:'Không đăng nhập được.','danger');return;}
     document.getElementById('centralPasswordV4').value='';
-    console.info('[V68.4 PERF] Login tổng:',Math.round(performance.now()-loginStarted)+'ms','server:',(res.serverMs??'—')+'ms','path:',res.loginPath||source,'dashboard gộp:',(res.dashboardBundledMs??'—')+'ms','backend:',res.backendVersion||source,'source:',source);
+    console.info('[V68.5 PERF] Login tổng:',Math.round(performance.now()-loginStarted)+'ms','server:',(res.serverMs??'—')+'ms','path:',res.loginPath||source,'dashboard gộp:',(res.dashboardBundledMs??'—')+'ms','backend:',res.backendVersion||source,'source:',source);
     apDungPhanQuyenV4(res,true);
   }
 
@@ -5315,7 +5344,7 @@
     try{
       const edgeRes=await callSodbEdgeV66({action:'login',account,password});
       if(edgeRes&&edgeRes.success){
-        if(String(edgeRes.backendVersion||'')!=='V68_4_EDGE')throw new Error('Edge Function chưa đúng V68.4.');
+        if(String(edgeRes.backendVersion||'')!=='V68_5_EDGE')throw new Error('Edge Function chưa đúng V68.5.');
         handleLoginResponseV66(edgeRes,loginPerfStartedV66,'SUPABASE_EDGE',btn,txt);return;
       }
       // Sai tài khoản/mật khẩu hoặc bị khóa: không gọi fallback để tránh nhân đôi lần thử.
@@ -6140,9 +6169,13 @@ function xuatExcelNhapTreGiamThi() {
     const khoi=document.getElementById('khoi').value;
     const lopSel=document.getElementById('lop');
     const isSub=!!document.getElementById('isDayThayV683')?.checked;
+    const bulkAll=!!(bulkWeekUnlockStateV685.active&&bulkWeekUnlockStateV685.allowAllClasses&&Number(document.getElementById('tuanHoc')?.value||0)===Number(bulkWeekUnlockStateV685.week||0));
     if(isSub){
       napLopVaoSelectV22(lopSel,khoi,true);
       const note=document.getElementById('phanCongDayNoteV39');if(note){note.textContent='Chế độ dạy thay: được chọn lớp ngoài phân công thường xuyên; môn học vẫn phải thuộc chuyên môn của tài khoản đang đăng nhập.';note.className='small text-warning fw-semibold mb-2';}
+    }else if(bulkAll){
+      napLopVaoSelectV22(lopSel,khoi,true);
+      const note=document.getElementById('phanCongDayNoteV39');if(note){note.textContent=`Admin đang mở khóa Tuần ${bulkWeekUnlockStateV685.fromWeek}–${bulkWeekUnlockStateV685.toWeek}: được chọn toàn bộ lớp; không đối chiếu lớp theo phân công hiện tại.`;note.className='small text-success fw-bold mb-2';}
     }else if(gvbmDangNhapInfo){
       const subject=document.getElementById('monHoc')?.value||'';
       napLopPhanCongV39(lopSel,khoi,subject);
@@ -7472,7 +7505,10 @@ function capNhatTuanVaThu() {
   
   let thuArr = ["Chủ Nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
   document.getElementById('thuDay').value = thuArr[selectedDate.getDay()];
-  if (gvbmDangNhapInfo) loadDanhSachBaiDay();
+  if (gvbmDangNhapInfo) {
+    capNhatMoKhoaTuanCuV685(false);
+    loadDanhSachBaiDay();
+  }
 }
 
 /* CHẶN LẦN NỮA KHI LƯU SỔ ĐẦU BÀI */
@@ -7513,7 +7549,7 @@ async function capNhatHanNhapTietV683(){
   try{
     const r=await callSodbEdgeRpcV67('kiemTraHanNhapTietV683',[lop,date,buoi,tiet,{token:gvbmDangNhapInfo.sessionToken}]);
     inputDeadlineLockedV683=!!r?.locked;
-    box.className='alert border py-2 px-3 mb-3 small '+(r?.locked?'alert-danger':(r?.state==='ADMIN_UNLOCK'?'alert-warning':'alert-info'));
+    box.className='alert border py-2 px-3 mb-3 small '+(r?.locked?'alert-danger':(['ADMIN_UNLOCK','BULK_WEEK_UNLOCK'].includes(String(r?.state||''))?'alert-warning':'alert-info'));
     box.innerHTML=`<strong>${r?.locked?'Đã khóa':'Thời hạn ký'}:</strong> ${escapeHtml(r?.message||'')}`;
     if(btn&&!isSodbSubmitting)btn.disabled=inputDeadlineLockedV683;
   }catch(err){
@@ -9368,6 +9404,50 @@ document.getElementById('overviewScopeV20').textContent='Đang tải tổng quan
   });
 
 
+
+  /* ===== V68.5: Admin mở khóa hàng loạt tuần cũ ===== */
+  async function moKhoaTuanHangLoatV685(){
+    if(!adminDangNhapInfo?.sessionToken){showToastV9('Phiên Admin không hợp lệ.','danger');return;}
+    const payload={tuTuan:Number(document.getElementById('adminBulkFromWeekV685')?.value||0),denTuan:Number(document.getElementById('adminBulkToWeekV685')?.value||0),soGio:Number(document.getElementById('adminBulkHoursV685')?.value||24),choPhepTatCaLop:!!document.getElementById('adminBulkAllClassesV685')?.checked,lyDo:String(document.getElementById('adminBulkReasonV685')?.value||'').trim()};
+    if(!payload.tuTuan||!payload.denTuan||payload.tuTuan>payload.denTuan){showToastV9('Khoảng tuần không hợp lệ.','danger');return;}
+    if(!payload.lyDo){showToastV9('Bắt buộc nhập lý do mở khóa.','danger');return;}
+    const ok=await confirmV13(`Mở khóa toàn trường từ Tuần ${payload.tuTuan} đến Tuần ${payload.denTuan}${payload.choPhepTatCaLop?' và cho giáo viên thấy toàn bộ lớp':''}?`,{title:'Mở khóa tuần cũ',confirmText:'Mở khóa',danger:false});if(!ok)return;
+    try{
+      const r=await callSodbEdgeRpcV67('adminMoKhoaTuanHangLoatV685',[payload,{token:adminDangNhapInfo.sessionToken}]);
+      if(r?.success){showToastV9(r.message||'Đã mở khóa.','success');document.getElementById('adminBulkReasonV685').value='';taiMoKhoaTuanHangLoatV685();}
+      else showToastV9(r?.message||'Không mở khóa được.','danger');
+    }catch(e){showToastV9(e.message||String(e),'danger');}
+  }
+  async function taiMoKhoaTuanHangLoatV685(){
+    const box=document.getElementById('adminBulkUnlockListV685');if(!box||!adminDangNhapInfo?.sessionToken)return;
+    box.innerHTML='<span class="spinner-border spinner-border-sm me-1"></span>Đang tải...';
+    try{
+      const r=await callSodbEdgeRpcV67('layMoKhoaTuanHangLoatV685',[{token:adminDangNhapInfo.sessionToken}]);const rows=r?.data||[];
+      box.innerHTML=rows.length?`<div class="table-responsive"><table class="table table-sm table-bordered align-middle mb-0"><thead><tr><th>Khoảng tuần</th><th>Toàn bộ lớp</th><th>Hết hạn</th><th>Lý do</th><th></th></tr></thead><tbody>${rows.map(x=>`<tr><td class="fw-bold">Tuần ${escapeHtml(x.tu_tuan)} → ${escapeHtml(x.den_tuan)}</td><td>${x.cho_phep_tat_ca_lop?'<span class="badge bg-success">Có</span>':'<span class="badge bg-secondary">Không</span>'}</td><td>${escapeHtml(x.het_han?new Date(x.het_han).toLocaleString('vi-VN'):'')}</td><td>${escapeHtml(x.ly_do||'')}</td><td class="text-end"><button type="button" class="btn btn-outline-danger btn-sm" onclick="dongMoKhoaTuanHangLoatV685(${Number(x.id)||0})">Đóng</button></td></tr>`).join('')}</tbody></table></div>`:'Không có khoảng tuần nào đang mở.';
+    }catch(e){box.textContent='Không tải được: '+(e.message||e);}
+  }
+  async function dongMoKhoaTuanHangLoatV685(id){
+    if(!adminDangNhapInfo?.sessionToken||!id)return;
+    const ok=await confirmV13('Đóng quyền mở khóa hàng loạt này ngay?',{title:'Đóng mở khóa',confirmText:'Đóng',danger:true});if(!ok)return;
+    try{const r=await callSodbEdgeRpcV67('dongMoKhoaTuanHangLoatV685',[id,{token:adminDangNhapInfo.sessionToken}]);if(r?.success){showToastV9(r.message||'Đã đóng.','success');taiMoKhoaTuanHangLoatV685();}else showToastV9(r?.message||'Không đóng được.','danger');}catch(e){showToastV9(e.message||String(e),'danger');}
+  }
+  async function capNhatMoKhoaTuanCuV685(force){
+    if(!gvbmDangNhapInfo?.sessionToken)return;
+    const week=Number(document.getElementById('tuanHoc')?.value||0);if(!week)return;
+    if(!force&&Number(bulkWeekUnlockStateV685.week||0)===week&&bulkWeekUnlockStateV685.checkedAt&&Date.now()-bulkWeekUnlockStateV685.checkedAt<12000)return;
+    const serial=++bulkWeekUnlockRequestV685;
+    try{
+      const r=await callSodbEdgeRpcV67('kiemTraMoKhoaTuanHangLoatV685',[week,{token:gvbmDangNhapInfo.sessionToken}]);if(serial!==bulkWeekUnlockRequestV685)return;
+      const oldAll=!!bulkWeekUnlockStateV685.allowAllClasses;
+      bulkWeekUnlockStateV685={week,active:!!r?.active,allowAllClasses:!!r?.allowAllClasses,fromWeek:Number(r?.fromWeek||0),toWeek:Number(r?.toWeek||0),reason:String(r?.reason||''),expiresLabel:String(r?.expiresLabel||''),checkedAt:Date.now()};
+      const notice=document.getElementById('bulkWeekUnlockNoticeV685');
+      if(notice){
+        if(bulkWeekUnlockStateV685.active){notice.classList.remove('d-none');notice.innerHTML=`<strong>Tuần cũ đang được Admin mở:</strong> Tuần ${bulkWeekUnlockStateV685.fromWeek}–${bulkWeekUnlockStateV685.toWeek}${bulkWeekUnlockStateV685.allowAllClasses?' · <strong>Được chọn toàn bộ lớp</strong>':''}${bulkWeekUnlockStateV685.expiresLabel?' · Hết hạn '+escapeHtml(bulkWeekUnlockStateV685.expiresLabel):''}.`;}
+        else{notice.classList.add('d-none');notice.textContent='';}
+      }
+      if(oldAll!==bulkWeekUnlockStateV685.allowAllClasses || bulkWeekUnlockStateV685.allowAllClasses)capNhatKhoiVaLopPhanCongV39(true);
+    }catch(e){console.warn('[V68.5 BULK UNLOCK]',e);}
+  }
 
   /* ===== V68.3: hạn nhập tiết, Admin mở khóa, Giám thị dạy thay/nghỉ ===== */
   function todayIsoV683(){const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;}

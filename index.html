@@ -4808,7 +4808,7 @@
   const SODB_SUPABASE_URL_V66 = "https://mlwhxxpmnhrrkbkivvye.supabase.co";
   const SODB_SUPABASE_PUBLISHABLE_KEY_V66 = "sb_publishable_Hq6KRH5KDT1eiOYLwwQhkw_c45sZkgi";
   const SODB_EDGE_URL_V66 = SODB_SUPABASE_URL_V66 + "/functions/v1/sodb-core-v68";
-  const SODB_FRONTEND_VERSION = "V68.5.3";
+  const SODB_FRONTEND_VERSION = "V68.5.5";
   window.__SODB_BACKEND_VERSION__ = "UNKNOWN";
 
   function normalizeSignatureUrlV67_1(raw){
@@ -4895,7 +4895,7 @@
     'kiemTraTrungTietAdmin','doiSoatKHBDGiamThi',
     'kiemTraHanNhapTietV683','adminMoKhoaNhapTietV683','layMoKhoaNhapTietV683',
     'ghiTrangThaiTietGiamThiV683','traCuuTrangThaiTietGiamThiV683',
-    'luuChuKyGiaoVienV21','xoaChuKyGiaoVienV21','traCuuChuKyTheoCCCD'
+    'luuChuKyGiaoVienV21','xoaChuKyGiaoVienV21','traCuuChuKyTheoCCCD','doiMatKhauTaiKhoanV6853'
   ]);
 
   (function installSodbGithubBridgeV59(){
@@ -5035,7 +5035,7 @@
   async function callSodbEdgeRpcV67(method,args){
     try{
       const data=await callSodbEdgeV66({action:'rpc',method:String(method||''),args:Array.isArray(args)?args:[]});
-      if(!data||data.success!==true)throw new Error(data&&data.message?data.message:'Supabase V68.5 không thực hiện được yêu cầu.');
+      if(!data||data.success!==true)throw new Error(data&&data.message?data.message:'Supabase V68.5.5 không thực hiện được yêu cầu.');
       return data.result;
     }catch(err){
       const msg=String(err&&err.message?err.message:err||'');
@@ -5311,7 +5311,15 @@
         if(btn){btn.disabled=false;btn.textContent='Lưu mật khẩu mới';}
         if(!res||!res.success){showStatus((res&&res.message)||'Không đổi được mật khẩu.','danger');return;}
         showStatus(res.message||'Đổi mật khẩu thành công.','success');
-        setTimeout(()=>{bootstrap.Modal.getInstance(document.getElementById('modalDoiMatKhauUnifiedV6853'))?.hide();dangXuatTapTrungV4();},900);
+        // V68.5.5: đổi mật khẩu chính chạy nhanh trực tiếp trên Edge/Supabase.
+        // Đồng bộ mật khẩu dự phòng Google Sheet thực hiện nền, không bắt người dùng chờ.
+        try{
+          google.script.run
+            .withSuccessHandler(function(r){console.info('[V68.5.5 PASSWORD SYNC]',r&&r.success?'OK':r);})
+            .withFailureHandler(function(err){console.warn('[V68.5.5 PASSWORD SYNC]',err);})
+            .dongBoMatKhauLegacyV6855(newPw,auth);
+        }catch(_e){}
+        setTimeout(()=>{bootstrap.Modal.getInstance(document.getElementById('modalDoiMatKhauUnifiedV6853'))?.hide();dangXuatTapTrungV4();},1200);
       })
       .withFailureHandler(function(err){if(btn){btn.disabled=false;btn.textContent='Lưu mật khẩu mới';}showStatus(err&&err.message?err.message:String(err),'danger');})
       .doiMatKhauTaiKhoanV6853(oldPw,newPw,auth);
@@ -5411,7 +5419,7 @@
     btn.disabled=false;txt.textContent='Đăng nhập';
     if(!res||!res.success){setCentralLoginStatusV4(res&&res.message?res.message:'Không đăng nhập được.','danger');return;}
     document.getElementById('centralPasswordV4').value='';
-    console.info('[V68.5.3 PERF] Login tổng:',Math.round(performance.now()-loginStarted)+'ms','server:',(res.serverMs??'—')+'ms','path:',res.loginPath||source,'dashboard gộp:',(res.dashboardBundledMs??'—')+'ms','backend:',res.backendVersion||source,'source:',source);
+    console.info('[V68.5.5 PERF] Login tổng:',Math.round(performance.now()-loginStarted)+'ms','server:',(res.serverMs??'—')+'ms','path:',res.loginPath||source,'dashboard gộp:',(res.dashboardBundledMs??'—')+'ms','backend:',res.backendVersion||source,'source:',source);
     apDungPhanQuyenV4(res,true);
   }
 
@@ -5426,7 +5434,7 @@
     try{
       const edgeRes=await callSodbEdgeV66({action:'login',account,password});
       if(edgeRes&&edgeRes.success){
-        if(String(edgeRes.backendVersion||'')!=='V68_5_EDGE')throw new Error('Edge Function chưa đúng V68.5.');
+        if(String(edgeRes.backendVersion||'')!=='V68_5_5_EDGE')throw new Error('Edge Function chưa đúng V68.5.5.');
         handleLoginResponseV66(edgeRes,loginPerfStartedV66,'SUPABASE_EDGE',btn,txt);return;
       }
       // Sai tài khoản/mật khẩu hoặc bị khóa: không gọi fallback để tránh nhân đôi lần thử.

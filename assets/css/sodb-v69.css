@@ -482,8 +482,7 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
       margin: 16px 0;
     }
     /* Không còn đăng nhập riêng trong từng tab. */
-    #gvbmAuthBox, #gvcnAuthBox, #giamThiAuthBox, #ttcmAuthBox, #adminAuthBox { display: none !important; }
-    @media (max-width: 991.98px) {
+@media (max-width: 991.98px) {
       .login-screen-v4 { align-items:flex-start; padding:18px 12px; }
       .login-card-v4 { max-width:680px; border-radius:22px; }
       .login-brand-v4 { min-height:auto; padding:30px 24px 26px; }
@@ -3117,3 +3116,163 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
     .report-export-toolbar-v6851 .report-export-label-v6851{width:100%;margin:0 0 1px;}
     .report-export-toolbar-v6851 .btn{flex:1 1 calc(50% - 4px);min-width:0;}
   }
+
+/* ========================================================================
+   V69.4 - Ma trận KHBD × lớp + báo cáo Điều hành nâng cao
+   ======================================================================== */
+.v694-matrix-wrap{max-height:620px;overflow:auto}
+.v694-matrix-table{font-size:.79rem;min-width:1180px}
+.v694-matrix-table thead th{position:sticky;top:0;z-index:4;white-space:nowrap}
+.v694-matrix-table .v694-sticky-col{position:sticky;background:#fff;z-index:2}
+.v694-matrix-table thead .v694-sticky-col{z-index:6;background:#f8f9fa}
+.v694-col-week{left:0;min-width:58px;width:58px}
+.v694-col-ppct{left:58px;min-width:72px;width:72px}
+.v694-col-content{left:130px;min-width:320px;max-width:420px}
+.v694-class-head{min-width:86px;background:#f8f9fa!important}
+.v694-cell-ok{background:#eaf8ef!important;color:#146c43;font-weight:800;font-size:1rem}
+.v694-cell-missing{background:#fff3cd!important;color:#997404;font-weight:800;font-size:1rem}
+.v694-cell-na{background:#f1f3f5!important;color:#868e96}
+@media(max-width:768px){.v694-matrix-table{font-size:.72rem}.v694-col-content{min-width:220px;max-width:260px}.v694-class-head{min-width:72px}}
+
+/* ========================================================================
+   V69.5.2 - Unified professional sub-tabs
+   Tra cứu & thống kê / Kế hoạch bài dạy / Quản trị
+   ======================================================================== */
+#tabGiamThi .module-head-v13,
+#tabTTCM .module-head-v13,
+#tabAdmin .module-head-v13{
+  display:flex!important;
+}
+
+.app-subtabs-v6952{
+  display:flex;
+  flex-wrap:nowrap!important;
+  align-items:center;
+  gap:6px;
+  max-width:100%;
+  margin:0 0 18px!important;
+  padding:6px!important;
+  overflow-x:auto;
+  overflow-y:hidden;
+  border:1px solid #dbe4ef!important;
+  border-radius:14px!important;
+  background:#f7f9fc!important;
+  box-shadow:0 5px 18px rgba(31,55,95,.055);
+  scrollbar-width:thin;
+  scrollbar-color:#c5d0df transparent;
+}
+.app-subtabs-v6952::-webkit-scrollbar{height:5px}
+.app-subtabs-v6952::-webkit-scrollbar-thumb{background:#c5d0df;border-radius:999px}
+.app-subtabs-v6952 .nav-item{flex:0 0 auto;margin:0!important}
+.app-subtabs-v6952 .nav-link{
+  min-height:38px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  white-space:nowrap;
+  padding:.52rem .82rem!important;
+  border:1px solid transparent!important;
+  border-radius:9px!important;
+  background:transparent!important;
+  color:#52627a!important;
+  font-size:.79rem!important;
+  line-height:1.1;
+  font-weight:760!important;
+  letter-spacing:.01em;
+  box-shadow:none!important;
+  transition:background .15s ease,color .15s ease,border-color .15s ease,box-shadow .15s ease;
+}
+.app-subtabs-v6952 .nav-link:hover{
+  color:#173d78!important;
+  background:#fff!important;
+  border-color:#d7e0ec!important;
+}
+.app-subtabs-v6952 .nav-link.active{
+  color:#fff!important;
+  background:#173d78!important;
+  border-color:#173d78!important;
+  box-shadow:0 5px 13px rgba(23,61,120,.19)!important;
+}
+.app-subtabs-v6952 .nav-link .badge{
+  font-size:.64rem;
+  line-height:1;
+  padding:.3rem .42rem;
+  border-radius:999px;
+}
+.app-subtabs-v6952 .nav-link.active .badge{
+  border:1px solid rgba(255,255,255,.28);
+}
+
+.app-subtab-content-v6952{
+  border:1px solid #e1e8f1;
+  border-radius:14px;
+  background:#fff;
+  padding:16px;
+  box-shadow:0 5px 18px rgba(31,55,95,.04);
+}
+.app-subtab-content-v6952>.tab-pane{padding-top:0!important}
+
+/* Bộ lọc và vùng thao tác thống nhất */
+#tabGiamThi .app-subtab-content-v6952 .row.bg-light,
+#tabTTCM .app-subtab-content-v6952 .khbd-filter-card-v38,
+#tabAdmin .app-subtab-content-v6952 .row.bg-light{
+  border-color:#dfe7f1!important;
+  border-radius:12px!important;
+  background:#f8fafc!important;
+}
+#tabGiamThi .app-subtab-content-v6952 .table-responsive,
+#tabTTCM .app-subtab-content-v6952 .table-responsive,
+#tabAdmin .app-subtab-content-v6952 .table-responsive{
+  border-radius:10px;
+}
+#tabGiamThi .app-subtab-content-v6952 thead th,
+#tabTTCM .app-subtab-content-v6952 thead th,
+#tabAdmin .app-subtab-content-v6952 thead th{
+  font-size:.75rem;
+  letter-spacing:.01em;
+}
+
+/* Tiêu đề module gọn, cùng chuẩn */
+#tabGiamThi .module-head-v13,
+#tabTTCM .module-head-v13,
+#tabAdmin .module-head-v13{
+  align-items:center;
+  padding:13px 15px;
+  border-radius:13px;
+  background:linear-gradient(180deg,#fff 0%,#fbfcfe 100%);
+}
+#tabGiamThi .module-head-v13 h4,
+#tabTTCM .module-head-v13 h4,
+#tabAdmin .module-head-v13 h4{
+  font-size:1.08rem;
+}
+#tabGiamThi .module-head-v13>.small,
+#tabTTCM .module-head-v13>.small,
+#tabAdmin .module-head-v13>.small{
+  max-width:560px;
+  text-align:right;
+  line-height:1.4;
+}
+
+/* Giảm cảm giác màu sắc rời rạc của các tab cũ */
+#gt-pills-tab .nav-link,
+#khbdSubTabsV38 .nav-link,
+#pills-tab .nav-link{
+  text-decoration:none!important;
+}
+
+@media(max-width:767.98px){
+  #tabGiamThi .card-body,
+  #tabTTCM .card-body,
+  #tabAdmin .card-body{padding:12px!important}
+  .app-subtabs-v6952{margin-bottom:12px!important;padding:5px!important}
+  .app-subtabs-v6952 .nav-link{min-height:36px;padding:.48rem .7rem!important;font-size:.75rem!important}
+  .app-subtab-content-v6952{padding:10px;border-radius:12px}
+  #tabGiamThi .module-head-v13,
+  #tabTTCM .module-head-v13,
+  #tabAdmin .module-head-v13{padding:11px 12px!important;gap:5px!important}
+  #tabGiamThi .module-head-v13>.small,
+  #tabTTCM .module-head-v13>.small,
+  #tabAdmin .module-head-v13>.small{text-align:left;max-width:none}
+}

@@ -29,6 +29,42 @@ let varDiemTB = 10;
   // V55: phiên bản request KHBD theo từng Lớp/Môn/Tuần để bỏ qua phản hồi cũ về trễ.
   const lessonPlanRequestSerialV55 = Object.create(null);
 
+  /* V69.5.5: DANH MỤC TÊN MÔN CHUẨN - dùng chung toàn frontend */
+  function subjectLooseKeyV6955(value){
+    return (value===null||value===undefined?'':String(value)).trim().toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d')
+      .replace(/[^a-z0-9]+/g,' ').trim();
+  }
+  function canonicalSubjectV6955(value){
+    const raw=(value===null||value===undefined?'':String(value)).trim();if(!raw)return '';
+    const k=subjectLooseKeyV6955(raw),compact=k.replace(/\s+/g,'');
+    const exact={
+      'toan':'Toán','ngu van':'Ngữ văn','tieng anh':'Tiếng Anh','ngoai ngu':'Tiếng Anh',
+      'vat li':'Vật lý','vat ly':'Vật lý','hoa hoc':'Hóa học','sinh':'Sinh học','sinh hoc':'Sinh học',
+      'lich su':'Lịch sử','dia li':'Địa lý','dia ly':'Địa lý','tin hoc':'Tin học',
+      'am nhac':'Âm nhạc','my thuat':'Mỹ thuật','giao duc the chat':'GDTC','the duc':'GDTC',
+      'cau long':'Cầu lông','bong chuyen':'Bóng chuyền','cong nghe':'Công nghệ',
+      'cong nghe nong nghiep':'Công nghệ nông nghiệp','cong nghe cong nghiep':'Công nghệ công nghiệp',
+      'giao duc kinh te va phap luat':'Giáo dục kinh tế và pháp luật',
+      'giao duc quoc phong va an ninh':'Giáo dục quốc phòng và an ninh',
+      'giao duc dia phuong':'Giáo dục địa phương'
+    };
+    if(exact[k])return exact[k];
+    if(['gdtc','giaoducthechat','theduc'].includes(compact))return 'GDTC';
+    if(['gdktpl','gdktpluat','giaoduckinhtevaphapluat'].includes(compact))return 'Giáo dục kinh tế và pháp luật';
+    if(['gdqpan','gdqp','qpan','giaoducquocphongvaanninh'].includes(compact))return 'Giáo dục quốc phòng và an ninh';
+    if(['gddp','giaoducdiaphuong'].includes(compact))return 'Giáo dục địa phương';
+    const hd=compact.match(/^hdtn(?:hn)?([123])$/);if(hd)return `HĐTN ${hd[1]}`;const hdLong=compact.match(/^hoatdongtrainghiemhuongnghiep([123])$/);if(hdLong)return `HĐTN ${hdLong[1]}`;
+    return raw;
+  }
+  function subjectKeyV6955(value){return subjectLooseKeyV6955(canonicalSubjectV6955(value)).replace(/\s+/g,'');}
+  function canonicalSubjectListV6955(values){
+    const out=[];for(const v of (values||[])){const c=canonicalSubjectV6955(v);if(c&&!out.some(x=>subjectKeyV6955(x)===subjectKeyV6955(c)))out.push(c);}return out;
+  }
+  function canonicalAssignmentMapV6955(raw){
+    const out={};Object.entries(raw||{}).forEach(([k,arr])=>{const key=subjectKeyV6955(k);if(!key)return;if(!out[key])out[key]=[];(arr||[]).forEach(l=>{if(l&&!out[key].includes(l))out[key].push(l);});});return out;
+  }
+
   function invalidateSodbViewCacheV47(lop,tuan){
     const prefix=String(lop)+'|'+String(tuan)+'|';
     [...sodbViewCacheV6.keys()].forEach(key=>{if(String(key).startsWith(prefix))sodbViewCacheV6.delete(key);});
@@ -87,7 +123,7 @@ let varDiemTB = 10;
     google.script.run.withSuccessHandler(function(res){
       if(!res||!res.success){adminSubjectsLoadedV7=false;return;}
       const s=document.getElementById('khbdUploadMon'); if(!s)return;
-      s.innerHTML=''; (res.data||[]).forEach(m=>s.add(new Option(m,m)));
+      s.innerHTML=''; canonicalSubjectListV6955(res.data||[]).forEach(m=>s.add(new Option(m,m)));
     }).withFailureHandler(function(){adminSubjectsLoadedV7=false;})
       .getDanhSachMonAdminV7({token:adminDangNhapInfo.sessionToken});
   }
@@ -149,7 +185,7 @@ let varDiemTB = 10;
   function getAssignedClassesForSubjectV39(subject){
     if(!gvbmDangNhapInfo)return [];
     const map=gvbmDangNhapInfo.phanCongLopTheoMon||{};
-    const direct=(map[normalizeTextKey(subject)]||[]).filter(Boolean);
+    const direct=(map[subjectKeyV6955(subject)]||[]).filter(Boolean);
     if(direct.length)return [...new Set(direct)];
     if(isGdtcBaseSubjectV25(subject)||isGdtcDetailSubjectV25(subject)){
       const out=[];
@@ -159,7 +195,7 @@ let varDiemTB = 10;
       return out;
     }
     if(isTechnologyDetailSubjectV657(subject)){
-      const base=(map[normalizeTextKey('Công nghệ')]||[]).filter(Boolean);
+      const base=(map[subjectKeyV6955('Công nghệ')]||[]).filter(Boolean);
       if(base.length)return base;
     }
     return [];
@@ -214,7 +250,7 @@ let varDiemTB = 10;
       const note=document.getElementById('phanCongDayNoteV39');if(note){note.textContent=`Admin đang mở khóa Tuần ${bulkWeekUnlockStateV685.fromWeek}–${bulkWeekUnlockStateV685.toWeek}: được chọn toàn bộ lớp; hệ thống không đối chiếu lớp theo phân công hiện tại trong khoảng này.`;note.className='small text-success fw-bold mb-2';}
       onInputClassChangedV26();capNhatHanNhapTietV683();return;
     }
-    const subject=String(monSel.value||'').trim();
+    const subject=canonicalSubjectV6955(monSel.value);
     const allowed=getAssignedClassesForSubjectV39(subject);
     renderAssignmentNoteV39(subject,allowed);
     const oldKhoi=preserve?String(khoiSel.value||''):'',oldLop=preserve?String(lopSel.value||''):'';
@@ -329,7 +365,7 @@ let varDiemTB = 10;
       const m=raw[k];
       if(!m)return;
       const name=String(m.lop||k||'').trim();
-      if(name)out[normalizeTextKey(name)]=m;
+      if(name){const c={...m};if('subject' in c)c.subject=canonicalSubjectV6955(c.subject);if('monKhbd' in c)c.monKhbd=canonicalSubjectV6955(c.monKhbd);out[normalizeTextKey(name)]=c;}
     });
     return out;
   }
@@ -360,9 +396,9 @@ let varDiemTB = 10;
     });
     if(gvbmDangNhapInfo&&data.assignments){
       Object.assign(gvbmDangNhapInfo,{
-        phanCongLopTheoMon:data.assignments.phanCongLopTheoMon||gvbmDangNhapInfo.phanCongLopTheoMon||{},
+        phanCongLopTheoMon:canonicalAssignmentMapV6955(data.assignments.phanCongLopTheoMon||gvbmDangNhapInfo.phanCongLopTheoMon||{}),
         dsLopDay:data.assignments.dsLopDay||gvbmDangNhapInfo.dsLopDay||[],
-        dsMonGV:(data.assignments.dsMonDay&&data.assignments.dsMonDay.length)?data.assignments.dsMonDay:gvbmDangNhapInfo.dsMonGV
+        dsMonGV:canonicalSubjectListV6955((data.assignments.dsMonDay&&data.assignments.dsMonDay.length)?data.assignments.dsMonDay:gvbmDangNhapInfo.dsMonGV)
       });
       if(data.signature&&data.signature.url){
         gvbmDangNhapInfo.urlChuKy=data.signature.url;
@@ -383,7 +419,7 @@ let varDiemTB = 10;
     }
     // V54: môn học đi cùng bootstrap, không cần request riêng sau đăng nhập.
     if(Array.isArray(data.subjects)&&data.subjects.length){
-      const expanded=expandGdtcSubjectsV25(data.subjects);
+      const expanded=expandGdtcSubjectsV25(canonicalSubjectListV6955(data.subjects));
       ['khbdUploadMon','khbdViewMon'].forEach(id=>{
         const sel=document.getElementById(id);if(!sel)return;
         const current=sel.value;sel.innerHTML='';expanded.forEach(m=>sel.add(new Option(m,m)));
@@ -513,10 +549,10 @@ let varDiemTB = 10;
   function ensureTeacherSubjectOptionV26(subject){
     const sel=document.getElementById('monHoc');
     if(!sel||!subject)return false;
-    const key=normalizeTextKey(subject);
+    subject=canonicalSubjectV6955(subject);const key=subjectKeyV6955(subject);
     let opt=[...sel.options].find(o=>normalizeTextKey(o.value)===key);
     if(!opt){
-      const allowed=(gvbmDangNhapInfo?.dsMonGV||[]).some(m=>normalizeTextKey(m)===key)
+      const allowed=(gvbmDangNhapInfo?.dsMonGV||[]).some(m=>subjectKeyV6955(m)===key)
         || (isGdtcDetailSubjectV25(subject)&&gvbmHasGdtcV25());
       if(!allowed)return false;
       opt=new Option(subject,subject);sel.add(opt);
@@ -579,8 +615,8 @@ let varDiemTB = 10;
     return k==='gdtc'||k==='giao duc the chat'||k==='the duc';
   }
   function isGdtcDetailSubjectV25(value){
-    const k=normalizeTextKey(value);
-    return k==='cau long'||k==='bong chuyen';
+    const k=normalizeTextKey(value),compact=k.replace(/\s+/g,'');
+    return k==='cau long'||k==='bong chuyen'||compact==='caulong'||compact==='bongchuyen';
   }
   function isTechnologyBaseSubjectV657(value){
     const k=normalizeTextKey(value);
@@ -635,12 +671,12 @@ let varDiemTB = 10;
     const gdtcDetail=document.getElementById('gdtcTeachingSubjectV25');
     const techDetail=document.getElementById('technologyTeachingSubjectV657');
     if(mon&&gvbmHasGdtcV25()&&isGdtcBaseSubjectV25(mon.value)){
-      return gdtcDetail?String(gdtcDetail.value||'').trim():'';
+      return gdtcDetail?canonicalSubjectV6955(gdtcDetail.value):'';
     }
     if(mon&&gvbmHasTechnologyV657()&&isTechnologyBaseSubjectV657(mon.value)){
-      return techDetail?String(techDetail.value||'').trim():'';
+      return techDetail?canonicalSubjectV6955(techDetail.value):'';
     }
-    return mon?String(mon.value||'').trim():'';
+    return mon?canonicalSubjectV6955(mon.value):'';
   }
   function onMonHocChangedV25(){
     configureGdtcInputV25();
@@ -650,18 +686,18 @@ let varDiemTB = 10;
   }
   function expandGdtcSubjectsV25(mons){
     const out=[],seen=new Set();
-    (mons||[]).forEach(m=>{
-      const k=normalizeTextKey(m);
+    canonicalSubjectListV6955(mons||[]).forEach(m=>{
+      const k=subjectKeyV6955(m);
       if(!seen.has(k)){seen.add(k);out.push(m);}
     });
     if(out.some(isGdtcBaseSubjectV25)){
       ['Cầu lông','Bóng chuyền'].forEach(m=>{
-        const k=normalizeTextKey(m);if(!seen.has(k)){seen.add(k);out.push(m);}
+        const k=subjectKeyV6955(m);if(!seen.has(k)){seen.add(k);out.push(m);}
       });
     }
     if(out.some(isTechnologyBaseSubjectV657)){
       ['Công nghệ nông nghiệp','Công nghệ công nghiệp'].forEach(m=>{
-        const k=normalizeTextKey(m);if(!seen.has(k)){seen.add(k);out.push(m);}
+        const k=subjectKeyV6955(m);if(!seen.has(k)){seen.add(k);out.push(m);}
       });
     }
     return out;
@@ -701,12 +737,13 @@ let varDiemTB = 10;
   }
 
   function populateGVBMFromUnifiedV4(res){
+    res={...res,dsMonGV:canonicalSubjectListV6955(res.dsMonGV||[]),phanCongLopTheoMon:canonicalAssignmentMapV6955(res.phanCongLopTheoMon||{})};
     gvbmDangNhapInfo=res;
     document.getElementById('gvbmMainContent').classList.remove('d-none');
     document.getElementById('tenGV').value=res.tenGV||'';
     document.getElementById('cccd').value=res.cccd||'';
     const selectMon=document.getElementById('monHoc');selectMon.innerHTML='';
-    (res.dsMonGV||[]).forEach(m=>selectMon.add(new Option(m,m)));
+    canonicalSubjectListV6955(res.dsMonGV||[]).forEach(m=>selectMon.add(new Option(m,m)));
     if(!(res.dsMonGV||[]).length)selectMon.add(new Option('-- Chưa có môn --',''));
     configureGdtcInputV25();
     configureTechnologyInputV657();
@@ -747,12 +784,12 @@ let varDiemTB = 10;
     const effectiveRes=(isTtcm&&sessions.TTCM)?sessions.TTCM:((isBgh&&bghSession)?bghSession:res);
     ttcmDangNhapInfo=effectiveRes;
     document.getElementById('ttcmMainContent').classList.remove('d-none');
-    const mons=effectiveRes.dsMon||[];
+    const mons=canonicalSubjectListV6955(effectiveRes.dsMon||[]);
     const name=effectiveRes.tenTTCM||effectiveRes.tenBGH||effectiveRes.tenGV||res.tenTTCM||res.tenBGH||res.tenGV||'';
     document.getElementById('ttcmWelcomeMsg').innerText=fullAccessLabel
       ? `✅ ${fullAccessLabel}${name?' — '+name:''} — quyền xem và quản lý KHBD toàn trường${isPht?' · Có quyền duyệt KHBD':''}`
       : `✅ ${name} — ${effectiveRes.chucVu||res.chucVu||'Tổ trưởng/Tổ phó chuyên môn'} — Môn: ${mons.join(', ')}`;
-    const uploadMons=expandGdtcSubjectsV25(mons);
+    const uploadMons=expandGdtcSubjectsV25(canonicalSubjectListV6955(mons));
     const sel=document.getElementById('khbdUploadMon');if(sel){sel.innerHTML='';uploadMons.forEach(m=>sel.add(new Option(m,m)));}
     const viewMon=document.getElementById('khbdViewMon');if(viewMon){viewMon.innerHTML='';uploadMons.forEach(m=>viewMon.add(new Option(m,m)));}
     const viewKhoi=document.getElementById('khbdViewKhoi');if(viewKhoi)viewKhoi.value='10';
@@ -796,7 +833,7 @@ let varDiemTB = 10;
     document.getElementById('ttcmMainContent')?.classList.remove('d-none');
     const gv=sessions.GVBM;
     const monSel=document.getElementById('khbdMyMonV67');
-    if(monSel){const old=monSel.value;monSel.innerHTML='';expandGdtcSubjectsV25(gv.dsMonGV||[]).forEach(m=>monSel.add(new Option(m,m)));if([...monSel.options].some(o=>o.value===old))monSel.value=old;}
+    if(monSel){const old=monSel.value;monSel.innerHTML='';expandGdtcSubjectsV25(canonicalSubjectListV6955(gv.dsMonGV||[])).forEach(m=>monSel.add(new Option(m,m)));if([...monSel.options].some(o=>o.value===old))monSel.value=old;}
     napLopKhbdCaNhanV691();
     if(!hasManage){
       document.getElementById('khbd-upload-tab-v38')?.parentElement?.classList.add('d-none');
@@ -823,8 +860,8 @@ let varDiemTB = 10;
   function getKhbdMyAuthV67(){return {token:gvbmDangNhapInfo&&gvbmDangNhapInfo.sessionToken||''};}
   function napLopKhbdCaNhanV691(){
     const sel=document.getElementById('khbdMyLopV691');if(!sel)return;
-    const old=sel.value,khoi=Number(document.getElementById('khbdMyKhoiV67')?.value||10),mon=String(document.getElementById('khbdMyMonV67')?.value||'').trim();
-    const map=gvbmDangNhapInfo?.phanCongLopTheoMon||{},key=normalizeTextKey(mon);let classes=Array.isArray(map[key])?map[key].slice():[];
+    const old=sel.value,khoi=Number(document.getElementById('khbdMyKhoiV67')?.value||10),mon=canonicalSubjectV6955(document.getElementById('khbdMyMonV67')?.value);
+    const map=gvbmDangNhapInfo?.phanCongLopTheoMon||{},key=subjectKeyV6955(mon);let classes=Array.isArray(map[key])?map[key].slice():[];
     if(!classes.length&&(isGdtcBaseSubjectV25(mon)||isGdtcDetailSubjectV25(mon))){Object.keys(map).forEach(k=>{if(isGdtcBaseSubjectV25(k)||isGdtcDetailSubjectV25(k))classes.push(...(map[k]||[]));});}
     if(!classes.length&&isTechnologyDetailSubjectV657(mon)){Object.keys(map).forEach(k=>{if(isTechnologyBaseSubjectV657(k)||isTechnologyDetailSubjectV657(k))classes.push(...(map[k]||[]));});}
     classes=[...new Set(classes.map(x=>String(x||'').trim()).filter(Boolean))].filter(c=>{const meta=classMetaV26[normalizeTextKey(c)]||{};const g=Number(meta.khoi||String(c).match(/^(10|11|12)/)?.[1]||0);return !g||g===khoi;}).sort((a,b)=>a.localeCompare(b,'vi'));
@@ -841,7 +878,7 @@ let varDiemTB = 10;
   }
   function taiKhbdCaNhanV67(){
     if(!gvbmDangNhapInfo||!gvbmDangNhapInfo.sessionToken)return;
-    const khoi=Number(document.getElementById('khbdMyKhoiV67')?.value||10),mon=String(document.getElementById('khbdMyMonV67')?.value||'').trim(),lop=String(document.getElementById('khbdMyLopV691')?.value||'').trim();
+    const khoi=Number(document.getElementById('khbdMyKhoiV67')?.value||10),mon=canonicalSubjectV6955(document.getElementById('khbdMyMonV67')?.value),lop=String(document.getElementById('khbdMyLopV691')?.value||'').trim();
     const body=document.getElementById('khbdMyBodyV67'),status=document.getElementById('khbdMyStatusV67');if(!body||!status||!mon)return;
     if(!lop){body.innerHTML='<tr><td colspan="8" class="text-center text-muted py-4">Chọn lớp để tích từng tiết/bài KHBD riêng cho lớp đó.</td></tr>';status.textContent='Ví dụ Tuần 4 có 4 tiết: lớp 10A1 có thể chọn 4/4, lớp 10A2 chọn 3/4.';document.getElementById('khbdMyCountV67').textContent='0 tiết đã chọn';const sum=document.getElementById('khbdMySelectionSummaryV692');if(sum)sum.textContent='';return;}
     body.innerHTML='<tr><td colspan="8" class="text-center py-4"><span class="spinner-border spinner-border-sm me-2"></span>Đang tải các tiết KHBD đã duyệt...</td></tr>';
@@ -863,12 +900,12 @@ let varDiemTB = 10;
     }).withFailureHandler(function(err){body.innerHTML='<tr><td colspan="8" class="text-center text-danger py-4">Lỗi Supabase.</td></tr>';status.textContent=String(err&&err.message||err);}).layKhbdCaNhanV67({khoi,mon,lop},getKhbdMyAuthV67());
   }
   function luuKhbdDaTichV67(){
-    const khoi=Number(document.getElementById('khbdMyKhoiV67')?.value||10),mon=String(document.getElementById('khbdMyMonV67')?.value||'').trim(),lop=String(document.getElementById('khbdMyLopV691')?.value||'').trim(),khbdIds=[...document.querySelectorAll('.khbd-my-check-v67:checked')].map(x=>String(x.dataset.khbdId||'').trim()).filter(Boolean);
+    const khoi=Number(document.getElementById('khbdMyKhoiV67')?.value||10),mon=canonicalSubjectV6955(document.getElementById('khbdMyMonV67')?.value),lop=String(document.getElementById('khbdMyLopV691')?.value||'').trim(),khbdIds=[...document.querySelectorAll('.khbd-my-check-v67:checked')].map(x=>String(x.dataset.khbdId||'').trim()).filter(Boolean);
     if(!lop){showToastV9('Vui lòng chọn lớp trước khi lưu KHBD.','danger');return;}
     setBusyV13(true,'Đang lưu từng tiết KHBD cho lớp...');google.script.run.withSuccessHandler(function(res){setBusyV13(false);if(!res||!res.success){alertV13('❌ '+(res&&res.message||'Không lưu được'));return;}lessonPlanCache={};showToastV9(res.message||'Đã lưu.','success');taiKhbdCaNhanV67();}).withFailureHandler(function(err){setBusyV13(false);alertV13('❌ '+String(err&&err.message||err));}).chonKhbdCaNhanV67({mode:'SYNC_LESSONS',khoi,mon,lop,khbdIds},getKhbdMyAuthV67());
   }
-  function chonToanBoKhbdV67(){const khoi=Number(document.getElementById('khbdMyKhoiV67')?.value||10),mon=String(document.getElementById('khbdMyMonV67')?.value||'').trim(),lop=String(document.getElementById('khbdMyLopV691')?.value||'').trim();if(!lop){showToastV9('Vui lòng chọn lớp.','danger');return;}google.script.run.withSuccessHandler(function(res){if(res?.success){showToastV9(res.message,'success');lessonPlanCache={};taiKhbdCaNhanV67();}else alertV13('❌ '+(res?.message||''));}).chonKhbdCaNhanV67({mode:'SELECT_ALL',khoi,mon,lop},getKhbdMyAuthV67());}
-  function boChonKhbdV67(){const khoi=Number(document.getElementById('khbdMyKhoiV67')?.value||10),mon=String(document.getElementById('khbdMyMonV67')?.value||'').trim(),lop=String(document.getElementById('khbdMyLopV691')?.value||'').trim();if(!lop){showToastV9('Vui lòng chọn lớp.','danger');return;}google.script.run.withSuccessHandler(function(res){if(res?.success){showToastV9(res.message,'success');lessonPlanCache={};taiKhbdCaNhanV67();}}).chonKhbdCaNhanV67({mode:'CLEAR_SCOPE',khoi,mon,lop},getKhbdMyAuthV67());}
+  function chonToanBoKhbdV67(){const khoi=Number(document.getElementById('khbdMyKhoiV67')?.value||10),mon=canonicalSubjectV6955(document.getElementById('khbdMyMonV67')?.value),lop=String(document.getElementById('khbdMyLopV691')?.value||'').trim();if(!lop){showToastV9('Vui lòng chọn lớp.','danger');return;}google.script.run.withSuccessHandler(function(res){if(res?.success){showToastV9(res.message,'success');lessonPlanCache={};taiKhbdCaNhanV67();}else alertV13('❌ '+(res?.message||''));}).chonKhbdCaNhanV67({mode:'SELECT_ALL',khoi,mon,lop},getKhbdMyAuthV67());}
+  function boChonKhbdV67(){const khoi=Number(document.getElementById('khbdMyKhoiV67')?.value||10),mon=canonicalSubjectV6955(document.getElementById('khbdMyMonV67')?.value),lop=String(document.getElementById('khbdMyLopV691')?.value||'').trim();if(!lop){showToastV9('Vui lòng chọn lớp.','danger');return;}google.script.run.withSuccessHandler(function(res){if(res?.success){showToastV9(res.message,'success');lessonPlanCache={};taiKhbdCaNhanV67();}}).chonKhbdCaNhanV67({mode:'CLEAR_SCOPE',khoi,mon,lop},getKhbdMyAuthV67());}
 
 
   function moTabMacDinhV33(res){

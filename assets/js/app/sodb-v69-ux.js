@@ -356,11 +356,22 @@
     try{const r=await callSodbEdgeRpcV67('ghiTrangThaiTietGiamThiV683',[payload,{token:giamThiDangNhapInfo.sessionToken}]);if(r?.success){showToastV9(r.message,'success');document.getElementById('gtReportReasonV683').value='';document.getElementById('gtReportTeacherV683').value='';document.getElementById('gtReportNeedMakeupV691').checked=false;document.getElementById('gtStatusFromV683').value=payload.ngayDay;document.getElementById('gtStatusToV683').value=payload.ngayDay;taiTrangThaiTietGiamThiV683();}else showToastV9(r?.message||'Không ghi được trạng thái.','danger');}catch(e){showToastV9(e.message||String(e),'danger');}
   }
 
-/* ===== V69.5.3: RESET VỊ TRÍ CUỘN KHI MỞ QUẢN TRỊ =====
-   Tránh giữ scrollTop từ tab dài trước đó làm người dùng thấy một vùng trắng lớn. */
+/* ===== V69.5.4: RESET VỊ TRÍ CUỘN KHI CHUYỂN TAB CHÍNH ===== */
+function resetMainTabViewportV6954(paneId){
+  const run=()=>{
+    const pane=document.getElementById(paneId);if(!pane)return;
+    try{pane.scrollTop=0;}catch(_e){}
+    const userbar=document.querySelector('.app-userbar-v4'),tabs=document.getElementById('sodbTab');
+    const offset=(userbar?.offsetHeight||0)+(tabs?.offsetHeight||0)+12;
+    const top=Math.max(0,pane.getBoundingClientRect().top+window.scrollY-offset);
+    try{document.documentElement.scrollTop=top;document.body.scrollTop=top;}catch(_e){}
+    window.scrollTo({top,left:0,behavior:'auto'});
+  };
+  requestAnimationFrame(()=>requestAnimationFrame(run));
+  setTimeout(run,80);
+}
 document.addEventListener('DOMContentLoaded',function(){
-  const adminTab=document.getElementById('admin-tab');
-  if(adminTab)adminTab.addEventListener('shown.bs.tab',function(){
-    requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'auto'}));
-  });
+  document.querySelectorAll('#sodbTab [data-bs-toggle="tab"]').forEach(btn=>btn.addEventListener('shown.bs.tab',function(){
+    const target=String(btn.getAttribute('data-bs-target')||'').replace(/^#/,'');if(target)resetMainTabViewportV6954(target);
+  }));
 });

@@ -723,7 +723,6 @@ let varDiemTB = 10;
     giamThiDangNhapInfo=res;
     document.getElementById('giamThiMainContent').classList.remove('d-none');
     document.getElementById('giamThiWelcomeMsg').innerText=isAdmin?'🛡️ Quản trị đang truy cập mô-đun Giám thị':'🛡️ Quyền Giám thị: '+(res.tenGV||'')+(res.chucVu?' (Chức vụ: '+res.chucVu+')':'');
-    setTimeout(()=>khoiTaoGiamThiTrangThaiV683(),120);
   }
 
   function isPhoHieuTruongClientV50(){
@@ -881,8 +880,14 @@ let varDiemTB = 10;
           else btn.click();
         }catch(e){try{btn.click();}catch(_e){}}
       }
-      const runDash=()=>{refreshDashboardV9(false);if(typeof refreshDashboardControlSummaryV693==='function')setTimeout(refreshDashboardControlSummaryV693,120);if(typeof loadAutomaticAlertsV695==='function')setTimeout(()=>loadAutomaticAlertsV695(false),220);};
-      if('requestIdleCallback' in window)requestIdleCallback(runDash,{timeout:350});else setTimeout(runDash,120);
+      const runDash=()=>{
+        refreshDashboardV9(false);
+        const roles=Array.isArray(currentUnifiedLoginV4?.roles)?currentUnifiedLoginV4.roles:[];
+        const canControl=roles.some(r=>['GIAM_THI','BGH','ADMIN'].includes(r));
+        if(canControl&&typeof refreshDashboardControlSummaryV693==='function')setTimeout(()=>refreshDashboardControlSummaryV693(false),260);
+        if(typeof alertAllowedV695==='function'&&alertAllowedV695()&&typeof loadAutomaticAlertsV695==='function')setTimeout(()=>loadAutomaticAlertsV695(false),720);
+      };
+      if('requestIdleCallback' in window)requestIdleCallback(runDash,{timeout:600});else setTimeout(runDash,180);
     },40);
   }
 

@@ -3338,3 +3338,16 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
   margin:0!important;padding:0!important;
 }
 #tabAdmin #adminMainContent.d-none{display:none!important}
+
+
+/* ========================================================================
+   V69.5.4 - GỌN GIAO DIỆN + TỐI ƯU HIỆU NĂNG
+   ======================================================================== */
+#tabAdmin{padding-top:0!important;margin-top:0!important;}
+#tabAdmin>.card,#tabAdmin>.card>.card-body,#tabAdmin #adminMainContent{
+  margin-top:0!important;padding-top:0!important;min-height:0!important;
+}
+#tabAdmin #adminMainContent>.module-head-v13{margin-top:0!important;}
+#tabAdmin .app-subtabs-v6952{margin-top:0!important;}
+/* Trạng thái tiết đã hợp nhất sang Điều hành của Giám thị từ V69.5.4. */
+#gt-pills-status-v683-tab,#gt-pills-status-v683{display:none!important;}

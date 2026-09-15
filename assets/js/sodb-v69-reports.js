@@ -179,7 +179,6 @@ function setupExportReportsV6851(){
     'gt-pills-thongke':'Thống kê toàn khối',
     'gt-pills-tracuu':'Tra cứu tiết học chi tiết',
     'gt-pills-late':'Kiểm tra nhập trễ',
-    'gt-pills-status-v683':'Dạy thay / Nghỉ tiết',
     'gt-pills-printa3':'In A3 theo tuần'
   };
   const admin={

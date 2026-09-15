@@ -758,7 +758,7 @@
         <div class="card-body p-4">
           
           
-          <div id="giamThiMainContent" class="d-none"><div class="module-head-v13 mb-3"><div><div class="section-title-v13">Tra cứu & thống kê</div><h4 class="mb-0">Theo dõi và đối soát sổ đầu bài</h4></div><div class="small text-muted">Tra cứu tiết học, thống kê vắng, nhập trễ, trạng thái đặc biệt và in sổ theo tuần</div></div>
+          <div id="giamThiMainContent" class="d-none"><div class="module-head-v13 mb-3"><div><div class="section-title-v13">Tra cứu & thống kê</div><h4 class="mb-0">Theo dõi và đối soát sổ đầu bài</h4></div><div class="small text-muted">Tra cứu tiết học, thống kê vắng, kiểm tra nhập trễ và in sổ theo tuần</div></div>
             <div class="alert alert-primary py-2 px-3 fw-bold mb-3 text-center" id="giamThiWelcomeMsg"></div>
 
             <ul class="nav nav-pills app-subtabs-v6952" id="gt-pills-tab" role="tablist">
@@ -770,9 +770,6 @@
               </li>
 <li class="nav-item" role="presentation">
   <button class="nav-link" id="gt-pills-late-tab" data-bs-toggle="pill" data-bs-target="#gt-pills-late" type="button">Kiểm tra nhập trễ</button>
-</li>
-<li class="nav-item" role="presentation">
-  <button class="nav-link" id="gt-pills-status-v683-tab" data-bs-toggle="pill" data-bs-target="#gt-pills-status-v683" type="button" onclick="khoiTaoGiamThiTrangThaiV683()">Trạng thái tiết</button>
 </li>
 <li class="nav-item" role="presentation">
   <button class="nav-link" id="gt-pills-printa3-tab" data-bs-toggle="pill" data-bs-target="#gt-pills-printa3" type="button">In sổ A3</button>
@@ -950,44 +947,6 @@
   </div>
 </div>
 <!-- KHỐI 5: SUB-TAB TRA CỨU - IN A3, MỖI TUẦN 1 TRANG -->
-<div class="tab-pane fade" id="gt-pills-status-v683" role="tabpanel">
-  <div class="row g-3 mb-3 p-3 bg-light rounded border align-items-end mx-auto" style="max-width:1250px;">
-    <div class="col-md-2"><label class="form-label fw-bold">Từ ngày</label><input type="date" class="form-control" id="gtStatusFromV683"></div>
-    <div class="col-md-2"><label class="form-label fw-bold">Đến ngày</label><input type="date" class="form-control" id="gtStatusToV683"></div>
-    <div class="col-md-2"><label class="form-label fw-bold">Khối</label><select class="form-select" id="gtStatusKhoiV683" onchange="chonKhoiLopGiamThiStatusV683()"><option value="10">Khối 10</option><option value="11">Khối 11</option><option value="12">Khối 12</option></select></div>
-    <div class="col-md-2"><label class="form-label fw-bold">Lớp</label><select class="form-select" id="gtStatusLopV683"><option value="">-- Tất cả --</option></select></div>
-    <div class="col-md-2"><label class="form-label fw-bold">Trạng thái</label><select class="form-select" id="gtStatusFilterV683"><option value="ALL">Tất cả đặc biệt</option><option value="DAY_THAY">Dạy thay</option><option value="NGHI">Nghỉ/không tổ chức học</option><option value="GV_VANG">GV vắng</option><option value="BO_TIET">Bỏ tiết</option><option value="DAY_BU">Dạy bù</option><option value="HOAN_DOI">Hoán đổi tiết</option></select></div>
-    <div class="col-md-2"><button type="button" class="btn btn-warning w-100 fw-bold" onclick="taiTrangThaiTietGiamThiV683()">Tra cứu</button></div>
-  </div>
-
-  <div class="card border mb-3 mx-auto" style="max-width:1250px;">
-    <div class="card-header bg-white fw-bold">Khai báo trạng thái tiết — không tạo tiết dạy giả</div>
-    <div class="card-body">
-      <div class="row g-2 align-items-end">
-        <div class="col-md-2"><label class="form-label">Ngày</label><input type="date" class="form-control" id="gtReportDateV683"></div>
-        <div class="col-md-2"><label class="form-label">Khối</label><select class="form-select" id="gtReportKhoiV683" onchange="chonKhoiLopGiamThiReportV683()"><option value="10">Khối 10</option><option value="11">Khối 11</option><option value="12">Khối 12</option></select></div>
-        <div class="col-md-2"><label class="form-label">Lớp</label><select class="form-select" id="gtReportLopV683"></select></div>
-        <div class="col-md-2"><label class="form-label">Buổi</label><select class="form-select" id="gtReportBuoiV683"><option value="Sáng">Sáng</option><option value="Chiều">Chiều</option></select></div>
-        <div class="col-md-1"><label class="form-label">Tiết</label><select class="form-select" id="gtReportTietV683"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
-        <div class="col-md-3"><label class="form-label">Trạng thái</label><select class="form-select" id="gtReportStatusV683"><option value="NGHI">Nghỉ / không tổ chức học</option><option value="GV_VANG">GV vắng - chưa có người dạy thay</option><option value="BO_TIET">Bỏ tiết</option></select></div>
-        <div class="col-md-3"><label class="form-label">Môn (nếu biết)</label><input class="form-control" id="gtReportMonV683" placeholder="VD: Toán"></div>
-        <div class="col-md-3"><label class="form-label">GV vắng (khi áp dụng)</label><input class="form-control" id="gtReportTeacherV683" placeholder="Thầy/cô vắng"></div>
-        <div class="col-md-3"><label class="form-label">Nhóm lý do</label><select class="form-select" id="gtReportReasonTypeV691"><option value="NGHI_KE_HOACH">Nghỉ theo kế hoạch/thông báo</option><option value="GV_NGHI_PHEP">GV nghỉ phép/ốm</option><option value="CONG_TAC">GV đi công tác</option><option value="HOAT_DONG">Hoạt động trường/lớp</option><option value="THOI_TIET_SU_CO">Thời tiết / sự cố</option><option value="KHAC">Khác</option></select></div>
-        <div class="col-md-6"><label class="form-label">Lý do / ghi chú</label><input class="form-control" id="gtReportReasonV683" placeholder="Ghi rõ căn cứ hoặc tình huống thực tế"></div>
-        <div class="col-md-3"><div class="form-check mt-4"><input class="form-check-input" type="checkbox" id="gtReportNeedMakeupV691"><label class="form-check-label fw-semibold" for="gtReportNeedMakeupV691">Cần bố trí dạy bù</label></div></div>
-        <div class="col-12 text-end"><button type="button" class="btn btn-danger fw-bold px-4" onclick="ghiTrangThaiTietGiamThiV683()">Ghi nhận trạng thái</button></div>
-      </div>
-      <div class="small text-muted mt-2">Trạng thái do Giám thị khai báo được lưu riêng, <strong>không tính là tiết đã dạy</strong>. Nếu GV vắng và sau đó có giáo viên dạy thay, hệ thống sẽ chuyển sự kiện vắng sang đã xử lý.</div>
-    </div>
-  </div>
-
-  <div class="table-responsive mx-auto" style="max-width:1400px;max-height:500px;overflow:auto;">
-    <table class="table table-bordered table-hover align-middle text-center" id="gtStatusTableV683" style="font-size:.8rem;">
-      <thead class="table-dark sticky-top"><tr><th>Ngày</th><th>Lớp</th><th>Buổi-Tiết</th><th>Trạng thái</th><th>Môn / Tiết CT</th><th>GV thực hiện</th><th>GV được thay / nghỉ</th><th>Nội dung</th><th>Lý do / Dạy bù</th><th>Xử lý</th></tr></thead>
-      <tbody id="gtStatusBodyV683"><tr><td colspan="10" class="text-muted py-4">Chọn khoảng ngày và bấm Tra cứu.</td></tr></tbody>
-    </table>
-  </div>
-</div>
 
 <div class="tab-pane fade" id="gt-pills-printa3" role="tabpanel">
   <div class="row g-3 mb-3 p-3 bg-light rounded border align-items-end mx-auto" style="max-width: 1320px;">
@@ -1337,7 +1296,7 @@
     </div>
 
     <!-- TAB 5: QUẢN TRỊ ADMIN -->
-    <!-- V69.5 Stable: CẢNH BÁO TỰ ĐỘNG + DASHBOARD BGH/GIÁM THỊ -->
+    <!-- V69.5.4: CẢNH BÁO TỰ ĐỘNG CHỈ BGH/GIÁM THỊ/ADMIN -->
     <div class="tab-pane fade" id="tabControlV693" role="tabpanel" aria-labelledby="control-tab-v693">
       <div class="card shadow-sm border-0">
         <div class="card-body p-3 p-lg-4">
@@ -1494,13 +1453,7 @@
           <h5 class="mb-0 fw-bold">QUẢN TRỊ ADMIN - HỆ THỐNG KIỂM DÒ & QUẢN LÝ</h5>
         </div>
         <div class="card-body p-4">
-          <div id="adminAuthBox" class="mx-auto py-3" style="max-width: 400px;">
-            <h5 class="fw-bold mb-3 text-center">Mật khẩu Admin:</h5>
-            <div class="input-group mb-3">
-              <input type="password" class="form-control" id="adminPasswordInput" placeholder="Mật khẩu..." onkeypress="xuLyEnterKey(event, xacNhanMatKhauAdmin)">
-              <button class="btn btn-danger fw-bold" type="button" onclick="xacNhanMatKhauAdmin()">Đăng Nhập</button>
-            </div>
-          </div>
+
 
           <div id="adminMainContent" class="d-none"><div class="module-head-v13 mb-3"><div><div class="section-title-v13">Quản trị hệ thống</div><h4 class="mb-0">Dữ liệu, phân quyền và an toàn hệ thống</h4></div><div class="small text-muted">Kiểm tra dữ liệu, quản lý danh mục, mở khóa, đối soát, phân quyền, nhật ký và sao lưu</div></div>
             <ul class="nav nav-pills app-subtabs-v6952" id="pills-tab" role="tablist">

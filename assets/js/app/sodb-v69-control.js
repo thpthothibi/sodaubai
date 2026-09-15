@@ -10,6 +10,11 @@ let currentInputOperationV693=null;
 let operationalClassesV6953=[];
 let operationalSubjectsV6953=[];
 let controlCatalogLoadedV6953=false;
+let controlCatalogLoadedAtV6954=0;
+let controlTeachersLoadedAtV6954=0;
+let controlDashboardSummaryCacheV6954={};
+let controlDataLoadedAtV6954=0;
+let externalStaffLoadedAtV6954=0;
 
 function schoolTodayV693(){
   try{if(typeof schoolDateV20==='function')return schoolDateV20();}catch(_e){}
@@ -49,11 +54,27 @@ function populateControlCatalogSelectorsV6953(){
   document.querySelectorAll('#absencePeriodsV693 .absence-period-row-v693').forEach(row=>{const c=row.querySelector('.ap-class-v693'),m=row.querySelector('.ap-subject-v693');fillSelectV6953(c,operationalClassesV6953,'-- Chọn lớp --');fillSelectV6953(m,operationalSubjectsV6953,'-- Chọn môn --');});
   ['externalClassesV693','externalSubjectsV693','proxyClassesV693','proxySubjectsV693'].forEach(renderScopePickerV6953);
 }
-function taiDanhMucLopMonDieuHanhV6953(){
-  google.script.run.withSuccessHandler(res=>{if(res&&res.success){const all=[];Object.values(res.classes||{}).forEach(a=>(a||[]).forEach(x=>all.push(x)));operationalClassesV6953=uniqTextV6953(all).sort((a,b)=>a.localeCompare(b,'vi',{numeric:true}));if(res.classMeta)classMetaV26=Object.assign({},classMetaV26||{},typeof normalizeClassMetaV29==='function'?normalizeClassMetaV29(res.classMeta):res.classMeta);controlCatalogLoadedV6953=true;updateOperationalSubjectsV6953([]);populateControlCatalogSelectorsV6953();}}).getDanhSachLopMoiV29(false);
-  const roles=controlRolesV693();if(roles.includes('ADMIN')||roles.includes('BGH')){google.script.run.withSuccessHandler(res=>{if(res&&res.success)updateOperationalSubjectsV6953(res.data||[]);}).getDanhSachMonAdminV7(controlAuthV693());}
+function taiDanhMucLopMonDieuHanhV6953(force=false){
+  const now=Date.now();
+  if(!force&&controlCatalogLoadedV6953&&(now-controlCatalogLoadedAtV6954)<600000){populateControlCatalogSelectorsV6953();return;}
+  const fromBootstrap=[];
+  try{['10','11','12'].forEach(k=>(dsLopTheoKhoi?.[k]||[]).forEach(x=>fromBootstrap.push(x)));}catch(_e){}
+  if(fromBootstrap.length){
+    operationalClassesV6953=uniqTextV6953(fromBootstrap).sort((a,b)=>a.localeCompare(b,'vi',{numeric:true}));
+    controlCatalogLoadedV6953=true;controlCatalogLoadedAtV6954=now;
+    updateOperationalSubjectsV6953([]);populateControlCatalogSelectorsV6953();
+    return;
+  }
+  google.script.run.withSuccessHandler(res=>{if(res&&res.success){const all=[];Object.values(res.classes||{}).forEach(a=>(a||[]).forEach(x=>all.push(x)));operationalClassesV6953=uniqTextV6953(all).sort((a,b)=>a.localeCompare(b,'vi',{numeric:true}));if(res.classMeta)classMetaV26=Object.assign({},classMetaV26||{},typeof normalizeClassMetaV29==='function'?normalizeClassMetaV29(res.classMeta):res.classMeta);controlCatalogLoadedV6953=true;controlCatalogLoadedAtV6954=Date.now();updateOperationalSubjectsV6953([]);populateControlCatalogSelectorsV6953();}}).getDanhSachLopMoiV29(false);
 }
-function taiDanhMucGiaoVienV693(){const auth=controlAuthV693();if(!auth.token)return;google.script.run.withSuccessHandler(res=>{operationalTeachersV693=res&&res.success?res.data||[]:[];renderTeacherDatalistV693();updateOperationalSubjectsV6953([]);}).layDanhSachGiaoVienDieuHanhV693(auth);}
+function taiDanhMucGiaoVienV693(force=false){
+  const auth=controlAuthV693();if(!auth.token)return;
+  if(!force&&operationalTeachersV693.length&&(Date.now()-controlTeachersLoadedAtV6954)<600000){renderTeacherDatalistV693();updateOperationalSubjectsV6953([]);return;}
+  google.script.run.withSuccessHandler(res=>{
+    operationalTeachersV693=res&&res.success?res.data||[]:[];controlTeachersLoadedAtV6954=Date.now();renderTeacherDatalistV693();updateOperationalSubjectsV6953([]);
+    if(!operationalSubjectsV6953.length&&(controlRolesV693().includes('ADMIN')||controlRolesV693().includes('BGH'))){google.script.run.withSuccessHandler(r=>{if(r&&r.success)updateOperationalSubjectsV6953(r.data||[]);}).getDanhSachMonAdminV7(controlAuthV693());}
+  }).layDanhSachGiaoVienDieuHanhV693(auth);
+}
 function escV693(v){return typeof escapeHtml==='function'?escapeHtml(String(v??'')):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function statusBadgeV693(v){const s=String(v||'');const map={CHO_DUYET:'warning',DA_DUYET:'primary',HOAN_THANH:'success',TU_CHOI:'danger',HUY:'secondary',DANG_HOAT_DONG:'success',TAM_DUNG:'warning',NGUNG_HOAT_DONG:'secondary'};return `<span class="badge text-bg-${map[s]||'secondary'}">${escV693(s.replaceAll('_',' '))}</span>`;}
 function operationLabelV693(v){return ({DAY_THAY:'Dạy thay',DAY_BU:'Dạy bù',HOAN_DOI:'Hoán đổi'})[String(v||'')]||String(v||'');}
@@ -64,17 +85,28 @@ function initControlDatesV693(){
   ['opOriginDateV693','opExecDateV693','swapADateV693','swapBDateV693','absenceFromV693','absenceToV693','externalFromV693','proxyFromV693','opFilterFromV693','opFilterToV693'].forEach(id=>{const x=document.getElementById(id);if(x&&!x.value)x.value=t;});
   const to=document.getElementById('proxyToV693');if(to&&!to.value)to.value=addDaysClientV693(t,30);
 }
-function initControlV693(){initControlDatesV693();taiDanhMucGiaoVienV693();taiDanhMucLopMonDieuHanhV6953();doiLoaiDieuHanhV693();const proxyTab=document.querySelector('#tabControlV693 [data-bs-target="#control-proxy-v693"]');if(proxyTab?.closest('li'))proxyTab.closest('li').classList.toggle('d-none',!canApproveControlV693());const extPane=document.getElementById('control-external-v693');const extForm=extPane?.querySelector('.card');if(extForm)extForm.classList.toggle('d-none',!canManageExternalV693());const isAdmin=controlRolesV693().includes('ADMIN');document.querySelectorAll('#tabControlV693 .admin-only-control-v6953').forEach(x=>x.classList.toggle('d-none',!isAdmin));if(!document.querySelector('#absencePeriodsV693 .absence-period-row-v693'))themDongTietNghiV693();populateControlCatalogSelectorsV6953();taiTongQuanDieuHanhV693();taiNhanSuNgoaiV693(true);taiDieuHanhV693();}
+function initControlV693(force=false){
+  initControlDatesV693();taiDanhMucLopMonDieuHanhV6953(force);taiDanhMucGiaoVienV693(force);doiLoaiDieuHanhV693();
+  const proxyTab=document.querySelector('#tabControlV693 [data-bs-target="#control-proxy-v693"]');if(proxyTab?.closest('li'))proxyTab.closest('li').classList.toggle('d-none',!canApproveControlV693());
+  const extPane=document.getElementById('control-external-v693'),extForm=extPane?.querySelector('.card');if(extForm)extForm.classList.toggle('d-none',!canManageExternalV693());
+  const isAdmin=controlRolesV693().includes('ADMIN');document.querySelectorAll('#tabControlV693 .admin-only-control-v6953').forEach(x=>x.classList.toggle('d-none',!isAdmin));
+  if(!document.querySelector('#absencePeriodsV693 .absence-period-row-v693'))themDongTietNghiV693();populateControlCatalogSelectorsV6953();
+  const now=Date.now();
+  if(force||(now-controlDataLoadedAtV6954)>30000){taiTongQuanDieuHanhV693();taiDieuHanhV693();controlDataLoadedAtV6954=now;}
+  if(force||!externalStaffCacheV693.length||(now-externalStaffLoadedAtV6954)>600000){taiNhanSuNgoaiV693(true);}
+}
 function taiTongQuanDieuHanhV693(){const auth=controlAuthV693();if(!auth.token)return;google.script.run.withSuccessHandler(res=>{if(!res||!res.success)return;const m=res.metrics||{};document.querySelectorAll('#controlSummaryV693 [data-metric]').forEach(x=>x.textContent=String(m[x.dataset.metric]??0));}).tongQuanDieuHanhV693(schoolTodayV693(),auth);}
 
 function openControlTabV693(){const tab=document.getElementById('control-tab-v693');if(!tab)return;try{if(window.bootstrap)bootstrap.Tab.getOrCreateInstance(tab).show();else tab.click();}catch(_e){tab.click();}}
-function refreshDashboardControlSummaryV693(){
+function refreshDashboardControlSummaryV693(force=false){
   const box=document.getElementById('overviewControlV693');if(!box)return;
   const allowed=controlRolesV693().some(r=>['GIAM_THI','BGH','ADMIN'].includes(r));
   box.classList.toggle('d-none',!allowed);if(!allowed)return;
   const auth=controlAuthV693();if(!auth.token)return;
   const date=document.getElementById('overviewDateV20')?.value||schoolTodayV693();
-  google.script.run.withSuccessHandler(res=>{if(!res||!res.success)return;const m=res.metrics||{};document.querySelectorAll('#overviewControlMetricsV693 [data-metric]').forEach(x=>x.textContent=String(m[x.dataset.metric]??0));}).tongQuanDieuHanhV693(date,auth);
+  const cached=controlDashboardSummaryCacheV6954[date];
+  if(!force&&cached&&(Date.now()-cached.ts)<90000){const m=cached.metrics||{};document.querySelectorAll('#overviewControlMetricsV693 [data-metric]').forEach(x=>x.textContent=String(m[x.dataset.metric]??0));return;}
+  google.script.run.withSuccessHandler(res=>{if(!res||!res.success)return;const m=res.metrics||{};controlDashboardSummaryCacheV6954[date]={ts:Date.now(),metrics:m};document.querySelectorAll('#overviewControlMetricsV693 [data-metric]').forEach(x=>x.textContent=String(m[x.dataset.metric]??0));}).tongQuanDieuHanhV693(date,auth);
 }
 
 function doiLoaiDieuHanhV693(){const type=String(document.getElementById('opTypeV693')?.value||'DAY_THAY');if(type==='HOAN_DOI'){const a=document.getElementById('opAbsenceIdV693');if(a)a.value='';}document.getElementById('opSingleV693')?.classList.toggle('d-none',type==='HOAN_DOI');document.getElementById('opSwapV693')?.classList.toggle('d-none',type!=='HOAN_DOI');if(type==='DAY_BU'){const b=document.getElementById('opExecSessionV693');if(b)b.value='Dạy bù';}}
@@ -102,7 +134,7 @@ function boTriTuHoSoNghiV693(id,type){const r=teacherAbsenceCacheV693.find(x=>x.
 function duyetHoSoNghiV693(id,decision){const note=prompt(decision==='DA_DUYET'?'Ý kiến duyệt:':decision==='HUY'?'Lý do hủy hồ sơ nghỉ:':'Lý do từ chối:','');if(note===null)return;google.script.run.withSuccessHandler(res=>{if(!res||!res.success){showToastV9(res&&res.message||'Không xử lý được.','danger');return;}showToastV9(res.message||'Đã xử lý.','success');taiHoSoNghiV693();taiTongQuanDieuHanhV693();}).duyetHoSoNghiGiaoVienV693(id,decision,note,controlAuthV693());}
 
 function populateExternalSelectsV693(){const opts=['<option value="">-- Không / Chọn --</option>'].concat(externalStaffCacheV693.filter(x=>x.trangThai==='DANG_HOAT_DONG').map(x=>`<option value="${escV693(x.id)}">${escV693(x.hoTen)} · ${escV693(x.donVi||x.maNhanSu)}</option>`)).join('');['opExternalStaffV693','proxyExternalV693'].forEach(id=>{const x=document.getElementById(id);if(x){const old=x.value;x.innerHTML=opts;if([...x.options].some(o=>o.value===old))x.value=old;}});}
-function taiNhanSuNgoaiV693(silent){const body=document.getElementById('externalBodyV693');if(body&&!silent)body.innerHTML='<tr><td colspan="7" class="text-center text-muted">Đang tải...</td></tr>';google.script.run.withSuccessHandler(res=>{if(!res||!res.success){if(body)body.innerHTML=`<tr><td colspan="7" class="text-danger text-center">${escV693(res&&res.message||'Lỗi')}</td></tr>`;return;}externalStaffCacheV693=res.data||[];populateExternalSelectsV693();if(body)body.innerHTML=externalStaffCacheV693.length?externalStaffCacheV693.map(r=>`<tr><td>${escV693(r.maNhanSu)}</td><td><strong>${escV693(r.hoTen)}</strong></td><td>${escV693(r.donVi)}<br><small>${escV693(r.chuyenMon)}</small></td><td>${escV693(r.tuNgay)} → ${escV693(r.denNgay||'Không giới hạn')}</td><td><small>Lớp: ${escV693((r.phamViLop||[]).join(', ')||'Tất cả')}<br>Môn: ${escV693((r.phamViMon||[]).join(', ')||'Tất cả')}</small></td><td>${statusBadgeV693(r.trangThai)}</td><td>${canManageExternalV693()?`<button class="btn btn-sm btn-outline-primary me-1 mb-1" onclick="suaNhanSuNgoaiV693('${escV693(r.id)}')">Sửa</button><button class="btn btn-sm ${r.trangThai==='DANG_HOAT_DONG'?'btn-outline-warning':'btn-outline-success'} mb-1" onclick="doiTrangThaiNhanSuNgoaiV693('${escV693(r.id)}','${r.trangThai==='DANG_HOAT_DONG'?'TAM_DUNG':'DANG_HOAT_DONG'}')">${r.trangThai==='DANG_HOAT_DONG'?'Tạm dừng':'Kích hoạt'}</button>`:'—'}</td></tr>`).join(''):'<tr><td colspan="7" class="text-center text-muted">Chưa có nhân sự ngoài trường.</td></tr>';}).layNhanSuNgoaiTruongV693({trangThai:'ALL'},controlAuthV693());}
+function taiNhanSuNgoaiV693(silent){const body=document.getElementById('externalBodyV693');if(body&&!silent)body.innerHTML='<tr><td colspan="7" class="text-center text-muted">Đang tải...</td></tr>';google.script.run.withSuccessHandler(res=>{if(!res||!res.success){if(body)body.innerHTML=`<tr><td colspan="7" class="text-danger text-center">${escV693(res&&res.message||'Lỗi')}</td></tr>`;return;}externalStaffCacheV693=res.data||[];externalStaffLoadedAtV6954=Date.now();populateExternalSelectsV693();if(body)body.innerHTML=externalStaffCacheV693.length?externalStaffCacheV693.map(r=>`<tr><td>${escV693(r.maNhanSu)}</td><td><strong>${escV693(r.hoTen)}</strong></td><td>${escV693(r.donVi)}<br><small>${escV693(r.chuyenMon)}</small></td><td>${escV693(r.tuNgay)} → ${escV693(r.denNgay||'Không giới hạn')}</td><td><small>Lớp: ${escV693((r.phamViLop||[]).join(', ')||'Tất cả')}<br>Môn: ${escV693((r.phamViMon||[]).join(', ')||'Tất cả')}</small></td><td>${statusBadgeV693(r.trangThai)}</td><td>${canManageExternalV693()?`<button class="btn btn-sm btn-outline-primary me-1 mb-1" onclick="suaNhanSuNgoaiV693('${escV693(r.id)}')">Sửa</button><button class="btn btn-sm ${r.trangThai==='DANG_HOAT_DONG'?'btn-outline-warning':'btn-outline-success'} mb-1" onclick="doiTrangThaiNhanSuNgoaiV693('${escV693(r.id)}','${r.trangThai==='DANG_HOAT_DONG'?'TAM_DUNG':'DANG_HOAT_DONG'}')">${r.trangThai==='DANG_HOAT_DONG'?'Tạm dừng':'Kích hoạt'}</button>`:'—'}</td></tr>`).join(''):'<tr><td colspan="7" class="text-center text-muted">Chưa có nhân sự ngoài trường.</td></tr>';}).layNhanSuNgoaiTruongV693({trangThai:'ALL'},controlAuthV693());}
 function doiTrangThaiNhanSuNgoaiV693(id,status){const label=status==='DANG_HOAT_DONG'?'kích hoạt':'tạm dừng';const reason=prompt(`Lý do ${label} nhân sự:`,status==='DANG_HOAT_DONG'?'Tiếp tục phân công':'Tạm dừng phân công');if(reason===null)return;google.script.run.withSuccessHandler(res=>{if(!res||!res.success){showToastV9(res&&res.message||'Không cập nhật được trạng thái.','danger');return;}showToastV9(res.message||'Đã cập nhật trạng thái.','success');taiNhanSuNgoaiV693();taiTongQuanDieuHanhV693();}).doiTrangThaiNhanSuNgoaiTruongV693(id,status,reason,controlAuthV693());}
 function suaNhanSuNgoaiV693(id){const r=externalStaffCacheV693.find(x=>x.id===id);if(!r)return;document.getElementById('externalIdV693').value=r.id;document.getElementById('externalNameV693').value=r.hoTen;document.getElementById('externalOrgV693').value=r.donVi;document.getElementById('externalTitleV693').value=r.chucDanh;document.getElementById('externalSpecialtyV693').value=r.chuyenMon;document.getElementById('externalPhoneV693').value=r.sdt;document.getElementById('externalFromV693').value=r.tuNgay;document.getElementById('externalToV693').value=r.denNgay;setScopePickerValuesV6953('externalClassesV693',r.phamViLop||[]);setScopePickerValuesV6953('externalSubjectsV693',r.phamViMon||[]);document.getElementById('externalStatusV693').value=r.trangThai;document.getElementById('externalNoteV693').value=r.ghiChu||'';}
 function luuNhanSuNgoaiV693(){const payload={id:document.getElementById('externalIdV693').value,hoTen:document.getElementById('externalNameV693').value,donVi:document.getElementById('externalOrgV693').value,chucDanh:document.getElementById('externalTitleV693').value,chuyenMon:document.getElementById('externalSpecialtyV693').value,sdt:document.getElementById('externalPhoneV693').value,tuNgay:document.getElementById('externalFromV693').value,denNgay:document.getElementById('externalToV693').value,phamViLop:splitScopeV693(document.getElementById('externalClassesV693').value),phamViMon:splitScopeV693(document.getElementById('externalSubjectsV693').value),trangThai:document.getElementById('externalStatusV693').value,ghiChu:document.getElementById('externalNoteV693').value};google.script.run.withSuccessHandler(res=>{if(!res||!res.success){showToastV9(res&&res.message||'Không lưu được nhân sự.','danger');return;}showToastV9(res.message||'Đã lưu.','success');document.getElementById('externalIdV693').value='';taiNhanSuNgoaiV693();taiTongQuanDieuHanhV693();}).luuNhanSuNgoaiTruongV693(payload,controlAuthV693());}
@@ -126,8 +158,8 @@ function apDungNhiemVuV693(id){const r=myTeachingTasksCacheV693.find(x=>x.id===i
 document.addEventListener('DOMContentLoaded',function(){
   initControlDatesV693();
   const tab=document.getElementById('control-tab-v693');if(tab)tab.addEventListener('shown.bs.tab',initControlV693);
-  const dash=document.getElementById('dashboard-tab-v9');if(dash)dash.addEventListener('shown.bs.tab',()=>setTimeout(refreshDashboardControlSummaryV693,80));
-  const dashDate=document.getElementById('overviewDateV20');if(dashDate)dashDate.addEventListener('change',()=>setTimeout(refreshDashboardControlSummaryV693,80));
+  const dash=document.getElementById('dashboard-tab-v9');if(dash)dash.addEventListener('shown.bs.tab',()=>setTimeout(()=>refreshDashboardControlSummaryV693(false),180));
+  const dashDate=document.getElementById('overviewDateV20');if(dashDate)dashDate.addEventListener('change',()=>setTimeout(()=>refreshDashboardControlSummaryV693(true),160));
   [['absenceAccountV693','absenceNameV693'],['opOriginTeacherAccountV693','opOriginTeacherNameV693'],['opExecTeacherAccountV693','opExecTeacherNameV693'],['opProxyAccountV693','opProxyNameV693'],['swapAAccountV693','swapANameV693'],['swapBAccountV693','swapBNameV693']].forEach(([a,n])=>{const x=document.getElementById(a);if(x)x.addEventListener('change',()=>syncTeacherNameV693(a,n));});
   ['ngayDay','lop','buoiDay','tietDay','monHoc','gdtcTeachingSubjectV25','technologyTeachingSubjectV657'].forEach(id=>{const x=document.getElementById(id);if(x)x.addEventListener('change',()=>{setTimeout(refreshTeachingOperationForInputV693,80);if(document.getElementById('proxySigningToggleV682')?.checked)setTimeout(loadProxyStaffOptionsV693,100);});});
   const inputTab=document.getElementById('input-tab');if(inputTab)inputTab.addEventListener('shown.bs.tab',()=>{setTimeout(()=>{taiNhiemVuCuaToiV693();refreshTeachingOperationForInputV693();},120);});

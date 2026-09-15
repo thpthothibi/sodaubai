@@ -488,7 +488,7 @@
     const actions={
       GVBM:[['Nhập tiết học','input-tab'],['Xem sổ đầu bài','view-tab']],
       GVCN:[['Kiểm tra và chốt tuần','gvcn-tab'],['Xem sổ đầu bài','view-tab']],
-      TTCM:[['Kế hoạch bài dạy','ttcm-tab'],['Điều hành tiết dạy','control-tab-v693']],
+      TTCM:[['Kế hoạch bài dạy','ttcm-tab']],
       BGH:[['Điều hành tiết dạy','control-tab-v693'],['Kế hoạch bài dạy','ttcm-tab'],['Xem sổ đầu bài','view-tab']],
       GIAM_THI:[['Điều hành tiết dạy','control-tab-v693'],['Tra cứu, thống kê','giamthi-tab']],
       ADMIN:[['Điều hành tiết dạy','control-tab-v693'],['Quản trị hệ thống','admin-tab']]

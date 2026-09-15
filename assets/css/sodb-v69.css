@@ -3276,3 +3276,65 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
   #tabTTCM .module-head-v13>.small,
   #tabAdmin .module-head-v13>.small{text-align:left;max-width:none}
 }
+
+
+/* ========================================================================
+   V69.5.3 - UI / PHÂN QUYỀN / ĐIỀU HÀNH
+   ======================================================================== */
+/* Unified-login đã thay thế cổng mật khẩu Admin cũ. Ẩn hẳn khối legacy để
+   không giữ chiều cao rỗng trong tab Quản trị. */
+#tabAdmin #adminAuthBox{display:none!important}
+#tabAdmin,#tabAdmin>.card,#tabAdmin>.card>.card-body,#adminMainContent{
+  min-height:0!important;height:auto!important;
+}
+#adminMainContent.d-none{display:none!important}
+
+/* Main menu: làm tab đang chọn nổi bật rõ hơn */
+#sodbTab .nav-link.active{
+  color:#fff!important;
+  background:linear-gradient(135deg,#0d6efd 0%,#174aa8 100%)!important;
+  border-color:#0d6efd!important;
+  box-shadow:0 6px 16px rgba(13,110,253,.24)!important;
+  font-weight:800!important;
+}
+#sodbTab .nav-link:not(.active):hover{
+  background:#f2f7ff!important;
+  color:#174aa8!important;
+}
+/* Các tab con Điều hành dùng cùng chuẩn active với 3 module đã thống nhất */
+.control-subtabs-v6953 .nav-link.active{
+  color:#fff!important;
+  background:linear-gradient(135deg,#0d6efd 0%,#174aa8 100%)!important;
+  border-color:#0d6efd!important;
+  box-shadow:0 5px 14px rgba(13,110,253,.22)!important;
+  font-weight:800!important;
+}
+
+/* Bộ chọn nhiều lớp / môn ở Nhân sự ngoài trường và Quyền ký thay */
+.control-scope-picker-v6953>.btn{
+  min-height:38px;border-color:#ced4da;background:#fff;color:#344054;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.control-scope-menu-v6953{
+  min-width:270px;max-width:min(420px,90vw);max-height:310px;overflow:auto;
+  border-color:#dce5f0;box-shadow:0 10px 26px rgba(31,55,95,.14);
+}
+.control-scope-menu-v6953 .dropdown-item{cursor:pointer;white-space:normal}
+.control-scope-menu-v6953 .dropdown-item:hover{background:#f2f7ff}
+
+@media(max-width:767.98px){
+  .control-scope-menu-v6953{min-width:min(300px,88vw)}
+}
+
+#tabAdmin>.card{
+  border:0!important;box-shadow:none!important;background:transparent!important;
+  margin:0!important;min-height:0!important;
+}
+#tabAdmin>.card>.card-body{
+  padding:4px 0 14px!important;margin:0!important;display:block!important;
+}
+#tabAdmin #adminMainContent{
+  display:block;position:static!important;inset:auto!important;transform:none!important;
+  margin:0!important;padding:0!important;
+}
+#tabAdmin #adminMainContent.d-none{display:none!important}

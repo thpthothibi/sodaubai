@@ -114,14 +114,14 @@ async function uploadDanhSachNhomV6951(){
 }
 
 function getGroupReportAuthV6951(){
-  const s=currentUnifiedLoginV4?.sessions||{};return s.BGH||s.GIAM_THI||s.TTCM||s.ADMIN||adminDangNhapInfo||null;
+  const s=currentUnifiedLoginV4?.sessions||{};return s.ADMIN||adminDangNhapInfo||null;
 }
 function initGroupReportDatesV6951(){
   const f=document.getElementById('groupReportFromV6951'),t=document.getElementById('groupReportToV6951');if(!f||!t)return;
   const today=new Date(),from=new Date(today);from.setDate(today.getDate()-30);const iso=d=>{const z=new Date(d.getTime()-d.getTimezoneOffset()*60000);return z.toISOString().slice(0,10);};if(!t.value)t.value=iso(today);if(!f.value)f.value=iso(from);
 }
 async function loadGroupReportV6951(){
-  initGroupReportDatesV6951();const auth=getGroupReportAuthV6951(),status=document.getElementById('groupReportStatusV6951');if(!auth?.sessionToken){if(status)status.textContent='Tài khoản cần quyền TTCM/Giám thị/BGH/Admin.';return;}
+  initGroupReportDatesV6951();const status=document.getElementById('groupReportStatusV6951');const roles=currentUnifiedLoginV4&&Array.isArray(currentUnifiedLoginV4.roles)?currentUnifiedLoginV4.roles:[];if(!roles.includes('ADMIN')){if(status)status.textContent='Báo cáo Chuyên đề/GDTC chỉ dành cho Quản trị hệ thống.';return;}const auth=getGroupReportAuthV6951();if(!auth?.sessionToken){if(status)status.textContent='Phiên Quản trị không hợp lệ.';return;}
   const f={from:document.getElementById('groupReportFromV6951')?.value||'',to:document.getElementById('groupReportToV6951')?.value||'',loaiNhom:document.getElementById('groupReportTypeV6951')?.value||'ALL',lop:document.getElementById('groupReportClassV6951')?.value||''};if(status)status.textContent='Đang tổng hợp...';
   try{const r=await callSodbEdgeRpcV67('baoCaoNhomHocV6951',[f,{token:auth.sessionToken}]);if(!r?.success)throw new Error(r?.message||'Không tổng hợp được báo cáo.');groupReportDataV6951=r;renderGroupReportV6951(r);if(status)status.textContent=`Năm học ${r.namHoc||''} · ${r.from||''} → ${r.to||''}. Một tiết vật lý chỉ tính một lần vào giờ dạy GV.`;}catch(e){if(status)status.textContent='Lỗi: '+(e?.message||e);}
 }

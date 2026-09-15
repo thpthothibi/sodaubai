@@ -355,3 +355,12 @@
     if(!payload.ngayDay||!payload.lop||!payload.tietDay||!payload.lyDo){showToastV9('Vui lòng chọn ngày, lớp, tiết và nhập lý do.','danger');return;}if(payload.trangThaiTiet==='GV_VANG'&&!payload.gvNghi){showToastV9('Khai báo GV vắng cần nhập tên giáo viên vắng.','danger');return;}
     try{const r=await callSodbEdgeRpcV67('ghiTrangThaiTietGiamThiV683',[payload,{token:giamThiDangNhapInfo.sessionToken}]);if(r?.success){showToastV9(r.message,'success');document.getElementById('gtReportReasonV683').value='';document.getElementById('gtReportTeacherV683').value='';document.getElementById('gtReportNeedMakeupV691').checked=false;document.getElementById('gtStatusFromV683').value=payload.ngayDay;document.getElementById('gtStatusToV683').value=payload.ngayDay;taiTrangThaiTietGiamThiV683();}else showToastV9(r?.message||'Không ghi được trạng thái.','danger');}catch(e){showToastV9(e.message||String(e),'danger');}
   }
+
+/* ===== V69.5.3: RESET VỊ TRÍ CUỘN KHI MỞ QUẢN TRỊ =====
+   Tránh giữ scrollTop từ tab dài trước đó làm người dùng thấy một vùng trắng lớn. */
+document.addEventListener('DOMContentLoaded',function(){
+  const adminTab=document.getElementById('admin-tab');
+  if(adminTab)adminTab.addEventListener('shown.bs.tab',function(){
+    requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'auto'}));
+  });
+});

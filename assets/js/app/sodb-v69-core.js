@@ -899,7 +899,7 @@ let varDiemTB = 10;
     setTopTabVisibleV4('gvcn-tab',!!sessions.GVCN);
     setTopTabVisibleV4('giamthi-tab',!!sessions.GIAM_THI);
     setTopTabVisibleV4('ttcm-tab',!!sessions.TTCM||!!sessions.BGH||!!sessions.GVBM);
-    setTopTabVisibleV4('control-tab-v693',!!sessions.GIAM_THI||!!sessions.TTCM||!!sessions.BGH||isAdmin);
+    setTopTabVisibleV4('control-tab-v693',!!sessions.GIAM_THI||!!sessions.BGH||isAdmin);
     setTopTabVisibleV4('admin-tab',isAdmin);
     rebuildMobileRoleNavV54();
 
@@ -923,7 +923,7 @@ let varDiemTB = 10;
       const a=sessions.ADMIN;populateTTCMFromUnifiedV4({sessionToken:a.sessionToken,sdt:'ADMIN',tenTTCM:res.profile.ten,chucVu:'Quản trị hệ thống',dsMon:a.dsMon||[]},'Quản trị hệ thống');
     }
 
-    if(isAdmin){adminDangNhapInfo=sessions.ADMIN;document.getElementById('adminMainContent').classList.remove('d-none');}
+    if(isAdmin){adminDangNhapInfo=sessions.ADMIN;document.getElementById('adminAuthBox')?.classList.add('d-none');document.getElementById('adminMainContent')?.classList.remove('d-none');}
     configureTeacherKhbdV67();
 
     moTabMacDinhV33(res);

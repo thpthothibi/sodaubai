@@ -21,7 +21,7 @@ function syncKhbdMatrixSubjectOptionsV694(){
   const grade=Number(document.getElementById('khbdMatrixKhoiV694')?.value||10),sel=document.getElementById('khbdMatrixMonV694');if(!sel)return;
   const rows=khbdMatrixScopesV694.filter(x=>Number(x.khoi)===grade),current=sel.value;
   sel.innerHTML=rows.length?rows.map(x=>`<option value="${escV694(x.mon)}">${escV694(x.mon)}</option>`).join(''):'<option value="">-- Chưa có KHBD đã duyệt --</option>';
-  if(rows.some(x=>x.mon===current))sel.value=current;
+  if(rows.some(x=>subjectKeyV6955(x.mon)===subjectKeyV6955(current)))sel.value=(rows.find(x=>subjectKeyV6955(x.mon)===subjectKeyV6955(current))||{}).mon||current;
 }
 function loadKhbdMatrixScopesV694(force){
   const auth=matrixAuthV694();if(!auth.token)return;const nav=document.getElementById('khbd-matrix-nav-v694');if(nav)nav.classList.toggle('d-none',!v694Roles().some(r=>['TTCM','BGH','ADMIN'].includes(r)));if(khbdMatrixScopesV694.length&&!force){syncKhbdMatrixSubjectOptionsV694();return;}
@@ -29,7 +29,7 @@ function loadKhbdMatrixScopesV694(force){
 }
 function loadKhbdMatrixV694(){
   const auth=matrixAuthV694(),body=document.getElementById('khbdMatrixBodyV694'),summary=document.getElementById('khbdMatrixSummaryV694');if(!auth.token||!body)return;
-  const filter={khoi:Number(document.getElementById('khbdMatrixKhoiV694')?.value||0),mon:document.getElementById('khbdMatrixMonV694')?.value||'',tuan:Number(document.getElementById('khbdMatrixTuanV694')?.value||0)};
+  const filter={khoi:Number(document.getElementById('khbdMatrixKhoiV694')?.value||0),mon:canonicalSubjectV6955(document.getElementById('khbdMatrixMonV694')?.value),tuan:Number(document.getElementById('khbdMatrixTuanV694')?.value||0)};
   body.innerHTML='<tr><td class="text-center py-4" colspan="99"><span class="spinner-border spinner-border-sm me-2"></span>Đang tổng hợp ma trận...</td></tr>';if(summary)summary.textContent='Đang tải...';
   google.script.run.withSuccessHandler(res=>{if(!res||!res.success){khbdMatrixDataV694=null;body.innerHTML=`<tr><td class="text-center text-danger py-4" colspan="99">${escV694(res&&res.message||'Không tải được ma trận.')}</td></tr>`;if(summary)summary.textContent='';return;}khbdMatrixDataV694=res;renderKhbdMatrixV694();}).layMaTranKHBDLopV694(filter,auth);
 }
@@ -47,7 +47,7 @@ function exportKhbdMatrixCsvV694(){const d=khbdMatrixDataV694;if(!d)return;const
 // ----------------------------- BÁO CÁO ĐIỀU HÀNH NÂNG CAO -----------------------------
 function initAdvancedReportDatesV694(){const t=v694Today(),from=document.getElementById('advReportFromV694'),to=document.getElementById('advReportToV694');if(from&&!from.value)from.value=v694AddDays(t,-30);if(to&&!to.value)to.value=t;}
 function loadAdvancedOperationsReportV694(){
-  const body=document.getElementById('advReportBodyV694');if(!v694Roles().includes('ADMIN')){if(body)body.innerHTML='<tr><td colspan="10" class="text-center text-muted py-4">Báo cáo này chỉ dành cho Quản trị hệ thống.</td></tr>';return;}const auth=reportAuthV694();if(!auth.token||!body)return;initAdvancedReportDatesV694();const f={from:document.getElementById('advReportFromV694')?.value||'',to:document.getElementById('advReportToV694')?.value||'',loai:document.getElementById('advReportTypeV694')?.value||'ALL',trangThai:document.getElementById('advReportStatusV694')?.value||'ALL',lop:document.getElementById('advReportClassV694')?.value||'',mon:document.getElementById('advReportSubjectV694')?.value||'',teacher:document.getElementById('advReportTeacherV694')?.value||''};body.innerHTML='<tr><td colspan="10" class="text-center py-4"><span class="spinner-border spinner-border-sm me-2"></span>Đang tổng hợp...</td></tr>';
+  const body=document.getElementById('advReportBodyV694');if(!v694Roles().includes('ADMIN')){if(body)body.innerHTML='<tr><td colspan="10" class="text-center text-muted py-4">Báo cáo này chỉ dành cho Quản trị hệ thống.</td></tr>';return;}const auth=reportAuthV694();if(!auth.token||!body)return;initAdvancedReportDatesV694();const f={from:document.getElementById('advReportFromV694')?.value||'',to:document.getElementById('advReportToV694')?.value||'',loai:document.getElementById('advReportTypeV694')?.value||'ALL',trangThai:document.getElementById('advReportStatusV694')?.value||'ALL',lop:document.getElementById('advReportClassV694')?.value||'',mon:canonicalSubjectV6955(document.getElementById('advReportSubjectV694')?.value),teacher:document.getElementById('advReportTeacherV694')?.value||''};body.innerHTML='<tr><td colspan="10" class="text-center py-4"><span class="spinner-border spinner-border-sm me-2"></span>Đang tổng hợp...</td></tr>';
   google.script.run.withSuccessHandler(res=>{if(!res||!res.success){advancedOpsReportV694=null;body.innerHTML=`<tr><td colspan="10" class="text-center text-danger py-4">${escV694(res&&res.message||'Không tải được báo cáo.')}</td></tr>`;return;}advancedOpsReportV694=res;renderAdvancedOperationsReportV694();}).baoCaoDieuHanhNangCaoV694(f,auth);
 }
 function renderAdvancedOperationsReportV694(){

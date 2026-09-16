@@ -457,7 +457,7 @@ let varDiemTB = 10;
     if(!res||!res.success){setCentralLoginStatusV4(res&&res.message?res.message:'Không đăng nhập được.','danger');return;}
     document.getElementById('centralPasswordV4').value='';
     window.sodbUnifiedSessionValidatedV69555 = true;
-    console.info('[V69 PERF] Login tổng:',Math.round(performance.now()-loginStarted)+'ms','server:',(res.serverMs??'—')+'ms','path:',res.loginPath||source,'dashboard gộp:',(res.dashboardBundledMs??'—')+'ms','backend:',res.backendVersion||source,'source:',source);
+    console.info('[V69 PERF] Login tổng:',Math.round(performance.now()-loginStarted)+'ms','server:',(res.serverMs??'—')+'ms','path:',res.loginPath||source,'dashboard login:',(res.dashboardBundledMs??0)+'ms','backend:',res.backendVersion||source,'source:',source);
     apDungPhanQuyenV4(res,true);
   }
 
@@ -519,6 +519,7 @@ let varDiemTB = 10;
         ['giamthi-tab','Tra cứu, thống kê'],
         ['ttcm-tab','Kế hoạch bài dạy'],
         ['control-tab-v693','Điều hành'],
+        ['bgh-workflow-tab-v698','Duyệt tuần BGH'],
         ['admin-tab','Quản trị']
       ].filter(x=>isTopTabVisibleV54(x[0]));
       more.innerHTML=extras.map(x=>`<button type="button" data-mobile-extra="${x[0]}">${x[1]}</button>`).join('');
@@ -949,6 +950,7 @@ let varDiemTB = 10;
     setTopTabVisibleV4('giamthi-tab',!!sessions.GIAM_THI);
     setTopTabVisibleV4('ttcm-tab',!!sessions.TTCM||!!sessions.BGH||!!sessions.GVBM);
     setTopTabVisibleV4('control-tab-v693',!!sessions.GIAM_THI||!!sessions.BGH||isAdmin);
+    setTopTabVisibleV4('bgh-workflow-tab-v698',!!sessions.BGH||isAdmin);
     setTopTabVisibleV4('admin-tab',isAdmin);
     rebuildMobileRoleNavV54();
 

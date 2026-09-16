@@ -3370,3 +3370,88 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
 .permission-meta-v69553{min-width:180px;max-width:260px;}
 .permission-actions-v69553{min-width:150px;white-space:nowrap;}
 @media(max-width:767.98px){.permission-table-wrap-v69553{max-height:none}.permission-table-v69553{min-width:1180px}}
+
+/* ========================================================================
+   V69.5.5.6 - ADMIN COMPACT / FULL-WIDTH DESKTOP
+   Mục tiêu: loại bỏ khoảng trắng thừa trong Quản trị Admin, không đổi nghiệp vụ.
+   ======================================================================== */
+#tabAdmin #adminMainContent > .module-head-v13{
+  margin-bottom:8px!important;
+}
+#tabAdmin .app-subtabs-v6952{
+  margin-bottom:8px!important;
+}
+#tabAdmin .app-subtab-content-v6952{
+  margin-top:0!important;
+  padding:12px 14px 14px!important;
+}
+
+/* Các màn hình Admin cũ đang bị bó 850-1200px bằng inline max-width + mx-auto.
+   Trên desktop cho dùng toàn bộ bề ngang vùng Quản trị. */
+@media (min-width: 992px){
+  #tabAdmin .app-subtab-content-v6952 > .tab-pane > .mx-auto,
+  #tabAdmin .app-subtab-content-v6952 > .tab-pane .table-responsive.mx-auto,
+  #tabAdmin .app-subtab-content-v6952 > .tab-pane .d-flex.mx-auto{
+    width:100%!important;
+    max-width:none!important;
+    margin-left:0!important;
+    margin-right:0!important;
+  }
+
+  #tabAdmin .app-subtab-content-v6952 > .tab-pane > .row.mx-auto{
+    width:100%!important;
+    max-width:none!important;
+    margin-left:0!important;
+    margin-right:0!important;
+  }
+}
+
+/* Giữ mobile/tablet gọn và không gây tràn ngang ngoài các bảng vốn có scroll. */
+@media (max-width: 991.98px){
+  #tabAdmin .app-subtab-content-v6952{
+    padding:10px!important;
+  }
+}
+
+/* ========================================================================
+   V69.6 - ADMIN MASTER DATA
+   ======================================================================== */
+.master-admin-v696{width:100%;}
+.master-summary-v696{display:grid;grid-template-columns:repeat(5,minmax(130px,1fr));gap:10px;}
+.master-metric-v696{border:1px solid #e1e8f1;border-radius:12px;background:#fff;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+.master-metric-v696 span{font-size:.76rem;color:#64748b;font-weight:600}.master-metric-v696 strong{font-size:1.2rem;color:#0f172a}.master-metric-v696.has-warning{border-color:#f3c969;background:#fffaf0}.master-metric-v696.has-warning strong{color:#b45309}
+.master-inner-tabs-v696 .nav-link{font-weight:700;font-size:.86rem;}
+.master-editor-v696{border:1px solid #dfe7f0;border-radius:14px;background:#f8fafc;padding:14px;}
+.master-table-wrap-v696{max-height:58vh;overflow:auto;border:1px solid #e1e8f1;border-radius:12px;background:#fff;}
+.master-table-wrap-v696 thead th{position:sticky;top:0;z-index:2;white-space:nowrap;font-size:.74rem;}
+.master-table-wrap-v696 td{font-size:.78rem;vertical-align:middle;}
+#masterAssignClassesV696{min-height:168px;}
+@media(max-width:991.98px){.master-summary-v696{grid-template-columns:repeat(2,minmax(130px,1fr));}.master-table-wrap-v696{max-height:none}}
+@media(max-width:575.98px){.master-summary-v696{grid-template-columns:1fr;}.master-editor-v696{padding:10px}}
+
+/* V69.8 - BGH Workflow */
+#tabBghWorkflowV698{max-width:1780px;margin:0 auto;}
+.bgh-workflow-head-v698{margin-bottom:12px!important;}
+.bgh-workflow-card-v698{background:#fff;border-radius:14px;}
+.bgh-filter-v698{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px;}
+.bgh-metric-v698{height:100%;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:12px 14px;box-shadow:0 2px 8px rgba(15,23,42,.04);}
+.bgh-queue-wrap-v698{max-height:620px;overflow:auto;}
+.bgh-queue-table-v698{min-width:1180px;font-size:.84rem;}
+.bgh-queue-table-v698 thead{z-index:4;}
+.bgh-row-san-sang-duyet-v698{background:rgba(255,193,7,.055);}
+.bgh-row-con-tiet-chua-ky-v698{background:rgba(220,53,69,.035);}
+.bgh-matrix-wrap-v698{max-height:650px;overflow:auto;}
+.bgh-matrix-table-v698{min-width:900px;font-size:.82rem;}
+.bgh-matrix-table-v698 .sticky-col-v698{position:sticky;left:0;background:#fff;z-index:2;min-width:96px;}
+.bgh-matrix-table-v698 thead .sticky-col-v698{background:#f8f9fa;z-index:5;}
+.bgh-matrix-cell-v698{width:30px;height:28px;border-radius:8px;border:1px solid transparent;font-weight:800;line-height:1;background:#f1f5f9;}
+.bgh-matrix-cell-v698.approved{background:#dcfce7;border-color:#86efac;color:#166534;}
+.bgh-matrix-cell-v698.ready{background:#fef3c7;border-color:#fcd34d;color:#92400e;}
+.bgh-matrix-cell-v698.pending{background:#dbeafe;border-color:#93c5fd;color:#1d4ed8;}
+.bgh-matrix-cell-v698.empty{background:#f1f5f9;border-color:#e2e8f0;color:#94a3b8;}
+.bgh-matrix-cell-v698:hover{transform:translateY(-1px);box-shadow:0 2px 6px rgba(15,23,42,.12);}
+.bgh-matrix-legend-v698{display:flex;flex-wrap:wrap;gap:5px 10px;align-items:center;font-size:.72rem;color:#475569;}
+.bgh-matrix-legend-v698 span{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;}
+.bgh-dot-v698{width:9px;height:9px;border-radius:50%;display:inline-block;background:#cbd5e1;}
+.bgh-dot-v698.approved{background:#22c55e}.bgh-dot-v698.ready{background:#f59e0b}.bgh-dot-v698.pending{background:#3b82f6}.bgh-dot-v698.empty{background:#cbd5e1}
+@media(max-width:767.98px){.bgh-workflow-card-v698{padding:12px!important}.bgh-queue-wrap-v698,.bgh-matrix-wrap-v698{max-height:70vh}.bgh-metric-v698{padding:10px}.bgh-workflow-head-v698 .small{display:none}}

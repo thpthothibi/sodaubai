@@ -321,8 +321,9 @@
   }
   function luuCauHinhUiV4(){
     if(!adminDangNhapInfo)return;
-    let cfg={SCHOOL_YEAR:document.getElementById('cfgSchoolYearV4').value.trim(),WEEK1_START:document.getElementById('cfgWeek1V4').value,TKB_STRICT:document.getElementById('cfgTkbStrictV4').value};
-    google.script.run.withSuccessHandler(function(res){alertV13((res&&res.success?'✅ ':'❌ ')+(res?res.message:''));if(res&&res.success&&cfg.WEEK1_START)START_DATE_WEEK1_STR=cfg.WEEK1_START;})
+    // V70: SCHOOL_YEAR/WEEK1_START chỉ thay đổi qua School Year Lifecycle để không bỏ qua archive.
+    let cfg={TKB_STRICT:document.getElementById('cfgTkbStrictV4').value};
+    google.script.run.withSuccessHandler(function(res){alertV13((res&&res.success?'✅ ':'❌ ')+(res?res.message:''));})
       .luuCauHinhV4(cfg,{token:adminDangNhapInfo.sessionToken});
   }
 
@@ -490,9 +491,9 @@
       GVBM:[['Nhập tiết học','input-tab'],['Xem sổ đầu bài','view-tab']],
       GVCN:[['Kiểm tra và chốt tuần','gvcn-tab'],['Xem sổ đầu bài','view-tab']],
       TTCM:[['Kế hoạch bài dạy','ttcm-tab']],
-      BGH:[['Điều hành tiết dạy','control-tab-v693'],['Kế hoạch bài dạy','ttcm-tab'],['Xem sổ đầu bài','view-tab']],
+      BGH:[['Trung tâm duyệt tuần','bgh-workflow-tab-v698'],['Điều hành tiết dạy','control-tab-v693'],['Kế hoạch bài dạy','ttcm-tab'],['Xem sổ đầu bài','view-tab']],
       GIAM_THI:[['Điều hành tiết dạy','control-tab-v693'],['Tra cứu, thống kê','giamthi-tab']],
-      ADMIN:[['Điều hành tiết dạy','control-tab-v693'],['Quản trị hệ thống','admin-tab']]
+      ADMIN:[['Trung tâm duyệt tuần','bgh-workflow-tab-v698'],['Điều hành tiết dạy','control-tab-v693'],['Quản trị hệ thống','admin-tab']]
     };
     document.getElementById('overviewActionsV20').innerHTML=(actions[role]||[]).map((a,i)=>
       `<button type="button" class="btn ${i?'btn-outline-primary':'btn-primary'}" onclick="overviewActionV20('${a[1]}')">${escapeHtml(a[0])}</button>`).join('');
@@ -849,27 +850,29 @@ function taiPhanQuyenTaiKhoanV69553(force){
   const body=document.getElementById('permissionAccountBodyV69553'),status=document.getElementById('permissionStatusV69553');
   if(!body)return;
   if(!force&&accountPermissionsV69553.length&&Date.now()-accountPermissionsLoadedAtV69553<60000){renderPhanQuyenTaiKhoanV69553();return;}
-  body.innerHTML='<tr><td colspan="12" class="text-center text-muted py-4">Đang tải quyền tài khoản...</td></tr>';
+  body.innerHTML='<tr><td colspan="13" class="text-center text-muted py-4">Đang tải quyền tài khoản...</td></tr>';
   if(status)status.textContent='Đang đồng bộ từ Supabase...';
   google.script.run.withSuccessHandler(function(res){
-    if(!res||!res.success){body.innerHTML='<tr><td colspan="12" class="text-center text-danger py-4">'+escapeHtml(res&&res.message||'Không tải được phân quyền')+'</td></tr>';return;}
+    if(!res||!res.success){body.innerHTML='<tr><td colspan="13" class="text-center text-danger py-4">'+escapeHtml(res&&res.message||'Không tải được phân quyền')+'</td></tr>';return;}
     accountPermissionsV69553=Array.isArray(res.data)?res.data:[];accountPermissionsLoadedAtV69553=Date.now();
     if(status)status.textContent='Đã tải '+accountPermissionsV69553.length+' tài khoản · '+new Date().toLocaleTimeString('vi-VN');
     renderPhanQuyenTaiKhoanV69553();
-  }).withFailureHandler(function(err){body.innerHTML='<tr><td colspan="12" class="text-center text-danger py-4">'+escapeHtml((err&&err.message)||String(err||'Lỗi'))+'</td></tr>';}).layPhanQuyenTaiKhoanV69553(permissionAuthV69553());
+  }).withFailureHandler(function(err){body.innerHTML='<tr><td colspan="13" class="text-center text-danger py-4">'+escapeHtml((err&&err.message)||String(err||'Lỗi'))+'</td></tr>';}).layPhanQuyenTaiKhoanV69553(permissionAuthV69553());
 }
 function renderPhanQuyenTaiKhoanV69553(){
   const body=document.getElementById('permissionAccountBodyV69553');if(!body)return;
   const q=String(document.getElementById('permissionSearchV69553')?.value||'').trim().toLowerCase();
   const rows=(accountPermissionsV69553||[]).filter(r=>!q||[r.taiKhoan,r.hoTen,r.chucVu,(r.mon||[]).join(' '),(r.roles||[]).join(' ')].join(' ').toLowerCase().includes(q));
-  if(!rows.length){body.innerHTML='<tr><td colspan="12" class="text-center text-muted py-4">Không có tài khoản phù hợp.</td></tr>';return;}
+  if(!rows.length){body.innerHTML='<tr><td colspan="13" class="text-center text-muted py-4">Không có tài khoản phù hợp.</td></tr>';return;}
   body.innerHTML=rows.map(r=>{
     const a=String(r.taiKhoan||''),enc=encodeURIComponent(a),roles=new Set(r.roles||[]),locked=String(a).toLowerCase()==='admin';
     const ck=(role,disabled=false)=>`<input class="form-check-input permission-role-check-v69553" type="checkbox" id="${permissionInputIdV69553(a,role)}" ${roles.has(role)?'checked':''} ${(locked||disabled)?'disabled':''}>`;
     const activeId=permissionInputIdV69553(a,'ACTIVE');
     const src=r.managed?'<span class="badge text-bg-primary">Tùy chỉnh</span>':'<span class="badge text-bg-light border text-secondary">Tự động</span>';
     const mon=Array.isArray(r.mon)?r.mon.join(', '):'';
-    return `<tr><td class="permission-account-v69553"><strong>${escapeHtml(a)}</strong></td><td>${escapeHtml(r.hoTen||'')}</td><td class="permission-meta-v69553"><div>${escapeHtml(r.chucVu||'')}</div><small class="text-muted">${escapeHtml(mon)}</small></td><td class="text-center">${ck('GVBM')}</td><td class="text-center">${ck('GVCN')}</td><td class="text-center">${ck('TTCM')}</td><td class="text-center">${ck('GIAM_THI')}</td><td class="text-center">${ck('BGH')}</td><td class="text-center">${ck('ADMIN')}</td><td class="text-center"><input class="form-check-input permission-role-check-v69553" type="checkbox" id="${activeId}" ${r.active!==false?'checked':''} ${locked?'disabled':''}></td><td>${src}</td><td class="permission-actions-v69553"><button type="button" class="btn btn-sm btn-primary me-1" onclick="luuPhanQuyenTaiKhoanV69553(decodeURIComponent('${enc}'))">Lưu</button>${r.managed&&!locked?`<button type="button" class="btn btn-sm btn-outline-secondary" onclick="khoiPhucPhanQuyenTuDongV69553(decodeURIComponent('${enc}'))">Khôi phục tự động</button>`:''}</td></tr>`;
+    const loginState=r.loginLocked?`<span class="badge text-bg-danger">Đang khóa</span><small class="d-block text-danger mt-1">đến ${escapeHtml(r.loginBlockedUntil||'')}</small><small class="d-block text-muted">Sai ${Number(r.loginFailCount||0)} lần</small>`:`<span class="badge text-bg-success">Bình thường</span>${Number(r.loginFailCount||0)>0?`<small class="d-block text-muted mt-1">Sai ${Number(r.loginFailCount||0)} lần gần đây</small>`:''}`;
+    const unlockBtn=r.loginLocked?`<button type="button" class="btn btn-sm btn-outline-danger ms-1" onclick="moKhoaDangNhapAdminV699(decodeURIComponent('${enc}'))">Mở khóa đăng nhập</button>`:'';
+    return `<tr><td class="permission-account-v69553"><strong>${escapeHtml(a)}</strong></td><td>${escapeHtml(r.hoTen||'')}</td><td class="permission-meta-v69553"><div>${escapeHtml(r.chucVu||'')}</div><small class="text-muted">${escapeHtml(mon)}</small></td><td class="text-center">${ck('GVBM')}</td><td class="text-center">${ck('GVCN')}</td><td class="text-center">${ck('TTCM')}</td><td class="text-center">${ck('GIAM_THI')}</td><td class="text-center">${ck('BGH')}</td><td class="text-center">${ck('ADMIN')}</td><td class="text-center"><input class="form-check-input permission-role-check-v69553" type="checkbox" id="${activeId}" ${r.active!==false?'checked':''} ${locked?'disabled':''}></td><td>${loginState}</td><td>${src}</td><td class="permission-actions-v69553"><button type="button" class="btn btn-sm btn-primary me-1" onclick="luuPhanQuyenTaiKhoanV69553(decodeURIComponent('${enc}'))">Lưu</button>${r.managed&&!locked?`<button type="button" class="btn btn-sm btn-outline-secondary" onclick="khoiPhucPhanQuyenTuDongV69553(decodeURIComponent('${enc}'))">Khôi phục tự động</button>`:''}${unlockBtn}</td></tr>`;
   }).join('');
 }
 async function luuPhanQuyenTaiKhoanV69553(account){
@@ -890,4 +893,55 @@ async function khoiPhucPhanQuyenTuDongV69553(account){
     if(!res||!res.success){showToastV9(res&&res.message||'Không khôi phục được quyền.','danger');return;}
     showToastV9('Đã khôi phục quyền tự động.','success');taiPhanQuyenTaiKhoanV69553(true);
   }).withFailureHandler(function(err){showToastV9((err&&err.message)||String(err||'Lỗi'),'danger');}).khoiPhucPhanQuyenTuDongV69553(String(account),permissionAuthV69553());
+}
+
+
+/* ======================== V69.9 DATA GOVERNANCE ======================== */
+async function moKhoaDangNhapAdminV699(account){
+  if(!hasRoleV4('ADMIN')||!account)return;
+  const ok=await confirmV13(`Mở khóa đăng nhập cho ${account}? Bộ đếm đăng nhập sai hiện tại sẽ được xóa ngay.`,{title:'Mở khóa đăng nhập',confirmText:'Mở khóa'});if(!ok)return;
+  google.script.run.withSuccessHandler(function(res){
+    if(!res||!res.success){showToastV9(res&&res.message||'Không mở khóa được tài khoản.','danger');return;}
+    showToastV9(res.message||'Đã mở khóa đăng nhập.','success');taiPhanQuyenTaiKhoanV69553(true);
+    if(document.getElementById('pills-governance-v699')?.classList.contains('active'))loadDataGovernanceV699(true);
+  }).withFailureHandler(function(err){showToastV9((err&&err.message)||String(err||'Lỗi'),'danger');}).moKhoaDangNhapAdminV699(String(account),permissionAuthV69553());
+}
+
+let governanceLoadedAtV699=0;
+function governanceAuthV699(){return getAdminAuthV69();}
+function loadDataGovernanceV699(force){
+  if(!hasRoleV4('ADMIN'))return;
+  if(!force&&governanceLoadedAtV699&&Date.now()-governanceLoadedAtV699<60000)return;
+  const status=document.getElementById('governanceStatusV699'),body=document.getElementById('governanceIssueBodyV699');
+  if(status)status.textContent='Đang rà soát dữ liệu gốc và trạng thái đăng nhập...';
+  if(body)body.innerHTML='<tr><td colspan="5" class="text-center text-muted py-4">Đang kiểm tra...</td></tr>';
+  google.script.run.withSuccessHandler(function(res){
+    if(!res||!res.success){if(status)status.textContent=res&&res.message||'Không rà soát được dữ liệu.';return;}
+    governanceLoadedAtV699=Date.now();renderDataGovernanceV699(res);
+  }).withFailureHandler(function(err){if(status)status.textContent=(err&&err.message)||String(err||'Lỗi');}).layTrungTamChatLuongDuLieuV699(governanceAuthV699());
+}
+function renderDataGovernanceV699(res){
+  const sum=res.summary||{},summary=document.getElementById('governanceSummaryV699'),status=document.getElementById('governanceStatusV699'),body=document.getElementById('governanceIssueBodyV699');
+  if(summary)summary.innerHTML=[['Lỗi nghiêm trọng',sum.critical||0,'danger'],['Cần xử lý',sum.warning||0,'warning'],['Theo dõi',sum.info||0,'secondary'],['Tổng vấn đề',sum.total||0,'primary']].map(x=>`<div class="col-6 col-lg-3"><div class="border rounded p-3 h-100"><div class="small text-muted">${x[0]}</div><div class="fs-4 fw-bold text-${x[2]}">${x[1]}</div></div></div>`).join('');
+  if(status)status.textContent='Rà soát lúc '+(res.generatedAt||'')+' · Hệ thống chỉ phát hiện, không tự sửa dữ liệu.';
+  const rows=Array.isArray(res.issues)?res.issues:[];
+  if(!body)return;if(!rows.length){body.innerHTML='<tr><td colspan="5" class="text-center text-success py-4">Không phát hiện vấn đề dữ liệu trong các kiểm tra V69.9.</td></tr>';return;}
+  const badge=s=>s==='CRITICAL'?'<span class="badge text-bg-danger">Nghiêm trọng</span>':s==='WARNING'?'<span class="badge text-bg-warning">Cần xử lý</span>':'<span class="badge text-bg-secondary">Theo dõi</span>';
+  body.innerHTML=rows.map(r=>`<tr><td>${badge(r.severity)}</td><td>${escapeHtml(r.category||'')}</td><td><strong>${escapeHtml(r.title||'')}</strong><small class="d-block text-muted">${escapeHtml(r.key||'')}</small></td><td>${escapeHtml(r.detail||'')}</td><td>${r.action?`<button class="btn btn-sm btn-outline-primary" type="button" onclick="openGovernanceActionV699('${escapeHtml(r.action)}')">Xử lý</button>`:'—'}</td></tr>`).join('');
+}
+function openGovernanceActionV699(action){
+  if(action==='PERMISSIONS'){const b=document.getElementById('admin-account-permission-tab-v69553');if(b&&window.bootstrap)bootstrap.Tab.getOrCreateInstance(b).show();setTimeout(()=>taiPhanQuyenTaiKhoanV69553(true),80);return;}
+  if(action==='MASTER_DATA'){const b=document.getElementById('admin-master-data-tab-v696');if(b&&window.bootstrap)bootstrap.Tab.getOrCreateInstance(b).show();setTimeout(()=>taiDuLieuGocAdminV696(true),80);}
+}
+function compactAuditJsonV699(raw){
+  const s=String(raw||'').trim();if(!s)return '—';try{const o=JSON.parse(s);const out=JSON.stringify(o);return out.length>500?out.slice(0,500)+'…':out;}catch(_e){return s.length>500?s.slice(0,500)+'…':s;}
+}
+function loadGovernanceHistoryV699(){
+  if(!hasRoleV4('ADMIN'))return;
+  const f={recordId:String(document.getElementById('governanceHistoryRecordV699')?.value||'').trim(),account:String(document.getElementById('governanceHistoryAccountV699')?.value||'').trim(),action:String(document.getElementById('governanceHistoryActionV699')?.value||'').trim(),limit:150};
+  const body=document.getElementById('governanceHistoryBodyV699'),status=document.getElementById('governanceHistoryStatusV699');if(body)body.innerHTML='<tr><td colspan="6" class="text-center text-muted py-4">Đang tải lịch sử...</td></tr>';
+  google.script.run.withSuccessHandler(function(res){
+    if(!res||!res.success){if(status)status.textContent=res&&res.message||'Không tải được lịch sử.';return;}const rows=res.data||[];if(status)status.textContent='Đã tải '+rows.length+' sự kiện gần nhất phù hợp bộ lọc.';
+    if(body)body.innerHTML=rows.length?rows.map(r=>`<tr><td>${escapeHtml(r.time||'')}</td><td><strong>${escapeHtml(r.ten||r.account||'')}</strong><small class="d-block text-muted">${escapeHtml(r.account||'')} · ${escapeHtml(r.role||'')}</small></td><td><code>${escapeHtml(r.action||'')}</code></td><td>${escapeHtml(r.target||'')}</td><td><details><summary>Xem thay đổi</summary><div class="small mt-1"><b>Trước:</b><pre class="mb-1 text-wrap">${escapeHtml(compactAuditJsonV699(r.before))}</pre><b>Sau:</b><pre class="mb-0 text-wrap">${escapeHtml(compactAuditJsonV699(r.after))}</pre></div></details></td><td>${escapeHtml(r.reason||'')}</td></tr>`).join(''):'<tr><td colspan="6" class="text-center text-muted py-4">Không có lịch sử phù hợp.</td></tr>';
+  }).withFailureHandler(function(err){if(status)status.textContent=(err&&err.message)||String(err||'Lỗi');}).layLichSuBanGhiV699(f,governanceAuthV699());
 }

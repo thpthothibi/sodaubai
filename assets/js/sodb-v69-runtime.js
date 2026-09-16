@@ -14,7 +14,7 @@
   const SODB_SUPABASE_URL_V66 = "https://mlwhxxpmnhrrkbkivvye.supabase.co";
   const SODB_SUPABASE_PUBLISHABLE_KEY_V66 = "sb_publishable_Hq6KRH5KDT1eiOYLwwQhkw_c45sZkgi";
   const SODB_EDGE_URL_V66 = SODB_SUPABASE_URL_V66 + "/functions/v1/sodb-core-v69";
-  const SODB_FRONTEND_VERSION = "V69";
+  const SODB_FRONTEND_VERSION = "V70";
   window.__SODB_BACKEND_VERSION__ = "UNKNOWN";
   // V69.2.2 Stable: đo thời gian thực tế các chặng mạng để tối ưu dựa trên số liệu.
   window.__SODB_PERF__ = Array.isArray(window.__SODB_PERF__) ? window.__SODB_PERF__ : [];
@@ -105,7 +105,7 @@
     'getBootstrapClientV6','getDanhSachLopMoiV29','layPhanCongDayCuaGVV39','xacThucPhienHeThongV4',
     'getDanhSachBaiDayTheoMon','layDanhSachKHBDTheoKhoiV36','capNhatKeHoachBaiDay',
     'layDanhSachDuyetKHBDV50','layKhbdDaTaiCuaTTCMV659','xuLyDuyetKHBDV50','layKhbdCaNhanV67','chonKhbdCaNhanV67','resetKhbdAdminV69552',
-    'layTrangSoDauBaiV24','layDuLieuSoDauBaiTuanGop','luuSoDauBai','luuChotTuanGVCN','duyetTuanBGHV684',
+    'layTrangSoDauBaiV24','layDuLieuSoDauBaiTuanGop','luuSoDauBai','luuChotTuanGVCN','duyetTuanBGHV684','layTrungTamDuyetTuanBGHV698','layMaTranDuyetTuanBGHV698',
     'kiemTraTrangThaiKhoaTuan','adminMoKhoaTuan','adminMoKhoaTuanHangLoatV685','layMoKhoaTuanHangLoatV685','dongMoKhoaTuanHangLoatV685','kiemTraMoKhoaTuanHangLoatV685','layNhatKyV4',
     'getDanhSachMonAdminV7','getDanhSachMonKHBD','getDanhSachGVTheoMon','luuCauHinhV4',
     'traCuuChiTietGiamThi','kiemTraNhapTreGiamThi','traCuuThongKeTheoKhoiNgay',
@@ -115,7 +115,9 @@
     'luuChuKyGiaoVienV21','xoaChuKyGiaoVienV21','traCuuChuKyTheoCCCD','doiMatKhauTaiKhoanV6853',
     'capNhatSoDauBaiV4','guiYeuCauChinhSuaV4','layYeuCauCuaToiV4','layYeuCauChinhSuaV4','xuLyYeuCauChinhSuaV4','layBanGhiCuaToiV4',
     'layQuyenDacBietV69','luuQuyenDacBietV69','thuHoiQuyenDacBietV69',
-    'layPhanQuyenTaiKhoanV69553','luuPhanQuyenTaiKhoanV69553','khoiPhucPhanQuyenTuDongV69553',
+    'layPhanQuyenTaiKhoanV69553','luuPhanQuyenTaiKhoanV69553','khoiPhucPhanQuyenTuDongV69553','moKhoaDangNhapAdminV699','layTrungTamChatLuongDuLieuV699','layLichSuBanGhiV699',
+    'layVongDoiNamHocV700','kiemTraDongNamHocV700','dongNamHocTaoNamMoiV700','layLuuTruNamHocV700',
+    'layDuLieuGocAdminV696','luuGiaoVienAdminV696','luuPhanCongDayAdminV696','xoaPhanCongDayAdminV696','luuGvcnAdminV696','xoaGvcnAdminV696','luuToChuyenMonAdminV696','xoaToChuyenMonAdminV696',
     'layDanhSachGiaoVienDieuHanhV693','layNhanSuNgoaiTruongV693','luuNhanSuNgoaiTruongV693','doiTrangThaiNhanSuNgoaiTruongV693','layNhanSuNgoaiTruongChoKyV693',
     'layHoSoNghiGiaoVienV693','luuHoSoNghiGiaoVienV693','duyetHoSoNghiGiaoVienV693',
     'layDieuHanhTietDayV693','luuDieuHanhTietDayV693','duyetDieuHanhTietDayV693','layDieuHanhTietCuaToiV693','layNhiemVuDieuHanhCuaToiV693','tongQuanDieuHanhV693','layDanhMucMaTranKHBDV694','layMaTranKHBDLopV694','baoCaoDieuHanhNangCaoV694','layCanhBaoTuDongV695','layDanhSachHocSinhNhomV6951','luuDanhSachHocSinhNhomV6951','luuChotTuanNhomV6951','duyetTuanNhomBGHV6951','baoCaoNhomHocV6951'

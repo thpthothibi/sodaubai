@@ -432,7 +432,7 @@ function xuatExcelNhapTreGiamThi() {
 
   function xuLyRawKhbdWordV656(rawJson,inputEl){
     let scopeKhoi=document.getElementById('khbdUploadKhoi').value;
-    let scopeMon=document.getElementById('khbdUploadMon').value.trim();
+    let scopeMon=canonicalSubjectV6955(document.getElementById('khbdUploadMon').value);
     parsedKHBDData=[];
     const tbody=document.getElementById('khbdPreviewTableBody');
     tbody.innerHTML='';
@@ -458,7 +458,7 @@ function xuatExcelNhapTreGiamThi() {
       const row=rawJson[i]||[];
       if(row.every(v=>v===''||v===null||v===undefined))continue;
       const khoi=String(row[layout.khoi]||scopeKhoi).trim().match(/\d+/)?.[0]||'';
-      const mon=String(row[layout.mon]||scopeMon).trim();
+      const mon=canonicalSubjectV6955(row[layout.mon]||scopeMon);
       const weekMatch=String(row[layout.tuan]||'').match(/\d+/);
       const tuan=weekMatch?Number(weekMatch[0]):'';
       const tiet=layout.tiet>=0?String(row[layout.tiet]||'').trim():'';
@@ -467,7 +467,7 @@ function xuatExcelNhapTreGiamThi() {
       const range=tuan?getWeekRangeClient(tuan):{from:'',to:''};
       const rowNumber=i+1;
       if(khoi!==scopeKhoi)errors.push(`Dòng ${rowNumber}: Khối ${khoi||'trống'} khác Khối ${scopeKhoi}.`);
-      if(normalizeTextKey(mon)!==normalizeTextKey(scopeMon))errors.push(`Dòng ${rowNumber}: Môn '${mon||'trống'}' khác '${scopeMon}'.`);
+      if(subjectKeyV6955(mon)!==subjectKeyV6955(scopeMon))errors.push(`Dòng ${rowNumber}: Môn '${mon||'trống'}' khác '${scopeMon}'.`);
       if(!tuan||tuan<1||tuan>52)errors.push(`Dòng ${rowNumber}: Tuần không hợp lệ.`);
       if(!bai)errors.push(`Dòng ${rowNumber}: Thiếu Nội dung bài dạy.`);
       if(!yeuCau)errors.push(`Dòng ${rowNumber}: Thiếu Yêu cầu cần đạt.`);
@@ -493,7 +493,7 @@ function xuatExcelNhapTreGiamThi() {
     const file=input&&input.files?input.files[0]:null;
     if(!file)return;
     const scopeKhoi=document.getElementById('khbdUploadKhoi').value;
-    const scopeMon=document.getElementById('khbdUploadMon').value.trim();
+    const scopeMon=canonicalSubjectV6955(document.getElementById('khbdUploadMon').value);
     if(!scopeKhoi||!scopeMon){
       showToastV9('Hãy chọn Khối và Môn học trước khi chọn file Word.','danger');
       input.value='';return;
@@ -528,7 +528,7 @@ function xuatExcelNhapTreGiamThi() {
     if (!file) return;
 
     let scopeKhoi = document.getElementById('khbdUploadKhoi').value;
-    let scopeMon = document.getElementById('khbdUploadMon').value.trim();
+    let scopeMon = canonicalSubjectV6955(document.getElementById('khbdUploadMon').value);
     if (!scopeKhoi || !scopeMon) {
       showToastV9('Hãy chọn Khối và nhập Môn học trước khi chọn file.','danger');
       event.target.value = "";
@@ -569,7 +569,7 @@ function xuatExcelNhapTreGiamThi() {
           if (row.every(value => value === "" || value === null || value === undefined)) continue;
 
           let khoi = String(row[layout.khoi] || scopeKhoi).trim().match(/\d+/)?.[0] || "";
-          let mon = String(row[layout.mon] || scopeMon).trim();
+          let mon = canonicalSubjectV6955(row[layout.mon] || scopeMon);
           let weekMatch = String(row[layout.tuan] || "").match(/\d+/);
           let tuan = weekMatch ? Number(weekMatch[0]) : "";
           let tiet = layout.tiet >= 0 ? String(row[layout.tiet] || "").trim() : "";
@@ -581,7 +581,7 @@ function xuatExcelNhapTreGiamThi() {
 
           let rowNumber = i + 1;
           if (khoi !== scopeKhoi) errors.push(`Dòng ${rowNumber}: Khối ${khoi || "trống"} khác Khối ${scopeKhoi}.`);
-          if (normalizeTextKey(mon) !== normalizeTextKey(scopeMon)) errors.push(`Dòng ${rowNumber}: Môn '${mon || "trống"}' khác '${scopeMon}'.`);
+          if (subjectKeyV6955(mon) !== subjectKeyV6955(scopeMon)) errors.push(`Dòng ${rowNumber}: Môn '${mon || "trống"}' khác '${scopeMon}'.`);
           if (!tuan || tuan < 1 || tuan > 52) errors.push(`Dòng ${rowNumber}: Tuần không hợp lệ.`);
           if (!bai) errors.push(`Dòng ${rowNumber}: Thiếu Nội dung bài dạy.`);
           if (!yeuCau) errors.push(`Dòng ${rowNumber}: Thiếu Yêu cầu cần đạt.`);
@@ -632,7 +632,7 @@ function xuatExcelNhapTreGiamThi() {
 
     let scope = {
       khoi: document.getElementById('khbdUploadKhoi').value,
-      mon: document.getElementById('khbdUploadMon').value.trim()
+      mon: canonicalSubjectV6955(document.getElementById('khbdUploadMon').value)
     };
     if (!scope.khoi || !scope.mon) {
       alertV13("⚠️ Cần chọn Khối và nhập Môn học.");
@@ -712,7 +712,7 @@ function xuatExcelNhapTreGiamThi() {
       return;
     }
     const khoi=document.getElementById('khbdViewKhoi').value;
-    const mon=(document.getElementById('khbdViewMon')?.value||'').trim();
+    const mon=canonicalSubjectV6955(document.getElementById('khbdViewMon')?.value);
     const body=document.getElementById('khbdViewBodyV36');
     const summary=document.getElementById('khbdViewSummaryV36');
     if(!mon){
@@ -833,7 +833,7 @@ function xuatExcelNhapTreGiamThi() {
   }
   function xemKhbdTuHangDoiV50(khoi,mon){
     const ks=document.getElementById('khbdViewKhoi'),ms=document.getElementById('khbdViewMon');if(ks)ks.value=String(khoi||'');
-    if(ms){let opt=[...ms.options].find(o=>normalizeTextKey(o.value)===normalizeTextKey(mon));if(!opt){opt=new Option(mon,mon);ms.add(opt);}ms.value=opt.value;}
+    if(ms){mon=canonicalSubjectV6955(mon);let opt=[...ms.options].find(o=>subjectKeyV6955(o.value)===subjectKeyV6955(mon));if(!opt){opt=new Option(mon,mon);ms.add(opt);}ms.value=opt.value;}
     const tab=document.getElementById('khbd-view-tab-v38');if(tab&&window.bootstrap)bootstrap.Tab.getOrCreateInstance(tab).show();
     setTimeout(taiDanhSachKHBDTheoKhoiV36,80);
   }

@@ -70,6 +70,7 @@ function handleAlertActionV695(id){
     case 'CONTROL_PROXY':showControlPaneV695('#control-proxy-v693');break;
     case 'KHBD_MATRIX':openKhbdMatrixFromAlertV695(a);break;
     case 'KHBD_APPROVAL':showMainTabV695('ttcm-tab');setTimeout(()=>{const isTtcm=alertRolesV695().includes('TTCM')&&!alertRolesV695().some(r=>['BGH','ADMIN'].includes(r));const b=document.getElementById(isTtcm?'khbd-submitted-tab-v659':'khbd-approval-tab-v50')||document.getElementById('khbd-submitted-tab-v659');if(b){try{window.bootstrap?bootstrap.Tab.getOrCreateInstance(b).show():b.click();}catch(_e){b.click();}}},100);break;
+    case 'BGH_WORKFLOW':showMainTabV695('bgh-workflow-tab-v698');setTimeout(()=>{const w=document.getElementById('bghWorkflowWeekV698');if(w&&a.meta?.tuan)w.value=String(a.meta.tuan);if(typeof loadBghWorkflowV698==='function')loadBghWorkflowV698(true);},120);break;
     case 'VIEW_BOOK':showMainTabV695('view-tab');setTimeout(()=>{const w=document.getElementById('viewTuan');if(w&&a.meta?.tuan)w.value=String(a.meta.tuan);},100);break;
     default:openAlertCenterV695();
   }

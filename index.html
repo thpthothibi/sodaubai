@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <link rel="stylesheet" href="assets/css/sodb-v69.css?v=69.5.5.5">
+  <link rel="stylesheet" href="assets/css/sodb-v69.css?v=70.0.0">
 
 
 
@@ -193,6 +193,9 @@
     </li>
     <li class="nav-item" role="presentation">
       <button class="nav-link text-warning-emphasis fw-bold" id="control-tab-v693" data-bs-toggle="tab" data-bs-target="#tabControlV693" type="button">Điều hành</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link text-primary fw-bold" id="bgh-workflow-tab-v698" data-bs-toggle="tab" data-bs-target="#tabBghWorkflowV698" type="button">Duyệt tuần BGH</button>
     </li>
     <li class="nav-item" role="presentation">
       <button class="nav-link text-danger fw-bold" id="admin-tab" data-bs-toggle="tab" data-bs-target="#tabAdmin" type="button">Quản trị</button>
@@ -1447,11 +1450,65 @@
     </div>
 
 
+
+
+    <!-- V69.8: TRUNG TÂM DUYỆT TUẦN BGH -->
+    <div class="tab-pane fade" id="tabBghWorkflowV698" role="tabpanel" aria-labelledby="bgh-workflow-tab-v698">
+      <div class="module-head-v13 mb-3 bgh-workflow-head-v698">
+        <div><div class="section-title-v13">Ban Giám hiệu</div><h4 class="mb-0">Trung tâm duyệt sổ đầu bài theo tuần</h4></div>
+        <div class="small text-muted">Theo dõi trạng thái toàn trường, mở đúng sổ cần kiểm tra và duyệt từng lớp có kiểm soát.</div>
+      </div>
+      <ul class="nav nav-pills app-subtabs-v6952 mb-3" id="bghWorkflowTabsV698" role="tablist">
+        <li class="nav-item me-2" role="presentation"><button class="nav-link active" id="bgh-queue-tab-v698" data-bs-toggle="pill" data-bs-target="#bgh-queue-pane-v698" type="button">Hàng đợi duyệt</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="bgh-matrix-tab-v698" data-bs-toggle="pill" data-bs-target="#bgh-matrix-pane-v698" type="button">Ma trận lớp × tuần</button></li>
+      </ul>
+      <div class="tab-content">
+        <div class="tab-pane fade show active" id="bgh-queue-pane-v698" role="tabpanel">
+          <div class="card border-0 shadow-sm p-3 p-lg-4 bgh-workflow-card-v698">
+            <div class="row g-2 align-items-end mb-3 bgh-filter-v698">
+              <div class="col-6 col-md-2"><label class="form-label small fw-bold">Tuần</label><select id="bghWorkflowWeekV698" class="form-select"></select></div>
+              <div class="col-6 col-md-2"><label class="form-label small fw-bold">Khối</label><select id="bghWorkflowGradeV698" class="form-select"><option value="0">Tất cả khối</option><option value="10">Khối 10</option><option value="11">Khối 11</option><option value="12">Khối 12</option></select></div>
+              <div class="col-md-3"><label class="form-label small fw-bold">Trạng thái</label><select id="bghWorkflowStatusV698" class="form-select"><option value="ALL">Tất cả trạng thái</option><option value="SAN_SANG_DUYET">Sẵn sàng duyệt</option><option value="DA_DUYET">Đã duyệt</option><option value="CON_TIET_CHUA_KY">Còn tiết chưa ký</option><option value="CHO_GVCN_CHOT">Chờ GVCN chốt</option><option value="CHUA_CO_DU_LIEU">Chưa có dữ liệu</option></select></div>
+              <div class="col-md-3"><label class="form-label small fw-bold">Tìm lớp / GVCN</label><input id="bghWorkflowSearchV698" class="form-control" placeholder="Ví dụ: 10A1 hoặc Nguyễn Văn A"></div>
+              <div class="col-md-2 d-grid"><button class="btn btn-primary fw-bold" type="button" onclick="loadBghWorkflowV698(true)">Tải trạng thái</button></div>
+            </div>
+            <div class="row g-2 mb-3" id="bghWorkflowCardsV698"></div>
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2"><div id="bghWorkflowStatusTextV698" class="small text-muted">Chưa tải dữ liệu.</div><div class="small text-muted">Không có nút duyệt hàng loạt; BGH mở từng sổ để kiểm tra trước khi ký.</div></div>
+            <div class="table-responsive border rounded bgh-queue-wrap-v698">
+              <table class="table table-sm table-hover align-middle mb-0 bgh-queue-table-v698">
+                <thead class="table-light sticky-top"><tr><th>#</th><th>Lớp</th><th>Khối</th><th>GVCN</th><th class="text-center">Tiết đã ghi</th><th class="text-center">Chưa ký</th><th>GVCN chốt</th><th>BGH duyệt</th><th>Trạng thái</th><th class="text-end">Thao tác</th></tr></thead>
+                <tbody id="bghWorkflowBodyV698"><tr><td colspan="10" class="text-center text-muted py-4">Chưa tải trạng thái duyệt tuần.</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="tab-pane fade" id="bgh-matrix-pane-v698" role="tabpanel">
+          <div class="card border-0 shadow-sm p-3 p-lg-4 bgh-workflow-card-v698">
+            <div class="row g-2 align-items-end mb-3 bgh-filter-v698">
+              <div class="col-6 col-md-2"><label class="form-label small fw-bold">Từ tuần</label><select id="bghMatrixFromWeekV698" class="form-select"></select></div>
+              <div class="col-6 col-md-2"><label class="form-label small fw-bold">Đến tuần</label><select id="bghMatrixToWeekV698" class="form-select"></select></div>
+              <div class="col-md-3"><label class="form-label small fw-bold">Khối</label><select id="bghMatrixGradeV698" class="form-select"><option value="0">Tất cả khối</option><option value="10">Khối 10</option><option value="11">Khối 11</option><option value="12">Khối 12</option></select></div>
+              <div class="col-md-2 d-grid"><button class="btn btn-primary fw-bold" type="button" onclick="loadBghMatrixV698(true)">Tải ma trận</button></div>
+              <div class="col-md-3"><div class="bgh-matrix-legend-v698"><span><i class="bgh-dot-v698 approved"></i>Đã duyệt</span><span><i class="bgh-dot-v698 ready"></i>Sẵn sàng</span><span><i class="bgh-dot-v698 pending"></i>Chưa chốt</span><span><i class="bgh-dot-v698 empty"></i>Chưa dữ liệu</span></div></div>
+            </div>
+            <div id="bghMatrixStatusV698" class="small text-muted mb-2">Ma trận tối đa 12 tuần/lần tải.</div>
+            <div class="table-responsive border rounded bgh-matrix-wrap-v698"><table class="table table-sm table-bordered align-middle mb-0 bgh-matrix-table-v698"><thead class="table-light sticky-top" id="bghMatrixHeadV698"><tr><th>Lớp</th><th>Khối</th></tr></thead><tbody id="bghMatrixBodyV698"><tr><td colspan="2" class="text-center text-muted py-4">Chưa tải ma trận.</td></tr></tbody></table></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="tab-pane fade" id="tabAdmin" role="tabpanel">
       <div id="adminMainContent" class="d-none"><div class="module-head-v13 mb-3"><div><div class="section-title-v13">Quản trị hệ thống</div><h4 class="mb-0">Dữ liệu, phân quyền và an toàn hệ thống</h4></div><div class="small text-muted">Kiểm tra dữ liệu, quản lý danh mục, mở khóa, đối soát, phân quyền, nhật ký và sao lưu</div></div>
             <ul class="nav nav-pills app-subtabs-v6952" id="pills-tab" role="tablist">
               <li class="nav-item me-2" role="presentation">
                 <button class="nav-link active" id="pills-check-tab" data-bs-toggle="pill" data-bs-target="#pills-check" type="button">Kiểm tra dữ liệu</button>
+              </li>
+              <li class="nav-item me-2" role="presentation">
+                <button class="nav-link" id="admin-governance-tab-v699" data-bs-toggle="pill" data-bs-target="#pills-governance-v699" type="button" onclick="loadDataGovernanceV699(false)">Quản trị dữ liệu</button>
+              </li>
+              <li class="nav-item me-2" role="presentation">
+                <button class="nav-link" id="admin-school-year-tab-v700" data-bs-toggle="pill" data-bs-target="#pills-school-year-v700" type="button" onclick="loadSchoolYearLifecycleV700(false)">Năm học & lưu trữ</button>
               </li>
               <li class="nav-item" role="presentation">
                 <button class="nav-link" id="pills-unlock-tab" data-bs-toggle="pill" data-bs-target="#pills-unlock" type="button" onclick="setTimeout(taiMoKhoaTuanHangLoatV685,80)">Khóa / mở tuần</button>
@@ -1460,6 +1517,9 @@
                 <button class="nav-link" id="pills-input-unlock-tab-v683" data-bs-toggle="pill" data-bs-target="#pills-input-unlock-v683" type="button" onclick="khoiTaoMoKhoaNhapTietV683()">Mở nhập tiết</button>
               </li>
               
+              <li class="nav-item me-2" role="presentation">
+                <button class="nav-link" id="admin-master-data-tab-v696" data-bs-toggle="pill" data-bs-target="#pills-master-data-v696" type="button" onclick="taiDuLieuGocAdminV696(false)">Dữ liệu gốc</button>
+              </li>
               <li class="nav-item me-2" role="presentation">
                 <button class="nav-link" data-bs-toggle="pill" data-bs-target="#pills-classes" type="button">Danh mục lớp</button>
               </li>
@@ -1485,6 +1545,79 @@
             </ul>
 
             <div class="tab-content app-subtab-content-v6952" id="pills-tabContent">
+              <!-- V69.6: ADMIN MASTER DATA -->
+              <div class="tab-pane fade" id="pills-master-data-v696" role="tabpanel" aria-labelledby="admin-master-data-tab-v696">
+                <div class="master-admin-v696">
+                  <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+                    <div><h5 class="fw-bold text-primary mb-1">Trung tâm dữ liệu gốc</h5><div class="small text-muted">Quản lý trực tiếp Giáo viên → Phân công dạy → GVCN → Tổ chuyên môn trên Supabase. Mọi thay đổi đều ghi Audit và thu hồi phiên cũ của tài khoản bị ảnh hưởng.</div></div>
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="taiDuLieuGocAdminV696(true)">Làm mới</button>
+                  </div>
+                  <div id="masterSummaryV696" class="master-summary-v696 mb-3"></div>
+                  <div id="masterWarningV696" class="alert alert-warning small d-none py-2"></div>
+                  <div id="masterStatusV696" class="small text-muted mb-3">Chọn tab Dữ liệu gốc để tải.</div>
+                  <div class="alert alert-light border small py-2"><b>Quan hệ quyền:</b> dữ liệu GVCN/Tổ chuyên môn tạo quyền tự động khi tài khoản chưa có bản ghi tùy chỉnh trong <b>Phân quyền</b>. Nếu tài khoản đang dùng quyền tùy chỉnh, quyền thủ công vẫn được ưu tiên. <b>Phân công dạy V69.6: mỗi dòng chỉ 1 môn, không ghép môn bằng dấu “;”.</b></div>
+                  <datalist id="masterSubjectListV696"></datalist>
+
+                  <ul class="nav nav-tabs master-inner-tabs-v696 mb-3" role="tablist">
+                    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#master-teachers-v696" type="button">Giáo viên</button></li>
+                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#master-assignments-v696" type="button">Phân công dạy</button></li>
+                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#master-gvcn-v696" type="button">GVCN</button></li>
+                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#master-team-v696" type="button">Tổ chuyên môn</button></li>
+                  </ul>
+
+                  <div class="tab-content">
+                    <div class="tab-pane fade show active" id="master-teachers-v696">
+                      <div class="master-editor-v696 mb-3" id="masterTeacherEditorV696">
+                        <div class="d-flex justify-content-between align-items-center mb-2"><strong id="masterTeacherModeV696">Thêm giáo viên</strong><button class="btn btn-sm btn-outline-secondary" type="button" onclick="clearMasterTeacherV696()">Nhập mới</button></div>
+                        <div class="row g-2">
+                          <div class="col-md-2"><label class="form-label small fw-bold">Tài khoản/SĐT *</label><input id="masterTeacherAccountV696" class="form-control" autocomplete="off"></div>
+                          <div class="col-md-2"><label class="form-label small fw-bold">Mật khẩu mới</label><input id="masterTeacherPasswordV696" type="password" class="form-control" autocomplete="new-password"><div class="form-text">Bắt buộc khi tạo mới; để trống khi chỉ sửa hồ sơ.</div></div>
+                          <div class="col-md-3"><label class="form-label small fw-bold">Họ tên *</label><input id="masterTeacherNameV696" class="form-control"></div>
+                          <div class="col-md-2"><label class="form-label small fw-bold">CCCD/Mã GV</label><input id="masterTeacherCccdV696" class="form-control"></div>
+                          <div class="col-md-3"><label class="form-label small fw-bold">Email</label><input id="masterTeacherEmailV696" class="form-control" type="email"></div>
+                          <div class="col-md-3"><label class="form-label small fw-bold">Chức vụ</label><input id="masterTeacherTitleV696" class="form-control" placeholder="Giáo viên / Phó Hiệu trưởng / Giám thị..."></div>
+                          <div class="col-md-2"><label class="form-label small fw-bold">Môn 1</label><input id="masterTeacherMon1V696" list="masterSubjectListV696" class="form-control"></div>
+                          <div class="col-md-2"><label class="form-label small fw-bold">Môn 2</label><input id="masterTeacherMon2V696" list="masterSubjectListV696" class="form-control"></div>
+                          <div class="col-md-2"><label class="form-label small fw-bold">Môn 3</label><input id="masterTeacherMon3V696" list="masterSubjectListV696" class="form-control"></div>
+                          <div class="col-md-3 d-flex align-items-end"><button class="btn btn-primary w-100 fw-bold" type="button" onclick="saveMasterTeacherV696()">Lưu giáo viên</button></div>
+                        </div>
+                      </div>
+                      <div class="d-flex flex-wrap justify-content-between gap-2 mb-2"><input id="masterTeacherSearchV696" class="form-control" style="max-width:520px" placeholder="Tìm tài khoản, họ tên, môn, chức vụ..." oninput="renderMasterTeachersV696()"><div class="small text-muted align-self-center">Không xóa hồ sơ giáo viên tại đây; dùng tab Phân quyền để tắt tài khoản khi cần.</div></div>
+                      <div class="table-responsive master-table-wrap-v696"><table class="table table-sm table-hover align-middle mb-0"><thead class="table-light"><tr><th>Tài khoản</th><th>Họ tên</th><th>CCCD/Mã</th><th>Chức vụ</th><th>Môn</th><th>Chữ ký</th><th>Hoạt động</th><th></th></tr></thead><tbody id="masterTeacherBodyV696"><tr><td colspan="8" class="text-center text-muted py-4">Chưa tải dữ liệu.</td></tr></tbody></table></div>
+                    </div>
+
+                    <div class="tab-pane fade" id="master-assignments-v696">
+                      <div class="master-editor-v696 mb-3" id="masterAssignEditorV696">
+                        <input type="hidden" id="masterAssignIdV696"><div class="d-flex justify-content-between align-items-center mb-2"><strong id="masterAssignModeV696">Thêm phân công</strong><button class="btn btn-sm btn-outline-secondary" type="button" onclick="clearMasterAssignmentV696()">Nhập mới</button></div>
+                        <div class="row g-2 align-items-start">
+                          <div class="col-md-3"><label class="form-label small fw-bold">Giáo viên *</label><select id="masterAssignTeacherV696" class="form-select"><option value="">-- Chọn giáo viên --</option></select></div>
+                          <div class="col-md-3"><label class="form-label small fw-bold">Môn *</label><input id="masterAssignSubjectV696" list="masterSubjectListV696" class="form-control"></div>
+                          <div class="col-md-2"><label class="form-label small fw-bold">Trạng thái</label><select id="masterAssignStatusV696" class="form-select"><option>Đang dùng</option><option>Ngừng</option></select></div>
+                          <div class="col-md-4"><label class="form-label small fw-bold">Ghi chú</label><input id="masterAssignNoteV696" class="form-control"></div>
+                          <div class="col-md-9"><label class="form-label small fw-bold">Danh sách lớp * <span class="text-muted fw-normal">(Ctrl/⌘ để chọn nhiều)</span></label><select id="masterAssignClassesV696" class="form-select" multiple size="7"></select></div>
+                          <div class="col-md-3 d-flex align-items-end h-100"><button class="btn btn-primary w-100 fw-bold mt-md-4" type="button" onclick="saveMasterAssignmentV696()">Lưu phân công</button></div>
+                        </div>
+                      </div>
+                      <input id="masterAssignSearchV696" class="form-control mb-2" style="max-width:520px" placeholder="Tìm giáo viên, môn, lớp..." oninput="renderMasterAssignmentsV696()">
+                      <div class="table-responsive master-table-wrap-v696"><table class="table table-sm table-hover align-middle mb-0"><thead class="table-light"><tr><th>Giáo viên</th><th>Môn</th><th>Lớp</th><th>Trạng thái</th><th>Ghi chú</th><th></th></tr></thead><tbody id="masterAssignBodyV696"><tr><td colspan="6" class="text-center text-muted py-4">Chưa tải dữ liệu.</td></tr></tbody></table></div>
+                    </div>
+
+                    <div class="tab-pane fade" id="master-gvcn-v696">
+                      <div class="master-editor-v696 mb-3"><input type="hidden" id="masterGvcnIdV696"><div class="d-flex justify-content-between align-items-center mb-2"><strong id="masterGvcnModeV696">Phân công GVCN</strong><button class="btn btn-sm btn-outline-secondary" type="button" onclick="clearMasterGvcnV696()">Nhập mới</button></div><div class="row g-2 align-items-end"><div class="col-md-5"><label class="form-label small fw-bold">Giáo viên *</label><select id="masterGvcnTeacherV696" class="form-select"><option value="">-- Chọn giáo viên --</option></select></div><div class="col-md-4"><label class="form-label small fw-bold">Lớp chủ nhiệm *</label><select id="masterGvcnClassV696" class="form-select"><option value="">-- Chọn lớp --</option></select></div><div class="col-md-3"><button class="btn btn-primary w-100 fw-bold" type="button" onclick="saveMasterGvcnV696()">Lưu GVCN</button></div></div></div>
+                      <input id="masterGvcnSearchV696" class="form-control mb-2" style="max-width:520px" placeholder="Tìm lớp hoặc GVCN..." oninput="renderMasterGvcnV696()">
+                      <div class="table-responsive master-table-wrap-v696"><table class="table table-sm table-hover align-middle mb-0"><thead class="table-light"><tr><th>Lớp</th><th>GVCN</th><th></th></tr></thead><tbody id="masterGvcnBodyV696"><tr><td colspan="3" class="text-center text-muted py-4">Chưa tải dữ liệu.</td></tr></tbody></table></div>
+                    </div>
+
+                    <div class="tab-pane fade" id="master-team-v696">
+                      <div class="alert alert-info small py-2"><b>Lưu ý:</b> bảng này là nguồn cấp quyền <b>TTCM tự động</b>. Chỉ thêm Tổ trưởng/Tổ phó hoặc người được phép sử dụng chức năng TTCM; không nhập toàn bộ giáo viên của tổ.</div>
+                      <div class="master-editor-v696 mb-3"><input type="hidden" id="masterTeamIdV696"><div class="d-flex justify-content-between align-items-center mb-2"><strong id="masterTeamModeV696">Thêm tổ/TTCM</strong><button class="btn btn-sm btn-outline-secondary" type="button" onclick="clearMasterTeamV696()">Nhập mới</button></div><div class="row g-2 align-items-end"><div class="col-md-4"><label class="form-label small fw-bold">Giáo viên *</label><select id="masterTeamTeacherV696" class="form-select"><option value="">-- Chọn giáo viên --</option></select></div><div class="col-md-3"><label class="form-label small fw-bold">Môn/Tổ *</label><input id="masterTeamSubjectV696" list="masterSubjectListV696" class="form-control"></div><div class="col-md-3"><label class="form-label small fw-bold">Chức vụ</label><select id="masterTeamTitleV696" class="form-select"><option>Tổ trưởng</option><option>Tổ phó</option><option>Phụ trách tổ</option></select></div><div class="col-md-2"><button class="btn btn-primary w-100 fw-bold" type="button" onclick="saveMasterTeamV696()">Lưu</button></div></div></div>
+                      <input id="masterTeamSearchV696" class="form-control mb-2" style="max-width:520px" placeholder="Tìm môn, tổ trưởng, tài khoản..." oninput="renderMasterTeamsV696()">
+                      <div class="table-responsive master-table-wrap-v696"><table class="table table-sm table-hover align-middle mb-0"><thead class="table-light"><tr><th>Môn/Tổ</th><th>Người phụ trách</th><th>Chức vụ</th><th></th></tr></thead><tbody id="masterTeamBodyV696"><tr><td colspan="4" class="text-center text-muted py-4">Chưa tải dữ liệu.</td></tr></tbody></table></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <!-- V69.5.5.2: RESET KHBD AN TOÀN - CHỈ ADMIN -->
               <div class="tab-pane fade" id="pills-khbd-reset-v69552" role="tabpanel" aria-labelledby="admin-khbd-reset-tab">
                 <div class="mx-auto" style="max-width:1100px;">
@@ -1741,10 +1874,101 @@
                 <div class="table-responsive"><table class="table table-bordered table-sm align-middle"><thead class="table-dark"><tr><th>Thời gian</th><th>GV</th><th>Lớp/Tuần/Tiết</th><th>Lý do</th><th>Trạng thái</th><th>Xử lý</th></tr></thead><tbody id="editRequestsBodyV4"></tbody></table></div>
               </div>
 
+              <div class="tab-pane fade" id="pills-school-year-v700" role="tabpanel" aria-labelledby="admin-school-year-tab-v700">
+                <div class="school-year-admin-v700">
+                  <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
+                    <div><h5 class="fw-bold text-primary mb-1">V70 — Vòng đời năm học</h5><div class="small text-muted">Đóng năm → archive chỉ đọc → tạo năm mới → chuyển dữ liệu gốc có kiểm soát. Không mang KHBD/SĐB cũ sang năm mới.</div></div>
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="loadSchoolYearLifecycleV700(true)">Làm mới</button>
+                  </div>
+                  <div class="alert alert-warning border py-2"><b>Nguyên tắc V70:</b> Giáo viên, tài khoản, chữ ký và phân quyền là hồ sơ toàn cục nên được giữ. Sổ đầu bài/điều hành/điểm danh cũ giữ nguyên theo <code>nam_hoc</code> và bị khóa ghi ở tầng database sau khi archive. KHBD luôn snapshot rồi làm trống cho năm mới.</div>
+                  <div class="row g-2 mb-3">
+                    <div class="col-md-3"><div class="border rounded p-3 bg-light"><div class="small text-muted">Năm hiện hành</div><div id="schoolYearCurrentV700" class="fs-4 fw-bold text-primary">—</div></div></div>
+                    <div class="col-md-3"><div class="border rounded p-3 bg-light"><div class="small text-muted">Bắt đầu Tuần 1</div><div id="schoolYearWeek1V700" class="fs-5 fw-bold">—</div></div></div>
+                    <div class="col-md-6"><div class="border rounded p-3 h-100"><div class="small text-muted">Trạng thái</div><div id="schoolYearLifecycleStatusV700" class="fw-semibold">Chọn tab để tải.</div></div></div>
+                  </div>
+
+                  <div class="card mb-3 border-primary-subtle">
+                    <div class="card-header bg-primary-subtle d-flex justify-content-between align-items-center"><strong>1. Kiểm tra trước khi đóng năm</strong><button type="button" class="btn btn-sm btn-outline-primary" onclick="preflightSchoolYearV700()">Chạy Preflight</button></div>
+                    <div class="card-body">
+                      <div id="schoolYearPreflightSummaryV700" class="row g-2 mb-3"></div>
+                      <div id="schoolYearPreflightListV700"></div>
+                      <div id="schoolYearPreflightStatusV700" class="small text-muted">Chưa kiểm tra.</div>
+                    </div>
+                  </div>
+
+                  <div class="card mb-3 border-danger-subtle">
+                    <div class="card-header bg-danger-subtle"><strong>2. Đóng năm và tạo năm học mới</strong></div>
+                    <div class="card-body">
+                      <div class="row g-3 align-items-end">
+                        <div class="col-md-3"><label class="form-label small fw-bold">Năm học mới</label><input id="schoolYearNextV700" class="form-control" placeholder="2027-2028"></div>
+                        <div class="col-md-3"><label class="form-label small fw-bold">Ngày bắt đầu Tuần 1</label><input id="schoolYearNextWeek1V700" type="date" class="form-control"></div>
+                        <div class="col-md-6"><label class="form-label small fw-bold">Xác nhận năm hiện hành</label><input id="schoolYearConfirmV700" class="form-control" autocomplete="off"><div class="form-text">Phải nhập đúng năm hiện hành để tránh đóng năm nhầm.</div></div>
+                      </div>
+                      <div class="row g-2 mt-2">
+                        <div class="col-md-3"><div class="form-check border rounded p-3 ps-5 h-100"><input class="form-check-input" type="checkbox" id="copyTeachersV700" checked disabled><label class="form-check-label fw-semibold" for="copyTeachersV700">Giữ GV/tài khoản/chữ ký</label><div class="small text-muted">Hồ sơ toàn cục, luôn giữ.</div></div></div>
+                        <div class="col-md-3"><div class="form-check border rounded p-3 ps-5 h-100"><input class="form-check-input" type="checkbox" id="copyClassesV700" checked><label class="form-check-label fw-semibold" for="copyClassesV700">Chuyển danh mục lớp</label><div class="small text-muted">Giữ cấu trúc tên lớp để chỉnh tiếp.</div></div></div>
+                        <div class="col-md-3"><div class="form-check border rounded p-3 ps-5 h-100"><input class="form-check-input" type="checkbox" id="copyAssignmentsV700"><label class="form-check-label fw-semibold" for="copyAssignmentsV700">Chuyển phân công dạy</label><div class="small text-muted">Mặc định tắt vì thường thay đổi theo năm.</div></div></div>
+                        <div class="col-md-3"><div class="form-check border rounded p-3 ps-5 h-100"><input class="form-check-input" type="checkbox" id="copyGvcnV700"><label class="form-check-label fw-semibold" for="copyGvcnV700">Chuyển GVCN</label><div class="small text-muted">Mặc định tắt để phân công lại.</div></div></div>
+                        <div class="col-md-3"><div class="form-check border rounded p-3 ps-5 h-100"><input class="form-check-input" type="checkbox" id="copyTeamsV700" checked><label class="form-check-label fw-semibold" for="copyTeamsV700">Chuyển tổ chuyên môn</label><div class="small text-muted">Có thể bỏ chọn nếu thay đổi tổ.</div></div></div>
+                        <div class="col-md-9"><div class="alert alert-light border mb-0 h-100"><b>Không chuyển:</b> KHBD, lựa chọn KHBD, SĐB, chốt/duyệt tuần, hồ sơ điều hành và danh sách nhóm của năm cũ. Các dữ liệu có <code>nam_hoc</code> vẫn được giữ nguyên để tra cứu archive.</div></div>
+                      </div>
+                      <div class="text-end mt-3"><button id="btnTransitionSchoolYearV700" type="button" class="btn btn-danger fw-bold px-4" disabled onclick="transitionSchoolYearV700()">Đóng năm & tạo năm mới</button></div>
+                    </div>
+                  </div>
+
+                  <div class="card mb-3">
+                    <div class="card-header"><strong>3. Kho lưu trữ năm học — chỉ đọc</strong></div>
+                    <div class="card-body">
+                      <div class="row g-2 align-items-end mb-3">
+                        <div class="col-md-3"><label class="form-label small fw-bold">Năm học</label><select id="archiveYearSelectV700" class="form-select"><option value="">-- Chọn năm đã archive --</option></select></div>
+                        <div class="col-md-3"><label class="form-label small fw-bold">Lớp</label><select id="archiveClassV700" class="form-select"><option value="">Tất cả lớp</option></select></div>
+                        <div class="col-md-2"><label class="form-label small fw-bold">Tuần</label><select id="archiveWeekV700" class="form-select"><option value="0">Tất cả</option><option value="1">Tuần 1</option><option value="2">Tuần 2</option><option value="3">Tuần 3</option><option value="4">Tuần 4</option><option value="5">Tuần 5</option><option value="6">Tuần 6</option><option value="7">Tuần 7</option><option value="8">Tuần 8</option><option value="9">Tuần 9</option><option value="10">Tuần 10</option><option value="11">Tuần 11</option><option value="12">Tuần 12</option><option value="13">Tuần 13</option><option value="14">Tuần 14</option><option value="15">Tuần 15</option><option value="16">Tuần 16</option><option value="17">Tuần 17</option><option value="18">Tuần 18</option><option value="19">Tuần 19</option><option value="20">Tuần 20</option><option value="21">Tuần 21</option><option value="22">Tuần 22</option><option value="23">Tuần 23</option><option value="24">Tuần 24</option><option value="25">Tuần 25</option><option value="26">Tuần 26</option><option value="27">Tuần 27</option><option value="28">Tuần 28</option><option value="29">Tuần 29</option><option value="30">Tuần 30</option><option value="31">Tuần 31</option><option value="32">Tuần 32</option><option value="33">Tuần 33</option><option value="34">Tuần 34</option><option value="35">Tuần 35</option><option value="36">Tuần 36</option><option value="37">Tuần 37</option><option value="38">Tuần 38</option><option value="39">Tuần 39</option><option value="40">Tuần 40</option><option value="41">Tuần 41</option><option value="42">Tuần 42</option><option value="43">Tuần 43</option><option value="44">Tuần 44</option><option value="45">Tuần 45</option><option value="46">Tuần 46</option><option value="47">Tuần 47</option><option value="48">Tuần 48</option><option value="49">Tuần 49</option><option value="50">Tuần 50</option><option value="51">Tuần 51</option><option value="52">Tuần 52</option><option value="53">Tuần 53</option></select></div>
+                        <div class="col-md-2 d-grid"><button class="btn btn-dark" type="button" onclick="loadArchiveSchoolYearV700()">Xem lưu trữ</button></div>
+                        <div class="col-md-2"><div class="small text-muted">Tối đa 500 dòng/lần.</div></div>
+                      </div>
+                      <div id="archiveStatusV700" class="small text-muted mb-2">Chưa chọn năm lưu trữ.</div>
+                      <div class="table-responsive border rounded" style="max-height:430px;overflow:auto"><table class="table table-sm table-bordered align-middle mb-0"><thead class="table-light sticky-top"><tr><th>Lớp</th><th>Tuần</th><th>Ngày</th><th>Tiết</th><th>Môn</th><th>PPCT</th><th>Bài dạy</th><th>Giáo viên</th><th>Nhận xét</th></tr></thead><tbody id="archiveRowsBodyV700"><tr><td colspan="9" class="text-center text-muted py-3">Chưa tải dữ liệu.</td></tr></tbody></table></div>
+                    </div>
+                  </div>
+
+                  <div class="card">
+                    <div class="card-header"><strong>Lịch sử vòng đời năm học</strong></div>
+                    <div class="table-responsive"><table class="table table-sm table-hover align-middle mb-0"><thead class="table-light"><tr><th>Năm học</th><th>Trạng thái</th><th>Tuần 1</th><th>Sao chép từ</th><th>Đóng lúc</th><th>Người đóng</th><th>Ghi chú</th></tr></thead><tbody id="schoolYearHistoryBodyV700"><tr><td colspan="7" class="text-center text-muted py-3">Chưa tải.</td></tr></tbody></table></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tab-pane fade" id="pills-governance-v699" role="tabpanel" aria-labelledby="admin-governance-tab-v699">
+                <div class="governance-admin-v699">
+                  <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
+                    <div><h5 class="fw-bold text-primary mb-1">Trung tâm quản trị dữ liệu V69.9</h5><div class="small text-muted">Phát hiện dữ liệu gốc thiếu/trùng/sai liên kết và tra lịch sử thay đổi từ Audit Log. Không tự sửa dữ liệu để tránh thay đổi ngoài ý muốn.</div></div>
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="loadDataGovernanceV699(true)">Rà soát lại</button>
+                  </div>
+                  <div id="governanceSummaryV699" class="row g-2 mb-3"></div>
+                  <div id="governanceStatusV699" class="small text-muted mb-2">Chọn tab Quản trị dữ liệu để rà soát.</div>
+                  <div class="table-responsive border rounded mb-4" style="max-height:420px;overflow:auto">
+                    <table class="table table-sm table-hover align-middle mb-0"><thead class="table-light sticky-top"><tr><th>Mức</th><th>Nhóm</th><th>Vấn đề</th><th>Chi tiết</th><th>Thao tác</th></tr></thead><tbody id="governanceIssueBodyV699"><tr><td colspan="5" class="text-center text-muted py-4">Chưa rà soát dữ liệu.</td></tr></tbody></table>
+                  </div>
+                  <div class="card border-secondary-subtle">
+                    <div class="card-header bg-light"><strong>Lịch sử thay đổi / Audit chi tiết</strong></div>
+                    <div class="card-body">
+                      <div class="row g-2 align-items-end mb-3">
+                        <div class="col-md-4"><label class="form-label small fw-bold">Record ID / đối tượng</label><input id="governanceHistoryRecordV699" class="form-control" placeholder="VD: Record ID tiết học"></div>
+                        <div class="col-md-3"><label class="form-label small fw-bold">Tài khoản thao tác</label><input id="governanceHistoryAccountV699" class="form-control" placeholder="SĐT/tài khoản"></div>
+                        <div class="col-md-3"><label class="form-label small fw-bold">Hành động</label><input id="governanceHistoryActionV699" class="form-control" placeholder="VD: EDIT_SODB_APPROVED"></div>
+                        <div class="col-md-2 d-grid"><button class="btn btn-dark" type="button" onclick="loadGovernanceHistoryV699()">Tra lịch sử</button></div>
+                      </div>
+                      <div id="governanceHistoryStatusV699" class="small text-muted mb-2"></div>
+                      <div class="table-responsive" style="max-height:420px;overflow:auto"><table class="table table-sm table-bordered align-middle mb-0"><thead class="table-light sticky-top"><tr><th>Thời gian</th><th>Người thao tác</th><th>Hành động</th><th>Đối tượng</th><th>Trước → Sau</th><th>Lý do</th></tr></thead><tbody id="governanceHistoryBodyV699"><tr><td colspan="6" class="text-center text-muted py-4">Chưa tải lịch sử.</td></tr></tbody></table></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div class="tab-pane fade" id="pills-account-permission-v69553" role="tabpanel" aria-labelledby="admin-account-permission-tab-v69553">
                 <div class="permission-admin-v69553">
                   <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
-                    <div><h6 class="fw-bold mb-1 text-primary">Phân quyền tài khoản</h6><div class="small text-muted">Tải quyền thực tế từ Supabase và chỉnh trực tiếp trên web. Lưu quyền sẽ thu hồi các phiên đăng nhập cũ của tài khoản để quyền mới có hiệu lực ngay.</div></div>
+                    <div><h6 class="fw-bold mb-1 text-primary">Phân quyền tài khoản</h6><div class="small text-muted">Tải quyền thực tế từ Supabase, theo dõi trạng thái khóa đăng nhập và chỉnh trực tiếp trên web. Lưu quyền sẽ thu hồi các phiên đăng nhập cũ của tài khoản để quyền mới có hiệu lực ngay.</div></div>
                     <button type="button" class="btn btn-outline-primary btn-sm" onclick="taiPhanQuyenTaiKhoanV69553(true)">Làm mới</button>
                   </div>
                   <div class="row g-2 align-items-center mb-3">
@@ -1754,8 +1978,8 @@
                   <div class="alert alert-light border small py-2 mb-3"><b>Nguồn tự động</b>: quyền suy ra từ Giáo viên/GVCN/Tổ chuyên môn/chức vụ. <b>Tùy chỉnh</b>: quyền được ghi tại bảng <code>phan_quyen</code>. Nút <b>Khôi phục tự động</b> sẽ xóa bản ghi tùy chỉnh và quay về quyền theo dữ liệu gốc.</div>
                   <div class="table-responsive permission-table-wrap-v69553">
                     <table class="table table-sm table-hover align-middle mb-0 permission-table-v69553">
-                      <thead class="table-light"><tr><th>Tài khoản</th><th>Họ tên</th><th>Chức vụ / Môn</th><th class="text-center">GVBM</th><th class="text-center">GVCN</th><th class="text-center">TTCM</th><th class="text-center">Giám thị</th><th class="text-center">BGH</th><th class="text-center">Admin</th><th class="text-center">Kích hoạt</th><th>Nguồn</th><th>Thao tác</th></tr></thead>
-                      <tbody id="permissionAccountBodyV69553"><tr><td colspan="12" class="text-center text-muted py-4">Chọn tab Phân quyền để tải dữ liệu.</td></tr></tbody>
+                      <thead class="table-light"><tr><th>Tài khoản</th><th>Họ tên</th><th>Chức vụ / Môn</th><th class="text-center">GVBM</th><th class="text-center">GVCN</th><th class="text-center">TTCM</th><th class="text-center">Giám thị</th><th class="text-center">BGH</th><th class="text-center">Admin</th><th class="text-center">Kích hoạt</th><th>Đăng nhập</th><th>Nguồn</th><th>Thao tác</th></tr></thead>
+                      <tbody id="permissionAccountBodyV69553"><tr><td colspan="13" class="text-center text-muted py-4">Chọn tab Phân quyền để tải dữ liệu.</td></tr></tbody>
                     </table>
                   </div>
                 </div>
@@ -1772,12 +1996,12 @@
                   <button class="btn btn-dark" type="button" onclick="taiNhatKyAdminV4()">Làm mới nhật ký</button>
                 </div>
                 <div class="row g-2 mb-3 p-3 border rounded bg-light">
-                  <div class="col-md-3"><label class="form-label small fw-bold">Năm học</label><input id="cfgSchoolYearV4" class="form-control" value="2026-2027"></div>
-                  <div class="col-md-3"><label class="form-label small fw-bold">Ngày bắt đầu Tuần 1</label><input id="cfgWeek1V4" type="date" class="form-control" value="2026-08-17"></div>
+                  <div class="col-md-3"><label class="form-label small fw-bold">Năm học</label><input id="cfgSchoolYearV4" class="form-control" value="2026-2027" readonly title="V70: thay đổi tại Năm học & lưu trữ"></div>
+                  <div class="col-md-3"><label class="form-label small fw-bold">Ngày bắt đầu Tuần 1</label><input id="cfgWeek1V4" type="date" class="form-control" value="2026-08-17" readonly title="V70: thay đổi tại Năm học & lưu trữ"></div>
                   <div class="col-md-3"><label class="form-label small fw-bold">TKB bắt buộc khớp</label><select id="cfgTkbStrictV4" class="form-select"><option value="FALSE">Không</option><option value="TRUE">Có</option></select></div>
                   <div class="col-md-3 d-flex align-items-end"><button type="button" class="btn btn-success w-100" onclick="luuCauHinhUiV4()">Lưu cấu hình</button></div>
                 </div>
-                <div class="alert alert-info border py-2 mb-2"><b>V64:</b> giảm số vòng RPC. <b>Đăng nhập + bootstrap + Dashboard đầu tiên</b> được gộp trong một phản hồi; Dashboard sau đó vẫn dùng cache/Supabase. Hãy bấm <b>Làm nóng cache</b> một lần sau khi Deploy V64.</div>
+                <div class="alert alert-info border py-2 mb-2"><b>V70:</b> Năm học/Tuần 1 chỉ thay đổi tại <b>Năm học & lưu trữ</b>. <b>V69.9:</b> đăng nhập chỉ xác thực + bootstrap; <b>không dựng Dashboard trong login</b>. Dashboard chỉ tải khi mở tab và được lọc theo scope ngay tại PostgreSQL để giảm tải khi nhiều tài khoản truy cập đồng thời.</div>
                 <div id="systemStatusV4" class="alert alert-light border">Hệ thống tự động sao lưu hằng ngày sau khi chạy khởi tạo.</div>
                 <div class="card border-primary-subtle mb-3" id="specialPermissionCardV69">
                   <div class="card-header bg-primary-subtle d-flex justify-content-between align-items-center">
@@ -1858,19 +2082,22 @@
 
 
 <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/sodb-v69-runtime.js?v=69.5.5.5"></script>
-<script src="assets/js/app/sodb-v69-core.js?v=69.5.5.5"></script>
-<script src="assets/js/app/sodb-v69-khbd.js?v=69.5.5.5"></script>
-<script src="assets/js/app/sodb-v69-operations.js?v=69.5.5.5"></script>
-<script src="assets/js/app/sodb-v69-print.js?v=69.5.5.5"></script>
-<script src="assets/js/app/sodb-v69-admin.js?v=69.5.5.5"></script>
-<script src="assets/js/app/sodb-v69-control.js?v=69.5.5.5"></script>
-<script src="assets/js/app/sodb-v69-v694.js?v=69.5.5.5"></script>
-<script src="assets/js/app/sodb-v69-v695.js?v=69.5.5.5"></script>
-<script src="assets/js/app/sodb-v69-v6951.js?v=69.5.5.5"></script>
-<script src="assets/js/app/sodb-v69-ux.js?v=69.5.5.5"></script>
-<script src="assets/js/sodb-v69-gvcn.js?v=69.5.5.5"></script>
-<script src="assets/js/sodb-v69-reports.js?v=69.5.5.5"></script>
+<script src="assets/js/sodb-v69-runtime.js?v=70.0.0"></script>
+<script src="assets/js/app/sodb-v69-core.js?v=70.0.0"></script>
+<script src="assets/js/app/sodb-v69-khbd.js?v=70.0.0"></script>
+<script src="assets/js/app/sodb-v69-operations.js?v=70.0.0"></script>
+<script src="assets/js/app/sodb-v69-print.js?v=70.0.0"></script>
+<script src="assets/js/app/sodb-v69-admin.js?v=70.0.0"></script>
+<script src="assets/js/app/sodb-v70-lifecycle.js?v=70.0.0"></script>
+<script src="assets/js/app/sodb-v69-bgh.js?v=70.0.0"></script>
+<script src="assets/js/app/sodb-v69-masterdata.js?v=70.0.0"></script>
+<script src="assets/js/app/sodb-v69-control.js?v=70.0.0"></script>
+<script src="assets/js/app/sodb-v69-v694.js?v=70.0.0"></script>
+<script src="assets/js/app/sodb-v69-v695.js?v=70.0.0"></script>
+<script src="assets/js/app/sodb-v69-v6951.js?v=70.0.0"></script>
+<script src="assets/js/app/sodb-v69-ux.js?v=70.0.0"></script>
+<script src="assets/js/sodb-v69-gvcn.js?v=70.0.0"></script>
+<script src="assets/js/sodb-v69-reports.js?v=70.0.0"></script>
 
 
 </body>

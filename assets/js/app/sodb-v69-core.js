@@ -472,7 +472,8 @@ let varDiemTB = 10;
     try{
       const edgeRes=await callSodbEdgeV66({action:'login',account,password});
       if(edgeRes&&edgeRes.success){
-        if(String(edgeRes.backendVersion||'')!=='V69_EDGE')throw new Error('Edge Function chưa đúng V69 ARCHITECTURE REBUILD.');
+        const edgeBackendVersion=String(edgeRes.backendVersion||'');
+        if(edgeBackendVersion!=='V70_EDGE')throw new Error('Edge Function không đồng bộ với frontend V70 (backend='+ (edgeBackendVersion||'không xác định') +').');
         handleLoginResponseV66(edgeRes,loginPerfStartedV66,'SUPABASE_EDGE',btn,txt);return;
       }
       // Sai tài khoản/mật khẩu hoặc bị khóa: không gọi fallback để tránh nhân đôi lần thử.
@@ -482,7 +483,7 @@ let varDiemTB = 10;
       btn.disabled=false;txt.textContent='Đăng nhập';
       const detail=(edgeErr&&edgeErr.message)?String(edgeErr.message):String(edgeErr||'Không rõ lỗi kết nối.');
       console.error('[V69 LOGIN] Supabase Edge không sẵn sàng:',edgeErr);
-      setCentralLoginStatusV4('Không thể xác thực an toàn qua Supabase Edge: '+detail+' V69 không dùng đăng nhập fallback qua Google Sheet để tránh lệch nguồn dữ liệu.','danger');
+      setCentralLoginStatusV4('Không thể xác thực an toàn qua Supabase Edge: '+detail+' Hệ thống không dùng đăng nhập fallback qua Google Sheet để tránh lệch nguồn dữ liệu.','danger');
     }
   }
 

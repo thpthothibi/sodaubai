@@ -369,52 +369,30 @@
     return currentUnifiedLoginV4&&currentUnifiedLoginV4.sessions?currentUnifiedLoginV4.sessions.BGH:null;
   }
   function applyBghApprovalV684(approval,chot){
-    const space=document.getElementById('printBGHSigSpace');
-    const name=document.getElementById('printBGHName');
-    const panel=document.getElementById('bghWeekApprovalV684');
-    const state=document.getElementById('bghApprovalStateV684');
-    const note=document.getElementById('bghApprovalNoteV684');
-    const meta=document.getElementById('bghApprovalMetaV684');
-    const hint=document.getElementById('bghApprovalHintV684');
-    const btn=document.getElementById('bghApproveBtnV684');
-    const hasApproval=!!(approval&&approval.success);
+    const space=document.getElementById('printBGHSigSpace'),name=document.getElementById('printBGHName'),panel=document.getElementById('bghWeekApprovalV684'),state=document.getElementById('bghApprovalStateV684'),note=document.getElementById('bghApprovalNoteV684'),meta=document.getElementById('bghApprovalMetaV684'),hint=document.getElementById('bghApprovalHintV684'),btn=document.getElementById('bghApproveBtnV684');
+    const priorApproval=!!(approval&&approval.success),stale=priorApproval&&!!approval.dataChanged,hasApproval=priorApproval&&!stale;
     if(space&&name){
       if(hasApproval){
-        const sigRaw=String(approval.chuKyBGH||approval.kySo||approval.signatureRef||'');
-        const sigUrl=normalizeSignatureUrlV67_1(sigRaw);
-        if(sigUrl){
-          space.innerHTML=`<img src="${escapeHtml(sigUrl)}" class="sig-bgh-print" alt="Chữ ký Hiệu trưởng" onerror="handleSignatureImageErrorV682(this)">`;
-        }else{
-          space.innerHTML='<span class="badge bg-primary" style="font-size:.55rem;">✓ Đã duyệt</span>';
-        }
+        const sigRaw=String(approval.chuKyBGH||approval.kySo||approval.signatureRef||''),sigUrl=normalizeSignatureUrlV67_1(sigRaw);
+        if(sigUrl)space.innerHTML=`<img src="${escapeHtml(sigUrl)}" class="sig-bgh-print" alt="Chữ ký Hiệu trưởng" onerror="handleSignatureImageErrorV682(this)">`;
+        else space.innerHTML='<span class="badge bg-primary" style="font-size:.55rem;">✓ Đã duyệt</span>';
         name.textContent=approval.tenBGH||'';
-      }else{
-        space.innerHTML='<span class="text-muted" style="font-size:.55rem;">Chưa duyệt</span>';
-        name.textContent='';
-      }
+      }else if(stale){
+        space.innerHTML='<span class="badge bg-danger" style="font-size:.55rem;">⚠ Cần duyệt lại</span>';name.textContent='';
+      }else{space.innerHTML='<span class="text-muted" style="font-size:.55rem;">Chưa duyệt</span>';name.textContent='';}
     }
-    const bgh=getBghSessionV684();
-    const mode=String(document.getElementById('viewBookMode')?.value||'LOP_CHINH');
-    const isGroup=mode==='CHUYEN_DE'||mode==='GDTC';
-    if(panel)panel.classList.toggle('d-none',!(bgh&&bgh.sessionToken));
-    if(!(bgh&&bgh.sessionToken))return;
-    if(note)note.value=hasApproval?(approval.ykien||''):'';
-    if(state){
-      state.textContent=hasApproval?'Đã duyệt':'Chưa duyệt';
-      state.className='badge '+(hasApproval?'bg-primary':'bg-secondary');
+    const bgh=getBghSessionV684(),mode=String(document.getElementById('viewBookMode')?.value||'LOP_CHINH'),isGroup=mode==='CHUYEN_DE'||mode==='GDTC';
+    if(panel)panel.classList.toggle('d-none',!(bgh&&bgh.sessionToken));if(!(bgh&&bgh.sessionToken))return;
+    if(note)note.value=priorApproval?(approval.ykien||''):'';
+    if(state){state.textContent=stale?'Dữ liệu đã thay đổi':hasApproval?'Đã duyệt':'Chưa duyệt';state.className='badge '+(stale?'bg-danger':hasApproval?'bg-primary':'bg-secondary');}
+    if(meta){
+      if(stale)meta.textContent=`Lần duyệt trước: ${approval.tenBGH||'BGH'}${approval.time?' · '+approval.time:''}. Dữ liệu thay đổi${approval.dataChangedAt?' lúc '+approval.dataChangedAt:''}; cần kiểm tra và duyệt lại.`;
+      else meta.textContent=hasApproval?`Đã duyệt bởi ${approval.tenBGH||'BGH'}${approval.time?' · '+approval.time:''}${approval.chucVu?' · '+approval.chucVu:''}`:'';
     }
-    if(meta)meta.textContent=hasApproval?`Đã duyệt bởi ${approval.tenBGH||'BGH'}${approval.time?' · '+approval.time:''}${approval.chucVu?' · '+approval.chucVu:''}`:'';
-    const gvcnClosed=!!(chot&&chot.success);
-    if(btn){
-      btn.disabled=!gvcnClosed;
-      btn.textContent=hasApproval?'Cập nhật duyệt & ký':'Duyệt & ký chốt';
-    }
-    if(hint){
-      hint.textContent=gvcnClosed
-        ? 'BGH có thể duyệt/cập nhật duyệt bất kỳ thời điểm nào; không áp dụng mốc 12h/18h hoặc giới hạn ngày.'
-        : (isGroup?'GV phụ trách nhóm chưa ký chốt tuần. BGH sẽ duyệt sau khi giáo viên hoàn tất ký chốt.':'GVCN chưa ký chốt tuần. BGH sẽ duyệt sau khi GVCN hoàn tất ký chốt.');
-    }
+    const gvcnClosed=!!(chot&&chot.success);if(btn){btn.disabled=!gvcnClosed;btn.textContent=stale?'Duyệt lại & ký':hasApproval?'Cập nhật duyệt & ký':'Duyệt & ký chốt';}
+    if(hint){hint.textContent=!gvcnClosed?(isGroup?'GV phụ trách nhóm chưa ký chốt tuần. BGH sẽ duyệt sau khi giáo viên hoàn tất ký chốt.':'GVCN chưa ký chốt tuần. BGH sẽ duyệt sau khi GVCN hoàn tất ký chốt.'):stale?'Dữ liệu của lớp/tuần đã thay đổi sau lần BGH duyệt. Chữ ký cũ không còn được coi là trạng thái duyệt hiện hành; hãy rà soát rồi duyệt lại.':'BGH có thể duyệt/cập nhật duyệt bất kỳ thời điểm nào; không áp dụng mốc 12h/18h hoặc giới hạn ngày.';}
   }
+
   async function guiDuyetTuanBGHV684(){
     const bgh=getBghSessionV684();
     if(!bgh?.sessionToken){showToastV9('Tài khoản hiện tại không có quyền BGH.','danger');return;}
@@ -433,7 +411,8 @@
       if(!r?.success)throw new Error(r?.message||'Không duyệt được tuần.');
       showToastV9(r.message||'Đã duyệt tuần.','success');
       [...sodbViewCacheV6.keys()].filter(k=>String(k).startsWith(lop+'|'+tuan+'|')).forEach(k=>sodbViewCacheV6.delete(k));
-      setTimeout(()=>traCuuSoDauBaiTuanGop(true),100);
+      if(typeof invalidateBghWorkflowCacheV701==='function')invalidateBghWorkflowCacheV701();
+      await traCuuSoDauBaiTuanGop(true);
     }catch(e){
       showToastV9(e&&e.message?e.message:String(e),'danger');
       if(btn){btn.disabled=false;btn.textContent=old;}
@@ -447,7 +426,7 @@
     const tbody=document.getElementById('sodbTableBody');
     if(!lop){
       showToastV9('Vui lòng chọn lớp cần xem.','danger');
-      return;
+      return Promise.resolve(null);
     }
     const titleEl=document.querySelector('#printPageSingle .so-title');
     if(titleEl)titleEl.textContent=tieuDeSoTheoLopV22(lop,bookMode);
@@ -568,7 +547,7 @@
 
     if(!forceRefreshV6&&cached&&Date.now()-cached.ts<SODB_VIEW_CACHE_MS_V6){
       renderPageV10(cached.res);
-      return;
+      return Promise.resolve(cached.res);
     }
 
     tbody.innerHTML=`
@@ -577,16 +556,20 @@
         <span class="text-muted">Đang tải sổ đầu bài...</span>
       </td></tr>`;
     const viewPerfStartedV63=performance.now();
-    google.script.run
-      .withSuccessHandler(function(payload){
-        console.info('[V66 PERF] Xem sổ tổng:',Math.round(performance.now()-viewPerfStartedV63)+'ms','server:',(payload&&payload.serverMs!==undefined?payload.serverMs:'—')+'ms',lop,'Tuần '+tuan,bookMode);
-        renderPageV10(payload);
-      })
-      .withFailureHandler(function(err){
-        tbody.innerHTML='<tr><td colspan="12" class="text-danger py-3 text-center">Không thể tải dữ liệu. Vui lòng thử lại.</td></tr>';
-        showToastV9('Không tải được sổ đầu bài: '+(err&&err.message?err.message:err),'danger');
-      })
-      .layTrangSoDauBaiV24(lop,tuan,bookMode,getAnyAuthV6());
+    return new Promise((resolve,reject)=>{
+      google.script.run
+        .withSuccessHandler(function(payload){
+          console.info('[V66 PERF] Xem sổ tổng:',Math.round(performance.now()-viewPerfStartedV63)+'ms','server:',(payload&&payload.serverMs!==undefined?payload.serverMs:'—')+'ms',lop,'Tuần '+tuan,bookMode);
+          renderPageV10(payload);
+          resolve(payload);
+        })
+        .withFailureHandler(function(err){
+          tbody.innerHTML='<tr><td colspan="12" class="text-danger py-3 text-center">Không thể tải dữ liệu. Vui lòng thử lại.</td></tr>';
+          showToastV9('Không tải được sổ đầu bài: '+(err&&err.message?err.message:err),'danger');
+          reject(err);
+        })
+        .layTrangSoDauBaiV24(lop,tuan,bookMode,getAnyAuthV6());
+    });
   }
 
   /* HÀM CẬP NHẬT TUẦN, THỨ VÀ KIỂM TRA CHẶN NHẬP NGÀY TƯƠNG LAI */
@@ -728,6 +711,8 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
     return;
   }
 
+  if(typeof validateAttendanceBeforeSaveV7013==='function' && !validateAttendanceBeforeSaveV7013()) return;
+
   let lesson1 = getSelectedLessonData();
   if (!lesson1 || !lesson1.tenBaiDay) {
     showToastV9('Vui lòng chọn hoặc nhập nội dung bài dạy.','danger');
@@ -777,6 +762,8 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
     xepLoai: varXepLoai,
     hsVang: document.getElementById('hsVang').value,
     tenHSVang: document.getElementById('tenHSVang').value,
+    attendanceComplete: (typeof isAttendanceCompleteV701==='function'?isAttendanceCompleteV701():Number(document.getElementById('hsVang')?.value||0)===0),
+    absentStudentIds: (typeof getMainAbsentStudentIdsV701==='function'?getMainAbsentStudentIdsV701():[]),
     groupAbsentStudentIds: (typeof getGroupAbsentStudentIdsV6951==='function'?getGroupAbsentStudentIdsV6951():[]),
     tenGV: document.getElementById('tenGV').value,
     cccd: document.getElementById('cccd').value,
@@ -809,6 +796,7 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
         showSaveSuccessV54(savedText);
         showToastV9(savedText,'success');
         overviewStateV20.loadedAt=0;
+        if(typeof invalidateBghWorkflowCacheV701==='function')invalidateBghWorkflowCacheV701();
         lastSavedRecordV4 = {recordId:res.recordId, lop:formData.lop, tuan:formData.tuanHoc, ngay:formData.ngayDay, buoi:formData.buoiDay, tiet:formData.tietDay};
         let reqBtn=document.getElementById('btnRequestEditV4'); if(reqBtn) reqBtn.classList.remove('d-none');
         if(wasEditingV4) {

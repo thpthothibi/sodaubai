@@ -466,6 +466,7 @@
   }
   function changeOverviewRoleV20(){
     document.getElementById('overviewClassV20').innerHTML='';
+    if(typeof syncAlertVisibilityV69553==='function')syncAlertVisibilityV69553();
     refreshDashboardV9(true);
   }
   function overviewActionV20(tab){
@@ -499,6 +500,7 @@
   function refreshDashboardV9(force){
     if(!setupOverviewV20())return;
     const role=document.getElementById('overviewRoleV20').value;
+    if(typeof syncAlertVisibilityV69553==='function')syncAlertVisibilityV69553();
     const session=currentUnifiedLoginV4.sessions[role];
     const classSelect=document.getElementById('overviewClassV20');
     const titles={BGH:'Dashboard Ban Giám hiệu',GIAM_THI:'Dashboard Giám thị',GVBM:'Dashboard Giáo viên',GVCN:'Dashboard Giáo viên chủ nhiệm',TTCM:'Dashboard Tổ chuyên môn',ADMIN:'Dashboard Quản trị'};

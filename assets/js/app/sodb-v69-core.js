@@ -17,6 +17,8 @@ let varDiemTB = 10;
   let lastSavedRecordV4 = null;
   let editingRecordIdV4 = null;
   let currentUnifiedLoginV4 = null;
+  // V69.5.5.5: chỉ coi quyền là đáng tin sau khi backend xác thực phiên hoặc login trực tiếp thành công.
+  window.sodbUnifiedSessionValidatedV69555 = false;
   const sodbViewCacheV6 = new Map();
   const SODB_VIEW_CACHE_MS_V6 = 180000; // 3 phút trên trình duyệt
   let bootstrapLoadedV6 = false;
@@ -454,6 +456,7 @@ let varDiemTB = 10;
     btn.disabled=false;txt.textContent='Đăng nhập';
     if(!res||!res.success){setCentralLoginStatusV4(res&&res.message?res.message:'Không đăng nhập được.','danger');return;}
     document.getElementById('centralPasswordV4').value='';
+    window.sodbUnifiedSessionValidatedV69555 = true;
     console.info('[V69 PERF] Login tổng:',Math.round(performance.now()-loginStarted)+'ms','server:',(res.serverMs??'—')+'ms','path:',res.loginPath||source,'dashboard gộp:',(res.dashboardBundledMs??'—')+'ms','backend:',res.backendVersion||source,'source:',source);
     apDungPhanQuyenV4(res,true);
   }
@@ -971,6 +974,7 @@ let varDiemTB = 10;
 
     if(isAdmin){adminDangNhapInfo=sessions.ADMIN;document.getElementById('adminAuthBox')?.classList.add('d-none');document.getElementById('adminMainContent')?.classList.remove('d-none');setTimeout(()=>{if(typeof focusAdminContentTopV69553==='function'&&document.getElementById('tabAdmin')?.classList.contains('active'))focusAdminContentTopV69553();},120);}
     configureTeacherKhbdV67();
+    if(typeof syncAlertVisibilityV69553==='function')syncAlertVisibilityV69553();
 
     moTabMacDinhV33(res);
 
@@ -1029,7 +1033,8 @@ let varDiemTB = 10;
     if(!raw){document.body.classList.add('auth-locked-v4');return;}
     let saved;try{saved=JSON.parse(raw);}catch(e){try{sessionStorage.removeItem('SODB_V4_UNIFIED_LOGIN');}catch(_){};document.body.classList.add('auth-locked-v4');return;}
 
-    // V6: khôi phục giao diện ngay từ sessionStorage; mọi API nhạy cảm vẫn kiểm token ở backend.
+    // V69.5.5.5: vẫn khôi phục giao diện nhanh nhưng tuyệt đối chưa mở cảnh báo trước khi backend xác thực role.
+    window.sodbUnifiedSessionValidatedV69555 = false;
     if(saved&&saved.roles&&saved.roles.length)apDungPhanQuyenV4(saved,false);
     const tokenMap=tokenMapFromLoginV4(saved);
     google.script.run.withSuccessHandler(function(check){
@@ -1037,19 +1042,22 @@ let varDiemTB = 10;
       const valid=new Set(check.roles||[]);saved.roles=(saved.roles||[]).filter(r=>valid.has(r));Object.keys(saved.sessions||{}).forEach(r=>{if(!valid.has(r))delete saved.sessions[r];});
       if(!saved.roles.length){resetLogoutUiV6();return;}
       currentUnifiedLoginV4=saved;
+      window.sodbUnifiedSessionValidatedV69555 = true;
+      // Ghi đè snapshot cũ bằng role đã được backend xác thực để lần mở sau không còn role stale.
+      try{sessionStorage.setItem('SODB_V4_UNIFIED_LOGIN',JSON.stringify(saved));}catch(_e){}
       // V49: áp lại giao diện sau khi backend loại các role vừa bị tắt trong PHÂN QUYỀN.
       apDungPhanQuyenV4(saved,false);
       // V69: signed URL chữ ký là ngắn hạn; luôn refresh bootstrap sau khi xác thực lại phiên.
       bootstrapLoadedV6=false;
       taiBootstrapV6(true);
-    }).withFailureHandler(function(){/* Giữ UI; backend sẽ tự chặn nếu token thực sự hết hạn. */}).xacThucPhienHeThongV4(tokenMap);
+    }).withFailureHandler(function(){window.sodbUnifiedSessionValidatedV69555=false;if(typeof syncAlertVisibilityV69553==='function')syncAlertVisibilityV69553();/* Giữ UI cơ bản; backend vẫn chặn API nhạy cảm. */}).xacThucPhienHeThongV4(tokenMap);
   }
 
 
   function resetLogoutUiV6(){
     resetOverviewV20();
     inputLessonLoadedV7=false; adminSubjectsLoadedV7=false; bootstrapLoadedV6=false; bootstrapPendingV47=false;
-    currentUnifiedLoginV4=null;gvbmDangNhapInfo=null;gvcnDangNhapInfo=null;giamThiDangNhapInfo=null;ttcmDangNhapInfo=null;adminDangNhapInfo=null;
+    currentUnifiedLoginV4=null;window.sodbUnifiedSessionValidatedV69555=false;gvbmDangNhapInfo=null;gvcnDangNhapInfo=null;giamThiDangNhapInfo=null;ttcmDangNhapInfo=null;adminDangNhapInfo=null;
     document.getElementById('appShellV4').classList.add('d-none');document.getElementById('loginScreenV4').classList.remove('d-none');document.body.classList.add('auth-locked-v4');
     const a=document.getElementById('centralAccountV4');if(a)setTimeout(()=>a.focus(),30);
   }

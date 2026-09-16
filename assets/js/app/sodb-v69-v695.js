@@ -1,11 +1,14 @@
 /* ========================================================================
-   SODB V69.5.5.3 - CẢNH BÁO TỰ ĐỘNG CHỈ BGH/ADMIN
+   SODB V69.5.5.5 - CẢNH BÁO BGH/ADMIN, CHỐNG FLASH ROLE STALE
    ======================================================================== */
 let automaticAlertsV695=null;
 let automaticAlertsLoadedAtV695=0;
 
 function alertRolesV695(){return currentUnifiedLoginV4&&Array.isArray(currentUnifiedLoginV4.roles)?currentUnifiedLoginV4.roles:[];}
-function alertAllowedV695(){return alertRolesV695().some(r=>['BGH','ADMIN'].includes(r));}
+function alertSessionTrustedV69555(){return window.sodbUnifiedSessionValidatedV69555===true;}
+function alertAllowedV695(){return alertSessionTrustedV69555()&&alertRolesV695().some(r=>['BGH','ADMIN'].includes(r));}
+function alertDashboardRoleV69555(){return String(document.getElementById('overviewRoleV20')?.value||'').trim().toUpperCase();}
+function alertDashboardAllowedV69555(){return alertAllowedV695()&&['BGH','ADMIN'].includes(alertDashboardRoleV69555());}
 function alertAuthV695(){
   const s=currentUnifiedLoginV4&&currentUnifiedLoginV4.sessions||{};
   const x=s.ADMIN||s.BGH||null;
@@ -19,11 +22,11 @@ function alertDashboardDateV695(){return document.getElementById('overviewDateV2
 function loadAutomaticAlertsV695(force=false){
   if(typeof syncAlertVisibilityV69553==='function')syncAlertVisibilityV69553();
   const dash=document.getElementById('overviewAlertsV695'),center=document.getElementById('alertCenterListV695');
-  if(!alertAllowedV695()){if(dash)dash.classList.add('d-none');return;}
+  if(!alertAllowedV695()){clearAutomaticAlertsUiV69555(true);return;}
   const auth=alertAuthV695();if(!auth.token)return;
   const date=alertDashboardDateV695(),fresh=automaticAlertsV695&&automaticAlertsV695.date===date&&(Date.now()-automaticAlertsLoadedAtV695)<180000;
   if(fresh&&!force){renderAutomaticAlertsV695();return;}
-  if(dash){dash.classList.remove('d-none');const l=document.getElementById('overviewAlertListV695');if(l)l.innerHTML='<div class="text-muted py-2"><span class="spinner-border spinner-border-sm me-2"></span>Đang rà soát cảnh báo...</div>';}
+  if(dash&&alertDashboardAllowedV69555()){dash.classList.remove('d-none');const l=document.getElementById('overviewAlertListV695');if(l)l.innerHTML='<div class="text-muted py-2"><span class="spinner-border spinner-border-sm me-2"></span>Đang rà soát cảnh báo...</div>';}
   if(center)center.innerHTML='<div class="text-muted py-3 text-center"><span class="spinner-border spinner-border-sm me-2"></span>Đang rà soát cảnh báo...</div>';
   google.script.run.withSuccessHandler(res=>{
     if(!res||!res.success){automaticAlertsV695=null;renderAutomaticAlertsErrorV695(res&&res.message||'Không tải được cảnh báo.');return;}
@@ -40,7 +43,7 @@ function alertCardHtmlV695(a,compact=false){
 }
 function renderAutomaticAlertsV695(){
   const d=automaticAlertsV695;if(!d)return;const m=d.metrics||{},alerts=d.alerts||[];
-  const dash=document.getElementById('overviewAlertsV695');if(dash)dash.classList.toggle('d-none',!alertAllowedV695());
+  const dash=document.getElementById('overviewAlertsV695');if(dash)dash.classList.toggle('d-none',!alertDashboardAllowedV69555());
   document.querySelectorAll('#overviewAlertMetricsV695 [data-alert-metric]').forEach(x=>x.textContent=String(m[x.dataset.alertMetric]??0));
   const status=document.getElementById('overviewAlertStatusV695');if(status)status.textContent=`Tuần ${d.week} · Cập nhật ${d.updatedAt||''}`;
   const badge=document.getElementById('controlAlertBadgeV695');if(badge){badge.textContent=String((m.critical||0)+(m.warning||0));badge.classList.toggle('d-none',!((m.critical||0)+(m.warning||0)));}
@@ -73,21 +76,30 @@ function handleAlertActionV695(id){
 }
 
 document.addEventListener('DOMContentLoaded',function(){
-  const dash=document.getElementById('dashboard-tab-v9');if(dash)dash.addEventListener('shown.bs.tab',()=>{if(alertAllowedV695())setTimeout(()=>loadAutomaticAlertsV695(false),420);});
-  const date=document.getElementById('overviewDateV20');if(date)date.addEventListener('change',()=>{if(alertAllowedV695())setTimeout(()=>loadAutomaticAlertsV695(true),260);});
+  const dash=document.getElementById('dashboard-tab-v9');if(dash)dash.addEventListener('shown.bs.tab',()=>{if(alertDashboardAllowedV69555())setTimeout(()=>loadAutomaticAlertsV695(false),420);else syncAlertVisibilityV69553();});
+  const date=document.getElementById('overviewDateV20');if(date)date.addEventListener('change',()=>{if(alertDashboardAllowedV69555())setTimeout(()=>loadAutomaticAlertsV695(true),260);});
   const tab=document.getElementById('control-alerts-tab-v695');if(tab)tab.addEventListener('shown.bs.tab',()=>loadAutomaticAlertsV695(false));
 });
 
 
-// V69.5.5.3: cảnh báo động chỉ dành cho BGH/Admin.
+// V69.5.5.5: xóa sạch UI cảnh báo khi role chưa được backend xác thực hoặc Dashboard không phải BGH/Admin.
+function clearAutomaticAlertsUiV69555(clearData=false){
+  const dash=document.getElementById('overviewAlertsV695');if(dash)dash.classList.add('d-none');
+  const list=document.getElementById('overviewAlertListV695');if(list)list.innerHTML='';
+  const badge=document.getElementById('controlAlertBadgeV695');if(badge){badge.textContent='';badge.classList.add('d-none');}
+  if(clearData){automaticAlertsV695=null;automaticAlertsLoadedAtV695=0;const c=document.getElementById('alertCenterListV695');if(c)c.innerHTML='';}
+}
 function syncAlertVisibilityV69553(){
   const allowed=alertAllowedV695();
+  const dashAllowed=alertDashboardAllowedV69555();
   const dash=document.getElementById('overviewAlertsV695');
-  if(dash)dash.classList.toggle('d-none',!allowed);
+  if(dash)dash.classList.toggle('d-none',!dashAllowed);
+  if(!dashAllowed){const list=document.getElementById('overviewAlertListV695');if(list)list.innerHTML='';}
   const btn=document.getElementById('control-alerts-tab-v695');
   const nav=btn&&btn.closest('li');
   if(nav)nav.classList.toggle('d-none',!allowed);
   const pane=document.getElementById('control-alerts-v695');
   if(pane&&!allowed)pane.classList.remove('show','active');
+  if(!allowed)clearAutomaticAlertsUiV69555(true);
 }
 document.addEventListener('DOMContentLoaded',syncAlertVisibilityV69553);

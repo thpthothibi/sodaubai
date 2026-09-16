@@ -969,7 +969,7 @@ let varDiemTB = 10;
       const a=sessions.ADMIN;populateTTCMFromUnifiedV4({sessionToken:a.sessionToken,sdt:'ADMIN',tenTTCM:res.profile.ten,chucVu:'Quản trị hệ thống',dsMon:a.dsMon||[]},'Quản trị hệ thống');
     }
 
-    if(isAdmin){adminDangNhapInfo=sessions.ADMIN;document.getElementById('adminAuthBox')?.classList.add('d-none');document.getElementById('adminMainContent')?.classList.remove('d-none');}
+    if(isAdmin){adminDangNhapInfo=sessions.ADMIN;document.getElementById('adminAuthBox')?.classList.add('d-none');document.getElementById('adminMainContent')?.classList.remove('d-none');setTimeout(()=>{if(typeof focusAdminContentTopV69553==='function'&&document.getElementById('tabAdmin')?.classList.contains('active'))focusAdminContentTopV69553();},120);}
     configureTeacherKhbdV67();
 
     moTabMacDinhV33(res);

@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <link rel="stylesheet" href="assets/css/sodb-v69.css?v=69.5.5.2">
+  <link rel="stylesheet" href="assets/css/sodb-v69.css?v=69.5.5.3">
 
 
 
@@ -1448,14 +1448,7 @@
 
 
     <div class="tab-pane fade" id="tabAdmin" role="tabpanel">
-      <div class="card shadow-sm">
-        <div class="card-header bg-danger text-white py-3 text-center">
-          <h5 class="mb-0 fw-bold">QUẢN TRỊ ADMIN - HỆ THỐNG KIỂM DÒ & QUẢN LÝ</h5>
-        </div>
-        <div class="card-body p-4">
-
-
-          <div id="adminMainContent" class="d-none"><div class="module-head-v13 mb-3"><div><div class="section-title-v13">Quản trị hệ thống</div><h4 class="mb-0">Dữ liệu, phân quyền và an toàn hệ thống</h4></div><div class="small text-muted">Kiểm tra dữ liệu, quản lý danh mục, mở khóa, đối soát, phân quyền, nhật ký và sao lưu</div></div>
+      <div id="adminMainContent" class="d-none"><div class="module-head-v13 mb-3"><div><div class="section-title-v13">Quản trị hệ thống</div><h4 class="mb-0">Dữ liệu, phân quyền và an toàn hệ thống</h4></div><div class="small text-muted">Kiểm tra dữ liệu, quản lý danh mục, mở khóa, đối soát, phân quyền, nhật ký và sao lưu</div></div>
             <ul class="nav nav-pills app-subtabs-v6952" id="pills-tab" role="tablist">
               <li class="nav-item me-2" role="presentation">
                 <button class="nav-link active" id="pills-check-tab" data-bs-toggle="pill" data-bs-target="#pills-check" type="button">Kiểm tra dữ liệu</button>
@@ -1475,6 +1468,9 @@
               </li>
               <li class="nav-item" role="presentation">
                 <button class="nav-link" data-bs-toggle="pill" data-bs-target="#pills-requests" type="button" onclick="taiYeuCauChinhSuaAdminV4()">Yêu cầu chỉnh sửa</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="admin-account-permission-tab-v69553" data-bs-toggle="pill" data-bs-target="#pills-account-permission-v69553" type="button" onclick="taiPhanQuyenTaiKhoanV69553(false)">Phân quyền</button>
               </li>
               <li class="nav-item" role="presentation">
                 <button class="nav-link" data-bs-toggle="pill" data-bs-target="#pills-system" type="button" onclick="taiNhatKyAdminV4();taiQuyenDacBietV69()">Hệ thống & nhật ký</button>
@@ -1745,6 +1741,26 @@
                 <div class="table-responsive"><table class="table table-bordered table-sm align-middle"><thead class="table-dark"><tr><th>Thời gian</th><th>GV</th><th>Lớp/Tuần/Tiết</th><th>Lý do</th><th>Trạng thái</th><th>Xử lý</th></tr></thead><tbody id="editRequestsBodyV4"></tbody></table></div>
               </div>
 
+              <div class="tab-pane fade" id="pills-account-permission-v69553" role="tabpanel" aria-labelledby="admin-account-permission-tab-v69553">
+                <div class="permission-admin-v69553">
+                  <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
+                    <div><h6 class="fw-bold mb-1 text-primary">Phân quyền tài khoản</h6><div class="small text-muted">Tải quyền thực tế từ Supabase và chỉnh trực tiếp trên web. Lưu quyền sẽ thu hồi các phiên đăng nhập cũ của tài khoản để quyền mới có hiệu lực ngay.</div></div>
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="taiPhanQuyenTaiKhoanV69553(true)">Làm mới</button>
+                  </div>
+                  <div class="row g-2 align-items-center mb-3">
+                    <div class="col-lg-6"><input id="permissionSearchV69553" class="form-control" placeholder="Tìm tài khoản, họ tên, chức vụ, môn..." oninput="renderPhanQuyenTaiKhoanV69553()"></div>
+                    <div class="col-lg-6"><div id="permissionStatusV69553" class="small text-muted"></div></div>
+                  </div>
+                  <div class="alert alert-light border small py-2 mb-3"><b>Nguồn tự động</b>: quyền suy ra từ Giáo viên/GVCN/Tổ chuyên môn/chức vụ. <b>Tùy chỉnh</b>: quyền được ghi tại bảng <code>phan_quyen</code>. Nút <b>Khôi phục tự động</b> sẽ xóa bản ghi tùy chỉnh và quay về quyền theo dữ liệu gốc.</div>
+                  <div class="table-responsive permission-table-wrap-v69553">
+                    <table class="table table-sm table-hover align-middle mb-0 permission-table-v69553">
+                      <thead class="table-light"><tr><th>Tài khoản</th><th>Họ tên</th><th>Chức vụ / Môn</th><th class="text-center">GVBM</th><th class="text-center">GVCN</th><th class="text-center">TTCM</th><th class="text-center">Giám thị</th><th class="text-center">BGH</th><th class="text-center">Admin</th><th class="text-center">Kích hoạt</th><th>Nguồn</th><th>Thao tác</th></tr></thead>
+                      <tbody id="permissionAccountBodyV69553"><tr><td colspan="12" class="text-center text-muted py-4">Chọn tab Phân quyền để tải dữ liệu.</td></tr></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
               <div class="tab-pane fade" id="pills-system" role="tabpanel">
                 <div class="d-flex flex-wrap gap-2 mb-3">
                   <button class="btn btn-primary" type="button" onclick="saoLuuNgayV4()">Sao lưu ngay</button>
@@ -1800,8 +1816,6 @@
             </div>
 
           </div>
-        </div>
-      </div>
     </div>
 
   </div>
@@ -1844,19 +1858,19 @@
 
 
 <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/sodb-v69-runtime.js?v=69.5.5.2"></script>
-<script src="assets/js/app/sodb-v69-core.js?v=69.5.5.2"></script>
-<script src="assets/js/app/sodb-v69-khbd.js?v=69.5.5.2"></script>
-<script src="assets/js/app/sodb-v69-operations.js?v=69.5.5.2"></script>
-<script src="assets/js/app/sodb-v69-print.js?v=69.5.5.2"></script>
-<script src="assets/js/app/sodb-v69-admin.js?v=69.5.5.2"></script>
-<script src="assets/js/app/sodb-v69-control.js?v=69.5.5.2"></script>
-<script src="assets/js/app/sodb-v69-v694.js?v=69.5.5.2"></script>
-<script src="assets/js/app/sodb-v69-v695.js?v=69.5.5.2"></script>
-<script src="assets/js/app/sodb-v69-v6951.js?v=69.5.5.2"></script>
-<script src="assets/js/app/sodb-v69-ux.js?v=69.5.5.2"></script>
-<script src="assets/js/sodb-v69-gvcn.js?v=69.5.5.2"></script>
-<script src="assets/js/sodb-v69-reports.js?v=69.5.5.2"></script>
+<script src="assets/js/sodb-v69-runtime.js?v=69.5.5.3"></script>
+<script src="assets/js/app/sodb-v69-core.js?v=69.5.5.3"></script>
+<script src="assets/js/app/sodb-v69-khbd.js?v=69.5.5.3"></script>
+<script src="assets/js/app/sodb-v69-operations.js?v=69.5.5.3"></script>
+<script src="assets/js/app/sodb-v69-print.js?v=69.5.5.3"></script>
+<script src="assets/js/app/sodb-v69-admin.js?v=69.5.5.3"></script>
+<script src="assets/js/app/sodb-v69-control.js?v=69.5.5.3"></script>
+<script src="assets/js/app/sodb-v69-v694.js?v=69.5.5.3"></script>
+<script src="assets/js/app/sodb-v69-v695.js?v=69.5.5.3"></script>
+<script src="assets/js/app/sodb-v69-v6951.js?v=69.5.5.3"></script>
+<script src="assets/js/app/sodb-v69-ux.js?v=69.5.5.3"></script>
+<script src="assets/js/sodb-v69-gvcn.js?v=69.5.5.3"></script>
+<script src="assets/js/sodb-v69-reports.js?v=69.5.5.3"></script>
 
 
 </body>

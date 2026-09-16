@@ -829,3 +829,63 @@ document.getElementById('overviewScopeV20').textContent='Đang tải tổng quan
     }).withFailureHandler(function(err){if(btn){btn.disabled=false;btn.textContent='Reset KHBD';}alertV13('❌ '+String(err&&err.message||err));})
       .resetKhbdAdminV69552({khoi,mon,scope,lop,reason},getAdminAuthV69552());
   }
+
+
+/* ========================================================================
+   V69.5.5.3 - PHÂN QUYỀN TÀI KHOẢN TRỰC TIẾP TRÊN WEB
+   ======================================================================== */
+let accountPermissionsV69553=[];
+let accountPermissionsLoadedAtV69553=0;
+function permissionAuthV69553(){return getAdminAuthV69();}
+function permissionRoleCheckedV69553(account,role){
+  const id='perm_'+String(role||'').toLowerCase()+'_'+btoa(unescape(encodeURIComponent(String(account||'')))).replace(/[^a-zA-Z0-9]/g,'');
+  const el=document.getElementById(id);return !!(el&&el.checked);
+}
+function permissionInputIdV69553(account,role){return 'perm_'+String(role||'').toLowerCase()+'_'+btoa(unescape(encodeURIComponent(String(account||'')))).replace(/[^a-zA-Z0-9]/g,'');}
+function taiPhanQuyenTaiKhoanV69553(force){
+  if(!hasRoleV4('ADMIN'))return;
+  const body=document.getElementById('permissionAccountBodyV69553'),status=document.getElementById('permissionStatusV69553');
+  if(!body)return;
+  if(!force&&accountPermissionsV69553.length&&Date.now()-accountPermissionsLoadedAtV69553<60000){renderPhanQuyenTaiKhoanV69553();return;}
+  body.innerHTML='<tr><td colspan="12" class="text-center text-muted py-4">Đang tải quyền tài khoản...</td></tr>';
+  if(status)status.textContent='Đang đồng bộ từ Supabase...';
+  google.script.run.withSuccessHandler(function(res){
+    if(!res||!res.success){body.innerHTML='<tr><td colspan="12" class="text-center text-danger py-4">'+escapeHtml(res&&res.message||'Không tải được phân quyền')+'</td></tr>';return;}
+    accountPermissionsV69553=Array.isArray(res.data)?res.data:[];accountPermissionsLoadedAtV69553=Date.now();
+    if(status)status.textContent='Đã tải '+accountPermissionsV69553.length+' tài khoản · '+new Date().toLocaleTimeString('vi-VN');
+    renderPhanQuyenTaiKhoanV69553();
+  }).withFailureHandler(function(err){body.innerHTML='<tr><td colspan="12" class="text-center text-danger py-4">'+escapeHtml((err&&err.message)||String(err||'Lỗi'))+'</td></tr>';}).layPhanQuyenTaiKhoanV69553(permissionAuthV69553());
+}
+function renderPhanQuyenTaiKhoanV69553(){
+  const body=document.getElementById('permissionAccountBodyV69553');if(!body)return;
+  const q=String(document.getElementById('permissionSearchV69553')?.value||'').trim().toLowerCase();
+  const rows=(accountPermissionsV69553||[]).filter(r=>!q||[r.taiKhoan,r.hoTen,r.chucVu,(r.mon||[]).join(' '),(r.roles||[]).join(' ')].join(' ').toLowerCase().includes(q));
+  if(!rows.length){body.innerHTML='<tr><td colspan="12" class="text-center text-muted py-4">Không có tài khoản phù hợp.</td></tr>';return;}
+  body.innerHTML=rows.map(r=>{
+    const a=String(r.taiKhoan||''),enc=encodeURIComponent(a),roles=new Set(r.roles||[]),locked=String(a).toLowerCase()==='admin';
+    const ck=(role,disabled=false)=>`<input class="form-check-input permission-role-check-v69553" type="checkbox" id="${permissionInputIdV69553(a,role)}" ${roles.has(role)?'checked':''} ${(locked||disabled)?'disabled':''}>`;
+    const activeId=permissionInputIdV69553(a,'ACTIVE');
+    const src=r.managed?'<span class="badge text-bg-primary">Tùy chỉnh</span>':'<span class="badge text-bg-light border text-secondary">Tự động</span>';
+    const mon=Array.isArray(r.mon)?r.mon.join(', '):'';
+    return `<tr><td class="permission-account-v69553"><strong>${escapeHtml(a)}</strong></td><td>${escapeHtml(r.hoTen||'')}</td><td class="permission-meta-v69553"><div>${escapeHtml(r.chucVu||'')}</div><small class="text-muted">${escapeHtml(mon)}</small></td><td class="text-center">${ck('GVBM')}</td><td class="text-center">${ck('GVCN')}</td><td class="text-center">${ck('TTCM')}</td><td class="text-center">${ck('GIAM_THI')}</td><td class="text-center">${ck('BGH')}</td><td class="text-center">${ck('ADMIN')}</td><td class="text-center"><input class="form-check-input permission-role-check-v69553" type="checkbox" id="${activeId}" ${r.active!==false?'checked':''} ${locked?'disabled':''}></td><td>${src}</td><td class="permission-actions-v69553"><button type="button" class="btn btn-sm btn-primary me-1" onclick="luuPhanQuyenTaiKhoanV69553(decodeURIComponent('${enc}'))">Lưu</button>${r.managed&&!locked?`<button type="button" class="btn btn-sm btn-outline-secondary" onclick="khoiPhucPhanQuyenTuDongV69553(decodeURIComponent('${enc}'))">Khôi phục tự động</button>`:''}</td></tr>`;
+  }).join('');
+}
+async function luuPhanQuyenTaiKhoanV69553(account){
+  if(!hasRoleV4('ADMIN')||!account)return;
+  const roles=['GVBM','GVCN','TTCM','GIAM_THI','BGH','ADMIN'].filter(r=>permissionRoleCheckedV69553(account,r));
+  const active=permissionRoleCheckedV69553(account,'ACTIVE');
+  if(active&&!roles.length){showToastV9('Tài khoản đang kích hoạt phải có ít nhất một vai trò.','warning');return;}
+  const ok=await confirmV13(`Lưu phân quyền cho ${account}? Phiên đăng nhập hiện tại của tài khoản này sẽ bị thu hồi để quyền mới có hiệu lực.`,{title:'Cập nhật phân quyền',confirmText:'Lưu quyền'});if(!ok)return;
+  google.script.run.withSuccessHandler(function(res){
+    if(!res||!res.success){showToastV9(res&&res.message||'Không lưu được quyền.','danger');return;}
+    showToastV9('Đã cập nhật phân quyền.','success');taiPhanQuyenTaiKhoanV69553(true);
+  }).withFailureHandler(function(err){showToastV9((err&&err.message)||String(err||'Lỗi'),'danger');}).luuPhanQuyenTaiKhoanV69553({taiKhoan:account,roles,active},permissionAuthV69553());
+}
+async function khoiPhucPhanQuyenTuDongV69553(account){
+  if(!hasRoleV4('ADMIN')||!account)return;
+  const ok=await confirmV13(`Khôi phục quyền tự động cho ${account}? Bản ghi tùy chỉnh sẽ bị xóa và hệ thống suy ra quyền từ phân công/chức vụ hiện có.`,{title:'Khôi phục quyền tự động',confirmText:'Khôi phục'});if(!ok)return;
+  google.script.run.withSuccessHandler(function(res){
+    if(!res||!res.success){showToastV9(res&&res.message||'Không khôi phục được quyền.','danger');return;}
+    showToastV9('Đã khôi phục quyền tự động.','success');taiPhanQuyenTaiKhoanV69553(true);
+  }).withFailureHandler(function(err){showToastV9((err&&err.message)||String(err||'Lỗi'),'danger');}).khoiPhucPhanQuyenTuDongV69553(String(account),permissionAuthV69553());
+}

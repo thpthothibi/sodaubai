@@ -124,8 +124,9 @@
   google.script.run.withSuccessHandler(function(res){
     if(!res||!res.success){alertV13("❌ "+(res?res.message:"Không đăng nhập được."));return;}
     adminDangNhapInfo=res;
-    document.getElementById('adminAuthBox').classList.add('d-none');
-    document.getElementById('adminMainContent').classList.remove('d-none');
+    document.getElementById('adminAuthBox')?.classList.add('d-none');
+    document.getElementById('adminMainContent')?.classList.remove('d-none');
+    setTimeout(()=>{if(typeof focusAdminContentTopV69553==='function')focusAdminContentTopV69553();},120);
     alertV13("🔓 Đăng nhập Admin thành công.");
   }).dangNhapAdminV4(pw);
 }

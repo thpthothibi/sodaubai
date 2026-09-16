@@ -3351,3 +3351,22 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
 #tabAdmin .app-subtabs-v6952{margin-top:0!important;}
 /* Trạng thái tiết đã hợp nhất sang Điều hành của Giám thị từ V69.5.4. */
 #gt-pills-status-v683-tab,#gt-pills-status-v683{display:none!important;}
+
+
+/* ========================================================================
+   V69.5.5.3 - ADMIN COMPACT + PHÂN QUYỀN TRÊN WEB
+   ======================================================================== */
+#tabAdmin{padding:0!important;margin:0!important;min-height:0!important;height:auto!important;}
+#tabAdmin>#adminMainContent{display:block;position:static!important;inset:auto!important;transform:none!important;margin:0!important;padding:0!important;min-height:0!important;height:auto!important;}
+#tabAdmin>#adminMainContent.d-none{display:none!important;}
+#tabAdmin>#adminMainContent>.module-head-v13{margin:0 0 12px!important;}
+#tabAdmin .app-subtabs-v6952{margin-top:0!important;}
+#tabAdmin .app-subtab-content-v6952{margin-top:10px!important;}
+.permission-table-wrap-v69553{max-height:62vh;overflow:auto;border:1px solid #e1e8f1;border-radius:12px;background:#fff;}
+.permission-table-v69553 thead th{position:sticky;top:0;z-index:2;white-space:nowrap;font-size:.72rem;}
+.permission-table-v69553 td{font-size:.76rem;vertical-align:middle;}
+.permission-role-check-v69553{width:1.05rem;height:1.05rem;cursor:pointer;}
+.permission-account-v69553{min-width:118px;font-variant-numeric:tabular-nums;}
+.permission-meta-v69553{min-width:180px;max-width:260px;}
+.permission-actions-v69553{min-width:150px;white-space:nowrap;}
+@media(max-width:767.98px){.permission-table-wrap-v69553{max-height:none}.permission-table-v69553{min-width:1180px}}

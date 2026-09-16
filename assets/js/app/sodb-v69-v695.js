@@ -1,14 +1,14 @@
 /* ========================================================================
-   SODB V69.5 - CẢNH BÁO TỰ ĐỘNG + DASHBOARD BGH/GIÁM THỊ
+   SODB V69.5.5.3 - CẢNH BÁO TỰ ĐỘNG CHỈ BGH/ADMIN
    ======================================================================== */
 let automaticAlertsV695=null;
 let automaticAlertsLoadedAtV695=0;
 
 function alertRolesV695(){return currentUnifiedLoginV4&&Array.isArray(currentUnifiedLoginV4.roles)?currentUnifiedLoginV4.roles:[];}
-function alertAllowedV695(){return alertRolesV695().some(r=>['GIAM_THI','BGH','ADMIN'].includes(r));}
+function alertAllowedV695(){return alertRolesV695().some(r=>['BGH','ADMIN'].includes(r));}
 function alertAuthV695(){
   const s=currentUnifiedLoginV4&&currentUnifiedLoginV4.sessions||{};
-  const x=s.ADMIN||s.BGH||s.GIAM_THI||null;
+  const x=s.ADMIN||s.BGH||null;
   return {token:x&&x.sessionToken||''};
 }
 function escV695(v){return typeof escapeHtml==='function'?escapeHtml(String(v??'')):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -17,6 +17,7 @@ function alertTypeLabelV695(t){return ({OP_PENDING:'Hồ sơ chờ duyệt',OP_O
 function alertDashboardDateV695(){return document.getElementById('overviewDateV20')?.value||(typeof schoolTodayV693==='function'?schoolTodayV693():new Date().toISOString().slice(0,10));}
 
 function loadAutomaticAlertsV695(force=false){
+  if(typeof syncAlertVisibilityV69553==='function')syncAlertVisibilityV69553();
   const dash=document.getElementById('overviewAlertsV695'),center=document.getElementById('alertCenterListV695');
   if(!alertAllowedV695()){if(dash)dash.classList.add('d-none');return;}
   const auth=alertAuthV695();if(!auth.token)return;
@@ -57,7 +58,7 @@ function findAlertV695(id){return (automaticAlertsV695?.alerts||[]).find(a=>Stri
 function showMainTabV695(id){const el=document.getElementById(id);if(!el)return;try{window.bootstrap?bootstrap.Tab.getOrCreateInstance(el).show():el.click();}catch(_e){el.click();}}
 function showControlPaneV695(target){showMainTabV695('control-tab-v693');setTimeout(()=>{const b=document.querySelector(`#tabControlV693 [data-bs-target="${target}"]`);if(b){try{window.bootstrap?bootstrap.Tab.getOrCreateInstance(b).show():b.click();}catch(_e){b.click();}}},80);}
 function openAlertCenterV695(){if(!alertAllowedV695())return;showControlPaneV695('#control-alerts-v695');setTimeout(()=>loadAutomaticAlertsV695(false),120);}
-function openKhbdMatrixFromAlertV695(a){showMainTabV695('ttcm-tab');setTimeout(()=>{const b=document.getElementById('khbd-matrix-tab-v694');if(b){try{window.bootstrap?bootstrap.Tab.getOrCreateInstance(b).show():b.click();}catch(_e){b.click();}}const grade=document.getElementById('khbdMatrixKhoiV694'),week=document.getElementById('khbdMatrixTuanV694');if(grade&&a.meta?.khoi)grade.value=String(a.meta.khoi);if(week&&a.meta?.tuan)week.value=String(a.meta.tuan);if(typeof loadKhbdMatrixScopesV694==='function')loadKhbdMatrixScopesV694(true);setTimeout(()=>{const mon=document.getElementById('khbdMatrixMonV694');if(mon&&a.meta?.mon){const opt=[...mon.options].find(o=>String(o.value).toLowerCase()===String(a.meta.mon).toLowerCase());if(opt)mon.value=opt.value;}if(typeof loadKhbdMatrixV694==='function')loadKhbdMatrixV694();},260);},100);}
+function openKhbdMatrixFromAlertV695(a){showMainTabV695('ttcm-tab');setTimeout(()=>{const b=document.getElementById('khbd-matrix-tab-v694');if(b){try{window.bootstrap?bootstrap.Tab.getOrCreateInstance(b).show():b.click();}catch(_e){b.click();}}const grade=document.getElementById('khbdMatrixKhoiV694'),week=document.getElementById('khbdMatrixTuanV694');if(grade&&a.meta?.khoi)grade.value=String(a.meta.khoi);if(week&&a.meta?.tuan)week.value=String(a.meta.tuan);if(typeof loadKhbdMatrixScopesV694==='function')loadKhbdMatrixScopesV694(true);setTimeout(()=>{const mon=document.getElementById('khbdMatrixMonV694');if(mon&&a.meta?.mon){const opt=[...mon.options].find(o=>subjectKeyV6955(o.value)===subjectKeyV6955(a.meta.mon));if(opt)mon.value=opt.value;}if(typeof loadKhbdMatrixV694==='function')loadKhbdMatrixV694();},260);},100);}
 function handleAlertActionV695(id){
   const a=findAlertV695(id);if(!a)return;switch(a.action){
     case 'CONTROL_OP':showControlPaneV695('#control-ops-v693');break;
@@ -76,3 +77,17 @@ document.addEventListener('DOMContentLoaded',function(){
   const date=document.getElementById('overviewDateV20');if(date)date.addEventListener('change',()=>{if(alertAllowedV695())setTimeout(()=>loadAutomaticAlertsV695(true),260);});
   const tab=document.getElementById('control-alerts-tab-v695');if(tab)tab.addEventListener('shown.bs.tab',()=>loadAutomaticAlertsV695(false));
 });
+
+
+// V69.5.5.3: cảnh báo động chỉ dành cho BGH/Admin.
+function syncAlertVisibilityV69553(){
+  const allowed=alertAllowedV695();
+  const dash=document.getElementById('overviewAlertsV695');
+  if(dash)dash.classList.toggle('d-none',!allowed);
+  const btn=document.getElementById('control-alerts-tab-v695');
+  const nav=btn&&btn.closest('li');
+  if(nav)nav.classList.toggle('d-none',!allowed);
+  const pane=document.getElementById('control-alerts-v695');
+  if(pane&&!allowed)pane.classList.remove('show','active');
+}
+document.addEventListener('DOMContentLoaded',syncAlertVisibilityV69553);

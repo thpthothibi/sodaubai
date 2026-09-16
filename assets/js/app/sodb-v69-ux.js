@@ -375,3 +375,20 @@ document.addEventListener('DOMContentLoaded',function(){
     const target=String(btn.getAttribute('data-bs-target')||'').replace(/^#/,'');if(target)resetMainTabViewportV6954(target);
   }));
 });
+
+
+// V69.5.5.3: đưa nội dung Quản trị về đúng đầu vùng làm việc, không giữ scroll của tab trước.
+function focusAdminContentTopV69553(){
+  const run=()=>{
+    const target=document.getElementById('adminMainContent');if(!target||target.classList.contains('d-none'))return;
+    try{document.documentElement.scrollTop=0;document.body.scrollTop=0;}catch(_e){}
+    const userbar=document.querySelector('.app-userbar-v4'),tabs=document.getElementById('sodbTab');
+    const offset=(userbar?.offsetHeight||0)+(tabs?.offsetHeight||0)+10;
+    const top=Math.max(0,target.getBoundingClientRect().top+window.scrollY-offset);
+    window.scrollTo({top,left:0,behavior:'auto'});
+  };
+  requestAnimationFrame(()=>requestAnimationFrame(run));setTimeout(run,80);setTimeout(run,180);
+}
+document.addEventListener('DOMContentLoaded',function(){
+  const tab=document.getElementById('admin-tab');if(tab)tab.addEventListener('shown.bs.tab',focusAdminContentTopV69553);
+});

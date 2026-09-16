@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <link rel="stylesheet" href="assets/css/sodb-v69.css?v=70.0.2">
+  <link rel="stylesheet" href="assets/css/sodb-v69.css?v=70.1.2">
 
 
 
@@ -462,7 +462,7 @@
                   </select>
                 </div>
               </div>
-              <div id="phanCongDayNoteV39" class="small text-primary fw-semibold mb-2">Lớp được nạp theo sheet Phân công dạy. Cột “Môn” có thể nhập nhiều môn như Toán; HĐTN 1; HĐTN 2 và “Danh sách lớp” có thể nhập 10A01, 10A02, 10A05. Riêng GDTC hiển thị toàn bộ lớp chính; môn Công nghệ chọn nhánh Nông nghiệp/Công nghiệp nhưng vẫn giữ lớp theo phân công.</div>
+              <div id="phanCongDayNoteV39" class="small text-primary fw-semibold mb-2">Lớp được nạp theo phân công dạy trên Supabase. Giáo viên chỉ thấy lớp thuộc phạm vi được phân công; GDTC và Công nghệ vẫn áp dụng quy tắc môn/nhánh tương ứng.</div>
               <div class="row g-3 mb-3">
                 <div class="col-md-4">
                   <label class="form-label fw-semibold">Thứ</label>
@@ -552,25 +552,45 @@
                 </div>
               </div>
 
-              <div id="groupAttendancePanelV6951" class="card border-primary-subtle mb-2 d-none">
-                <div class="card-header bg-primary-subtle d-flex justify-content-between align-items-center gap-2 flex-wrap py-2">
-                  <div><strong>Điểm danh lớp/nhóm</strong><div class="small text-muted" id="groupAttendanceMetaV6951">Chọn lớp Chuyên đề/GDTC để tải danh sách.</div></div>
-                  <span class="badge text-bg-primary" id="groupAttendanceCountV6951">0 học sinh · 0 vắng</span>
+              <div id="groupAttendancePanelV6951" class="attendance-inline-v7012 mb-2">
+                <div class="attendance-inline-head-v7012">
+                  <div class="attendance-inline-title-v7012">
+                    <span class="attendance-inline-icon-v7012">✓</span>
+                    <div>
+                      <div class="fw-bold text-primary-emphasis">ĐIỂM DANH HỌC SINH</div>
+                      <div class="small text-muted" id="groupAttendanceMetaV6951">Chọn lớp để tải danh sách học sinh từ Supabase.</div>
+                    </div>
+                  </div>
+                  <div class="attendance-inline-actions-v7012">
+                    <div class="form-check form-switch mb-0 attendance-complete-switch-v7012">
+                      <input class="form-check-input" type="checkbox" role="switch" id="attendanceCompleteV701" checked onchange="onAttendanceCompleteV701(this.checked)">
+                      <label class="form-check-label fw-bold" for="attendanceCompleteV701">Điểm danh đủ</label>
+                    </div>
+                    <span class="badge text-bg-primary" id="groupAttendanceCountV6951">0 học sinh · 0 vắng</span>
+                  </div>
                 </div>
-                <div class="card-body p-2">
-                  <div id="groupAttendanceListV6951" class="row g-1"><div class="text-center text-muted py-3">Chưa tải danh sách.</div></div>
-                  <div class="small text-muted mt-2">Tích học sinh vắng. Hệ thống tự tính số vắng và lưu cả lớp chủ nhiệm để báo cáo hai chiều.</div>
+                <div id="attendanceAbsentToolsV7011" class="d-none attendance-absent-tools-v7012">
+                  <label class="form-label fw-semibold mb-1">Có học sinh vắng — tìm và tích tên học sinh</label>
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text">Tìm HS</span>
+                    <input type="search" class="form-control" id="attendanceSearchV7011" placeholder="Nhập tên hoặc mã học sinh..." oninput="renderGroupAttendanceV6951()">
+                    <button class="btn btn-outline-secondary" type="button" onclick="clearAbsentSelectionV7011()">Bỏ chọn</button>
+                  </div>
                 </div>
+                <div id="attendanceAbsentListWrapV7011" class="d-none attendance-list-v7012">
+                  <div id="groupAttendanceListV6951" class="row g-1"><div class="text-center text-muted py-3">Chọn lớp để tải danh sách.</div></div>
+                </div>
+                <div class="small text-muted attendance-help-v7012">Mặc định <strong>Điểm danh đủ</strong> → Số vắng = 0. Nếu có học sinh vắng, tắt công tắc rồi tích tên; hệ thống tự tính số vắng và tên học sinh.</div>
               </div>
 
               <div class="row g-2 mb-2 compact-info-row-v30">
                 <div class="col-lg-2 col-md-3">
                   <label class="form-label">Số vắng</label>
-                  <input type="number" class="form-control" id="hsVang" value="0" min="0">
+                  <input type="number" class="form-control fw-bold text-center" id="hsVang" value="0" min="0" readonly>
                 </div>
                 <div class="col-lg-4 col-md-4">
                   <label class="form-label">HS vắng</label>
-                  <input type="text" class="form-control" id="tenHSVang" placeholder="VD: Nguyễn Văn A">
+                  <input type="text" class="form-control" id="tenHSVang" placeholder="Điểm danh đủ — không có học sinh vắng" readonly>
                 </div>
                 <div class="col-lg-6 col-md-5">
                   <label class="form-label fw-semibold">Nhận xét</label>
@@ -1467,7 +1487,7 @@
             <div class="row g-2 align-items-end mb-3 bgh-filter-v698">
               <div class="col-6 col-md-2"><label class="form-label small fw-bold">Tuần</label><select id="bghWorkflowWeekV698" class="form-select"></select></div>
               <div class="col-6 col-md-2"><label class="form-label small fw-bold">Khối</label><select id="bghWorkflowGradeV698" class="form-select"><option value="0">Tất cả khối</option><option value="10">Khối 10</option><option value="11">Khối 11</option><option value="12">Khối 12</option></select></div>
-              <div class="col-md-3"><label class="form-label small fw-bold">Trạng thái</label><select id="bghWorkflowStatusV698" class="form-select"><option value="ALL">Tất cả trạng thái</option><option value="SAN_SANG_DUYET">Sẵn sàng duyệt</option><option value="DA_DUYET">Đã duyệt</option><option value="CON_TIET_CHUA_KY">Còn tiết chưa ký</option><option value="CHO_GVCN_CHOT">Chờ GVCN chốt</option><option value="CHUA_CO_DU_LIEU">Chưa có dữ liệu</option></select></div>
+              <div class="col-md-3"><label class="form-label small fw-bold">Trạng thái</label><select id="bghWorkflowStatusV698" class="form-select"><option value="ALL">Tất cả trạng thái</option><option value="DU_LIEU_DA_THAY_DOI">Dữ liệu thay đổi — cần duyệt lại</option><option value="SAN_SANG_DUYET">Sẵn sàng duyệt</option><option value="DA_DUYET">Đã duyệt</option><option value="CON_TIET_CHUA_KY">Còn tiết chưa ký</option><option value="CHO_GVCN_CHOT">Chờ GVCN chốt</option><option value="CHUA_CO_DU_LIEU">Chưa có dữ liệu</option></select></div>
               <div class="col-md-3"><label class="form-label small fw-bold">Tìm lớp / GVCN</label><input id="bghWorkflowSearchV698" class="form-control" placeholder="Ví dụ: 10A1 hoặc Nguyễn Văn A"></div>
               <div class="col-md-2 d-grid"><button class="btn btn-primary fw-bold" type="button" onclick="loadBghWorkflowV698(true)">Tải trạng thái</button></div>
             </div>
@@ -1806,7 +1826,7 @@
               <div class="tab-pane fade" id="pills-classes" role="tabpanel">
                 <h6 class="fw-bold mb-2">Danh mục lớp</h6>
                 <div class="alert alert-primary border py-2">
-                  Hệ thống đọc danh sách lớp trực tiếp từ sheet <b>Lớp</b> trong Google Sheet.
+                  <b>Supabase là nguồn chuẩn</b> cho danh mục lớp. File Excel chỉ dùng để import/cập nhật dữ liệu.
                   File Excel gồm các cột: <b>Khối | Tên lớp | Nhóm sổ | Môn/KHBD | Trạng thái | Thứ tự</b>.
                 </div>
                 <div class="small text-muted mb-3">
@@ -1814,7 +1834,7 @@
                   Lớp GDTC là <b>lớp/nhóm độc lập</b> do nhà trường đặt tên (VD: BC1, CL2); không ghép nhiều lớp ngay trong một bản ghi SĐB.
                 </div>
                 <div class="d-flex flex-wrap gap-2 align-items-center">
-                  <button type="button" class="btn btn-outline-primary" onclick="taoSheetLopV23Ui()">Tạo / chuẩn hóa sheet Lớp</button>
+                  <button type="button" class="btn btn-outline-primary" onclick="taoSheetLopV23Ui()">Làm mới từ Supabase</button>
                   <button type="button" class="btn btn-outline-success" onclick="themMauChuyenDe12V27Ui()">Thêm mẫu Chuyên đề 12</button>
                   <button type="button" class="btn btn-outline-secondary" onclick="taiFileMauLopV23()">Tải file mẫu lớp</button>
                   <input type="file" id="lopFileV23" class="form-control" style="max-width:420px" accept=".xlsx,.xls,.csv" onchange="docFileExcelLopV23(event)">
@@ -1822,7 +1842,7 @@
                     <option value="REPLACE">Thay toàn bộ danh sách lớp</option>
                     <option value="APPEND">Thêm lớp mới</option>
                   </select>
-                  <button type="button" class="btn btn-primary fw-bold" onclick="uploadLopV23()">Import vào Google Sheet</button>
+                  <button type="button" class="btn btn-primary fw-bold" onclick="uploadLopV23()">Import vào Supabase</button>
                 </div>
                 <div id="lopPreviewV23" class="small text-muted mt-2"></div>
 
@@ -1848,13 +1868,13 @@
               </div>
 
               <div class="tab-pane fade" id="pills-roster" role="tabpanel">
-                <h6 class="fw-bold mb-1">Học sinh & phân nhóm</h6><div class="small text-muted mb-3">Quản lý học sinh lớp chính khóa và thành viên các lớp/nhóm Chuyên đề - GDTC.</div>
+                <h6 class="fw-bold mb-1">Học sinh & phân nhóm</h6><div class="small text-muted mb-3"><b>Supabase là nguồn chuẩn</b> cho học sinh lớp chính khóa và thành viên các lớp/nhóm Chuyên đề - GDTC.</div>
                 <div class="alert alert-light border py-2">File Excel: <b>Lớp | Mã HS | Họ tên | Trạng thái</b>.</div>
                 <div class="d-flex flex-wrap gap-2">
                   <button type="button" class="btn btn-outline-secondary" onclick="taiFileMauHSV4()">File mẫu HS</button>
                   <input type="file" id="hsFileV4" class="form-control" style="max-width:420px" accept=".xlsx,.xls" onchange="docFileExcelHSV4(event)">
                   <select id="hsModeV4" class="form-select" style="max-width:220px"><option value="REPLACE">Thay toàn bộ DS học sinh</option><option value="APPEND">Thêm nối tiếp</option></select>
-                  <button type="button" class="btn btn-secondary fw-bold" onclick="uploadHSV4()">Lưu DS học sinh</button>
+                  <button type="button" class="btn btn-secondary fw-bold" onclick="uploadHSV4()">Lưu DS học sinh vào Supabase</button>
                 </div>
                 <div id="hsPreviewV4" class="small text-muted mt-2"></div>
                 <hr class="my-4">
@@ -2081,22 +2101,22 @@
 
 
 <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/sodb-v69-runtime.js?v=70.0.2"></script>
-<script src="assets/js/app/sodb-v69-core.js?v=70.0.2"></script>
-<script src="assets/js/app/sodb-v69-khbd.js?v=70.0.2"></script>
-<script src="assets/js/app/sodb-v69-operations.js?v=70.0.2"></script>
-<script src="assets/js/app/sodb-v69-print.js?v=70.0.2"></script>
-<script src="assets/js/app/sodb-v69-admin.js?v=70.0.2"></script>
-<script src="assets/js/app/sodb-v70-lifecycle.js?v=70.0.2"></script>
-<script src="assets/js/app/sodb-v69-bgh.js?v=70.0.2"></script>
-<script src="assets/js/app/sodb-v69-masterdata.js?v=70.0.2"></script>
-<script src="assets/js/app/sodb-v69-control.js?v=70.0.2"></script>
-<script src="assets/js/app/sodb-v69-v694.js?v=70.0.2"></script>
-<script src="assets/js/app/sodb-v69-v695.js?v=70.0.2"></script>
-<script src="assets/js/app/sodb-v69-v6951.js?v=70.0.2"></script>
-<script src="assets/js/app/sodb-v69-ux.js?v=70.0.2"></script>
-<script src="assets/js/sodb-v69-gvcn.js?v=70.0.2"></script>
-<script src="assets/js/sodb-v69-reports.js?v=70.0.2"></script>
+<script src="assets/js/sodb-v69-runtime.js?v=70.1.2"></script>
+<script src="assets/js/app/sodb-v69-core.js?v=70.1.2"></script>
+<script src="assets/js/app/sodb-v69-khbd.js?v=70.1.2"></script>
+<script src="assets/js/app/sodb-v69-operations.js?v=70.1.2"></script>
+<script src="assets/js/app/sodb-v69-print.js?v=70.1.2"></script>
+<script src="assets/js/app/sodb-v69-admin.js?v=70.1.2"></script>
+<script src="assets/js/app/sodb-v70-lifecycle.js?v=70.1.2"></script>
+<script src="assets/js/app/sodb-v69-bgh.js?v=70.1.2"></script>
+<script src="assets/js/app/sodb-v69-masterdata.js?v=70.1.2"></script>
+<script src="assets/js/app/sodb-v69-control.js?v=70.1.2"></script>
+<script src="assets/js/app/sodb-v69-v694.js?v=70.1.2"></script>
+<script src="assets/js/app/sodb-v69-v695.js?v=70.1.2"></script>
+<script src="assets/js/app/sodb-v69-v6951.js?v=70.1.2"></script>
+<script src="assets/js/app/sodb-v69-ux.js?v=70.1.2"></script>
+<script src="assets/js/sodb-v69-gvcn.js?v=70.1.2"></script>
+<script src="assets/js/sodb-v69-reports.js?v=70.1.2"></script>
 
 
 </body>

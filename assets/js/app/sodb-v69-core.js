@@ -58,8 +58,12 @@ let varDiemTB = 10;
     return raw;
   }
   function subjectKeyV6955(value){return subjectLooseKeyV6955(canonicalSubjectV6955(value)).replace(/\s+/g,'');}
+  function splitSubjectValuesV69552(value){
+    if(Array.isArray(value))return value.flatMap(splitSubjectValuesV69552);
+    return String(value??'').split(/[;,|\n\r]+/).map(x=>x.trim()).filter(Boolean);
+  }
   function canonicalSubjectListV6955(values){
-    const out=[];for(const v of (values||[])){const c=canonicalSubjectV6955(v);if(c&&!out.some(x=>subjectKeyV6955(x)===subjectKeyV6955(c)))out.push(c);}return out;
+    const out=[];for(const raw of (values||[]))for(const v of splitSubjectValuesV69552(raw)){const c=canonicalSubjectV6955(v);if(c&&!out.some(x=>subjectKeyV6955(x)===subjectKeyV6955(c)))out.push(c);}return out;
   }
   function canonicalAssignmentMapV6955(raw){
     const out={};Object.entries(raw||{}).forEach(([k,arr])=>{const key=subjectKeyV6955(k);if(!key)return;if(!out[key])out[key]=[];(arr||[]).forEach(l=>{if(l&&!out[key].includes(l))out[key].push(l);});});return out;

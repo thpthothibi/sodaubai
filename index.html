@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <link rel="stylesheet" href="assets/css/sodb-v69.css?v=70.1.3">
+  <link rel="stylesheet" href="assets/css/sodb-v69.css?v=70.1.5">
 
 
 
@@ -1874,9 +1874,9 @@
                   <button type="button" class="btn btn-outline-secondary" onclick="taiFileMauHSV4()">File mẫu HS</button>
                   <input type="file" id="hsFileV4" class="form-control" style="max-width:420px" accept=".xlsx,.xls" onchange="docFileExcelHSV4(event)">
                   <select id="hsModeV4" class="form-select" style="max-width:220px"><option value="REPLACE">Thay toàn bộ DS học sinh</option><option value="APPEND">Thêm nối tiếp</option></select>
-                  <button type="button" class="btn btn-secondary fw-bold" onclick="uploadHSV4()">Lưu DS học sinh vào Supabase</button>
+                  <button type="button" id="hsSaveBtnV4" class="btn btn-secondary fw-bold" onclick="uploadHSV4()" disabled>Lưu DS học sinh vào Supabase</button>
                 </div>
-                <div id="hsPreviewV4" class="small text-muted mt-2"></div>
+                <div id="hsPreviewV4" class="small text-muted mt-2"></div><div id="hsImportStatusV7015" class="small text-muted mt-2"></div>
                 <hr class="my-4">
                 <h6 class="fw-bold mb-2 text-primary">Danh sách học sinh lớp/nhóm Chuyên đề - GDTC</h6>
                 <div class="alert alert-primary border py-2">File Excel: <b>Nhóm/Lớp | Mã HS | Họ tên | Lớp chủ nhiệm | Từ ngày | Đến ngày</b>. Ví dụ nhóm <b>BC1</b>, <b>CL2</b> hoặc lớp Chuyên đề.</div>
@@ -2101,22 +2101,22 @@
 
 
 <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/sodb-v69-runtime.js?v=70.1.3"></script>
-<script src="assets/js/app/sodb-v69-core.js?v=70.1.3"></script>
-<script src="assets/js/app/sodb-v69-khbd.js?v=70.1.3"></script>
-<script src="assets/js/app/sodb-v69-operations.js?v=70.1.3"></script>
-<script src="assets/js/app/sodb-v69-print.js?v=70.1.3"></script>
-<script src="assets/js/app/sodb-v69-admin.js?v=70.1.3"></script>
-<script src="assets/js/app/sodb-v70-lifecycle.js?v=70.1.3"></script>
-<script src="assets/js/app/sodb-v69-bgh.js?v=70.1.3"></script>
-<script src="assets/js/app/sodb-v69-masterdata.js?v=70.1.3"></script>
-<script src="assets/js/app/sodb-v69-control.js?v=70.1.3"></script>
-<script src="assets/js/app/sodb-v69-v694.js?v=70.1.3"></script>
-<script src="assets/js/app/sodb-v69-v695.js?v=70.1.3"></script>
-<script src="assets/js/app/sodb-v69-v6951.js?v=70.1.3"></script>
-<script src="assets/js/app/sodb-v69-ux.js?v=70.1.3"></script>
-<script src="assets/js/sodb-v69-gvcn.js?v=70.1.3"></script>
-<script src="assets/js/sodb-v69-reports.js?v=70.1.3"></script>
+<script src="assets/js/sodb-v69-runtime.js?v=70.1.5"></script>
+<script src="assets/js/app/sodb-v69-core.js?v=70.1.5"></script>
+<script src="assets/js/app/sodb-v69-khbd.js?v=70.1.5"></script>
+<script src="assets/js/app/sodb-v69-operations.js?v=70.1.5"></script>
+<script src="assets/js/app/sodb-v69-print.js?v=70.1.5"></script>
+<script src="assets/js/app/sodb-v69-admin.js?v=70.1.5"></script>
+<script src="assets/js/app/sodb-v70-lifecycle.js?v=70.1.5"></script>
+<script src="assets/js/app/sodb-v69-bgh.js?v=70.1.5"></script>
+<script src="assets/js/app/sodb-v69-masterdata.js?v=70.1.5"></script>
+<script src="assets/js/app/sodb-v69-control.js?v=70.1.5"></script>
+<script src="assets/js/app/sodb-v69-v694.js?v=70.1.5"></script>
+<script src="assets/js/app/sodb-v69-v695.js?v=70.1.5"></script>
+<script src="assets/js/app/sodb-v69-v6951.js?v=70.1.5"></script>
+<script src="assets/js/app/sodb-v69-ux.js?v=70.1.5"></script>
+<script src="assets/js/sodb-v69-gvcn.js?v=70.1.5"></script>
+<script src="assets/js/sodb-v69-reports.js?v=70.1.5"></script>
 
 
 </body>

@@ -14,7 +14,7 @@
   const SODB_SUPABASE_URL_V66 = "https://mlwhxxpmnhrrkbkivvye.supabase.co";
   const SODB_SUPABASE_PUBLISHABLE_KEY_V66 = "sb_publishable_Hq6KRH5KDT1eiOYLwwQhkw_c45sZkgi";
   const SODB_EDGE_URL_V66 = SODB_SUPABASE_URL_V66 + "/functions/v1/sodb-core-v69";
-  const SODB_FRONTEND_VERSION = "V70";
+  const SODB_FRONTEND_VERSION = "V70.1.0";
   window.__SODB_BACKEND_VERSION__ = "UNKNOWN";
   // V69.2.2 Stable: đo thời gian thực tế các chặng mạng để tối ưu dựa trên số liệu.
   window.__SODB_PERF__ = Array.isArray(window.__SODB_PERF__) ? window.__SODB_PERF__ : [];
@@ -102,7 +102,7 @@
   // V68: các RPC dữ liệu vận hành chạy trực tiếp trên Supabase Edge.
   // Các chức năng Google Drive/backup đặc thù vẫn đi Apps Script.
   const SODB_EDGE_RPC_METHODS_V67 = new Set([
-    'getBootstrapClientV6','getDanhSachLopMoiV29','layPhanCongDayCuaGVV39','xacThucPhienHeThongV4',
+    'getBootstrapClientV6','getDanhSachLopMoiV29','dangXuatHeThongV701','capNhatDanhSachLopV701','capNhatDanhSachHocSinhV701','layDanhSachHocSinhLopV701','layPhanCongDayCuaGVV39','xacThucPhienHeThongV4',
     'getDanhSachBaiDayTheoMon','layDanhSachKHBDTheoKhoiV36','capNhatKeHoachBaiDay',
     'layDanhSachDuyetKHBDV50','layKhbdDaTaiCuaTTCMV659','xuLyDuyetKHBDV50','layKhbdCaNhanV67','chonKhbdCaNhanV67','resetKhbdAdminV69552',
     'layTrangSoDauBaiV24','layDuLieuSoDauBaiTuanGop','luuSoDauBai','luuChotTuanGVCN','duyetTuanBGHV684','layTrungTamDuyetTuanBGHV698','layMaTranDuyetTuanBGHV698',
@@ -262,11 +262,12 @@
     return String(value);
   }
 
-  async function callSodbEdgeV66(payload){
+  async function callSodbEdgeV66(payload,timeoutMs){
     const perfStart=performance.now(); let perfOk=false;
     const perfAction=String(payload?.method||payload?.action||'edge');
     const controller=new AbortController();
-    const timeout=setTimeout(()=>controller.abort(),12000);
+    const timeoutLimit=Math.max(3000,Number(timeoutMs)||12000);
+    const timeout=setTimeout(()=>controller.abort(),timeoutLimit);
     try{
       const r=await fetch(SODB_EDGE_URL_V66,{method:'POST',mode:'cors',credentials:'omit',cache:'no-store',headers:{'Content-Type':'application/json','apikey':SODB_SUPABASE_PUBLISHABLE_KEY_V66},body:JSON.stringify(payload||{}),signal:controller.signal});
       let data=null;try{data=await r.json();}catch(_e){}
@@ -274,12 +275,12 @@
       if(data&&data.success===false&&[400,401,403,429].includes(r.status)){perfOk=true;return data;}
       throw new Error(data&&data.message?sodbErrorTextV658(data.message):('Supabase Edge HTTP '+r.status));
     }catch(e){
-      if(e&&e.name==='AbortError')throw new Error('Supabase Edge phản hồi quá 12 giây.');
+      if(e&&e.name==='AbortError')throw new Error(`Supabase Edge phản hồi quá ${Math.round(timeoutLimit/1000)} giây.`);
       throw e;
     }finally{clearTimeout(timeout);recordSodbPerfV6922('EDGE',perfAction,perfStart,perfOk);}
   }
-  async function callSodbEdgeRpcV67(method,args){
-    const data=await callSodbEdgeV66({action:'rpc',method:String(method||''),args:Array.isArray(args)?args:[]});
+  async function callSodbEdgeRpcV67(method,args,timeoutMs){
+    const data=await callSodbEdgeV66({action:'rpc',method:String(method||''),args:Array.isArray(args)?args:[]},timeoutMs);
     if(!data||data.success!==true)throw new Error(data&&data.message?sodbErrorTextV658(data.message):'Supabase V69 không thực hiện được yêu cầu.');
     return data.result;
   }

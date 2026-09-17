@@ -207,84 +207,55 @@
   }
 
 
-  function themMauChuyenDe12V27Ui(){
+  async function themMauChuyenDe12V27Ui(){
     if(!adminDangNhapInfo||!adminDangNhapInfo.sessionToken)return;
-    setBusyV13(true,'Đang thêm mẫu Chuyên đề 12...');
-    google.script.run
-      .withSuccessHandler(function(res){
-        setBusyV13(false);
-        alertV13((res&&res.success?'✅ ':'❌ ')+(res?res.message:''));
-        if(res&&res.success){
-          applyClassCatalogV23(res);
-          const p=document.getElementById('lopPreviewV23');
-          if(p)p.innerText=res.added
-            ? `Đã thêm ${res.added} dòng Chuyên đề 12. Hãy điền Môn/KHBD và đổi Trạng thái thành "Đang dùng".`
-            : 'Đã có đủ mẫu Chuyên đề 12 trong sheet Lớp.';
-        }
-      })
-      .withFailureHandler(function(err){
-        setBusyV13(false);
-        alertV13('❌ Không thêm được mẫu Chuyên đề 12: '+(err&&err.message?err.message:err));
-      })
-      .themMauChuyenDe12V27({token:adminDangNhapInfo.sessionToken});
+    const rows=[];for(let i=1;i<=13;i++)rows.push([12,`12 Chuyên đề ${String(i).padStart(2,'0')}`,'Chuyên đề','','Ngừng',100+i]);
+    setBusyV13(true,'Đang thêm mẫu Chuyên đề 12 vào Supabase...');
+    try{
+      const res=await callSodbEdgeRpcV67('capNhatDanhSachLopV701',[rows,'APPEND',{token:adminDangNhapInfo.sessionToken}]);
+      setBusyV13(false);if(!res?.success){alertV13('❌ '+(res?.message||'Không cập nhật được danh mục lớp.'));return;}
+      applyClassCatalogV23(res);alertV13(`✅ Đã bổ sung ${Number(res.rows||0)} dòng mẫu Chuyên đề 12 vào Supabase.`);
+      const p=document.getElementById('lopPreviewV23');if(p)p.innerText=`Supabase đã bổ sung ${Number(res.rows||0)} lớp mẫu; các dòng đã tồn tại được giữ nguyên.`;
+    }catch(err){setBusyV13(false);alertV13('❌ Không thêm được mẫu Chuyên đề 12: '+(err?.message||err));}
   }
 
-  function themLopChuyenDeV27Ui(){
+  async function themLopChuyenDeV27Ui(){
     if(!adminDangNhapInfo||!adminDangNhapInfo.sessionToken)return;
     const lop=String(document.getElementById('specialClassNameV27')?.value||'').trim();
     const mon=canonicalSubjectV6955(document.getElementById('specialClassSubjectV27')?.value);
     if(!lop){alertV13('⚠️ Vui lòng nhập tên lớp chuyên đề.');return;}
     if(!mon){alertV13('⚠️ Vui lòng nhập Môn/KHBD.');return;}
-
-    setBusyV13(true,'Đang thêm lớp chuyên đề...');
-    google.script.run
-      .withSuccessHandler(function(res){
-        setBusyV13(false);
-        alertV13((res&&res.success?'✅ ':'❌ ')+(res?res.message:''));
-        if(res&&res.success){
-          applyClassCatalogV23(res);
-          document.getElementById('specialClassNameV27').value='';
-          document.getElementById('specialClassSubjectV27').value='';
-          const p=document.getElementById('lopPreviewV23');
-          if(p)p.innerText=res.message||'Đã cập nhật lớp chuyên đề.';
-        }
-      })
-      .withFailureHandler(function(err){
-        setBusyV13(false);
-        alertV13('❌ Không thêm được lớp chuyên đề: '+(err&&err.message?err.message:err));
-      })
-      .themLopChuyenDeV27(lop,mon,{token:adminDangNhapInfo.sessionToken});
+    const khoi=Number(lop.match(/^(10|11|12)/)?.[1]||12);if(khoi!==12){alertV13('⚠️ Chức năng thêm nhanh này dành cho Chuyên đề khối 12.');return;}
+    setBusyV13(true,'Đang cập nhật lớp chuyên đề trên Supabase...');
+    try{
+      const res=await callSodbEdgeRpcV67('capNhatDanhSachLopV701',[[[12,lop,'Chuyên đề',mon,'Đang dùng',999]],'UPSERT',{token:adminDangNhapInfo.sessionToken}]);
+      setBusyV13(false);if(!res?.success){alertV13('❌ '+(res?.message||'Không cập nhật được lớp chuyên đề.'));return;}
+      applyClassCatalogV23(res);document.getElementById('specialClassNameV27').value='';document.getElementById('specialClassSubjectV27').value='';
+      const p=document.getElementById('lopPreviewV23');if(p)p.innerText=`Đã cập nhật ${lop} - ${mon} trên Supabase.`;alertV13(`✅ Đã cập nhật lớp chuyên đề ${lop} - ${mon}.`);
+    }catch(err){setBusyV13(false);alertV13('❌ Không thêm được lớp chuyên đề: '+(err?.message||err));}
   }
 
-  function taoSheetLopV23Ui(){
+  async function taoSheetLopV23Ui(){
     if(!adminDangNhapInfo||!adminDangNhapInfo.sessionToken)return;
-    google.script.run
-      .withSuccessHandler(function(res){
-        alertV13((res&&res.success?'✅ ':'❌ ')+(res?res.message:''));
-        if(res&&res.success){
-          document.getElementById('lopPreviewV23').innerText=`Sheet "${res.sheetName}" hiện có ${res.rows} lớp.`;
-          google.script.run.withSuccessHandler(applyBootstrapV6).getBootstrapClientV6(tokenMapFromLoginV4(currentUnifiedLoginV4));
-        }
-      })
-      .taoSheetLopV23({token:adminDangNhapInfo.sessionToken});
+    try{
+      const res=await callSodbEdgeRpcV67('getDanhSachLopMoiV29',[]);if(!res?.success)throw new Error(res?.message||'Không tải được danh mục lớp.');
+      applyClassCatalogV23(res);classCatalogLoadedAtV47=Date.now();
+      const count=['10','11','12'].reduce((n,k)=>n+(res.classes?.[k]?.length||0),0),p=document.getElementById('lopPreviewV23');if(p)p.innerText=`Đã làm mới ${count} lớp trực tiếp từ Supabase.`;
+      showToastV9('Đã làm mới danh mục lớp Supabase.','success');
+    }catch(err){alertV13('❌ Không làm mới được danh mục lớp Supabase: '+(err?.message||err));}
   }
 
-  function uploadLopV23(){
+  async function uploadLopV23(){
     if(!adminDangNhapInfo||!adminDangNhapInfo.sessionToken)return;
     if(!parsedLopDataV23.length){alertV13('⚠️ Chưa chọn file danh sách lớp.');return;}
-    const mode=document.getElementById('lopModeV23').value;
-    google.script.run
-      .withSuccessHandler(function(res){
-        alertV13((res&&res.success?'✅ ':'❌ ')+(res?res.message:''));
-        if(res&&res.success){
-          applyClassCatalogV23(res);
-          document.getElementById('lopPreviewV23').innerText=`Đã import ${res.rows||0} lớp. Dropdown lớp đã được cập nhật.`;
-          parsedLopDataV23=[];
-          const input=document.getElementById('lopFileV23');if(input)input.value='';
-        }
-      })
-      .withFailureHandler(function(err){alertV13('❌ Không import được danh sách lớp: '+(err&&err.message?err.message:err));})
-      .capNhatDanhSachLopV23(parsedLopDataV23,mode,{token:adminDangNhapInfo.sessionToken});
+    const mode=document.getElementById('lopModeV23').value;setBusyV13(true,'Đang cập nhật danh mục lớp trên Supabase...');
+    try{
+      const res=await callSodbEdgeRpcV67('capNhatDanhSachLopV701',[parsedLopDataV23,mode,{token:adminDangNhapInfo.sessionToken}]);
+      setBusyV13(false);if(!res?.success){alertV13('❌ '+(res?.message||'Không import được danh sách lớp.'));return;}
+      applyClassCatalogV23(res);classCatalogLoadedAtV47=Date.now();alertV13('✅ '+(res.message||'Đã cập nhật danh mục lớp Supabase.'));
+      document.getElementById('lopPreviewV23').innerText=`Đã xử lý ${res.rows||0} lớp trên Supabase. Dropdown lớp đã được cập nhật.`;
+      parsedLopDataV23=[];const input=document.getElementById('lopFileV23');if(input)input.value='';
+    }catch(err){setBusyV13(false);alertV13('❌ Không import được danh sách lớp: '+(err?.message||err));}
   }
 
   function taiFileMauHSV4(){
@@ -292,33 +263,34 @@
     let data=[["Lớp","Mã HS","Họ tên","Trạng thái"],["10A01","HS001","Nguyễn Văn B","Đang học"]];
     let wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,"DanhSachHocSinh");XLSX.writeFile(wb,"FileMau_DanhSachHocSinh_V4.xlsx");
   }
+  function setStudentImportUiV7015(state,message){
+    const btn=document.getElementById('hsSaveBtnV4'),status=document.getElementById('hsImportStatusV7015');
+    if(status){status.className='small mt-2 '+(state==='error'?'text-danger':state==='ok'?'text-success':'text-muted');status.textContent=message||'';}
+    if(btn){btn.disabled=state==='busy'||!parsedHSDataV4.length;btn.classList.toggle('btn-primary',state!=='busy'&&!!parsedHSDataV4.length);btn.classList.toggle('btn-secondary',state==='busy'||!parsedHSDataV4.length);btn.innerHTML=state==='busy'?'<span class="spinner-border spinner-border-sm me-1"></span>Đang lưu...':'Lưu DS học sinh vào Supabase';}
+  }
   function docFileExcelHSV4(event){
   if (!window.XLSX) { const input = event && event.target; ensureXlsxV7().then(() => docFileExcelHSV4({target: input})).catch(err => alertV13('❌ ' + (err.message || err))); return; }
-    let f=event.target.files[0];if(!f)return;let rd=new FileReader();
-    rd.onload=function(e){try{let wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'}),ws=wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});parsedHSDataV4=(rows||[]).slice(1).filter(r=>r.some(v=>String(v).trim()!==''));document.getElementById('hsPreviewV4').innerText=`Đã đọc ${parsedHSDataV4.length} học sinh.`;}catch(err){parsedHSDataV4=[];alertV13('❌ File học sinh không hợp lệ: '+err);}};
+    let f=event.target.files[0];if(!f)return;let rd=new FileReader();setStudentImportUiV7015('idle','Đang đọc file học sinh...');
+    rd.onload=function(e){try{let wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'}),ws=wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});parsedHSDataV4=(rows||[]).slice(1).filter(r=>r.some(v=>String(v).trim()!==''));const p=document.getElementById('hsPreviewV4');if(p)p.innerText=`Đã đọc ${parsedHSDataV4.length} học sinh.`;setStudentImportUiV7015('ready',parsedHSDataV4.length?`Sẵn sàng lưu ${parsedHSDataV4.length.toLocaleString('vi-VN')} học sinh.`:'Không có dòng học sinh hợp lệ trong file.');}catch(err){parsedHSDataV4=[];setStudentImportUiV7015('error','File học sinh không hợp lệ.');alertV13('❌ File học sinh không hợp lệ: '+err);}};
     rd.readAsArrayBuffer(f);
   }
-  function uploadHSV4(){
-    if(!adminDangNhapInfo||!adminDangNhapInfo.sessionToken)return;
-    if(!parsedHSDataV4.length){alertV13('⚠️ Chưa chọn file học sinh.');return;}
-    google.script.run.withSuccessHandler(function(res){alertV13((res&&res.success?'✅ ':'❌ ')+(res?res.message:''));})
-      .capNhatDanhSachHocSinhV4(parsedHSDataV4,document.getElementById('hsModeV4').value,{token:adminDangNhapInfo.sessionToken});
+  async function uploadHSV4(){
+    const auth=typeof getAdminAuthV69==='function'?getAdminAuthV69():{token:(adminDangNhapInfo&&adminDangNhapInfo.sessionToken)||''};
+    if(!auth?.token){setStudentImportUiV7015('error','Phiên Admin không hợp lệ. Vui lòng đăng nhập lại.');alertV13('⚠️ Phiên Admin không hợp lệ.');return;}
+    if(!parsedHSDataV4.length){setStudentImportUiV7015('error','Chưa có dữ liệu học sinh để lưu.');alertV13('⚠️ Chưa chọn file học sinh.');return;}
+    const total=parsedHSDataV4.length,mode=document.getElementById('hsModeV4').value;
+    setStudentImportUiV7015('busy',`Đang lưu ${total.toLocaleString('vi-VN')} học sinh vào Supabase...`);
+    setBusyV13(true,`Đang lưu ${total.toLocaleString('vi-VN')} học sinh trên Supabase...`);
+    try{
+      const started=performance.now();
+      const res=await callSodbEdgeRpcV67('capNhatDanhSachHocSinhV701',[parsedHSDataV4,mode,auth],45000);
+      setBusyV13(false);if(!res?.success){setStudentImportUiV7015('error',res?.message||'Không lưu được danh sách học sinh.');alertV13('❌ '+(res?.message||'Không lưu được danh sách học sinh.'));return;}
+      const ms=Math.round(performance.now()-started),p=document.getElementById('hsPreviewV4');if(p)p.innerText=`Năm học ${res.namHoc||''}: đã xử lý ${res.rows||0} học sinh trên Supabase.`;
+      setStudentImportUiV7015('ok',`Đã lưu ${Number(res.rows||0).toLocaleString('vi-VN')} học sinh · ${ms} ms.`);
+      parsedHSDataV4=[];const input=document.getElementById('hsFileV4');if(input)input.value='';const btn=document.getElementById('hsSaveBtnV4');if(btn)btn.disabled=true;alertV13('✅ '+(res.message||'Đã cập nhật danh sách học sinh Supabase.'));
+    }catch(err){setBusyV13(false);setStudentImportUiV7015('error','Không lưu được: '+(err?.message||err));alertV13('❌ Không lưu được danh sách học sinh: '+(err?.message||err));}
   }
-  async function doiMatKhauAdminUiV4(){
-    if(!adminDangNhapInfo)return;
-    const oldPw=await promptV13('Nhập mật khẩu Admin hiện tại.',{
-      title:'Đổi mật khẩu Admin',label:'Mật khẩu hiện tại',type:'password'
-    });
-    if(!oldPw)return;
-    const newPw=await promptV13('Nhập mật khẩu mới. Mật khẩu nên có ít nhất 8 ký tự, gồm chữ và số.',{
-      title:'Đổi mật khẩu Admin',label:'Mật khẩu mới',type:'password'
-    });
-    if(!newPw)return;
-    google.script.run.withSuccessHandler(function(res){
-      alertV13((res&&res.success?'✅ ':'❌ ')+(res?res.message:''));
-      if(res&&res.success)location.reload();
-    }).doiMatKhauAdminV4(oldPw,newPw,{token:adminDangNhapInfo.sessionToken});
-  }
+
   function luuCauHinhUiV4(){
     if(!adminDangNhapInfo)return;
     // V70: SCHOOL_YEAR/WEEK1_START chỉ thay đổi qua School Year Lifecycle để không bỏ qua archive.
@@ -392,7 +364,7 @@
       document.getElementById('diemNeNep').value=x.diemNeNep;
       document.getElementById('hsVang').value=x.hsVang;
       document.getElementById('tenHSVang').value=x.tenHSVang||'';
-      if(typeof refreshGroupAttendanceV6951==='function')setTimeout(()=>refreshGroupAttendanceV6951(Array.isArray(x.groupAbsentStudentIds)?x.groupAbsentStudentIds:[]),80);
+      if(typeof refreshGroupAttendanceV6951==='function')Promise.resolve().then(()=>refreshGroupAttendanceV6951(Array.isArray(x.groupAbsentStudentIds)?x.groupAbsentStudentIds:[]));
       document.getElementById('nhanXet').value=x.nhanXet||'';
       document.getElementById('isTietTron').checked=!!x.isTietTron;
       if(Array.isArray(x.gdtcClasses)&&x.gdtcClasses.length){

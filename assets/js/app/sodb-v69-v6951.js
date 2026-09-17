@@ -210,7 +210,7 @@ function docFileNhomV6951(event){
 async function uploadDanhSachNhomV6951(){
   if(!adminDangNhapInfo?.sessionToken){alertV13('❌ Cần quyền Admin.');return;}if(!parsedGroupRosterV6951.length){alertV13('⚠️ Chưa chọn file danh sách nhóm.');return;}
   const mode=document.getElementById('groupRosterModeV6951')?.value||'REPLACE_GROUP';
-  try{const r=await callSodbEdgeRpcV67('luuDanhSachHocSinhNhomV6951',[parsedGroupRosterV6951,mode,{token:adminDangNhapInfo.sessionToken}]);alertV13((r?.success?'✅ ':'❌ ')+(r?.message||''));if(r?.success){parsedGroupRosterV6951=[];const inp=document.getElementById('groupRosterFileV6951');if(inp)inp.value='';}}catch(e){alertV13('❌ '+(e?.message||e));}
+  try{const r=await callSodbEdgeRpcV67('luuDanhSachHocSinhNhomV6951',[parsedGroupRosterV6951,mode,{token:adminDangNhapInfo.sessionToken}],60000);alertV13((r?.success?'✅ ':'❌ ')+(r?.message||''));if(r?.success){parsedGroupRosterV6951=[];const inp=document.getElementById('groupRosterFileV6951');if(inp)inp.value='';}}catch(e){alertV13('❌ '+(e?.message||e));}
 }
 
 function getGroupReportAuthV6951(){

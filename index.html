@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <link rel="stylesheet" href="assets/css/sodb-v69.css?v=70.1.5">
+  <link rel="stylesheet" href="assets/css/sodb-v69.css?v=70.3.1.1">
 
 
 
@@ -1830,8 +1830,8 @@
                   File Excel gồm các cột: <b>Khối | Tên lớp | Nhóm sổ | Môn/KHBD | Trạng thái | Thứ tự</b>.
                 </div>
                 <div class="small text-muted mb-3">
-                  Nhóm sổ dùng: <b>Lớp chính</b>, <b>Chuyên đề</b> hoặc <b>GDTC</b>.
-                  Lớp GDTC là <b>lớp/nhóm độc lập</b> do nhà trường đặt tên (VD: BC1, CL2); không ghép nhiều lớp ngay trong một bản ghi SĐB.
+                  Loại lớp dùng: <b>Lớp chính</b>, <b>Chuyên đề</b>, <b>Cầu lông</b>, <b>Bóng chuyền</b> hoặc <b>GDTC</b>.
+                  Với nhóm GDTC độc lập (VD: BC3, CL11), khai báo đúng loại trong cột <b>Nhóm sổ</b>; hệ thống không suy đoán loại lớp từ tên BC/CL.
                 </div>
                 <div class="d-flex flex-wrap gap-2 align-items-center">
                   <button type="button" class="btn btn-outline-primary" onclick="taoSheetLopV23Ui()">Làm mới từ Supabase</button>
@@ -1845,6 +1845,45 @@
                   <button type="button" class="btn btn-primary fw-bold" onclick="uploadLopV23()">Import vào Supabase</button>
                 </div>
                 <div id="lopPreviewV23" class="small text-muted mt-2"></div>
+
+                <div class="border rounded p-3 mt-3 class-group-relation-v7031">
+                  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                    <div>
+                      <div class="fw-bold text-primary">Loại lớp &amp; Nhóm học liên quan</div>
+                      <div class="small text-muted">Loại lớp lấy từ bảng <code>lop</code>. Nhóm học liên quan lưu riêng theo năm học; không ghép bằng dấu <code>;</code>.</div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="taiQuanHeLopNhomV7031(true)">Làm mới quan hệ</button>
+                  </div>
+                  <div id="classGroupSummaryV7031" class="small text-muted mb-2">Chưa tải quan hệ lớp/nhóm.</div>
+                  <div class="table-responsive class-group-table-v7031">
+                    <table class="table table-sm table-bordered align-middle mb-3">
+                      <thead class="table-light"><tr><th>Lớp</th><th>Khối</th><th>Loại lớp</th><th>Nhóm học liên quan</th><th style="width:90px">Sửa</th></tr></thead>
+                      <tbody id="classGroupBodyV7031"><tr><td colspan="5" class="text-center text-muted py-3">Bấm “Làm mới quan hệ” để tải dữ liệu.</td></tr></tbody>
+                    </table>
+                  </div>
+                  <div class="row g-2 align-items-end border-top pt-3" id="classGroupEditorV7031">
+                    <div class="col-lg-3 col-md-6">
+                      <label class="form-label mb-1 fw-semibold">Lớp</label>
+                      <select id="classGroupClassV7031" class="form-select" onchange="chonLopQuanHeV7031(this.value)"><option value="">-- Chọn lớp --</option></select>
+                    </div>
+                    <div class="col-lg-2 col-md-6">
+                      <label class="form-label mb-1 fw-semibold">Loại lớp</label>
+                      <input id="classGroupBaseTypeV7031" class="form-control" value="" readonly>
+                    </div>
+                    <div class="col-lg-5">
+                      <label class="form-label mb-1 fw-semibold">Nhóm học liên quan</label>
+                      <div class="d-flex flex-wrap gap-3 border rounded bg-white px-3 py-2">
+                        <label class="form-check mb-0"><input class="form-check-input class-related-v7031" type="checkbox" value="Cầu lông"> <span class="form-check-label">Cầu lông</span></label>
+                        <label class="form-check mb-0"><input class="form-check-input class-related-v7031" type="checkbox" value="Bóng chuyền"> <span class="form-check-label">Bóng chuyền</span></label>
+                        <label class="form-check mb-0"><input class="form-check-input class-related-v7031" type="checkbox" value="Chuyên đề"> <span class="form-check-label">Chuyên đề</span></label>
+                      </div>
+                    </div>
+                    <div class="col-lg-2">
+                      <button type="button" id="classGroupSaveV7031" class="btn btn-primary w-100" onclick="luuQuanHeLopNhomV7031()">Lưu quan hệ</button>
+                    </div>
+                    <div class="col-12"><div id="classGroupHelpV7031" class="small text-muted">Nếu đây chỉ là lớp chủ nhiệm có học sinh tham gia GDTC, hãy khai báo thành viên thực tế ở mục <b>Học sinh &amp; phân nhóm</b>; quan hệ này không thay thế danh sách thành viên nhóm.</div></div>
+                  </div>
+                </div>
 
                 <div class="border rounded p-3 mt-3 bg-light">
                   <div class="fw-bold mb-2">Thêm nhanh lớp Chuyên đề 12</div>
@@ -1938,15 +1977,20 @@
                   <div class="card mb-3">
                     <div class="card-header"><strong>3. Kho lưu trữ năm học — chỉ đọc</strong></div>
                     <div class="card-body">
-                      <div class="row g-2 align-items-end mb-3">
-                        <div class="col-md-3"><label class="form-label small fw-bold">Năm học</label><select id="archiveYearSelectV700" class="form-select"><option value="">-- Chọn năm đã archive --</option></select></div>
-                        <div class="col-md-3"><label class="form-label small fw-bold">Lớp</label><select id="archiveClassV700" class="form-select"><option value="">Tất cả lớp</option></select></div>
-                        <div class="col-md-2"><label class="form-label small fw-bold">Tuần</label><select id="archiveWeekV700" class="form-select"><option value="0">Tất cả</option><option value="1">Tuần 1</option><option value="2">Tuần 2</option><option value="3">Tuần 3</option><option value="4">Tuần 4</option><option value="5">Tuần 5</option><option value="6">Tuần 6</option><option value="7">Tuần 7</option><option value="8">Tuần 8</option><option value="9">Tuần 9</option><option value="10">Tuần 10</option><option value="11">Tuần 11</option><option value="12">Tuần 12</option><option value="13">Tuần 13</option><option value="14">Tuần 14</option><option value="15">Tuần 15</option><option value="16">Tuần 16</option><option value="17">Tuần 17</option><option value="18">Tuần 18</option><option value="19">Tuần 19</option><option value="20">Tuần 20</option><option value="21">Tuần 21</option><option value="22">Tuần 22</option><option value="23">Tuần 23</option><option value="24">Tuần 24</option><option value="25">Tuần 25</option><option value="26">Tuần 26</option><option value="27">Tuần 27</option><option value="28">Tuần 28</option><option value="29">Tuần 29</option><option value="30">Tuần 30</option><option value="31">Tuần 31</option><option value="32">Tuần 32</option><option value="33">Tuần 33</option><option value="34">Tuần 34</option><option value="35">Tuần 35</option><option value="36">Tuần 36</option><option value="37">Tuần 37</option><option value="38">Tuần 38</option><option value="39">Tuần 39</option><option value="40">Tuần 40</option><option value="41">Tuần 41</option><option value="42">Tuần 42</option><option value="43">Tuần 43</option><option value="44">Tuần 44</option><option value="45">Tuần 45</option><option value="46">Tuần 46</option><option value="47">Tuần 47</option><option value="48">Tuần 48</option><option value="49">Tuần 49</option><option value="50">Tuần 50</option><option value="51">Tuần 51</option><option value="52">Tuần 52</option><option value="53">Tuần 53</option></select></div>
-                        <div class="col-md-2 d-grid"><button class="btn btn-dark" type="button" onclick="loadArchiveSchoolYearV700()">Xem lưu trữ</button></div>
-                        <div class="col-md-2"><div class="small text-muted">Tối đa 500 dòng/lần.</div></div>
+                      <div class="row g-2 align-items-end mb-2">
+                        <div class="col-lg-3 col-md-6"><label class="form-label small fw-bold">Năm học</label><select id="archiveYearSelectV700" class="form-select" onchange="archiveChangeFilterV702()"><option value="">-- Chọn năm đã archive --</option></select></div>
+                        <div class="col-lg-3 col-md-6"><label class="form-label small fw-bold">Lớp</label><select id="archiveClassV700" class="form-select" onchange="archiveChangeFilterV702()"><option value="">Tất cả lớp</option></select></div>
+                        <div class="col-lg-2 col-md-4"><label class="form-label small fw-bold">Tuần</label><select id="archiveWeekV700" class="form-select" onchange="archiveChangeFilterV702()"><option value="0">Tất cả</option><option value="1">Tuần 1</option><option value="2">Tuần 2</option><option value="3">Tuần 3</option><option value="4">Tuần 4</option><option value="5">Tuần 5</option><option value="6">Tuần 6</option><option value="7">Tuần 7</option><option value="8">Tuần 8</option><option value="9">Tuần 9</option><option value="10">Tuần 10</option><option value="11">Tuần 11</option><option value="12">Tuần 12</option><option value="13">Tuần 13</option><option value="14">Tuần 14</option><option value="15">Tuần 15</option><option value="16">Tuần 16</option><option value="17">Tuần 17</option><option value="18">Tuần 18</option><option value="19">Tuần 19</option><option value="20">Tuần 20</option><option value="21">Tuần 21</option><option value="22">Tuần 22</option><option value="23">Tuần 23</option><option value="24">Tuần 24</option><option value="25">Tuần 25</option><option value="26">Tuần 26</option><option value="27">Tuần 27</option><option value="28">Tuần 28</option><option value="29">Tuần 29</option><option value="30">Tuần 30</option><option value="31">Tuần 31</option><option value="32">Tuần 32</option><option value="33">Tuần 33</option><option value="34">Tuần 34</option><option value="35">Tuần 35</option><option value="36">Tuần 36</option><option value="37">Tuần 37</option><option value="38">Tuần 38</option><option value="39">Tuần 39</option><option value="40">Tuần 40</option><option value="41">Tuần 41</option><option value="42">Tuần 42</option><option value="43">Tuần 43</option><option value="44">Tuần 44</option><option value="45">Tuần 45</option><option value="46">Tuần 46</option><option value="47">Tuần 47</option><option value="48">Tuần 48</option><option value="49">Tuần 49</option><option value="50">Tuần 50</option><option value="51">Tuần 51</option><option value="52">Tuần 52</option><option value="53">Tuần 53</option></select></div>
+                        <div class="col-lg-1 col-md-3"><label class="form-label small fw-bold">Dòng/trang</label><select id="archivePageSizeV702" class="form-select" onchange="archiveChangePageSizeV702()"><option value="25">25</option><option value="50" selected>50</option><option value="100">100</option></select></div>
+                        <div class="col-lg-1 col-md-2 d-grid"><button class="btn btn-dark" type="button" onclick="loadArchiveSchoolYearV702(1)">Xem</button></div>
+                        <div class="col-lg-2 col-md-3 d-grid"><button id="btnArchivePrintV702" class="btn btn-outline-primary" type="button" onclick="printArchiveWeekV702()" disabled>In hồ sơ A3</button></div>
                       </div>
-                      <div id="archiveStatusV700" class="small text-muted mb-2">Chưa chọn năm lưu trữ.</div>
-                      <div class="table-responsive border rounded" style="max-height:430px;overflow:auto"><table class="table table-sm table-bordered align-middle mb-0"><thead class="table-light sticky-top"><tr><th>Lớp</th><th>Tuần</th><th>Ngày</th><th>Tiết</th><th>Môn</th><th>PPCT</th><th>Bài dạy</th><th>Giáo viên</th><th>Nhận xét</th></tr></thead><tbody id="archiveRowsBodyV700"><tr><td colspan="9" class="text-center text-muted py-3">Chưa tải dữ liệu.</td></tr></tbody></table></div>
+                      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                        <div id="archiveStatusV700" class="small text-muted">Chưa chọn năm lưu trữ.</div>
+                        <div class="d-flex align-items-center gap-2"><button id="archivePrevV702" type="button" class="btn btn-outline-secondary btn-sm" onclick="archiveGoPageV702(-1)" disabled>← Trang trước</button><span id="archivePageInfoV702" class="small text-muted">0 dòng</span><button id="archiveNextV702" type="button" class="btn btn-outline-secondary btn-sm" onclick="archiveGoPageV702(1)" disabled>Trang sau →</button></div>
+                      </div>
+                      <div class="alert alert-light border py-2 small mb-2"><b>V70.2:</b> bảng archive phân trang để tải nhẹ. Chữ ký chỉ cấp URL tạm thời khi bấm <b>Xem</b>. Muốn in hồ sơ cần chọn đúng <b>Năm học + Lớp + Tuần</b>.</div>
+                      <div class="table-responsive border rounded" style="max-height:500px;overflow:auto"><table class="table table-sm table-bordered align-middle mb-0"><thead class="table-light sticky-top"><tr><th>Lớp</th><th>Tuần</th><th>Ngày</th><th>Tiết</th><th>Môn</th><th>PPCT</th><th>HS vắng</th><th>Bài dạy</th><th>Giáo viên</th><th>Nhận xét</th><th>Chữ ký</th></tr></thead><tbody id="archiveRowsBodyV700"><tr><td colspan="11" class="text-center text-muted py-3">Chưa tải dữ liệu.</td></tr></tbody></table></div>
                     </div>
                   </div>
 
@@ -2101,22 +2145,22 @@
 
 
 <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/sodb-v69-runtime.js?v=70.1.5"></script>
-<script src="assets/js/app/sodb-v69-core.js?v=70.1.5"></script>
-<script src="assets/js/app/sodb-v69-khbd.js?v=70.1.5"></script>
-<script src="assets/js/app/sodb-v69-operations.js?v=70.1.5"></script>
-<script src="assets/js/app/sodb-v69-print.js?v=70.1.5"></script>
-<script src="assets/js/app/sodb-v69-admin.js?v=70.1.5"></script>
-<script src="assets/js/app/sodb-v70-lifecycle.js?v=70.1.5"></script>
-<script src="assets/js/app/sodb-v69-bgh.js?v=70.1.5"></script>
-<script src="assets/js/app/sodb-v69-masterdata.js?v=70.1.5"></script>
-<script src="assets/js/app/sodb-v69-control.js?v=70.1.5"></script>
-<script src="assets/js/app/sodb-v69-v694.js?v=70.1.5"></script>
-<script src="assets/js/app/sodb-v69-v695.js?v=70.1.5"></script>
-<script src="assets/js/app/sodb-v69-v6951.js?v=70.1.5"></script>
-<script src="assets/js/app/sodb-v69-ux.js?v=70.1.5"></script>
-<script src="assets/js/sodb-v69-gvcn.js?v=70.1.5"></script>
-<script src="assets/js/sodb-v69-reports.js?v=70.1.5"></script>
+<script src="assets/js/sodb-v69-runtime.js?v=70.3.1.1"></script>
+<script src="assets/js/app/sodb-v69-core.js?v=70.3.1.1"></script>
+<script src="assets/js/app/sodb-v69-khbd.js?v=70.3.1.1"></script>
+<script src="assets/js/app/sodb-v69-operations.js?v=70.3.1.1"></script>
+<script src="assets/js/app/sodb-v69-print.js?v=70.3.1.1"></script>
+<script src="assets/js/app/sodb-v69-admin.js?v=70.3.1.1"></script>
+<script src="assets/js/app/sodb-v70-lifecycle.js?v=70.3.1.1"></script>
+<script src="assets/js/app/sodb-v69-bgh.js?v=70.3.1.1"></script>
+<script src="assets/js/app/sodb-v69-masterdata.js?v=70.3.1.1"></script>
+<script src="assets/js/app/sodb-v69-control.js?v=70.3.1.1"></script>
+<script src="assets/js/app/sodb-v69-v694.js?v=70.3.1.1"></script>
+<script src="assets/js/app/sodb-v69-v695.js?v=70.3.1.1"></script>
+<script src="assets/js/app/sodb-v69-v6951.js?v=70.3.1.1"></script>
+<script src="assets/js/app/sodb-v69-ux.js?v=70.3.1.1"></script>
+<script src="assets/js/sodb-v69-gvcn.js?v=70.3.1.1"></script>
+<script src="assets/js/sodb-v69-reports.js?v=70.3.1.1"></script>
 
 
 </body>

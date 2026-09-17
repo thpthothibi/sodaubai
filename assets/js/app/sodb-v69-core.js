@@ -142,11 +142,9 @@ let varDiemTB = 10;
   ["10","11","12"].forEach(k=>{dsLopTheoKhoi[k]=[...(dsLopChinhTheoKhoiV22[k]||[]),...(dsLopDacBietTheoKhoiV22[k]||[])];});
 
   function loaiSoTheoLopV22(lop){
+    // V70.3.1: loại sổ phải đến từ metadata Supabase, không suy đoán từ tên BC/CL/tên lớp.
     const meta=getClassMetaClientV26(lop);
     if(meta&&meta.type)return meta.type;
-    const s=normalizeTextKey(lop);
-    if(s.includes('chuyen de'))return 'CHUYEN_DE';
-    if(s.includes('gdtc')||s.includes('giao duc the chat'))return 'GDTC';
     return 'LOP_CHINH';
   }
   function tieuDeSoTheoLopV22(lop,bookMode){
@@ -917,28 +915,29 @@ let varDiemTB = 10;
   function boChonKhbdV67(){const khoi=Number(document.getElementById('khbdMyKhoiV67')?.value||10),mon=canonicalSubjectV6955(document.getElementById('khbdMyMonV67')?.value),lop=String(document.getElementById('khbdMyLopV691')?.value||'').trim();if(!lop){showToastV9('Vui lòng chọn lớp.','danger');return;}google.script.run.withSuccessHandler(function(res){if(res?.success){showToastV9(res.message,'success');lessonPlanCache={};taiKhbdCaNhanV67();}}).chonKhbdCaNhanV67({mode:'CLEAR_SCOPE',khoi,mon,lop},getKhbdMyAuthV67());}
 
 
+  function defaultMainTabIdV701(res){
+    const sessions=res?.sessions||{},roles=Array.isArray(res?.roles)?res.roles:[];
+    if(roles.includes('ADMIN'))return 'admin-tab';
+    if(sessions.BGH||roles.includes('BGH'))return 'bgh-workflow-tab-v698';
+    if(sessions.GVBM||roles.includes('GVBM'))return 'input-tab';
+    if(sessions.GIAM_THI||roles.includes('GIAM_THI'))return 'control-tab-v693';
+    if(sessions.GVCN||roles.includes('GVCN'))return 'gvcn-tab';
+    if(sessions.TTCM||roles.includes('TTCM'))return 'ttcm-tab';
+    return 'dashboard-tab-v9';
+  }
   function moTabMacDinhV33(res){
+    // V70.1: Không dựng Dashboard sau đăng nhập. Mở thẳng mô-đun chính theo scope.
     setTimeout(function(){
-      const btn=document.getElementById('dashboard-tab-v9');
-      if(btn){
-        try{
-          if(window.bootstrap)bootstrap.Tab.getOrCreateInstance(btn).show();
-          else btn.click();
-        }catch(e){try{btn.click();}catch(_e){}}
-      }
-      const runDash=()=>{
-        refreshDashboardV9(false);
-        const roles=Array.isArray(currentUnifiedLoginV4?.roles)?currentUnifiedLoginV4.roles:[];
-        const canControl=roles.some(r=>['GIAM_THI','BGH','ADMIN'].includes(r));
-        if(canControl&&typeof refreshDashboardControlSummaryV693==='function')setTimeout(()=>refreshDashboardControlSummaryV693(false),260);
-        if(typeof alertAllowedV695==='function'&&alertAllowedV695()&&typeof loadAutomaticAlertsV695==='function')setTimeout(()=>loadAutomaticAlertsV695(false),720);
-      };
-      if('requestIdleCallback' in window)requestIdleCallback(runDash,{timeout:600});else setTimeout(runDash,180);
+      const targetId=defaultMainTabIdV701(res),btn=document.getElementById(targetId);
+      if(!btn)return;
+      try{if(window.bootstrap)bootstrap.Tab.getOrCreateInstance(btn).show();else btn.click();}
+      catch(_e){try{btn.click();}catch(__e){}}
     },40);
   }
 
   function apDungPhanQuyenV4(res,saveSession){
     initClientUiV7();
+    if(typeof invalidateBghWorkflowCacheV701==='function')invalidateBghWorkflowCacheV701();
     currentUnifiedLoginV4=res;
     const sessions=res.sessions||{}, roles=res.roles||[], isAdmin=roles.includes('ADMIN'), isBgh=roles.includes('BGH');
     gvbmDangNhapInfo=null;gvcnDangNhapInfo=null;giamThiDangNhapInfo=null;ttcmDangNhapInfo=null;adminDangNhapInfo=null;
@@ -1059,6 +1058,7 @@ let varDiemTB = 10;
 
   function resetLogoutUiV6(){
     resetOverviewV20();
+    if(typeof invalidateBghWorkflowCacheV701==='function')invalidateBghWorkflowCacheV701();
     inputLessonLoadedV7=false; adminSubjectsLoadedV7=false; bootstrapLoadedV6=false; bootstrapPendingV47=false;
     currentUnifiedLoginV4=null;window.sodbUnifiedSessionValidatedV69555=false;gvbmDangNhapInfo=null;gvcnDangNhapInfo=null;giamThiDangNhapInfo=null;ttcmDangNhapInfo=null;adminDangNhapInfo=null;
     document.getElementById('appShellV4').classList.add('d-none');document.getElementById('loginScreenV4').classList.remove('d-none');document.body.classList.add('auth-locked-v4');
@@ -1066,10 +1066,15 @@ let varDiemTB = 10;
   }
 
   function dangXuatTapTrungV4(){
-    const tokenMap=tokenMapFromLoginV4(currentUnifiedLoginV4);
+    const loginSnapshot=currentUnifiedLoginV4,tokenMap=tokenMapFromLoginV4(loginSnapshot);
+    const sessions=loginSnapshot?.sessions||{};
+    const liveSession=Object.values(sessions).find(x=>x&&x.sessionToken);
+    const revokePromise=liveSession?.sessionToken
+      ? callSodbEdgeRpcV67('dangXuatHeThongV701',[{token:liveSession.sessionToken}]).catch(err=>{console.warn('[SODB V70.1] Không thể thu hồi phiên phía server:',err);return null;})
+      : Promise.resolve(null);
     try{sessionStorage.removeItem('SODB_V4_UNIFIED_LOGIN');}catch(e){}
-    resetLogoutUiV6(); // phản hồi ngay, không chờ server và không reload cả trang
-    try{google.script.run.dangXuatHeThongV4(tokenMap);}catch(e){}
+    resetLogoutUiV6(); // phản hồi ngay; lệnh revoke tiếp tục chạy bằng token đã snapshot
+    revokePromise.finally(()=>{try{google.script.run.dangXuatHeThongV4(tokenMap);}catch(_e){}});
   }
 
 

@@ -148,6 +148,49 @@
       .lamNongCacheV62({token:adminDangNhapInfo.sessionToken});
   }
 
+
+  let classGroupRowsV7031=[];
+  function classGroupEscV7031(v){return typeof escapeHtml==='function'?escapeHtml(String(v??'')):String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+  function classGroupAuthV7031(){return typeof getAdminAuthV69==='function'?getAdminAuthV69():{token:(adminDangNhapInfo&&adminDangNhapInfo.sessionToken)||''};}
+  function renderQuanHeLopNhomV7031(){
+    const body=document.getElementById('classGroupBodyV7031'),sel=document.getElementById('classGroupClassV7031'),sum=document.getElementById('classGroupSummaryV7031');
+    if(body)body.innerHTML=classGroupRowsV7031.length?classGroupRowsV7031.map(r=>`<tr><td class="fw-semibold">${classGroupEscV7031(r.tenLop)}</td><td class="text-center">${Number(r.khoi||0)||''}</td><td>${classGroupEscV7031(r.loaiLop||'')}</td><td>${(r.nhomLienQuan||[]).length?(r.nhomLienQuan||[]).map(x=>`<span class="badge text-bg-light border me-1">${classGroupEscV7031(x)}</span>`).join(''):'<span class="text-muted">—</span>'}</td><td><button type="button" class="btn btn-sm btn-outline-primary" onclick="suaQuanHeLopNhomV7031(decodeURIComponent('${encodeURIComponent(String(r.tenLop||''))}'))">Sửa</button></td></tr>`).join(''):'<tr><td colspan="5" class="text-center text-muted py-3">Chưa có lớp.</td></tr>';
+    if(sel){const old=sel.value;sel.innerHTML='<option value="">-- Chọn lớp --</option>'+classGroupRowsV7031.map(r=>`<option value="${classGroupEscV7031(r.tenLop)}">${classGroupEscV7031(r.tenLop)} · ${classGroupEscV7031(r.loaiLop)}</option>`).join('');if(classGroupRowsV7031.some(r=>r.tenLop===old))sel.value=old;}
+    if(sum){const linked=classGroupRowsV7031.filter(r=>(r.nhomLienQuan||[]).length).length;sum.textContent=`Năm học ${window.classGroupYearV7031||''} · ${classGroupRowsV7031.length} lớp · ${linked} lớp có nhóm học liên quan.`;}
+    if(sel?.value)chonLopQuanHeV7031(sel.value);
+  }
+  async function taiQuanHeLopNhomV7031(force=false){
+    if(!hasRoleV4('ADMIN'))return;
+    const body=document.getElementById('classGroupBodyV7031');if(body&&(!classGroupRowsV7031.length||force))body.innerHTML='<tr><td colspan="5" class="text-center text-muted py-3">Đang tải...</td></tr>';
+    try{
+      const r=await callSodbEdgeRpcV67('layQuanHeLopNhomV7031',['',classGroupAuthV7031()]);
+      if(!r?.success)throw new Error(r?.message||'Không tải được quan hệ lớp/nhóm.');
+      window.classGroupYearV7031=r.namHoc||'';classGroupRowsV7031=r.rows||[];renderQuanHeLopNhomV7031();
+    }catch(e){if(body)body.innerHTML=`<tr><td colspan="5" class="text-center text-danger py-3">${classGroupEscV7031(e.message||e)}</td></tr>`;showToastV9(e.message||String(e),'danger');}
+  }
+  function chonLopQuanHeV7031(lop){
+    const r=classGroupRowsV7031.find(x=>x.tenLop===String(lop||'')),base=document.getElementById('classGroupBaseTypeV7031'),btn=document.getElementById('classGroupSaveV7031'),help=document.getElementById('classGroupHelpV7031');
+    if(base)base.value=r?.loaiLop||'';
+    document.querySelectorAll('.class-related-v7031').forEach(cb=>{cb.checked=!!r&&(r.nhomLienQuan||[]).includes(cb.value);cb.disabled=!r||!r.isMain;});
+    if(btn)btn.disabled=!r||!r.isMain;
+    if(help)help.innerHTML=r&&!r.isMain?`<span class="text-warning-emphasis"><b>${classGroupEscV7031(r.tenLop)}</b> đã là <b>${classGroupEscV7031(r.loaiLop)}</b>; không gắn thêm nhóm liên quan vào lớp nhóm độc lập.</span>`:'Nếu đây chỉ là lớp chủ nhiệm có học sinh tham gia GDTC, hãy khai báo thành viên thực tế ở mục <b>Học sinh &amp; phân nhóm</b>; quan hệ này không thay thế danh sách thành viên nhóm.';
+  }
+  function suaQuanHeLopNhomV7031(lop){
+    const sel=document.getElementById('classGroupClassV7031');if(sel)sel.value=lop;chonLopQuanHeV7031(lop);document.getElementById('classGroupEditorV7031')?.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+  async function luuQuanHeLopNhomV7031(){
+    const lop=String(document.getElementById('classGroupClassV7031')?.value||'').trim();if(!lop){showToastV9('Chọn lớp cần khai báo quan hệ.','warning');return;}
+    const row=classGroupRowsV7031.find(x=>x.tenLop===lop);if(!row?.isMain){showToastV9('Chỉ Lớp chính mới dùng mục Nhóm học liên quan.','warning');return;}
+    const related=[...document.querySelectorAll('.class-related-v7031:checked')].map(x=>x.value);
+    try{
+      setBusyV13(true,'Đang lưu quan hệ lớp/nhóm...');
+      const r=await callSodbEdgeRpcV67('luuQuanHeLopNhomV7031',[{tenLop:lop,nhomLienQuan:related},classGroupAuthV7031()]);
+      if(!r?.success)throw new Error(r?.message||'Không lưu được quan hệ.');
+      showToastV9(r.message||'Đã lưu quan hệ lớp/nhóm.','success');await taiQuanHeLopNhomV7031(true);
+      const sel=document.getElementById('classGroupClassV7031');if(sel)sel.value=lop;chonLopQuanHeV7031(lop);
+    }catch(e){alertV13('❌ '+(e.message||e));}finally{setBusyV13(false);}
+  }
+
   function taiFileMauLopV23(){
     if (retryWithXlsxV7(() => taiFileMauLopV23())) return;
     const rows=[["Khối","Tên lớp","Nhóm sổ","Môn/KHBD","Trạng thái","Thứ tự"]];
@@ -156,8 +199,8 @@
       for(let i=1;i<=13;i++)rows.push([k,`${k}A${String(i).padStart(2,'0')}`,"Lớp chính","","Đang dùng",order++]);
     });
     // Dòng mẫu nhóm độc lập. Nhà trường có thể đặt BC1, CL2... và khai báo Môn/KHBD tương ứng.
-    rows.push([10,"BC1","GDTC","Bóng chuyền","Ngừng",90]);
-    rows.push([10,"CL2","GDTC","Cầu lông","Ngừng",91]);
+    rows.push([10,"BC3","Bóng chuyền","Bóng chuyền","Ngừng",90]);
+    rows.push([10,"CL11","Cầu lông","Cầu lông","Ngừng",91]);
     // 13 dòng mẫu chuyên đề 12: nhập tên lớp thực tế + môn, rồi đổi trạng thái thành Đang dùng.
     for(let i=1;i<=13;i++){
       rows.push([12,`12 Chuyên đề ${String(i).padStart(2,'0')}`,"Chuyên đề","","Ngừng",100+i]);
@@ -215,7 +258,7 @@
       const res=await callSodbEdgeRpcV67('capNhatDanhSachLopV701',[rows,'APPEND',{token:adminDangNhapInfo.sessionToken}]);
       setBusyV13(false);if(!res?.success){alertV13('❌ '+(res?.message||'Không cập nhật được danh mục lớp.'));return;}
       applyClassCatalogV23(res);alertV13(`✅ Đã bổ sung ${Number(res.rows||0)} dòng mẫu Chuyên đề 12 vào Supabase.`);
-      const p=document.getElementById('lopPreviewV23');if(p)p.innerText=`Supabase đã bổ sung ${Number(res.rows||0)} lớp mẫu; các dòng đã tồn tại được giữ nguyên.`;
+      const p=document.getElementById('lopPreviewV23');if(p)p.innerText=`Supabase đã bổ sung ${Number(res.rows||0)} lớp mẫu; các dòng đã tồn tại được giữ nguyên.`;try{await taiQuanHeLopNhomV7031(true);}catch(_e){}
     }catch(err){setBusyV13(false);alertV13('❌ Không thêm được mẫu Chuyên đề 12: '+(err?.message||err));}
   }
 
@@ -231,7 +274,7 @@
       const res=await callSodbEdgeRpcV67('capNhatDanhSachLopV701',[[[12,lop,'Chuyên đề',mon,'Đang dùng',999]],'UPSERT',{token:adminDangNhapInfo.sessionToken}]);
       setBusyV13(false);if(!res?.success){alertV13('❌ '+(res?.message||'Không cập nhật được lớp chuyên đề.'));return;}
       applyClassCatalogV23(res);document.getElementById('specialClassNameV27').value='';document.getElementById('specialClassSubjectV27').value='';
-      const p=document.getElementById('lopPreviewV23');if(p)p.innerText=`Đã cập nhật ${lop} - ${mon} trên Supabase.`;alertV13(`✅ Đã cập nhật lớp chuyên đề ${lop} - ${mon}.`);
+      const p=document.getElementById('lopPreviewV23');if(p)p.innerText=`Đã cập nhật ${lop} - ${mon} trên Supabase.`;try{await taiQuanHeLopNhomV7031(true);}catch(_e){}alertV13(`✅ Đã cập nhật lớp chuyên đề ${lop} - ${mon}.`);
     }catch(err){setBusyV13(false);alertV13('❌ Không thêm được lớp chuyên đề: '+(err?.message||err));}
   }
 
@@ -241,7 +284,7 @@
       const res=await callSodbEdgeRpcV67('getDanhSachLopMoiV29',[]);if(!res?.success)throw new Error(res?.message||'Không tải được danh mục lớp.');
       applyClassCatalogV23(res);classCatalogLoadedAtV47=Date.now();
       const count=['10','11','12'].reduce((n,k)=>n+(res.classes?.[k]?.length||0),0),p=document.getElementById('lopPreviewV23');if(p)p.innerText=`Đã làm mới ${count} lớp trực tiếp từ Supabase.`;
-      showToastV9('Đã làm mới danh mục lớp Supabase.','success');
+      showToastV9('Đã làm mới danh mục lớp Supabase.','success');try{await taiQuanHeLopNhomV7031(true);}catch(_e){}
     }catch(err){alertV13('❌ Không làm mới được danh mục lớp Supabase: '+(err?.message||err));}
   }
 
@@ -254,7 +297,7 @@
       setBusyV13(false);if(!res?.success){alertV13('❌ '+(res?.message||'Không import được danh sách lớp.'));return;}
       applyClassCatalogV23(res);classCatalogLoadedAtV47=Date.now();alertV13('✅ '+(res.message||'Đã cập nhật danh mục lớp Supabase.'));
       document.getElementById('lopPreviewV23').innerText=`Đã xử lý ${res.rows||0} lớp trên Supabase. Dropdown lớp đã được cập nhật.`;
-      parsedLopDataV23=[];const input=document.getElementById('lopFileV23');if(input)input.value='';
+      parsedLopDataV23=[];const input=document.getElementById('lopFileV23');if(input)input.value='';try{await taiQuanHeLopNhomV7031(true);}catch(_e){}
     }catch(err){setBusyV13(false);alertV13('❌ Không import được danh sách lớp: '+(err?.message||err));}
   }
 
@@ -485,7 +528,7 @@
       (session.dsLop&&session.dsLop.length?session.dsLop:[session.lop]).filter(Boolean).forEach(l=>classSelect.add(new Option(l,l)));
       if(session.lop)classSelect.value=session.lop;
     }
-    const options={date:document.getElementById('overviewDateV20').value,lop:role==='GVCN'?classSelect.value:''};
+    const options={date:document.getElementById('overviewDateV20').value,lop:role==='GVCN'?classSelect.value:'',force:force===true};
     const key=[session.sessionToken,role,options.date,options.lop].join('|');
     if(overviewStateV20.pending===key)return;
     if(force!==true&&overviewStateV20.data&&overviewStateV20.key===key&&Date.now()-overviewStateV20.loadedAt<45000)return;
@@ -555,19 +598,7 @@ document.getElementById('overviewScopeV20').textContent='Đang tải tổng quan
       selectOverviewListV20(first);
     }
 
-    // V66: nếu Dashboard đã được Edge/backend gộp trong phản hồi đăng nhập thì hiển thị ngay,
-    // không tạo thêm một vòng GitHub Pages → Apps Script (thường tốn ~2 giây dù server xử lý rất nhanh).
-    const initialDashV64=login&&login.initialDashboardV64;
-    if(force!==true&&initialDashV64&&initialDashV64.data&&initialDashV64.data.success&&initialDashV64.role===role){
-      const initialOptionsV64=initialDashV64.options||{};
-      const sameDateV64=String(initialOptionsV64.date||'')===String(options.date||'');
-      const sameClassV64=role!=='GVCN'||String(initialOptionsV64.lop||'')===String(options.lop||'');
-      if(sameDateV64&&sameClassV64){
-        delete login.initialDashboardV64;
-        handleDashboardSuccessV64(initialDashV64.data,'LOGIN_BUNDLE',0);
-        return;
-      }
-    }
+    // V70.3: Dashboard tuyệt đối lazy-load; không đọc bundle từ phản hồi đăng nhập.
 
     const dashPerfStartedV66=performance.now();
     const tokenV66=String(session.sessionToken||'');
@@ -917,3 +948,10 @@ function loadGovernanceHistoryV699(){
     if(body)body.innerHTML=rows.length?rows.map(r=>`<tr><td>${escapeHtml(r.time||'')}</td><td><strong>${escapeHtml(r.ten||r.account||'')}</strong><small class="d-block text-muted">${escapeHtml(r.account||'')} · ${escapeHtml(r.role||'')}</small></td><td><code>${escapeHtml(r.action||'')}</code></td><td>${escapeHtml(r.target||'')}</td><td><details><summary>Xem thay đổi</summary><div class="small mt-1"><b>Trước:</b><pre class="mb-1 text-wrap">${escapeHtml(compactAuditJsonV699(r.before))}</pre><b>Sau:</b><pre class="mb-0 text-wrap">${escapeHtml(compactAuditJsonV699(r.after))}</pre></div></details></td><td>${escapeHtml(r.reason||'')}</td></tr>`).join(''):'<tr><td colspan="6" class="text-center text-muted py-4">Không có lịch sử phù hợp.</td></tr>';
   }).withFailureHandler(function(err){if(status)status.textContent=(err&&err.message)||String(err||'Lỗi');}).layLichSuBanGhiV699(f,governanceAuthV699());
 }
+
+
+// V70.3.1: tải metadata Loại lớp / Nhóm học liên quan khi mở tab Danh mục lớp.
+document.addEventListener('DOMContentLoaded',()=>{
+  const tab=document.querySelector('[data-bs-target="#pills-classes"]');
+  if(tab)tab.addEventListener('shown.bs.tab',()=>taiQuanHeLopNhomV7031(false));
+});

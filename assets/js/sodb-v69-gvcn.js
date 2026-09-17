@@ -110,7 +110,7 @@
     const img=document.getElementById('gvcnSigImage'),ph=document.getElementById('gvcnSigPlaceholder'),del=document.getElementById('gvcnDeleteSigBtnV681');
     if(urlGVCNGlobal){if(img){setSignaturePreviewSrcV682(img,urlGVCNGlobal);img.classList.remove('d-none');}ph?.classList.add('d-none');del?.classList.remove('d-none');}
     else{if(img){img.removeAttribute('src');img.classList.add('d-none');}ph?.classList.remove('d-none');del?.classList.add('d-none');}
-    setTimeout(()=>taiThongTinChotTuan(),80);
+    Promise.resolve().then(()=>taiThongTinChotTuan());
   }
 
   function gvcnShiftWeekV681(delta){
@@ -182,19 +182,32 @@
     const ok=await confirmV13(`Xác nhận ký chốt lớp ${gvcnDangNhapInfo.lop} - Tuần ${document.getElementById('gvcnTuan').value}? Sau khi chốt, dữ liệu tuần sẽ bị khóa.`,{title:'Ký chốt tuần',confirmText:'Ký chốt',danger:false});if(!ok)return;
     const btn=document.getElementById('gvcnCloseBtnV681'),old=btn?.textContent||'Ký chốt tuần';if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner-border spinner-border-sm me-1"></span>Đang ký chốt...';}
     const payload={lop:gvcnDangNhapInfo.lop,tuan:Number(document.getElementById('gvcnTuan').value),ykien:document.getElementById('gvcnYKien').value,tenGVCN:gvcnDangNhapInfo.tenGVCN||''};
-    google.script.run.withSuccessHandler(function(r){
-      if(r&&r.success){showToastV9(r.message||'Đã ký chốt tuần.','success');setTimeout(()=>taiThongTinChotTuan(),150);}
-      else{showToastV9((r&&r.message)||'Không ký chốt được.','danger');if(btn){btn.disabled=false;btn.textContent=old;}}
+    google.script.run.withSuccessHandler(async function(r){
+      if(r&&r.success){
+        showToastV9(r.message||'Đã ký chốt tuần.','success');
+        if(typeof invalidateBghWorkflowCacheV701==='function')invalidateBghWorkflowCacheV701();
+        await taiThongTinChotTuan();
+      }else{showToastV9((r&&r.message)||'Không ký chốt được.','danger');if(btn){btn.disabled=false;btn.textContent=old;}}
     }).withFailureHandler(function(err){showToastV9(err&&err.message?err.message:String(err),'danger');if(btn){btn.disabled=false;btn.textContent=old;}}).luuChotTuanGVCN(payload,{token:gvcnDangNhapInfo.sessionToken});
   }
 
-  function moSoTuGvcnV681(){
+  async function moSoTuGvcnV681(){
     if(!gvcnDangNhapInfo)return;
-    const lop=String(gvcnDangNhapInfo.lop||''),tuan=Number(document.getElementById('gvcnTuan')?.value||1),khoi=(lop.match(/^(10|11|12)/)||[])[1]||'';
-    if(khoi){const k=document.getElementById('viewKhoi');if(k){k.value=khoi;try{chonKhoiLopView();}catch(_e){}}}
-    const sel=document.getElementById('viewLop');if(sel){const norm=x=>String(x).replace(/([A-Z])0+(\d+)$/,'$1$2');const opt=[...sel.options].find(o=>norm(o.value)===norm(lop));if(opt)sel.value=opt.value;}
-    const mode=document.getElementById('viewBookMode');if(mode)mode.value='LOP_CHINH';const w=document.getElementById('viewTuan');if(w)w.value=String(tuan);
-    openTopTabV9('view-tab');setTimeout(()=>traCuuSoDauBaiTuanGop(true),80);
+    const lop=String(gvcnDangNhapInfo.lop||''),tuan=Number(document.getElementById('gvcnTuan')?.value||1);
+    try{
+      const tabBtn=document.getElementById('view-tab');
+      if(typeof showMainTabAndWaitV701==='function')await showMainTabAndWaitV701(tabBtn);
+      else openTopTabV9('view-tab');
+      if(typeof ensureViewClassReadyV701==='function')await ensureViewClassReadyV701(lop);
+      else{
+        const khoi=(lop.match(/^(10|11|12)/)||[])[1]||'';
+        if(khoi){const k=document.getElementById('viewKhoi');if(k){k.value=khoi;chonKhoiLopView();}}
+        const sel=document.getElementById('viewLop');if(sel){const norm=x=>String(x).replace(/([A-Z])0+(\d+)$/,'$1$2');const opt=[...sel.options].find(o=>norm(o.value)===norm(lop));if(opt)sel.value=opt.value;}
+      }
+      const mode=document.getElementById('viewBookMode');if(mode)mode.value='LOP_CHINH';
+      const w=document.getElementById('viewTuan');if(w)w.value=String(tuan);
+      await Promise.resolve(traCuuSoDauBaiTuanGop(true));
+    }catch(err){showToastV9('Không mở được sổ lớp: '+(err&&err.message?err.message:err),'danger');}
   }
 
 

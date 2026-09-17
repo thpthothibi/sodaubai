@@ -3284,10 +3284,6 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
 /* Unified-login đã thay thế cổng mật khẩu Admin cũ. Ẩn hẳn khối legacy để
    không giữ chiều cao rỗng trong tab Quản trị. */
 #tabAdmin #adminAuthBox{display:none!important}
-#tabAdmin,#tabAdmin>.card,#tabAdmin>.card>.card-body,#adminMainContent{
-  min-height:0!important;height:auto!important;
-}
-#adminMainContent.d-none{display:none!important}
 
 /* Main menu: làm tab đang chọn nổi bật rõ hơn */
 #sodbTab .nav-link.active{
@@ -3326,29 +3322,11 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
   .control-scope-menu-v6953{min-width:min(300px,88vw)}
 }
 
-#tabAdmin>.card{
-  border:0!important;box-shadow:none!important;background:transparent!important;
-  margin:0!important;min-height:0!important;
-}
-#tabAdmin>.card>.card-body{
-  padding:4px 0 14px!important;margin:0!important;display:block!important;
-}
-#tabAdmin #adminMainContent{
-  display:block;position:static!important;inset:auto!important;transform:none!important;
-  margin:0!important;padding:0!important;
-}
-#tabAdmin #adminMainContent.d-none{display:none!important}
 
 
 /* ========================================================================
    V69.5.4 - GỌN GIAO DIỆN + TỐI ƯU HIỆU NĂNG
    ======================================================================== */
-#tabAdmin{padding-top:0!important;margin-top:0!important;}
-#tabAdmin>.card,#tabAdmin>.card>.card-body,#tabAdmin #adminMainContent{
-  margin-top:0!important;padding-top:0!important;min-height:0!important;
-}
-#tabAdmin #adminMainContent>.module-head-v13{margin-top:0!important;}
-#tabAdmin .app-subtabs-v6952{margin-top:0!important;}
 /* Trạng thái tiết đã hợp nhất sang Điều hành của Giám thị từ V69.5.4. */
 #gt-pills-status-v683-tab,#gt-pills-status-v683{display:none!important;}
 
@@ -3356,12 +3334,6 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
 /* ========================================================================
    V69.5.5.3 - ADMIN COMPACT + PHÂN QUYỀN TRÊN WEB
    ======================================================================== */
-#tabAdmin{padding:0!important;margin:0!important;min-height:0!important;height:auto!important;}
-#tabAdmin>#adminMainContent{display:block;position:static!important;inset:auto!important;transform:none!important;margin:0!important;padding:0!important;min-height:0!important;height:auto!important;}
-#tabAdmin>#adminMainContent.d-none{display:none!important;}
-#tabAdmin>#adminMainContent>.module-head-v13{margin:0 0 12px!important;}
-#tabAdmin .app-subtabs-v6952{margin-top:0!important;}
-#tabAdmin .app-subtab-content-v6952{margin-top:10px!important;}
 .permission-table-wrap-v69553{max-height:62vh;overflow:auto;border:1px solid #e1e8f1;border-radius:12px;background:#fff;}
 .permission-table-v69553 thead th{position:sticky;top:0;z-index:2;white-space:nowrap;font-size:.72rem;}
 .permission-table-v69553 td{font-size:.76rem;vertical-align:middle;}
@@ -3375,16 +3347,6 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
    V69.5.5.6 - ADMIN COMPACT / FULL-WIDTH DESKTOP
    Mục tiêu: loại bỏ khoảng trắng thừa trong Quản trị Admin, không đổi nghiệp vụ.
    ======================================================================== */
-#tabAdmin #adminMainContent > .module-head-v13{
-  margin-bottom:8px!important;
-}
-#tabAdmin .app-subtabs-v6952{
-  margin-bottom:8px!important;
-}
-#tabAdmin .app-subtab-content-v6952{
-  margin-top:0!important;
-  padding:12px 14px 14px!important;
-}
 
 /* Các màn hình Admin cũ đang bị bó 850-1200px bằng inline max-width + mx-auto.
    Trên desktop cho dùng toàn bộ bề ngang vùng Quản trị. */
@@ -3412,6 +3374,26 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
     padding:10px!important;
   }
 }
+
+/* ========================================================================
+   V70.3 - ADMIN LAYOUT CANONICAL
+   Một nguồn layout duy nhất cho Quản trị; thay các override V69.5.x chồng nhau.
+   ======================================================================== */
+#tabAdmin{padding:0;margin:0;min-height:0;height:auto;}
+#tabAdmin>#adminMainContent{display:block;position:static;inset:auto;transform:none;margin:0;padding:0;min-height:0;height:auto;}
+#tabAdmin>#adminMainContent.d-none{display:none!important;}
+#tabAdmin>.card{border:0;box-shadow:none;background:transparent;margin:0;min-height:0;}
+#tabAdmin>.card>.card-body{padding:0 0 14px;margin:0;display:block;min-height:0;}
+#tabAdmin #adminMainContent>.module-head-v13{margin:0 0 8px;}
+#tabAdmin .app-subtabs-v6952{margin:0 0 8px;}
+#tabAdmin .app-subtab-content-v6952{margin:0;padding:12px 14px 14px;}
+@media (min-width:992px){
+  #tabAdmin .app-subtab-content-v6952>.tab-pane>.mx-auto,
+  #tabAdmin .app-subtab-content-v6952>.tab-pane .table-responsive.mx-auto,
+  #tabAdmin .app-subtab-content-v6952>.tab-pane .d-flex.mx-auto,
+  #tabAdmin .app-subtab-content-v6952>.tab-pane>.row.mx-auto{width:100%;max-width:none;margin-left:0;margin-right:0;}
+}
+@media (max-width:991.98px){#tabAdmin .app-subtab-content-v6952{padding:10px;}}
 
 /* ========================================================================
    V69.6 - ADMIN MASTER DATA
@@ -3456,3 +3438,34 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
 .bgh-dot-v698{width:9px;height:9px;border-radius:50%;display:inline-block;background:#cbd5e1;}
 .bgh-dot-v698.approved{background:#22c55e}.bgh-dot-v698.ready{background:#f59e0b}.bgh-dot-v698.pending{background:#3b82f6}.bgh-dot-v698.empty{background:#cbd5e1}
 @media(max-width:767.98px){.bgh-workflow-card-v698{padding:12px!important}.bgh-queue-wrap-v698,.bgh-matrix-wrap-v698{max-height:70vh}.bgh-metric-v698{padding:10px}.bgh-workflow-head-v698 .small{display:none}}
+
+/* ========================================================================
+   V70.1.1 - INPUT ATTENDANCE UX HOTFIX
+   ======================================================================== */
+.attendance-panel-v7011{overflow:hidden;}
+.attendance-choice-v7011{border:1px solid #bfdbfe;background:#eff6ff;border-radius:10px;padding:10px 12px;}
+#attendanceAbsentListWrapV7011{max-height:320px;overflow:auto;}
+.attendance-student-v7011{min-height:58px;transition:box-shadow .15s ease,border-color .15s ease,background .15s ease;}
+.attendance-student-v7011:hover{border-color:#93c5fd!important;box-shadow:0 1px 4px rgba(37,99,235,.10);}
+.attendance-student-absent-v7011{border-color:#ef4444!important;background:#fef2f2!important;}
+#groupAttendanceCountV6951{min-width:132px;text-align:center;}
+@media(max-width:767.98px){
+  #attendanceAbsentListWrapV7011{max-height:45vh;}
+  .attendance-student-v7011{min-height:52px;}
+}
+\n\n/* =========================================================\n   V70.1.3 - UNIFIED ATTENDANCE\n   Điểm danh nằm ngay trên Số vắng | HS vắng | Nhận xét.\n   ========================================================= */\n#autoFillStatusV12:empty{display:none!important;}\n.attendance-inline-v7012{\n  border:1px solid #bfdbfe;\n  border-radius:12px;\n  background:linear-gradient(180deg,#f8fbff 0%,#ffffff 100%);\n  overflow:hidden;\n}\n.attendance-inline-head-v7012{\n  min-height:56px;\n  display:flex;align-items:center;justify-content:space-between;gap:14px;\n  padding:9px 12px;\n}\n.attendance-inline-title-v7012{display:flex;align-items:center;gap:10px;min-width:0;}\n.attendance-inline-icon-v7012{\n  width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;\n  flex:0 0 auto;background:#dbeafe;color:#1d4ed8;font-weight:900;font-size:1rem;\n}\n.attendance-inline-actions-v7012{display:flex;align-items:center;justify-content:flex-end;gap:12px;flex-wrap:wrap;}\n.attendance-complete-switch-v7012{padding:5px 9px 5px 2.7em;border-radius:999px;background:#ecfdf5;border:1px solid #bbf7d0;}\n.attendance-absent-tools-v7012{border-top:1px solid #dbeafe;padding:10px 12px;background:#fff;}\n.attendance-list-v7012{border-top:1px solid #dbeafe;padding:10px 12px;background:#f8fafc;max-height:260px;overflow:auto;}\n.attendance-help-v7012{border-top:1px dashed #dbeafe;padding:7px 12px;background:#fff;}\n@media(max-width:767.98px){\n  .attendance-inline-head-v7012{align-items:flex-start;flex-direction:column;}\n  .attendance-inline-actions-v7012{width:100%;justify-content:space-between;}\n}\n
+/* V70.1.3 */
+#groupAttendanceCountV6951.text-bg-danger{font-weight:800;}
+#attendanceCompleteV701:disabled + .form-check-label{opacity:.65;}
+
+
+/* =====================================================================
+   V70.3.1 - CLASS / GROUP RELATION
+   ===================================================================== */
+.class-group-relation-v7031{background:#f8fafc;}
+.class-group-table-v7031{max-height:420px;overflow:auto;}
+.class-group-table-v7031 thead th{position:sticky;top:0;z-index:1;background:#f8f9fa;}
+.class-group-relation-v7031 code{font-size:.86em;}
+@media (max-width:767.98px){
+  .class-group-table-v7031{max-height:360px;}
+}

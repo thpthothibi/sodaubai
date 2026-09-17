@@ -142,11 +142,9 @@ let varDiemTB = 10;
   ["10","11","12"].forEach(k=>{dsLopTheoKhoi[k]=[...(dsLopChinhTheoKhoiV22[k]||[]),...(dsLopDacBietTheoKhoiV22[k]||[])];});
 
   function loaiSoTheoLopV22(lop){
+    // V70.3.1: loại sổ phải đến từ metadata Supabase, không suy đoán từ tên BC/CL/tên lớp.
     const meta=getClassMetaClientV26(lop);
     if(meta&&meta.type)return meta.type;
-    const s=normalizeTextKey(lop);
-    if(s.includes('chuyen de'))return 'CHUYEN_DE';
-    if(s.includes('gdtc')||s.includes('giao duc the chat'))return 'GDTC';
     return 'LOP_CHINH';
   }
   function tieuDeSoTheoLopV22(lop,bookMode){

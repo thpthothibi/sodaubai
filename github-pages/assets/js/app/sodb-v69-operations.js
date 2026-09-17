@@ -711,6 +711,8 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
     return;
   }
 
+  if(typeof validateAttendanceBeforeSaveV7013==='function' && !validateAttendanceBeforeSaveV7013()) return;
+
   let lesson1 = getSelectedLessonData();
   if (!lesson1 || !lesson1.tenBaiDay) {
     showToastV9('Vui lòng chọn hoặc nhập nội dung bài dạy.','danger');

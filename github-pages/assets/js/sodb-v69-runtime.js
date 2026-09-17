@@ -116,7 +116,7 @@
     'capNhatSoDauBaiV4','guiYeuCauChinhSuaV4','layYeuCauCuaToiV4','layYeuCauChinhSuaV4','xuLyYeuCauChinhSuaV4','layBanGhiCuaToiV4',
     'layQuyenDacBietV69','luuQuyenDacBietV69','thuHoiQuyenDacBietV69',
     'layPhanQuyenTaiKhoanV69553','luuPhanQuyenTaiKhoanV69553','khoiPhucPhanQuyenTuDongV69553','moKhoaDangNhapAdminV699','layTrungTamChatLuongDuLieuV699','layLichSuBanGhiV699',
-    'layVongDoiNamHocV700','kiemTraDongNamHocV700','dongNamHocTaoNamMoiV700','layLuuTruNamHocV700',
+    'layVongDoiNamHocV700','kiemTraDongNamHocV700','dongNamHocTaoNamMoiV700','layLuuTruNamHocV700','layLuuTruNamHocV702','layChuKyLuuTruV702','layHoSoInLuuTruV702',
     'layDuLieuGocAdminV696','luuGiaoVienAdminV696','luuPhanCongDayAdminV696','xoaPhanCongDayAdminV696','luuGvcnAdminV696','xoaGvcnAdminV696','luuToChuyenMonAdminV696','xoaToChuyenMonAdminV696',
     'layDanhSachGiaoVienDieuHanhV693','layNhanSuNgoaiTruongV693','luuNhanSuNgoaiTruongV693','doiTrangThaiNhanSuNgoaiTruongV693','layNhanSuNgoaiTruongChoKyV693',
     'layHoSoNghiGiaoVienV693','luuHoSoNghiGiaoVienV693','duyetHoSoNghiGiaoVienV693',
@@ -262,11 +262,12 @@
     return String(value);
   }
 
-  async function callSodbEdgeV66(payload){
+  async function callSodbEdgeV66(payload,timeoutMs){
     const perfStart=performance.now(); let perfOk=false;
     const perfAction=String(payload?.method||payload?.action||'edge');
     const controller=new AbortController();
-    const timeout=setTimeout(()=>controller.abort(),12000);
+    const timeoutLimit=Math.max(3000,Number(timeoutMs)||12000);
+    const timeout=setTimeout(()=>controller.abort(),timeoutLimit);
     try{
       const r=await fetch(SODB_EDGE_URL_V66,{method:'POST',mode:'cors',credentials:'omit',cache:'no-store',headers:{'Content-Type':'application/json','apikey':SODB_SUPABASE_PUBLISHABLE_KEY_V66},body:JSON.stringify(payload||{}),signal:controller.signal});
       let data=null;try{data=await r.json();}catch(_e){}
@@ -274,12 +275,12 @@
       if(data&&data.success===false&&[400,401,403,429].includes(r.status)){perfOk=true;return data;}
       throw new Error(data&&data.message?sodbErrorTextV658(data.message):('Supabase Edge HTTP '+r.status));
     }catch(e){
-      if(e&&e.name==='AbortError')throw new Error('Supabase Edge phản hồi quá 12 giây.');
+      if(e&&e.name==='AbortError')throw new Error(`Supabase Edge phản hồi quá ${Math.round(timeoutLimit/1000)} giây.`);
       throw e;
     }finally{clearTimeout(timeout);recordSodbPerfV6922('EDGE',perfAction,perfStart,perfOk);}
   }
-  async function callSodbEdgeRpcV67(method,args){
-    const data=await callSodbEdgeV66({action:'rpc',method:String(method||''),args:Array.isArray(args)?args:[]});
+  async function callSodbEdgeRpcV67(method,args,timeoutMs){
+    const data=await callSodbEdgeV66({action:'rpc',method:String(method||''),args:Array.isArray(args)?args:[]},timeoutMs);
     if(!data||data.success!==true)throw new Error(data&&data.message?sodbErrorTextV658(data.message):'Supabase V69 không thực hiện được yêu cầu.');
     return data.result;
   }

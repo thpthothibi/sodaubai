@@ -198,6 +198,48 @@ async function guiChotTuanNhomV6951(){
   }catch(e){showToastV9(e?.message||String(e),'danger');if(btn){btn.disabled=false;btn.textContent='Ký chốt tuần';}}
 }
 
+// V70.3.1.7: chuẩn hóa ngày Excel/chuỗi ngày trước khi gửi Supabase.
+function normalizeGroupRosterDateV70317(value,allowEmpty=false){
+  if(value===null||value===undefined||String(value).trim()==='')return allowEmpty?'':'';
+  if(value instanceof Date&&!isNaN(value.getTime())){
+    const y=value.getFullYear(),m=String(value.getMonth()+1).padStart(2,'0'),d=String(value.getDate()).padStart(2,'0');
+    return `${y}-${m}-${d}`;
+  }
+  const text=String(value).trim();
+  if(/^\d+(?:\.\d+)?$/.test(text)){
+    const serial=Number(text);
+    if(Number.isFinite(serial)&&serial>0&&serial<100000){
+      const d=new Date(Math.round((serial-25569)*86400000));
+      if(!isNaN(d.getTime()))return d.toISOString().slice(0,10);
+    }
+  }
+  let m=text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[T\s].*)?$/);
+  if(m){
+    const y=Number(m[1]),mo=Number(m[2]),da=Number(m[3]),d=new Date(Date.UTC(y,mo-1,da));
+    if(d.getUTCFullYear()===y&&d.getUTCMonth()===mo-1&&d.getUTCDate()===da)return `${String(y).padStart(4,'0')}-${String(mo).padStart(2,'0')}-${String(da).padStart(2,'0')}`;
+  }
+  m=text.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})$/);
+  if(m){
+    const da=Number(m[1]),mo=Number(m[2]),y=Number(m[3]),d=new Date(Date.UTC(y,mo-1,da));
+    if(d.getUTCFullYear()===y&&d.getUTCMonth()===mo-1&&d.getUTCDate()===da)return `${String(y).padStart(4,'0')}-${String(mo).padStart(2,'0')}-${String(da).padStart(2,'0')}`;
+  }
+  throw new Error(`Ngày "${text}" không hợp lệ. Dùng dd/mm/yyyy hoặc yyyy-mm-dd.`);
+}
+function normalizeGroupRosterRowsV70317(rows){
+  return (rows||[]).map((row,idx)=>{
+    const r=Array.isArray(row)?[...row]:row;
+    try{
+      if(Array.isArray(r)){
+        r[4]=normalizeGroupRosterDateV70317(r[4],false);
+        r[5]=normalizeGroupRosterDateV70317(r[5],true);
+      }else if(r&&typeof r==='object'){
+        r.tuNgay=normalizeGroupRosterDateV70317(r.tuNgay??r.tu_ngay,false);
+        r.denNgay=normalizeGroupRosterDateV70317(r.denNgay??r.den_ngay,true);
+      }
+      return r;
+    }catch(e){throw new Error(`Dòng ${idx+2}: ${e?.message||e}`);}
+  });
+}
 function taiFileMauNhomV6951(){
   if(retryWithXlsxV7(()=>taiFileMauNhomV6951()))return;
   const rows=[['Nhóm/Lớp','Mã HS','Họ tên','Lớp chủ nhiệm','Từ ngày','Đến ngày'],['BC1','HS001','Nguyễn Văn A','10A01','2026-08-17',''],['CL2','HS002','Trần Thị B','10A02','2026-08-17','']];
@@ -205,12 +247,12 @@ function taiFileMauNhomV6951(){
 }
 function docFileNhomV6951(event){
   if(!window.XLSX){const input=event?.target;ensureXlsxV7().then(()=>docFileNhomV6951({target:input})).catch(e=>alertV13('❌ '+(e.message||e)));return;}
-  const f=event?.target?.files?.[0];if(!f)return;const rd=new FileReader();rd.onload=e=>{try{const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'}),ws=wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});parsedGroupRosterV6951=(rows||[]).slice(1).filter(r=>r.some(v=>String(v).trim()));const groups=[...new Set(parsedGroupRosterV6951.map(r=>String(r[0]||'').trim()).filter(Boolean))];document.getElementById('groupRosterPreviewV6951').textContent=`Đã đọc ${parsedGroupRosterV6951.length} học sinh thuộc ${groups.length} nhóm: ${groups.join(', ')}`;}catch(err){parsedGroupRosterV6951=[];alertV13('❌ File danh sách nhóm không hợp lệ: '+(err.message||err));}};rd.readAsArrayBuffer(f);
+  const f=event?.target?.files?.[0];if(!f)return;const rd=new FileReader();rd.onload=e=>{try{const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array',cellDates:true}),ws=wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:true});parsedGroupRosterV6951=normalizeGroupRosterRowsV70317((rows||[]).slice(1).filter(r=>r.some(v=>String(v).trim())));const groups=[...new Set(parsedGroupRosterV6951.map(r=>String(r[0]||'').trim()).filter(Boolean))];document.getElementById('groupRosterPreviewV6951').textContent=`Đã đọc ${parsedGroupRosterV6951.length} học sinh thuộc ${groups.length} nhóm: ${groups.join(', ')}`;}catch(err){parsedGroupRosterV6951=[];alertV13('❌ File danh sách nhóm không hợp lệ: '+(err.message||err));}};rd.readAsArrayBuffer(f);
 }
 async function uploadDanhSachNhomV6951(){
   if(!adminDangNhapInfo?.sessionToken){alertV13('❌ Cần quyền Admin.');return;}if(!parsedGroupRosterV6951.length){alertV13('⚠️ Chưa chọn file danh sách nhóm.');return;}
   const mode=document.getElementById('groupRosterModeV6951')?.value||'REPLACE_GROUP';
-  try{const r=await callSodbEdgeRpcV67('luuDanhSachHocSinhNhomV6951',[parsedGroupRosterV6951,mode,{token:adminDangNhapInfo.sessionToken}],60000);alertV13((r?.success?'✅ ':'❌ ')+(r?.message||''));if(r?.success){parsedGroupRosterV6951=[];const inp=document.getElementById('groupRosterFileV6951');if(inp)inp.value='';}}catch(e){alertV13('❌ '+(e?.message||e));}
+  try{const r=await callSodbEdgeRpcV67('luuDanhSachHocSinhNhomV6951',[normalizeGroupRosterRowsV70317(parsedGroupRosterV6951),mode,{token:adminDangNhapInfo.sessionToken}],60000);alertV13((r?.success?'✅ ':'❌ ')+(r?.message||''));if(r?.success){parsedGroupRosterV6951=[];const inp=document.getElementById('groupRosterFileV6951');if(inp)inp.value='';}}catch(e){alertV13('❌ '+(e?.message||e));}
 }
 
 function getGroupReportAuthV6951(){

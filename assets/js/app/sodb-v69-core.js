@@ -186,18 +186,27 @@ let varDiemTB = 10;
   function getAllMainClassesClientV39(){
     const out=[];['10','11','12'].forEach(k=>(dsLopChinhTheoKhoiV22[k]||[]).forEach(l=>{if(!out.includes(l))out.push(l);}));return out;
   }
+  function getAllGdtcClassesClientV70316(){
+    // V70.3.1.6: Giáo viên GDTC được thấy toàn bộ lớp chính + các nhóm GDTC,
+    // nhưng tuyệt đối không đưa lớp Chuyên đề vào phạm vi chọn lớp.
+    const out=getAllMainClassesClientV39();
+    ['10','11','12'].forEach(k=>{
+      (dsLopDacBietTheoKhoiV22[k]||[]).forEach(l=>{
+        if(loaiSoTheoLopV22(l)==='GDTC'&&!out.includes(l))out.push(l);
+      });
+    });
+    return out;
+  }
   function getAssignedClassesForSubjectV39(subject){
     if(!gvbmDangNhapInfo)return [];
+    // GDTC là ngoại lệ nghiệp vụ: được chọn tất cả lớp chính của 3 khối
+    // và các lớp/nhóm GDTC (Cầu lông/Bóng chuyền/GDTC), không gồm Chuyên đề.
+    if(isGdtcBaseSubjectV25(subject)||isGdtcDetailSubjectV25(subject)){
+      return getAllGdtcClassesClientV70316();
+    }
     const map=gvbmDangNhapInfo.phanCongLopTheoMon||{};
     const direct=(map[subjectKeyV6955(subject)]||[]).filter(Boolean);
     if(direct.length)return [...new Set(direct)];
-    if(isGdtcBaseSubjectV25(subject)||isGdtcDetailSubjectV25(subject)){
-      const out=[];
-      Object.entries(map).forEach(([k,arr])=>{
-        if(isGdtcBaseSubjectV25(k)||isGdtcDetailSubjectV25(k)) (arr||[]).forEach(l=>{if(l&&!out.includes(l))out.push(l);});
-      });
-      return out;
-    }
     if(isTechnologyDetailSubjectV657(subject)){
       const base=(map[subjectKeyV6955('Công nghệ')]||[]).filter(Boolean);
       if(base.length)return base;
@@ -208,8 +217,8 @@ let varDiemTB = 10;
     const note=document.getElementById('phanCongDayNoteV39');if(!note)return;
     if(isGdtcBaseSubjectV25(subject)||isGdtcDetailSubjectV25(subject)){
       note.textContent=classes.length
-        ? `GDTC: ${classes.length} lớp/nhóm độc lập (VD: BC1, CL2) theo phân công dạy.`
-        : 'Chưa có lớp/nhóm GDTC được phân công. Kiểm tra sheet “Phân công dạy” và danh mục Lớp.';
+        ? `GDTC: được chọn toàn bộ ${classes.length} lớp chính/nhóm GDTC; không hiển thị lớp Chuyên đề.`
+        : 'Chưa tải được danh mục lớp từ Supabase.';
       note.className='small fw-semibold mb-2 '+(classes.length?'text-success':'text-danger');return;
     }
     if(isTechnologyBaseSubjectV657(subject)||isTechnologyDetailSubjectV657(subject)){

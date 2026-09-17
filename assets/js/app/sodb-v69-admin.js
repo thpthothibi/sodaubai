@@ -191,24 +191,30 @@
     }catch(e){alertV13('❌ '+(e.message||e));}finally{setBusyV13(false);}
   }
 
-  function taiFileMauLopV23(){
+  async function taiFileMauLopV23(){
     if (retryWithXlsxV7(() => taiFileMauLopV23())) return;
-    const rows=[["Khối","Tên lớp","Nhóm sổ","Môn/KHBD","Trạng thái","Thứ tự"]];
-    let order=1;
-    ["10","11","12"].forEach(k=>{
-      for(let i=1;i<=13;i++)rows.push([k,`${k}A${String(i).padStart(2,'0')}`,"Lớp chính","","Đang dùng",order++]);
-    });
-    // Dòng mẫu nhóm độc lập. Nhà trường có thể đặt BC1, CL2... và khai báo Môn/KHBD tương ứng.
-    rows.push([10,"BC3","Bóng chuyền","Bóng chuyền","Ngừng",90]);
-    rows.push([10,"CL11","Cầu lông","Cầu lông","Ngừng",91]);
-    // 13 dòng mẫu chuyên đề 12: nhập tên lớp thực tế + môn, rồi đổi trạng thái thành Đang dùng.
-    for(let i=1;i<=13;i++){
-      rows.push([12,`12 Chuyên đề ${String(i).padStart(2,'0')}`,"Chuyên đề","","Ngừng",100+i]);
-    }
-    const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet(rows);
-    ws['!cols']=[{wch:8},{wch:26},{wch:18},{wch:22},{wch:14},{wch:10}];
-    XLSX.utils.book_append_sheet(wb,ws,"Lớp");
-    XLSX.writeFile(wb,"FileMau_DanhSachLop.xlsx");
+    try{
+      setBusyV13(true,'Đang lấy danh mục lớp mới nhất từ Supabase...');
+      const res=await callSodbEdgeRpcV67('getDanhSachLopMoiV29',[]);
+      if(!res?.success)throw new Error(res?.message||'Không tải được danh mục lớp Supabase.');
+      const rows=[["Khối","Tên lớp","Nhóm sổ","Môn/KHBD","Trạng thái","Thứ tự"]];
+      let order=1;
+      ['10','11','12'].forEach(k=>{
+        const names=res.classes?.[k]||[];
+        names.forEach(lop=>{
+          const meta=(res.classMeta&&res.classMeta[lop])||{};
+          let nhom=String(meta.nhomSo||'').trim();
+          if(!nhom){nhom=meta.type==='CHUYEN_DE'?'Chuyên đề':meta.type==='GDTC'?'GDTC':'Lớp chính';}
+          rows.push([Number(meta.khoi||k),lop,nhom,String(meta.monKhbd||meta.subject||''),String(meta.trangThai||'Đang dùng'),order++]);
+        });
+      });
+      const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet(rows);
+      ws['!cols']=[{wch:8},{wch:26},{wch:18},{wch:22},{wch:14},{wch:10}];
+      XLSX.utils.book_append_sheet(wb,ws,"Lớp");
+      XLSX.writeFile(wb,"FileMau_DanhSachLop_Tu_Supabase.xlsx");
+      showToastV9(`Đã tạo file mẫu từ ${Math.max(0,rows.length-1)} lớp hiện có trên Supabase.`,'success');
+    }catch(err){alertV13('❌ Không tạo được file mẫu lớp: '+(err?.message||err));}
+    finally{setBusyV13(false);}
   }
 
   function docFileExcelLopV23(event){
@@ -283,8 +289,8 @@
     try{
       const res=await callSodbEdgeRpcV67('getDanhSachLopMoiV29',[]);if(!res?.success)throw new Error(res?.message||'Không tải được danh mục lớp.');
       applyClassCatalogV23(res);classCatalogLoadedAtV47=Date.now();
-      const count=['10','11','12'].reduce((n,k)=>n+(res.classes?.[k]?.length||0),0),p=document.getElementById('lopPreviewV23');if(p)p.innerText=`Đã làm mới ${count} lớp trực tiếp từ Supabase.`;
-      showToastV9('Đã làm mới danh mục lớp Supabase.','success');try{await taiQuanHeLopNhomV7031(true);}catch(_e){}
+      const count=['10','11','12'].reduce((n,k)=>n+(res.classes?.[k]?.length||0),0), main10=(res.mainClasses?.['10']||[]).length, main11=(res.mainClasses?.['11']||[]).length, main12=(res.mainClasses?.['12']||[]).length, p=document.getElementById('lopPreviewV23');if(p)p.innerText=`Đã làm mới ${count} lớp trực tiếp từ Supabase · Lớp chính: Khối 10 = ${main10}, Khối 11 = ${main11}, Khối 12 = ${main12}.`;
+      showToastV9(`Đã làm mới danh mục lớp Supabase · Khối 10 có ${main10} lớp chính.`,'success');try{await taiQuanHeLopNhomV7031(true);}catch(_e){}
     }catch(err){alertV13('❌ Không làm mới được danh mục lớp Supabase: '+(err?.message||err));}
   }
 

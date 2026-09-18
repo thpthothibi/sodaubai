@@ -41,7 +41,7 @@ let varDiemTB = 10;
     const raw=(value===null||value===undefined?'':String(value)).trim();if(!raw)return '';
     const k=subjectLooseKeyV6955(raw),compact=k.replace(/\s+/g,'');
     const exact={
-      'toan':'Toán','ngu van':'Ngữ văn','tieng anh':'Tiếng Anh','ngoai ngu':'Tiếng Anh',
+      'ky nang so':'Kỹ năng số','tieng anh ban ngu':'Tiếng Anh bản ngữ','tin hoc quoc te':'Tin học quốc tế','toan':'Toán','ngu van':'Ngữ văn','tieng anh':'Tiếng Anh','ngoai ngu':'Tiếng Anh',
       'vat li':'Vật lý','vat ly':'Vật lý','hoa hoc':'Hóa học','sinh':'Sinh học','sinh hoc':'Sinh học',
       'lich su':'Lịch sử','dia li':'Địa lý','dia ly':'Địa lý','tin hoc':'Tin học',
       'am nhac':'Âm nhạc','my thuat':'Mỹ thuật','giao duc the chat':'GDTC','the duc':'GDTC',
@@ -945,6 +945,7 @@ let varDiemTB = 10;
   }
 
   function apDungPhanQuyenV4(res,saveSession){
+    if(res?.partner&&res.sessions?.PARTNER){sessionStorage.setItem('sodbPartnerV7044',JSON.stringify(res.sessions.PARTNER));location.replace('partner.html');return;}
     initClientUiV7();
     if(typeof invalidateBghWorkflowCacheV701==='function')invalidateBghWorkflowCacheV701();
     currentUnifiedLoginV4=res;

@@ -89,6 +89,21 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
     .mixed-entry { padding: 1px 0; line-height: 1.05; }
     .mixed-entry + .mixed-entry { border-top: 1px dashed #94a3b8; margin-top: 1px; padding-top: 2px; }
     .mixed-badge { font-size: 0.5rem; vertical-align: middle; }
+
+    /* V70.3.2 — Status Badges: màu mang nghĩa quản lý thống nhất trên toàn SĐB. */
+    .sodb-status-badge {
+      display:inline-flex;align-items:center;gap:.15rem;
+      font-weight:800;letter-spacing:.015em;line-height:1.05;
+      border:1px solid transparent;box-shadow:0 1px 1px rgba(15,23,42,.08);
+      cursor:help;white-space:nowrap;
+    }
+    .sodb-status-badge-absence { background:#dc2626!important;color:#fff!important;border-color:#b91c1c!important; }
+    .sodb-status-badge-substitute { background:#f59e0b!important;color:#3f2a00!important;border-color:#d97706!important; }
+    .sodb-status-badge-makeup { background:#16a34a!important;color:#fff!important;border-color:#15803d!important; }
+    .sodb-status-badge-swap,.sodb-status-badge-mixed { background:#2563eb!important;color:#fff!important;border-color:#1d4ed8!important; }
+    .sodb-status-badge:focus { outline:2px solid rgba(37,99,235,.35);outline-offset:2px; }
+    .sodb-status-popover-v7032 .popover-body { white-space:pre-line;min-width:230px;max-width:360px;font-size:.82rem;line-height:1.35; }
+    .sodb-status-popover-v7032 .popover-header { font-size:.84rem;font-weight:800; }
     .sig-stack { display: flex; flex-direction: column; gap: 1px; }
     .sig-stack .sig-name { white-space: normal; }
     .khbd-meta { font-size: 0.78rem; color: #475569; }
@@ -1248,7 +1263,8 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
       vertical-align:middle!important;
     }
     .table-sodb td[style*="font-size"]{font-size:6.35pt!important}
-    .buoi-tag,.badge-daybu,.mixed-badge{font-size:5.2pt!important;padding:0 .25mm!important}
+    .buoi-tag,.badge-daybu,.mixed-badge,.sodb-status-badge{font-size:5.2pt!important;padding:0 .25mm!important;box-shadow:none!important}
+    .status-badge-detail-v7032{display:none!important}
     .mixed-entry{padding:0!important;line-height:.92!important}
     .mixed-entry + .mixed-entry{margin-top:0!important;padding-top:.15mm!important}
 

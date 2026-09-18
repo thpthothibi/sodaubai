@@ -13,7 +13,8 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <link rel="stylesheet" href="assets/css/sodb-v69.css?v=70.3.1.3">
+  <link rel="stylesheet" href="assets/css/sodb-v69.css?v=70.4.4.2">
+  <link rel="stylesheet" href="assets/css/sodb-workspace.css?v=70.4.4.2">
 
 
 
@@ -143,25 +144,26 @@
           <span id="centralLoginBtnTextV4">Đăng nhập</span>
         </button>
       </form>
-      <div class="login-footer-v4">TRƯỜNG THPT HỒ THỊ BI · THÀNH PHỐ HỒ CHÍ MINH</div>
     </div>
   </div>
+  <footer class="workspace-copyright workspace-login-copyright no-print">© 2026 Trường THPT Hồ Thị Bi</footer>
 </div>
 
 <div class="main-container d-none" id="appShellV4">
   <div class="app-userbar-v4 no-print p-2 px-3 mb-3 d-flex flex-wrap gap-2 justify-content-between align-items-center">
-    <div class="d-flex align-items-center gap-2">
-      <div class="user-avatar-v4" id="appUserAvatarV4">GV</div>
-      <div>
-        <div class="fw-bold" id="appUserNameV4">Người dùng</div>
-        <div class="small text-muted" id="appUserMetaV4"></div>
-        <div class="header-greeting-v33" id="headerGreetingV48" title="Lời chào theo thời gian trong ngày">
+    <div class="workspace-tools"><button type="button" class="workspace-menu-btn" id="workspaceMenu" aria-controls="workspaceSidebar" aria-expanded="false" aria-label="Mở menu"><span data-icon="menu"></span><span>Menu</span></button><div class="header-greeting-v33" id="headerGreetingV48" title="Lời chào theo thời gian trong ngày">
           <span class="header-greeting-icon-v33" id="headerGreetingIconV48" aria-hidden="true">☀️</span>
           <span class="header-greeting-copy-v48">
             <strong class="header-greeting-time-v48" id="headerGreetingTimeV48">Chào buổi sáng!</strong>
             <span class="header-greeting-wish-v48">Chúc Thầy/Cô một ngày làm việc tràn đầy năng lượng.</span>
           </span>
-        </div>
+        </div></div>
+    <div class="d-flex align-items-center gap-2">
+      <div class="user-avatar-v4" id="appUserAvatarV4">GV</div>
+      <div>
+        <div class="fw-bold" id="appUserNameV4">Người dùng</div>
+        <div class="small text-muted" id="appUserMetaV4"></div>
+
       </div>
     </div>
     <div class="d-flex flex-wrap align-items-center gap-2">
@@ -171,6 +173,10 @@
     </div>
   </div>
 
+  <aside id="workspaceSidebar" class="workspace-sidebar no-print" aria-label="Điều hướng chính">
+    <button type="button" id="workspaceCloseMenu" class="workspace-close-menu" aria-label="Ẩn menu điều hướng"><span aria-hidden="true">×</span> Ẩn menu</button>
+    <div class="workspace-brand"><img src="favicon.png" alt="Logo THPT Hồ Thị Bi"><div><strong>THPT HỒ THỊ BI</strong><small>Quản lý sổ đầu bài điện tử</small></div></div>
+    <div class="workspace-nav-label">KHÔNG GIAN LÀM VIỆC</div>
   <!-- THANH TAB CHUYỂN ĐỔI -->
   <ul class="nav nav-tabs no-print mb-3" id="sodbTab" role="tablist">
     <li class="nav-item" role="presentation">
@@ -202,6 +208,10 @@
     </li>
   </ul>
 
+    <div class="workspace-sidebar-foot"><div class="workspace-school-art" aria-hidden="true"><svg viewBox="0 0 180 80" fill="none"><path d="M55 72V31l35-25 35 25v41M43 37 90 3l47 34M14 72h152" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M74 72V54h32v18M65 34h11v11H65zM103 34h11v11h-11zM24 48h21v24H24zM135 48h21v24h-21z" fill="currentColor" opacity=".6"/><circle cx="90" cy="27" r="6" fill="currentColor"/></svg></div><strong>Kết nối tri thức<br>Kiến tạo tương lai</strong><small>Giao diện V70.4.4</small></div>
+  </aside>
+  <button type="button" id="workspaceBackdrop" class="workspace-backdrop no-print" aria-label="Đóng menu"></button>
+  <header class="workspace-page-head no-print"><div class="workspace-title-icon" data-icon="book"></div><div><h1 id="workspaceTitle">Tổng quan</h1><div class="workspace-breadcrumb">Quản lý nhà trường <span>›</span> <span id="workspaceBreadcrumb">Tổng quan</span></div></div><div class="workspace-head-actions"><button class="btn btn-outline-primary" type="button" id="workspacePrint" hidden><span data-icon="print"></span> In sổ A3</button></div></header>
   <div class="mobile-role-nav-v54 no-print" id="mobileRoleNavV54" aria-label="Điều hướng nhanh trên điện thoại">
     <button type="button" class="mobile-main-btn-v54" id="mobileDashboardV54" data-target-tab="dashboard-tab-v9">Tổng quan</button>
     <button type="button" class="mobile-main-btn-v54" id="mobileInputV54" data-target-tab="input-tab">Nhập tiết</button>
@@ -221,7 +231,7 @@
         <div class="overview-heading-v20">
           <div class="overview-heading-copy-v52">
             <div class="overview-kicker-v52">SỔ ĐẦU BÀI ĐIỆN TỬ</div>
-            <h1 id="overviewTitleV52">Dashboard</h1>
+            <h1 id="overviewTitleV52">Tổng quan công việc</h1>
             <div class="overview-role-line-v52"><span id="overviewRoleBadgeV52" class="overview-role-badge-v52">Vai trò</span><span id="overviewScopeV20">Tổng quan công việc</span></div>
           </div>
           <div class="overview-actions-v20" id="overviewActionsV20"></div>
@@ -304,6 +314,17 @@
 
     <!-- TAB 1: XEM SỔ ĐẦU BÀI -->
     <div class="tab-pane fade" id="tabView" role="tabpanel">
+      <section class="workspace-book no-print" aria-label="Sổ đầu bài theo tuần">
+        <div class="workspace-book-head"><div class="workspace-section-title"><span class="workspace-title-icon" data-icon="book"></span><div><h2>Xem sổ đầu bài</h2><p>Theo dõi và tra cứu tình hình giảng dạy của lớp theo từng tuần</p></div></div><div class="workspace-week-nav"><button type="button" class="btn btn-outline-primary" data-week-step="-1">‹ <span>Tuần trước</span></button><button type="button" class="btn btn-primary" data-week-step="today"><span data-icon="calendar"></span> Tuần này</button><button type="button" class="btn btn-outline-primary" data-week-step="1"><span>Tuần sau</span> ›</button></div></div>
+        <div id="workspaceFilterMount"></div>
+        <div class="workspace-book-toolbar"><strong id="workspaceWeekRange">Chọn lớp và tuần để xem sổ</strong><label class="workspace-status-filter"><span data-icon="filter"></span><span class="visually-hidden">Lọc trạng thái tiết học</span><select id="workspaceStatus" class="form-select"><option value="ALL">Tất cả trạng thái</option><option value="REVIEW">Cần rà soát</option><option value="NGHI">Nghỉ</option><option value="GV_VANG">GV vắng</option><option value="BO_TIET">Bỏ tiết</option><option value="DAY_THAY">Dạy thay</option><option value="DAY_BU">Dạy bù</option><option value="HOAN_DOI">Đổi tiết</option><option value="MIXED">Tiết trộn</option></select></label></div>
+        <div id="workspaceMetrics" class="workspace-metrics"></div>
+        <div id="bghReviewBarV7044" class="alert alert-info no-print" hidden></div>
+        <div id="workspaceBookStatus" class="workspace-book-status" role="status" aria-live="polite">Chọn lớp, tuần và bấm Xem sổ để tải dữ liệu.</div>
+        <div id="workspaceWeekGrid" aria-label="Lịch tiết học"></div>
+        <div id="workspaceLegend" class="workspace-legend"></div>
+        <div class="workspace-book-foot"><span>Rê chuột, chạm hoặc dùng phím Tab để xem trạng thái. Bấm ⋯ để xem đầy đủ tiết học.</span><span id="workspaceDataStamp"></span></div>
+      </section>
       <div class="card no-print mb-3 shadow-sm">
         <div class="card-body p-3">
           <div class="row g-3 align-items-center">
@@ -416,7 +437,7 @@
               <label class="form-label small fw-bold mb-1" for="bghApprovalNoteV684">Ý kiến BGH (không bắt buộc)</label>
               <textarea id="bghApprovalNoteV684" class="form-control form-control-sm" rows="2" placeholder="Nhận xét hoặc lưu ý sau khi kiểm tra sổ tuần..."></textarea>
             </div>
-            <div class="col-lg-3 col-md-4">
+            <div class="col-lg-3 col-md-4 d-grid gap-2">
               <button type="button" class="btn btn-primary btn-sm w-100 fw-bold" id="bghApproveBtnV684" onclick="guiDuyetTuanBGHV684()">Duyệt &amp; ký chốt</button>
             </div>
           </div>
@@ -537,20 +558,12 @@
                 <input class="form-check-input" type="checkbox" role="switch" id="isTietTron">
                 <label class="form-check-label fw-bold" for="isTietTron">Đây là tiết trộn</label>
               </div>
+              <!-- Compatibility fields populated only by the teaching-operation workflow. -->
+              <div id="dayThayBoxV683" hidden aria-hidden="true">
+                <input type="checkbox" id="isDayThayV683" tabindex="-1" aria-hidden="true">
+                <input type="hidden" id="gvDuocThayV683" value="">
+              </div>
 
-              <div class="form-check form-switch mb-2">
-                <input class="form-check-input" type="checkbox" role="switch" id="isDayThayV683" onchange="onDayThayToggleV683()">
-                <label class="form-check-label fw-bold" for="isDayThayV683">Đây là tiết dạy thay <span class="badge text-bg-secondary ms-1">Dự phòng</span></label>
-              </div>
-              <div id="dayThayBoxV683" class="row g-2 mb-2 d-none">
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold">Dạy thay cho giáo viên</label>
-                  <input type="text" class="form-control" id="gvDuocThayV683" placeholder="VD: Cô Nguyễn Thị A">
-                </div>
-                <div class="col-md-6 d-flex align-items-end">
-                  <div class="small text-muted pb-2">Tên trên sổ vẫn là giáo viên đang đăng nhập. Ghi chú sẽ tự bổ sung “Dạy thay ...”.</div>
-                </div>
-              </div>
 
               <div id="groupAttendancePanelV6951" class="attendance-inline-v7012 mb-2">
                 <div class="attendance-inline-head-v7012">
@@ -1341,7 +1354,7 @@
           <ul class="nav nav-pills app-subtabs-v6952 control-subtabs-v6953" id="controlSubTabsV6953" role="tablist">
             <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#control-ops-v693" type="button" onclick="taiDieuHanhV693()">Dạy thay / Dạy bù / Hoán đổi</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#control-absence-v693" type="button" onclick="taiHoSoNghiV693()">Nghỉ giáo viên</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#control-external-v693" type="button" onclick="taiNhanSuNgoaiV693()">Nhân sự ngoài trường</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#control-external-v693" type="button" onclick="taiNhanSuNgoaiV693()">Nhân sự chương trình liên kết</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#control-proxy-v693" type="button" onclick="taiQuyenKyThayV693()">Quyền ký thay</button></li>
             <li class="nav-item"><button class="nav-link" id="control-alerts-tab-v695" data-bs-toggle="pill" data-bs-target="#control-alerts-v695" type="button">Cảnh báo <span class="badge text-bg-danger ms-1 d-none" id="controlAlertBadgeV695"></span></button></li>
             <li class="nav-item admin-only-control-v6953"><button class="nav-link" id="control-report-tab-v694" data-bs-toggle="pill" data-bs-target="#control-report-v694" type="button">Báo cáo nâng cao</button></li>
@@ -1353,11 +1366,11 @@
               <div class="card border mb-3"><div class="card-header bg-light fw-bold">Tạo hồ sơ điều hành</div><div class="card-body">
                 <input type="hidden" id="opAbsenceIdV693">
                 <div class="row g-2 align-items-end mb-2">
-                  <div class="col-md-3"><label class="form-label fw-semibold">Loại nghiệp vụ</label><select id="opTypeV693" class="form-select" onchange="doiLoaiDieuHanhV693()"><option value="DAY_THAY">Dạy thay</option><option value="DAY_BU">Dạy bù</option><option value="HOAN_DOI">Hoán đổi tiết</option></select></div>
+                  <div class="col-md-3"><label class="form-label fw-semibold">Loại nghiệp vụ</label><select id="opTypeV693" class="form-select" onchange="doiLoaiDieuHanhV693()"><option value="DAY_THAY">Dạy thay</option><option value="DAY_BU">Dạy bù</option><option value="HOAN_DOI">Hoán đổi tiết</option><option value="LIEN_KET">Tiết chương trình liên kết</option></select></div>
                   <div class="col-md-9"><label class="form-label fw-semibold">Lý do / căn cứ</label><input id="opReasonV693" class="form-control" placeholder="VD: GV nghỉ phép; bố trí bù tiết ngày...; thống nhất hoán đổi giữa hai giáo viên..."></div>
                 </div>
                 <div id="opSingleV693">
-                  <div class="small fw-bold text-muted mb-1">Tiết gốc / tiết bị ảnh hưởng</div>
+                  <div id="opOriginSectionV7044"><div class="small fw-bold text-muted mb-1">Tiết gốc / tiết bị ảnh hưởng</div>
                   <div class="row g-2 mb-3">
                     <div class="col-md-2"><label class="form-label small">Ngày gốc</label><input type="date" id="opOriginDateV693" class="form-control"></div>
                     <div class="col-md-2"><label class="form-label small">Lớp</label><select id="opOriginClassV693" class="form-select control-class-select-v6953"><option value="">-- Chọn lớp --</option></select></div>
@@ -1367,7 +1380,7 @@
                     <div class="col-md-2"><label class="form-label small">TK GV gốc</label><input id="opOriginTeacherAccountV693" class="form-control" list="teacherAccountsV693" placeholder="SĐT/tài khoản"></div>
                     <div class="col-md-2"><label class="form-label small">Tên GV gốc</label><input id="opOriginTeacherNameV693" class="form-control"></div>
                   </div>
-                  <div class="small fw-bold text-muted mb-1">Tiết thực hiện</div>
+                  </div><div class="small fw-bold text-muted mb-1">Tiết thực hiện</div>
                   <div class="row g-2">
                     <div class="col-md-2"><label class="form-label small">Ngày thực hiện</label><input type="date" id="opExecDateV693" class="form-control"></div>
                     <div class="col-md-2"><label class="form-label small">Lớp</label><select id="opExecClassV693" class="form-select control-class-select-v6953"><option value="">-- Chọn lớp --</option></select></div>
@@ -1377,7 +1390,7 @@
                     <div class="col-md-2"><label class="form-label small">TK GV thực hiện/ký</label><input id="opExecTeacherAccountV693" class="form-control" list="teacherAccountsV693" placeholder="SĐT/tài khoản"></div>
                     <div class="col-md-2"><label class="form-label small">Tên GV thực hiện</label><input id="opExecTeacherNameV693" class="form-control"></div>
                     <div class="col-md-4"><label class="form-label small">Nhân sự ngoài trường (nếu có)</label><select id="opExternalStaffV693" class="form-select" onchange="onOpExternalStaffChangeV693()"><option value="">-- Không --</option></select></div>
-                    <div class="col-md-4"><label class="form-label small">TK người ký thay (nếu NS ngoài trường)</label><input id="opProxyAccountV693" class="form-control" list="teacherAccountsV693" placeholder="Tài khoản đã được cấp PROXY_SIGN"></div>
+                    <div class="col-md-4"><label class="form-label small">TK người ký thay (bỏ trống khi tự ký)</label><input id="opProxyAccountV693" class="form-control" list="teacherAccountsV693" placeholder="Tài khoản đã được cấp PROXY_SIGN"></div>
                     <div class="col-md-4"><label class="form-label small">Tên người ký thay</label><input id="opProxyNameV693" class="form-control"></div>
                   </div>
                 </div>
@@ -1389,7 +1402,7 @@
                 </div>
                 <div class="text-end mt-3"><button class="btn btn-primary fw-bold" type="button" onclick="luuDieuHanhV693()">Lưu hồ sơ điều hành</button></div>
               </div></div>
-              <div class="row g-2 align-items-end mb-2"><div class="col-md-2"><label class="form-label small">Từ ngày</label><input type="date" id="opFilterFromV693" class="form-control"></div><div class="col-md-2"><label class="form-label small">Đến ngày</label><input type="date" id="opFilterToV693" class="form-control"></div><div class="col-md-2"><label class="form-label small">Loại</label><select id="opFilterTypeV693" class="form-select"><option value="ALL">Tất cả</option><option value="DAY_THAY">Dạy thay</option><option value="DAY_BU">Dạy bù</option><option value="HOAN_DOI">Hoán đổi</option></select></div><div class="col-md-2"><label class="form-label small">Trạng thái</label><select id="opFilterStatusV693" class="form-select"><option value="ALL">Tất cả</option><option value="CHO_DUYET">Chờ duyệt</option><option value="DA_DUYET">Đã duyệt</option><option value="HOAN_THANH">Hoàn thành</option><option value="TU_CHOI">Từ chối</option><option value="HUY">Hủy</option></select></div><div class="col-md-2"><button class="btn btn-outline-primary w-100" onclick="taiDieuHanhV693()">Tra cứu</button></div></div>
+              <div class="row g-2 align-items-end mb-2"><div class="col-md-2"><label class="form-label small">Từ ngày</label><input type="date" id="opFilterFromV693" class="form-control"></div><div class="col-md-2"><label class="form-label small">Đến ngày</label><input type="date" id="opFilterToV693" class="form-control"></div><div class="col-md-2"><label class="form-label small">Loại</label><select id="opFilterTypeV693" class="form-select"><option value="ALL">Tất cả</option><option value="DAY_THAY">Dạy thay</option><option value="DAY_BU">Dạy bù</option><option value="HOAN_DOI">Hoán đổi</option><option value="LIEN_KET">Chương trình liên kết</option></select></div><div class="col-md-2"><label class="form-label small">Trạng thái</label><select id="opFilterStatusV693" class="form-select"><option value="ALL">Tất cả</option><option value="CHO_DUYET">Chờ duyệt</option><option value="DA_DUYET">Đã duyệt</option><option value="HOAN_THANH">Hoàn thành</option><option value="TU_CHOI">Từ chối</option><option value="HUY">Hủy</option></select></div><div class="col-md-2"><button class="btn btn-outline-primary w-100" onclick="taiDieuHanhV693()">Tra cứu</button></div></div>
               <div class="table-responsive" style="max-height:520px;overflow:auto"><table class="table table-sm table-bordered align-middle"><thead class="table-dark sticky-top"><tr><th>Hồ sơ</th><th>Loại</th><th>Tiết gốc</th><th>Tiết thực hiện</th><th>Người thực hiện</th><th>Trạng thái</th><th>Lý do</th><th>Xử lý</th></tr></thead><tbody id="opBodyV693"><tr><td colspan="8" class="text-center text-muted">Chưa tải dữ liệu.</td></tr></tbody></table></div>
             </div>
 
@@ -1404,11 +1417,29 @@
             </div>
 
             <div class="tab-pane fade" id="control-external-v693">
-              <div class="card border mb-3"><div class="card-header bg-light fw-bold">Hồ sơ nhân sự ngoài nhà trường</div><div class="card-body"><input type="hidden" id="externalIdV693"><div class="row g-2">
+              <div class="card border mb-3" id="externalProgramCardV7044">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center"><strong>Danh mục môn / chương trình có nhân sự ngoài trường</strong><button type="button" class="btn btn-sm btn-outline-primary" onclick="resetChuongTrinhNgoaiV7044()">+ Bổ sung môn/chương trình</button></div>
+                <div class="card-body"><input type="hidden" id="externalProgramIdV7044"><div class="row g-2">
+                  <div class="col-md-2"><label class="form-label small">Mã chương trình</label><input id="externalProgramCodeV7044" class="form-control" placeholder="Tự sinh nếu bỏ trống"></div>
+                  <div class="col-md-3"><label class="form-label small">Tên chương trình *</label><input id="externalProgramNameV7044" class="form-control" placeholder="VD: Robotics / STEM / IELTS..."></div>
+                  <div class="col-md-2"><label class="form-label small">Tên môn trên SĐB *</label><input id="externalProgramSubjectV7044" class="form-control"></div>
+                  <div class="col-md-2"><label class="form-label small">Đơn vị mặc định</label><input id="externalProgramOrgV7044" class="form-control"></div>
+                  <div class="col-md-3"><label class="form-label small">Chế độ KHBD</label><select id="externalProgramKhbdV7044" class="form-select"><option value="REQUIRED">Bắt buộc KHBD đã duyệt</option><option value="OPTIONAL" selected>KHBD tùy chọn</option><option value="NONE">Không sử dụng KHBD</option></select></div>
+                  <div class="col-md-3"><label class="form-label small">Nguồn nội dung mặc định</label><select id="externalProgramSourceV7044" class="form-select"><option value="KHBD_TRUONG">KHBD trường</option><option value="CHUONG_TRINH_DOI_TAC">Chương trình đối tác</option><option value="NHAP_THUC_TE">Nhập nội dung thực tế</option></select></div>
+                  <div class="col-md-3"><label class="form-label small">Phương thức ký</label><select id="externalProgramSigningV7044" class="form-select"><option value="PROXY_SIGN">Ký thay có ủy quyền</option><option value="SELF_OR_PROXY">Cho phép tự ký hoặc ký thay</option></select></div>
+                  <div class="col-md-3"><label class="form-label small">Khối áp dụng</label><input id="externalProgramGradesV7044" class="form-control" placeholder="10; 11; 12"></div>
+                  <div class="col-md-3"><label class="form-label small">Trạng thái</label><select id="externalProgramStatusV7044" class="form-select"><option value="DANG_HOAT_DONG">Đang hoạt động</option><option value="TAM_DUNG">Tạm dừng</option><option value="NGUNG_HOAT_DONG">Ngừng</option></select></div>
+                  <div class="col-md-6"><label class="form-label small" for="externalProgramClassesV70442">Lớp áp dụng (bỏ trống: mọi lớp trong khối)</label><input id="externalProgramClassesV70442" class="form-control" placeholder="10A01; 10A02"></div><div class="col-12"><label class="form-label small">Ghi chú</label><input id="externalProgramNoteV7044" class="form-control"></div>
+                </div><div class="text-end mt-2"><button type="button" class="btn btn-primary fw-bold" onclick="luuChuongTrinhNgoaiV7044()">Lưu chương trình</button></div></div>
+                <div class="table-responsive" style="max-height:320px;overflow:auto"><table class="table table-sm table-bordered align-middle mb-0"><thead class="table-light sticky-top"><tr><th>Chương trình</th><th>Môn</th><th>KHBD</th><th>Nguồn nội dung</th><th>Ký</th><th>Trạng thái</th><th></th></tr></thead><tbody id="externalProgramBodyV7044"><tr><td colspan="7" class="text-center text-muted">Chưa tải danh mục.</td></tr></tbody></table></div>
+              </div>
+              <div class="card border mb-3"><div class="card-header bg-light fw-bold">Hồ sơ nhân sự chương trình liên kết <button type="button" class="btn btn-sm btn-outline-primary float-end" onclick="newExternalStaffV7044()">+ Thêm nhân sự</button></div><div class="card-body"><input type="hidden" id="externalIdV693"><p class="small text-muted">Tự ký dùng tài khoản GVBM riêng và tiết đã phân công. <a href="partner.html" target="_blank" rel="noopener">Cổng nhân sự liên kết</a></p><div class="row g-2">                <div class="col-md-4"><label for="externalModeV7044" class="form-label">Phương thức xác nhận</label><select id="externalModeV7044" class="form-select"><option value="PROXY_SIGN">Người của trường ký thay có ủy quyền</option><option value="SELF_SIGN">Tự ký</option></select></div>
+                <div class="col-md-4"><label for="externalAccountV7044" class="form-label">Tài khoản tự ký riêng</label><input id="externalAccountV7044" class="form-control" autocomplete="off"><small class="text-muted">Tạo tài khoản GVBM trong Quản trị trước khi liên kết. Không dùng chung tài khoản của trường.</small></div>
+                <div class="col-md-3"><label class="form-label small">Chương trình / môn ngoài trường</label><select id="externalProgramSelectV7044" class="form-select" onchange="onExternalProgramForStaffV7044()"><option value="">-- Không gắn chương trình --</option></select></div>
                 <div class="col-md-3"><label class="form-label small">Họ tên *</label><input id="externalNameV693" class="form-control"></div><div class="col-md-3"><label class="form-label small">Đơn vị</label><input id="externalOrgV693" class="form-control"></div><div class="col-md-2"><label class="form-label small">Chức danh</label><input id="externalTitleV693" class="form-control"></div><div class="col-md-2"><label class="form-label small">Chuyên môn</label><input id="externalSpecialtyV693" class="form-control"></div><div class="col-md-2"><label class="form-label small">SĐT</label><input id="externalPhoneV693" class="form-control"></div>
                 <div class="col-md-2"><label class="form-label small">Từ ngày</label><input type="date" id="externalFromV693" class="form-control"></div><div class="col-md-2"><label class="form-label small">Đến ngày</label><input type="date" id="externalToV693" class="form-control"></div><div class="col-md-3"><label class="form-label small">Phạm vi lớp</label><input type="hidden" id="externalClassesV693"><div class="dropdown control-scope-picker-v6953"><button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside"><span id="externalClassesSummaryV6953">Tất cả lớp</span></button><div class="dropdown-menu p-2 control-scope-menu-v6953" id="externalClassesMenuV6953"></div></div></div><div class="col-md-3"><label class="form-label small">Phạm vi môn</label><input type="hidden" id="externalSubjectsV693"><div class="dropdown control-scope-picker-v6953"><button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside"><span id="externalSubjectsSummaryV6953">Tất cả môn</span></button><div class="dropdown-menu p-2 control-scope-menu-v6953" id="externalSubjectsMenuV6953"></div></div></div><div class="col-md-2"><label class="form-label small">Trạng thái</label><select id="externalStatusV693" class="form-select"><option value="DANG_HOAT_DONG">Đang hoạt động</option><option value="TAM_DUNG">Tạm dừng</option><option value="NGUNG_HOAT_DONG">Ngừng</option></select></div><div class="col-12"><label class="form-label small">Ghi chú</label><input id="externalNoteV693" class="form-control"></div>
               </div><div class="text-end mt-2"><button class="btn btn-success fw-bold" onclick="luuNhanSuNgoaiV693()">Lưu nhân sự</button></div></div></div>
-              <div class="table-responsive" style="max-height:520px;overflow:auto"><table class="table table-sm table-bordered align-middle"><thead class="table-dark sticky-top"><tr><th>Mã</th><th>Họ tên</th><th>Đơn vị / Chuyên môn</th><th>Hiệu lực</th><th>Phạm vi</th><th>Trạng thái</th><th>Xử lý</th></tr></thead><tbody id="externalBodyV693"><tr><td colspan="7" class="text-center text-muted">Chưa tải dữ liệu.</td></tr></tbody></table></div>
+              <div class="table-responsive" style="max-height:520px;overflow:auto"><table class="table table-sm table-bordered align-middle"><thead class="table-dark sticky-top"><tr><th>Mã</th><th>Họ tên</th><th>Chương trình / Đơn vị</th><th>Hiệu lực</th><th>Phạm vi</th><th>Trạng thái</th><th>Xử lý</th></tr></thead><tbody id="externalBodyV693"><tr><td colspan="7" class="text-center text-muted">Chưa tải dữ liệu.</td></tr></tbody></table></div>
             </div>
 
             <div class="tab-pane fade" id="control-proxy-v693">
@@ -1487,15 +1518,16 @@
             <div class="row g-2 align-items-end mb-3 bgh-filter-v698">
               <div class="col-6 col-md-2"><label class="form-label small fw-bold">Tuần</label><select id="bghWorkflowWeekV698" class="form-select"></select></div>
               <div class="col-6 col-md-2"><label class="form-label small fw-bold">Khối</label><select id="bghWorkflowGradeV698" class="form-select"><option value="0">Tất cả khối</option><option value="10">Khối 10</option><option value="11">Khối 11</option><option value="12">Khối 12</option></select></div>
-              <div class="col-md-3"><label class="form-label small fw-bold">Trạng thái</label><select id="bghWorkflowStatusV698" class="form-select"><option value="ALL">Tất cả trạng thái</option><option value="DU_LIEU_DA_THAY_DOI">Dữ liệu thay đổi — cần duyệt lại</option><option value="SAN_SANG_DUYET">Sẵn sàng duyệt</option><option value="DA_DUYET">Đã duyệt</option><option value="CON_TIET_CHUA_KY">Còn tiết chưa ký</option><option value="CHO_GVCN_CHOT">Chờ GVCN chốt</option><option value="CHUA_CO_DU_LIEU">Chưa có dữ liệu</option></select></div>
+              <div class="col-md-3"><label class="form-label small fw-bold">Trạng thái</label><select id="bghWorkflowStatusV698" class="form-select"><option value="ALL">Tất cả trạng thái</option><option value="DU_LIEU_DA_THAY_DOI">Dữ liệu thay đổi — cần duyệt lại</option><option value="SAN_SANG_DUYET">Đã kiểm tra · có thể duyệt</option><option value="CHO_BGH_KIEM_TRA">Chờ BGH kiểm tra</option><option value="CAN_KIEM_TRA_LAI">Cần kiểm tra lại</option><option value="DA_DUYET">Đã duyệt</option><option value="CON_TIET_CHUA_KY">Còn tiết chưa ký</option><option value="CHO_GVCN_CHOT">Chờ GVCN chốt</option><option value="CHUA_CO_DU_LIEU">Chưa có dữ liệu</option></select></div>
               <div class="col-md-3"><label class="form-label small fw-bold">Tìm lớp / GVCN</label><input id="bghWorkflowSearchV698" class="form-control" placeholder="Ví dụ: 10A1 hoặc Nguyễn Văn A"></div>
               <div class="col-md-2 d-grid"><button class="btn btn-primary fw-bold" type="button" onclick="loadBghWorkflowV698(true)">Tải trạng thái</button></div>
             </div>
             <div class="row g-2 mb-3" id="bghWorkflowCardsV698"></div>
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2"><div id="bghWorkflowStatusTextV698" class="small text-muted">Chưa tải dữ liệu.</div><div class="small text-muted">Không có nút duyệt hàng loạt; BGH mở từng sổ để kiểm tra trước khi ký.</div></div>
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-3"><button id="bghBatchApproveV7044" type="button" class="btn btn-primary" onclick="approveReviewedBooksV7044()" disabled>Duyệt các sổ đã kiểm tra (0)</button><span class="small text-muted">Tích chọn từng sổ · Tối đa 20 sổ/lần · Chỉ dùng kết quả kiểm tra của chính tài khoản BGH đang đăng nhập.</span></div><div class="d-flex flex-wrap gap-2 align-items-center mb-3"><label for="bghSignatureFileV7044" class="small">Ảnh chữ ký BGH (PNG/JPG)</label><input type="file" accept="image/png,image/jpeg" id="bghSignatureFileV7044" class="form-control form-control-sm" style="max-width:280px"><button type="button" class="btn btn-outline-primary btn-sm" onclick="uploadBghSignatureV7044(this)">Lưu chữ ký cá nhân</button></div><div id="bghBatchResultsV7044" role="status" aria-live="polite"></div>
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2"><div id="bghWorkflowStatusTextV698" class="small text-muted">Chưa tải dữ liệu.</div><div class="small text-muted">BGH có thể duyệt nhiều sổ đã kiểm tra. Sổ chưa kiểm tra hoặc có dữ liệu thay đổi phải được mở lại trước khi duyệt.</div></div>
             <div class="table-responsive border rounded bgh-queue-wrap-v698">
               <table class="table table-sm table-hover align-middle mb-0 bgh-queue-table-v698">
-                <thead class="table-light sticky-top"><tr><th>#</th><th>Lớp</th><th>Khối</th><th>GVCN</th><th class="text-center">Tiết đã ghi</th><th class="text-center">Chưa ký</th><th>GVCN chốt</th><th>BGH duyệt</th><th>Trạng thái</th><th class="text-end">Thao tác</th></tr></thead>
+                <thead class="table-light sticky-top"><tr><th>Chọn</th><th>Lớp</th><th>Khối</th><th>GVCN</th><th class="text-center">Tiết đã ghi</th><th class="text-center">Chưa ký</th><th>GVCN chốt</th><th>BGH duyệt</th><th>Trạng thái</th><th class="text-end">Thao tác</th></tr></thead>
                 <tbody id="bghWorkflowBodyV698"><tr><td colspan="10" class="text-center text-muted py-4">Chưa tải trạng thái duyệt tuần.</td></tr></tbody>
               </table>
             </div>
@@ -2106,6 +2138,7 @@
     </div>
 
   </div><!-- /#sodbTabContent -->
+  <footer id="workspaceCopyright" class="workspace-copyright no-print">© 2026 Trường THPT Hồ Thị Bi</footer>
 </div><!-- /#appShellV4 -->
 
 <!-- V68.5.3: MODAL ĐỔI MẬT KHẨU THỐNG NHẤT MỌI VAI TRÒ -->
@@ -2145,23 +2178,24 @@
 
 
 <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/sodb-v69-runtime.js?v=70.3.1.3"></script>
-<script src="assets/js/app/sodb-v69-core.js?v=70.3.1.6"></script>
-<script src="assets/js/app/sodb-v69-khbd.js?v=70.3.1.3"></script>
-<script src="assets/js/app/sodb-v69-operations.js?v=70.3.1.3"></script>
-<script src="assets/js/app/sodb-v69-print.js?v=70.3.1.3"></script>
-<script src="assets/js/app/sodb-v69-admin.js?v=70.3.1.3"></script>
-<script src="assets/js/app/sodb-v70-lifecycle.js?v=70.3.1.3"></script>
-<script src="assets/js/app/sodb-v69-bgh.js?v=70.3.1.3"></script>
-<script src="assets/js/app/sodb-v69-masterdata.js?v=70.3.1.3"></script>
-<script src="assets/js/app/sodb-v69-control.js?v=70.3.1.3"></script>
-<script src="assets/js/app/sodb-v69-v694.js?v=70.3.1.3"></script>
-<script src="assets/js/app/sodb-v69-v695.js?v=70.3.1.3"></script>
-<script src="assets/js/app/sodb-v69-v6951.js?v=70.3.1.7"></script>
-<script src="assets/js/app/sodb-v69-ux.js?v=70.3.1.3"></script>
-<script src="assets/js/sodb-v69-gvcn.js?v=70.3.1.3"></script>
-<script src="assets/js/sodb-v69-reports.js?v=70.3.1.3"></script>
+<script src="assets/js/sodb-v69-runtime.js?v=70.4.4.2"></script>
+<script src="assets/js/app/sodb-v69-core.js?v=70.4.4.2"></script>
+<script src="assets/js/app/sodb-v69-khbd.js?v=70.4.4.2"></script>
+<script src="assets/js/app/sodb-v69-operations.js?v=70.4.4.2"></script>
+<script src="assets/js/app/sodb-v69-print.js?v=70.4.4.2"></script>
+<script src="assets/js/app/sodb-v69-admin.js?v=70.4.4.2"></script>
+<script src="assets/js/app/sodb-v70-lifecycle.js?v=70.4.4.2"></script>
+<script src="assets/js/app/sodb-v69-bgh.js?v=70.4.4.2"></script>
+<script src="assets/js/app/sodb-v69-masterdata.js?v=70.4.4.2"></script>
+<script src="assets/js/app/sodb-v69-control.js?v=70.4.4.2"></script>
+<script src="assets/js/app/sodb-v69-v694.js?v=70.4.4.2"></script>
+<script src="assets/js/app/sodb-v69-v695.js?v=70.4.4.2"></script>
+<script src="assets/js/app/sodb-v69-v6951.js?v=70.4.4.2"></script>
+<script src="assets/js/app/sodb-v69-ux.js?v=70.4.4.2"></script>
+<script src="assets/js/sodb-v69-gvcn.js?v=70.4.4.2"></script>
+<script src="assets/js/sodb-v69-reports.js?v=70.4.4.2"></script>
 
 
+<script src="assets/js/app/sodb-workspace.js?v=70.4.4.2"></script>
 </body>
 </html>

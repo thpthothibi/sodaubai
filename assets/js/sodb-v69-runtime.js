@@ -14,7 +14,7 @@
   const SODB_SUPABASE_URL_V66 = "https://mlwhxxpmnhrrkbkivvye.supabase.co";
   const SODB_SUPABASE_PUBLISHABLE_KEY_V66 = "sb_publishable_Hq6KRH5KDT1eiOYLwwQhkw_c45sZkgi";
   const SODB_EDGE_URL_V66 = SODB_SUPABASE_URL_V66 + "/functions/v1/sodb-core-v69";
-  const SODB_FRONTEND_VERSION = "V70.1.0";
+  const SODB_FRONTEND_VERSION = "V70.4.4";
   window.__SODB_BACKEND_VERSION__ = "UNKNOWN";
   // V69.2.2 Stable: đo thời gian thực tế các chặng mạng để tối ưu dựa trên số liệu.
   window.__SODB_PERF__ = Array.isArray(window.__SODB_PERF__) ? window.__SODB_PERF__ : [];
@@ -118,7 +118,7 @@
     'layPhanQuyenTaiKhoanV69553','luuPhanQuyenTaiKhoanV69553','khoiPhucPhanQuyenTuDongV69553','moKhoaDangNhapAdminV699','layTrungTamChatLuongDuLieuV699','layLichSuBanGhiV699',
     'layVongDoiNamHocV700','kiemTraDongNamHocV700','dongNamHocTaoNamMoiV700','layLuuTruNamHocV700','layLuuTruNamHocV702','layChuKyLuuTruV702','layHoSoInLuuTruV702',
     'layDuLieuGocAdminV696','luuGiaoVienAdminV696','luuPhanCongDayAdminV696','xoaPhanCongDayAdminV696','luuGvcnAdminV696','xoaGvcnAdminV696','luuToChuyenMonAdminV696','xoaToChuyenMonAdminV696',
-    'layDanhSachGiaoVienDieuHanhV693','layNhanSuNgoaiTruongV693','luuNhanSuNgoaiTruongV693','doiTrangThaiNhanSuNgoaiTruongV693','layNhanSuNgoaiTruongChoKyV693',
+    'layDanhSachGiaoVienDieuHanhV693','layChuongTrinhNgoaiTruongV7044','luuChuongTrinhNgoaiTruongV7044','danhDauDaKiemTraBGHV7044','duyetNhieuSoDaKiemTraV7044','layNhanSuNgoaiTruongV693','luuNhanSuNgoaiTruongV693','doiTrangThaiNhanSuNgoaiTruongV693','layNhanSuNgoaiTruongChoKyV693',
     'layHoSoNghiGiaoVienV693','luuHoSoNghiGiaoVienV693','duyetHoSoNghiGiaoVienV693',
     'layDieuHanhTietDayV693','luuDieuHanhTietDayV693','duyetDieuHanhTietDayV693','layDieuHanhTietCuaToiV693','layNhiemVuDieuHanhCuaToiV693','tongQuanDieuHanhV693','layDanhMucMaTranKHBDV694','layMaTranKHBDLopV694','baoCaoDieuHanhNangCaoV694','layCanhBaoTuDongV695','layDanhSachHocSinhNhomV6951','luuDanhSachHocSinhNhomV6951','luuChotTuanNhomV6951','duyetTuanNhomBGHV6951','baoCaoNhomHocV6951'
   ]);

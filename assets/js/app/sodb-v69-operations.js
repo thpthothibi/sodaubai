@@ -227,29 +227,119 @@
       gvDuocThay: cellData.gvDuocThay || "",
       lyDoTrangThai: cellData.lyDoTrangThai || "",
       operationId: cellData.operationId || "",
+      operationMeta: cellData.operationMeta || null,
       externalStaffId: cellData.externalStaffId || "",
       proxySignerAccount: cellData.proxySignerAccount || "",
-      proxySignerName: cellData.proxySignerName || ""
+      partnerEvidence: cellData.partnerEvidence || null,proxySignerName: cellData.proxySignerName || ""
     }];
   }
+
+  function formatStatusDateV7032(value) {
+    const s=String(value||'').slice(0,10);
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+    const [y,m,d]=s.split('-');
+    return `${d}/${m}/${y}`;
+  }
+
+  function operationStateTextV7032(value) {
+    const s=String(value||'').toUpperCase();
+    return ({CHO_DUYET:'Chờ duyệt',DA_DUYET:'Đã duyệt',HOAN_THANH:'Hoàn thành',TU_CHOI:'Từ chối',HUY:'Đã hủy'})[s] || String(value||'');
+  }
+
+  function operationSideTextV7032(side) {
+    if(!side) return '';
+    const parts=[];
+    if(side.mon) parts.push(side.mon);
+    if(side.ngay) parts.push(formatStatusDateV7032(side.ngay));
+    if(side.buoi) parts.push(side.buoi);
+    if(side.tiet) parts.push(`Tiết ${side.tiet}`);
+    if(side.lop) parts.push(`Lớp ${side.lop}`);
+    return parts.join(' · ');
+  }
+
+  function statusPopoverTextV7032(cellData, status) {
+    const meta=cellData&&cellData.operationMeta||null;
+    const lines=[];
+    if(status==='DAY_THAY'){
+      const performed=String(meta?.gvThucHienName||cellData?.tenGV||'').trim();
+      const replaced=String(meta?.gvGocName||cellData?.gvDuocThay||'').trim();
+      if(performed) lines.push(`GV thực hiện: ${performed}`);
+      if(replaced) lines.push(`Dạy thay cho: ${replaced}`);
+      if(meta?.maHoSo) lines.push(`Hồ sơ: ${meta.maHoSo}`);
+      if(meta?.trangThai) lines.push(`Trạng thái: ${operationStateTextV7032(meta.trangThai)}`);
+      if(meta?.lyDo) lines.push(`Lý do: ${meta.lyDo}`);
+    }else if(status==='DAY_BU'){
+      if(meta?.origin) lines.push(`Tiết gốc: ${operationSideTextV7032(meta.origin)}`);
+      if(meta?.execution) lines.push(`Dạy bù: ${operationSideTextV7032(meta.execution)}`);
+      if(meta?.gvThucHienName||cellData?.tenGV) lines.push(`Giáo viên: ${meta?.gvThucHienName||cellData?.tenGV}`);
+      if(meta?.maHoSo) lines.push(`Hồ sơ: ${meta.maHoSo}`);
+      if(meta?.lyDo) lines.push(`Lý do: ${meta.lyDo}`);
+    }else if(status==='HOAN_DOI'){
+      if(meta?.execution) lines.push(`Tiết này: ${operationSideTextV7032(meta.execution)}`);
+      const cp=meta?.counterpart;
+      if(cp){
+        lines.push(`Đổi với: ${operationSideTextV7032(cp)}`);
+        if(cp.giaoVien) lines.push(`GV đối ứng: ${cp.giaoVien}`);
+        lines.push(`Đối ứng: ${cp.completed?'✓ Đã ghi sổ':'⏳ Chưa ghi SĐB'}`);
+      }else lines.push('⚠ Chưa tìm thấy vế đối ứng');
+      if(meta?.pairCount>=2) lines.push(`Hai vế: ${meta.pairComplete?'✓ Đã hoàn thành':'⏳ Chưa hoàn tất'}`);
+      if(meta?.maHoSo) lines.push(`Hồ sơ: ${meta.maHoSo}`);
+    }else if(status==='NGHI'||status==='GV_VANG'||status==='BO_TIET'){
+      const teacher=String(cellData?.gvDuocThay||cellData?.tenGV||'').trim();
+      if(teacher) lines.push(`Giáo viên: ${teacher}`);
+      if(cellData?.lyDoTrangThai||cellData?.nhanXet) lines.push(`Lý do: ${cellData.lyDoTrangThai||cellData.nhanXet}`);
+      if(cellData?.canDayBu) lines.push('Cần bố trí dạy bù');
+    }
+    return lines.join('\n');
+  }
+
+  function mixedPopoverTextV7032(cellData){
+    const entries=getCellEntries(cellData);
+    const lines=entries.map((entry,index)=>{
+      const signed=!!String(entry.kySo||'').trim()&&!/chưa\s*(ký|xác nhận)/i.test(String(entry.kySo||''));
+      return `${entry.mon||`Môn ${index+1}`} — ${entry.tenGV||'Chưa xác định GV'} — ${signed?'✓ đã ký':'⏳ chưa ký'}`;
+    });
+    const meta=cellData&&cellData.mixedMeta;
+    if(meta) lines.push(`Trạng thái: ${meta.complete?'✓ Đủ giáo viên/chữ ký':'⏳ Tiết trộn chưa hoàn tất'}`);
+    return lines.join('\n');
+  }
+
+  function popoverAttrsV7032(title, content){
+    const text=String(content||'').trim();
+    if(!text) return '';
+    return ` data-sodb-status-popover="1" data-bs-title="${escapeHtml(title||'Chi tiết')}" data-bs-content="${escapeHtml(text)}" tabindex="0" role="button" aria-label="${escapeHtml((title||'Chi tiết')+': '+text.replace(/\n/g,'. '))}"`;
+  }
+
+  function initSodbStatusPopoversV7032(){
+    if(window.__sodbStatusPopoverV7032||!window.bootstrap||!bootstrap.Popover)return;
+    window.__sodbStatusPopoverV7032=new bootstrap.Popover(document.body,{selector:'[data-sodb-status-popover="1"]',container:'body',trigger:'hover focus click',placement:'auto',html:false,sanitize:true,customClass:'sodb-status-popover-v7032'});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initSodbStatusPopoversV7032,{once:true});else setTimeout(initSodbStatusPopoversV7032,0);
 
   function renderMixedField(cellData, fieldName) {
     let entries = getCellEntries(cellData);
     return entries.map((entry, index) => {
-      let badge = fieldName === "mon" && entries.length > 1 && index === 0
-        ? '<span class="badge bg-warning text-dark mixed-badge">TRỘN</span> '
-        : '';
+      let badge = '';
+      if(fieldName === "mon" && entries.length > 1 && index === 0){
+        badge = `<span class="badge sodb-status-badge sodb-status-badge-mixed mixed-badge me-1"${popoverAttrsV7032('Tiết trộn',mixedPopoverTextV7032(cellData))}>TRỘN</span> `;
+      }
       return `<div class="mixed-entry">${badge}${escapeHtml(entry[fieldName] || "")}</div>`;
     }).join("");
   }
 
   function renderPeriodStatusBadgeV683(cellData){
     const status=String(cellData&&cellData.trangThaiTiet||'HOC_BINH_THUONG').toUpperCase();
-    if(status==='DAY_THAY')return '<span class="badge bg-warning text-dark me-1">DẠY THAY</span>';
-    if(status==='NGHI')return '<span class="badge bg-secondary me-1">NGHỈ</span>';
-    if(status==='BO_TIET')return '<span class="badge bg-danger me-1">BỎ TIẾT</span>';
-    if(status==='DAY_BU')return '<span class="badge bg-info text-dark me-1">DẠY BÙ</span>';
-    if(status==='HOAN_DOI')return '<span class="badge bg-primary-subtle text-primary-emphasis me-1">HOÁN ĐỔI</span>';
+    const meta=cellData&&cellData.operationMeta||null;
+    const attrs=popoverAttrsV7032(status==='HOAN_DOI'?'Đổi tiết':status==='DAY_THAY'?'Dạy thay':status==='DAY_BU'?'Dạy bù':status==='GV_VANG'?'Giáo viên vắng':status==='BO_TIET'?'Bỏ tiết':'Nghỉ',statusPopoverTextV7032(cellData,status));
+    if(status==='DAY_THAY'){
+      const teacher=String(meta?.gvThucHienName||cellData?.tenGV||'').trim();
+      return `<span class="badge sodb-status-badge sodb-status-badge-substitute me-1"${attrs}>DẠY THAY${teacher?`<span class="status-badge-detail-v7032">: ${escapeHtml(teacher)}</span>`:''}</span>`;
+    }
+    if(status==='NGHI')return `<span class="badge sodb-status-badge sodb-status-badge-absence me-1"${attrs}>NGHỈ</span>`;
+    if(status==='GV_VANG')return `<span class="badge sodb-status-badge sodb-status-badge-absence me-1"${attrs}>GV VẮNG</span>`;
+    if(status==='BO_TIET')return `<span class="badge sodb-status-badge sodb-status-badge-absence me-1"${attrs}>BỎ TIẾT</span>`;
+    if(status==='DAY_BU')return `<span class="badge sodb-status-badge sodb-status-badge-makeup me-1"${attrs}>DẠY BÙ</span>`;
+    if(status==='HOAN_DOI')return `<span class="badge sodb-status-badge sodb-status-badge-swap me-1"${attrs}>ĐỔI TIẾT</span>`;
     return '';
   }
 
@@ -273,7 +363,9 @@
       const kySo=String(entry.kySo||'');
       const sigUrl=normalizeSignatureUrlV67_1(entry.signatureUrl||(kySo.indexOf('IMAGE:')===0?kySo.replace('IMAGE:',''):''));
       const proxySigner=String(entry.proxySignerName||'').trim();
-      const nameHtml=name?`<div class="sig-name">${escapeHtml(name)}</div>${proxySigner?`<div class="small text-muted proxy-signer-v693">Ký thay bởi: ${escapeHtml(proxySigner)}</div>`:''}`:'';
+      const isExternal=!!String(entry.externalStaffId||'').trim();
+      const evidence=entry.partnerEvidence||{},program=String(evidence.program||'');
+      const nameHtml=name?`<div class="sig-name">${escapeHtml(name)}</div>${isExternal?'<div class="small fw-semibold external-staff-badge-v7044">Nhân sự ngoài trường</div>':''}${program?`<div class="small text-muted">${escapeHtml(program)}</div>`:''}${proxySigner?`<div class="small text-muted proxy-signer-v693">Ký xác nhận thay: ${escapeHtml(proxySigner)}</div>`:''}`:'';
       if(sigUrl){
         const altText=name?`Chữ ký ${name}`:'Chữ ký giáo viên';
         const rawSig=entry.signatureUrl||entry.kySo||'';
@@ -407,7 +499,8 @@
     try{
       const mode=String(document.getElementById('viewBookMode')?.value||'LOP_CHINH');
       const method=(mode==='CHUYEN_DE'||mode==='GDTC')?'duyetTuanNhomBGHV6951':'duyetTuanBGHV684';
-      const r=await callSodbEdgeRpcV67(method,[{lop,tuan,ykien},{token:bgh.sessionToken}]);
+      const revision=typeof bghOpenedReviewV7044!=='undefined'&&bghOpenedReviewV7044?.lop===lop&&Number(bghOpenedReviewV7044?.tuan)===tuan?bghOpenedReviewV7044.revision:null;
+      const r=await callSodbEdgeRpcV67(method,[{lop,tuan,ykien,revision,requestId:crypto.randomUUID()},{token:bgh.sessionToken}]);
       if(!r?.success)throw new Error(r?.message||'Không duyệt được tuần.');
       showToastV9(r.message||'Đã duyệt tuần.','success');
       [...sodbViewCacheV6.keys()].filter(k=>String(k).startsWith(lop+'|'+tuan+'|')).forEach(k=>sodbViewCacheV6.delete(k));
@@ -419,6 +512,7 @@
     }
   }
 
+  let sodbViewRequestV704 = 0;
   function traCuuSoDauBaiTuanGop(forceRefreshV6) {
     const lop=document.getElementById('viewLop').value;
     const tuan=parseInt(document.getElementById('viewTuan').value)||1;
@@ -428,6 +522,8 @@
       showToastV9('Vui lòng chọn lớp cần xem.','danger');
       return Promise.resolve(null);
     }
+    const requestIdV704 = ++sodbViewRequestV704;
+    window.sodbWorkspace?.loading();
     const titleEl=document.querySelector('#printPageSingle .so-title');
     if(titleEl)titleEl.textContent=tieuDeSoTheoLopV22(lop,bookMode);
     const lbl=document.getElementById('lblLop'); if(lbl)lbl.innerText=lop;
@@ -464,10 +560,12 @@
     }
 
     function renderPageV10(payload){
+      if(requestIdV704 !== sodbViewRequestV704) return;
+      window.sodbWorkspace?.render(payload, {lop,tuan,bookMode,mondayOfWeek});
       const res=payload&&payload.sodb?payload.sodb:payload;
       const table=tbody?.closest('table');
       if(table)table.classList.remove('compact-special-book-v29');
-      const serverTitle=(payload&&payload.bookTitle)||res.bookTitle||tieuDeSoTheoLopV22(lop,bookMode);
+      const serverTitle=(payload&&payload.bookTitle)||res?.bookTitle||tieuDeSoTheoLopV22(lop,bookMode);
       const titleNow=document.querySelector('#printPageSingle .so-title');if(titleNow)titleNow.textContent=serverTitle;
       if(typeof applyGroupBookUiV6951==='function')applyGroupBookUiV6951(payload,lop,tuan,bookMode);
       if(!res||!res.success){
@@ -478,6 +576,7 @@
         tbody.innerHTML=`<tr><td colspan="12" class="text-warning py-3 text-center">Chưa có dữ liệu lớp ${escapeHtml(lop)} - Tuần ${tuan}</td></tr>`;
         applyChotV10(payload&&payload.chot);
         applyBghApprovalV684(payload&&payload.bghDuyet,payload&&payload.chot);
+        if(typeof renderReviewV7044==='function')renderReviewV7044(payload?.review||null);
         return;
       }
 
@@ -490,6 +589,7 @@
         document.getElementById('sumTietChuaKy').innerText=res.summary.soTietChuaKy;
         applyChotV10(payload&&payload.chot);
         applyBghApprovalV684(payload&&payload.bghDuyet,payload&&payload.chot);
+        if(typeof renderReviewV7044==='function')renderReviewV7044(payload?.review||null);
         sodbViewCacheV6.set(cacheKey,{ts:Date.now(),res:payload});
         const stamp=document.getElementById('sodbLoadedAtV10');
         if(stamp)stamp.textContent=payload&&payload.serverTime?('Cập nhật: '+payload.serverTime):'';
@@ -540,6 +640,7 @@
       document.getElementById('sumTietChuaKy').innerText=res.summary.soTietChuaKy;
       applyChotV10(payload&&payload.chot);
       applyBghApprovalV684(payload&&payload.bghDuyet,payload&&payload.chot);
+        if(typeof renderReviewV7044==='function')renderReviewV7044(payload?.review||null);
       sodbViewCacheV6.set(cacheKey,{ts:Date.now(),res:payload});
       const stamp=document.getElementById('sodbLoadedAtV10');
       if(stamp)stamp.textContent=payload&&payload.serverTime?('Cập nhật: '+payload.serverTime):'';
@@ -564,6 +665,8 @@
           resolve(payload);
         })
         .withFailureHandler(function(err){
+          if(requestIdV704 !== sodbViewRequestV704){resolve(null);return;}
+          window.sodbWorkspace?.error();
           tbody.innerHTML='<tr><td colspan="12" class="text-danger py-3 text-center">Không thể tải dữ liệu. Vui lòng thử lại.</td></tr>';
           showToastV9('Không tải được sổ đầu bài: '+(err&&err.message?err.message:err),'danger');
           reject(err);
@@ -675,7 +778,8 @@ function resetPeriodFormAfterSaveV54(){
   const proxyToggle=document.getElementById('proxySigningToggleV682');if(proxyToggle)proxyToggle.checked=false;
   const proxyName=document.getElementById('proxyTeacherNameV682');if(proxyName)proxyName.value='';
   const proxyExternal=document.getElementById('proxyExternalStaffIdV693');if(proxyExternal)proxyExternal.value='';
-  window.currentInputOperationV693=null;
+  if(typeof clearInputTeachingOperationV7042==='function')clearInputTeachingOperationV7042();
+  else if(typeof currentInputOperationV693!=='undefined')currentInputOperationV693=null;
   const opBanner=document.getElementById('inputOperationBannerV693');if(opBanner){opBanner.classList.add('d-none');opBanner.innerHTML='';}
   configureProxySigningUiV682();
   const c2=document.getElementById('gdtcClass2V26'),c3=document.getElementById('gdtcClass3V26');
@@ -722,9 +826,12 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
   // Tiết trộn: mỗi giáo viên chỉ nhập phần của chính mình. Backend tự ghép 2 GV cùng lớp-ngày-buổi-tiết.
   let isMixed = document.getElementById('isTietTron').checked;
 
-  const isDayThay=!!document.getElementById('isDayThayV683')?.checked;
-  const gvDuocThay=String(document.getElementById('gvDuocThayV683')?.value||'').trim();
-  if(isDayThay&&!gvDuocThay){showToastV9('Vui lòng nhập tên giáo viên được dạy thay.','danger');return;}
+  if(typeof inputTeachingLoadingV7042!=='undefined' && inputTeachingLoadingV7042){showToastV9('Đang kiểm tra hồ sơ điều hành. Vui lòng chờ rồi bấm lưu lại.','info');return;}
+  if(typeof inputTeachingFailedV7042!=='undefined' && inputTeachingFailedV7042){refreshTeachingOperationForInputV693();showToastV9('Chưa kiểm tra được hồ sơ điều hành. Đang thử lại, vui lòng bấm lưu sau khi tải xong.','warning');return;}
+  const teachingOperation=typeof currentInputOperationV693!=='undefined'?currentInputOperationV693:null;
+  const isDayThay=!!(teachingOperation?.id && teachingOperation.loai==='DAY_THAY');
+  const gvDuocThay=isDayThay?String(teachingOperation.gvGocName||'').trim():'';
+  if(isDayThay&&!gvDuocThay){showToastV9('Hồ sơ dạy thay thiếu tên giáo viên gốc. Vui lòng kiểm tra tại Điều hành.','danger');return;}
 
   const proxySigningToggle=document.getElementById('proxySigningToggleV682');
   const proxyNameInput=document.getElementById('proxyTeacherNameV682');
@@ -734,7 +841,7 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
     showToastV9('Vui lòng nhập họ tên nhân sự được ký thay.','danger');
     return;
   }
-  if(proxySigning&&isDayThay){showToastV9('Không bật đồng thời “Dạy thay” và “Ký thay nhân sự ngoài nhà trường”.','danger');return;}
+  if(proxySigning&&isDayThay&&!currentInputOperationV693?.id){showToastV9('Không bật đồng thời “Dạy thay” và “Ký thay nhân sự ngoài nhà trường”.','danger');return;}
   if(inputDeadlineLockedV683){showToastV9('Tiết đang bị khóa theo thời hạn ký. Nếu cần bổ sung, liên hệ Admin mở khóa.','danger');return;}
 
   let btn = document.getElementById('btnSubmit');
@@ -755,6 +862,8 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
     tietCT: lesson1.tietCT,
     tenBaiDay: lesson1.tenBaiDay,
     yeuCauCanDat: lesson1.yeuCauCanDat,
+    khbdId: lesson1.khbdId || '',
+    lessonSource: lesson1.lessonSource || '',
     diemHocTap: document.getElementById('diemHocTap').value,
     diemKyLuat: document.getElementById('diemKyLuat').value,
     diemNeNep: document.getElementById('diemNeNep').value,
@@ -838,7 +947,9 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
       return {
         tenBaiDay: document.getElementById('tenBaiDayCustom').value.trim(),
         tietCT: document.getElementById('tietCT').value.trim(),
-        yeuCauCanDat: ""
+        yeuCauCanDat: "",
+        khbdId: "",
+        lessonSource: (typeof currentExternalProgramPolicyV7044!=='undefined'&&currentExternalProgramPolicyV7044?.lessonSource)||"NHAP_THUC_TE"
       };
     }
     if (selectValue.indexOf("PLAN_") === 0) {
@@ -848,19 +959,28 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
         tenBaiDay: plan.tenBai,
         tietCT: document.getElementById('tietCT').value.trim(),
         // Không hiển thị ô YCCĐ ở tab nhập tiết; vẫn giữ dữ liệu KHBD tự động để tương thích dữ liệu cũ.
-        yeuCauCanDat: plan.yeuCauCanDat || ""
+        yeuCauCanDat: plan.yeuCauCanDat || "",
+        khbdId: plan.khbdId || plan.id || "",
+        lessonSource: "KHBD_TRUONG"
       };
     }
     return null;
   }
 
   function fillLessonSelect(selectElement, plans) {
+    const policy=(typeof currentExternalProgramPolicyV7044!=='undefined'?currentExternalProgramPolicyV7044:null),mode=String(policy?.khbdMode||'OPTIONAL').toUpperCase();
+    if(policy&&mode==='NONE'){
+      selectElement.innerHTML='<option value="KHAC">➕ Nhập nội dung tiết dạy thực tế...</option>';
+      selectElement.value='KHAC';
+      setTimeout(()=>{try{dongBoTenBaiDay();}catch(_e){}},0);
+      return;
+    }
     selectElement.innerHTML = '<option value="">-- Chọn bài dạy đúng tuần --</option>';
     plans.forEach((plan, index) => {
       let prefix = plan.tietPPCT ? `PPCT ${plan.tietPPCT} — ` : "";
       selectElement.add(new Option(prefix + plan.tenBai, `PLAN_${index}`));
     });
-    selectElement.add(new Option("➕ Nhập tên bài dạy khác...", "KHAC"));
+    if(!(policy&&mode==='REQUIRED'))selectElement.add(new Option("➕ Nhập tên bài dạy khác...", "KHAC"));
   }
 
   function hideJustUsedLessonV55(lessonName){

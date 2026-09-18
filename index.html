@@ -13,8 +13,8 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <link rel="stylesheet" href="assets/css/sodb-v69.css?v=70.4.4.2">
-  <link rel="stylesheet" href="assets/css/sodb-workspace.css?v=70.4.4.2">
+  <link rel="stylesheet" href="assets/css/sodb-v69.css?v=70.4.5">
+  <link rel="stylesheet" href="assets/css/sodb-workspace.css?v=70.4.5.2">
 
 
 
@@ -716,7 +716,9 @@
 
             <div id="gvcnSummaryContent" class="d-none">
               <div class="gvcn-kpi-grid-v681">
-                <div class="gvcn-kpi-v681"><span>Số tiết đã ghi</span><strong id="gvcnTongTietV681">0</strong><small>tiết trong tuần</small></div>
+                <div class="gvcn-kpi-v681"><span>Ô đã giải trình</span><strong id="gvcnTongTietV681">0/0</strong><small>toàn tuần</small></div>
+                <div class="gvcn-kpi-v681"><span>Buổi sáng</span><strong id="gvcnMorningV7045">0/0</strong><small>ô hợp lệ</small></div>
+                <div class="gvcn-kpi-v681"><span>Buổi chiều</span><strong id="gvcnAfternoonV7045">0/0</strong><small>ô hợp lệ</small></div>
                 <div class="gvcn-kpi-v681"><span>Vắng có phép</span><strong id="gvcnVangP">0</strong><small>lượt</small></div>
                 <div class="gvcn-kpi-v681"><span>Vắng không phép</span><strong id="gvcnVangKP">0</strong><small>lượt</small></div>
                 <div class="gvcn-kpi-v681"><span>Điểm trung bình</span><strong id="gvcnDTB">0.0</strong><small id="gvcnXepLoaiV681">—</small></div>
@@ -734,6 +736,18 @@
                 <div class="progress mt-2" role="progressbar" aria-label="Tiến độ ký sổ" aria-valuemin="0" aria-valuemax="100">
                   <div class="progress-bar" id="gvcnProgressBarV681" style="width:0%"></div>
                 </div>
+              </div>
+
+              <div class="gvcn-detail-card-v681 gvcn-validator-v7045" id="gvcnValidatorCardV7045">
+                <div class="gvcn-section-head-v681">
+                  <div>
+                    <div class="fw-bold">Kiểm tra sổ tuần</div>
+                    <div class="small text-muted">Kiểm tra Sáng/Chiều, tiết thường, GDTC tách nhóm, Chuyên đề, tiết trộn và trạng thái bất thường trước khi ký chốt.</div>
+                  </div>
+                  <button type="button" class="btn btn-outline-primary btn-sm fw-bold" id="gvcnValidateBtnV7045" onclick="kiemTraSoTuanGVCNV7045(true)">Kiểm tra sổ tuần</button>
+                </div>
+                <div id="gvcnValidationSummaryV7045" class="alert alert-light border py-2 mb-2">Chưa kiểm tra.</div>
+                <div id="gvcnValidationIssuesV7045" class="small"></div>
               </div>
 
               <div class="gvcn-detail-card-v681">
@@ -1917,6 +1931,20 @@
                   </div>
                 </div>
 
+                <div class="border rounded p-3 mt-3 validator-config-v7045">
+                  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                    <div><div class="fw-bold text-primary">Khung kiểm tra GVCN — Sáng/Chiều</div><div class="small text-muted">Chỉ khai báo ô Thứ/Buổi/Tiết. Đây không phải TKB môn/GV. Lịch nhóm giúp kiểm tra đủ GDTC và Chuyên đề.</div></div>
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="taiCauHinhKiemTraTuanV7045(true)">Làm mới</button>
+                  </div>
+                  <div class="row g-2 align-items-end mb-2">
+                    <div class="col-md-2"><label class="form-label small fw-bold">Loại cấu hình</label><select id="validatorKindV7045" class="form-select" onchange="renderCauHinhKiemTraTuanV7045()"><option value="CLASS">Lớp chính</option><option value="GROUP">Nhóm GDTC/Chuyên đề</option></select></div>
+                    <div class="col-md-5"><label class="form-label small fw-bold">Lớp / Nhóm</label><select id="validatorTargetV7045" class="form-select" onchange="renderCauHinhKiemTraTuanV7045()"><option value="">-- Chọn --</option></select></div>
+                    <div class="col-md-5 d-flex gap-2"><button type="button" class="btn btn-outline-secondary flex-fill" onclick="mauKhungSang4TietV7045()">Mẫu T2–T6 · Sáng 1–4</button><button type="button" class="btn btn-outline-danger" onclick="xoaChonKhungV7045()">Bỏ chọn</button><button type="button" class="btn btn-primary fw-bold" onclick="luuCauHinhKiemTraTuanV7045()">Lưu</button></div>
+                  </div>
+                  <div id="validatorMatrixV7045" class="table-responsive"></div>
+                  <div id="validatorConfigStatusV7045" class="small text-muted mt-2">Chưa tải cấu hình.</div>
+                </div>
+
                 <div class="border rounded p-3 mt-3 bg-light">
                   <div class="fw-bold mb-2">Thêm nhanh lớp Chuyên đề 12</div>
                   <div class="row g-2 align-items-end">
@@ -2178,24 +2206,24 @@
 
 
 <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/sodb-v69-runtime.js?v=70.4.4.2"></script>
-<script src="assets/js/app/sodb-v69-core.js?v=70.4.4.2"></script>
-<script src="assets/js/app/sodb-v69-khbd.js?v=70.4.4.2"></script>
-<script src="assets/js/app/sodb-v69-operations.js?v=70.4.4.2"></script>
-<script src="assets/js/app/sodb-v69-print.js?v=70.4.4.2"></script>
-<script src="assets/js/app/sodb-v69-admin.js?v=70.4.4.2"></script>
-<script src="assets/js/app/sodb-v70-lifecycle.js?v=70.4.4.2"></script>
-<script src="assets/js/app/sodb-v69-bgh.js?v=70.4.4.2"></script>
-<script src="assets/js/app/sodb-v69-masterdata.js?v=70.4.4.2"></script>
-<script src="assets/js/app/sodb-v69-control.js?v=70.4.4.2"></script>
-<script src="assets/js/app/sodb-v69-v694.js?v=70.4.4.2"></script>
-<script src="assets/js/app/sodb-v69-v695.js?v=70.4.4.2"></script>
-<script src="assets/js/app/sodb-v69-v6951.js?v=70.4.4.2"></script>
-<script src="assets/js/app/sodb-v69-ux.js?v=70.4.4.2"></script>
-<script src="assets/js/sodb-v69-gvcn.js?v=70.4.4.2"></script>
-<script src="assets/js/sodb-v69-reports.js?v=70.4.4.2"></script>
+<script src="assets/js/sodb-v69-runtime.js?v=70.4.5"></script>
+<script src="assets/js/app/sodb-v69-core.js?v=70.4.5"></script>
+<script src="assets/js/app/sodb-v69-khbd.js?v=70.4.5"></script>
+<script src="assets/js/app/sodb-v69-operations.js?v=70.4.5"></script>
+<script src="assets/js/app/sodb-v69-print.js?v=70.4.5"></script>
+<script src="assets/js/app/sodb-v69-admin.js?v=70.4.5"></script>
+<script src="assets/js/app/sodb-v70-lifecycle.js?v=70.4.5"></script>
+<script src="assets/js/app/sodb-v69-bgh.js?v=70.4.5"></script>
+<script src="assets/js/app/sodb-v69-masterdata.js?v=70.4.5"></script>
+<script src="assets/js/app/sodb-v69-control.js?v=70.4.5"></script>
+<script src="assets/js/app/sodb-v69-v694.js?v=70.4.5"></script>
+<script src="assets/js/app/sodb-v69-v695.js?v=70.4.5"></script>
+<script src="assets/js/app/sodb-v69-v6951.js?v=70.4.5"></script>
+<script src="assets/js/app/sodb-v69-ux.js?v=70.4.5"></script>
+<script src="assets/js/sodb-v69-gvcn.js?v=70.4.5"></script>
+<script src="assets/js/sodb-v69-reports.js?v=70.4.5"></script>
 
 
-<script src="assets/js/app/sodb-workspace.js?v=70.4.4.2"></script>
+<script src="assets/js/app/sodb-workspace.js?v=70.4.5"></script>
 </body>
 </html>

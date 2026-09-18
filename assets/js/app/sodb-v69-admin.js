@@ -961,3 +961,39 @@ document.addEventListener('DOMContentLoaded',()=>{
   const tab=document.querySelector('[data-bs-target="#pills-classes"]');
   if(tab)tab.addEventListener('shown.bs.tab',()=>taiQuanHeLopNhomV7031(false));
 });
+
+/* ===== V70.4.5: CẤU HÌNH CLASS WEEK VALIDATOR ===== */
+let validatorConfigV7045={classRules:[],groupRules:[],classes:[],groups:[],namHoc:''};
+function validatorEscV7045(v){return typeof escapeHtml==='function'?escapeHtml(String(v??'')):String(v??'');}
+function validatorAuthV7045(){return typeof getAdminAuthV69==='function'?getAdminAuthV69():{token:(adminDangNhapInfo&&adminDangNhapInfo.sessionToken)||''};}
+function validatorSelectedRulesV7045(){
+  const kind=String(document.getElementById('validatorKindV7045')?.value||'CLASS'),target=String(document.getElementById('validatorTargetV7045')?.value||'');
+  return (kind==='GROUP'?validatorConfigV7045.groupRules:validatorConfigV7045.classRules).filter(r=>String(kind==='GROUP'?r.lop_nhom:r.lop)===target);
+}
+function validatorFillTargetV7045(){
+  const kind=String(document.getElementById('validatorKindV7045')?.value||'CLASS'),sel=document.getElementById('validatorTargetV7045');if(!sel)return;
+  const old=sel.value,list=kind==='GROUP'?validatorConfigV7045.groups:validatorConfigV7045.classes;
+  sel.innerHTML='<option value="">-- Chọn --</option>'+list.map(x=>`<option value="${validatorEscV7045(x.name)}">${validatorEscV7045(x.name)}${x.type?' · '+validatorEscV7045(x.type):''}</option>`).join('');
+  if(list.some(x=>x.name===old))sel.value=old;
+}
+function renderCauHinhKiemTraTuanV7045(){
+  validatorFillTargetV7045();
+  const wrap=document.getElementById('validatorMatrixV7045');if(!wrap)return;
+  const target=String(document.getElementById('validatorTargetV7045')?.value||''),rules=validatorSelectedRulesV7045(),set=new Set(rules.map(r=>`${Number(r.thu)}|${String(r.buoi)}|${Number(r.tiet)}`));
+  const days=[2,3,4,5,6,7],sessions=[['SANG','Sáng'],['CHIEU','Chiều']];
+  wrap.innerHTML=!target?'<div class="text-muted small py-3">Chọn lớp/nhóm để cấu hình.</div>':`<table class="table table-sm table-bordered align-middle mb-0"><thead class="table-light"><tr><th>Thứ</th><th>Buổi</th>${[1,2,3,4,5].map(p=>`<th class="text-center">Tiết ${p}</th>`).join('')}</tr></thead><tbody>${days.map(d=>sessions.map(([code,label],idx)=>`<tr><td class="fw-semibold">${idx?'':('Thứ '+d)}</td><td>${label}</td>${[1,2,3,4,5].map(p=>`<td class="text-center"><input class="form-check-input validator-slot-v7045" type="checkbox" data-thu="${d}" data-buoi="${code}" data-tiet="${p}" ${set.has(`${d}|${code}|${p}`)?'checked':''}></td>`).join('')}</tr>`).join('')).join('')}</tbody></table>`;
+  const st=document.getElementById('validatorConfigStatusV7045');if(st)st.textContent=target?`${target}: ${rules.length} ô đang cấu hình · Năm học ${validatorConfigV7045.namHoc||''}`:`Năm học ${validatorConfigV7045.namHoc||''}`;
+}
+async function taiCauHinhKiemTraTuanV7045(force=false){
+  if(!hasRoleV4('ADMIN'))return;
+  try{const r=await callSodbEdgeRpcV67('layCauHinhKiemTraTuanV7045',[validatorAuthV7045()]);if(!r?.success)throw new Error(r?.message||'Không tải được cấu hình kiểm tra tuần.');validatorConfigV7045=r;renderCauHinhKiemTraTuanV7045();}
+  catch(e){showToastV9(e.message||String(e),'danger');const st=document.getElementById('validatorConfigStatusV7045');if(st)st.textContent='Lỗi: '+(e.message||e);}
+}
+function mauKhungSang4TietV7045(){document.querySelectorAll('.validator-slot-v7045').forEach(cb=>{cb.checked=String(cb.dataset.buoi)==='SANG'&&Number(cb.dataset.thu)>=2&&Number(cb.dataset.thu)<=6&&Number(cb.dataset.tiet)<=4;});}
+function xoaChonKhungV7045(){document.querySelectorAll('.validator-slot-v7045').forEach(cb=>cb.checked=false);}
+async function luuCauHinhKiemTraTuanV7045(){
+  const kind=String(document.getElementById('validatorKindV7045')?.value||'CLASS'),target=String(document.getElementById('validatorTargetV7045')?.value||'').trim();if(!target){showToastV9('Chọn lớp/nhóm cần lưu.','warning');return;}
+  const slots=[...document.querySelectorAll('.validator-slot-v7045:checked')].map(cb=>({thu:Number(cb.dataset.thu),buoi:String(cb.dataset.buoi),tiet:Number(cb.dataset.tiet)}));
+  try{setBusyV13(true,'Đang lưu khung kiểm tra...');const r=await callSodbEdgeRpcV67('luuCauHinhKiemTraTuanV7045',[{kind,target,slots},validatorAuthV7045()]);if(!r?.success)throw new Error(r?.message||'Không lưu được cấu hình.');showToastV9(r.message||'Đã lưu.','success');await taiCauHinhKiemTraTuanV7045(true);document.getElementById('validatorKindV7045').value=kind;renderCauHinhKiemTraTuanV7045();document.getElementById('validatorTargetV7045').value=target;renderCauHinhKiemTraTuanV7045();}catch(e){alertV13('❌ '+(e.message||e));}finally{setBusyV13(false);}
+}
+window.addEventListener('load',()=>{setTimeout(()=>{if(typeof hasRoleV4==='function'&&hasRoleV4('ADMIN')&&document.getElementById('validatorMatrixV7045'))taiCauHinhKiemTraTuanV7045(false);},1200);});

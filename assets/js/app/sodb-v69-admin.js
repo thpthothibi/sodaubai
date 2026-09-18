@@ -962,8 +962,9 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(tab)tab.addEventListener('shown.bs.tab',()=>taiQuanHeLopNhomV7031(false));
 });
 
-/* ===== V70.4.5: CẤU HÌNH CLASS WEEK VALIDATOR ===== */
+/* ===== V70.4.6: CẤU HÌNH CLASS WEEK VALIDATOR + ĐĂNG KÝ NHIỀU LỚP ===== */
 let validatorConfigV7045={classRules:[],groupRules:[],classes:[],groups:[],namHoc:''};
+let validatorBulkSelectedV7046=new Set();
 function validatorEscV7045(v){return typeof escapeHtml==='function'?escapeHtml(String(v??'')):String(v??'');}
 function validatorAuthV7045(){return typeof getAdminAuthV69==='function'?getAdminAuthV69():{token:(adminDangNhapInfo&&adminDangNhapInfo.sessionToken)||''};}
 function validatorSelectedRulesV7045(){
@@ -976,24 +977,54 @@ function validatorFillTargetV7045(){
   sel.innerHTML='<option value="">-- Chọn --</option>'+list.map(x=>`<option value="${validatorEscV7045(x.name)}">${validatorEscV7045(x.name)}${x.type?' · '+validatorEscV7045(x.type):''}</option>`).join('');
   if(list.some(x=>x.name===old))sel.value=old;
 }
+function validatorBulkSyncValidV7046(){
+  const valid=new Set((validatorConfigV7045.classes||[]).map(x=>String(x.name||'')));
+  validatorBulkSelectedV7046=new Set([...validatorBulkSelectedV7046].filter(x=>valid.has(x)));
+}
+function validatorUpdateBulkCountV7046(){const el=document.getElementById('validatorBulkCountV7046');if(el)el.textContent=`${validatorBulkSelectedV7046.size} lớp đã chọn`;}
+function validatorRenderBulkClassesV7046(){
+  const panel=document.getElementById('validatorBulkClassPanelV7046'),kind=String(document.getElementById('validatorKindV7045')?.value||'CLASS');
+  if(panel)panel.classList.toggle('d-none',kind!=='CLASS');
+  if(kind!=='CLASS')return;
+  validatorBulkSyncValidV7046();
+  const wrap=document.getElementById('validatorBulkClassListV7046');if(!wrap)return;
+  const grade=String(document.getElementById('validatorBulkGradeV7046')?.value||'');
+  const rows=(validatorConfigV7045.classes||[]).filter(x=>!grade||String(x.grade||'')===grade);
+  wrap.innerHTML=rows.length?rows.map(x=>{const name=String(x.name||''),enc=encodeURIComponent(name),checked=validatorBulkSelectedV7046.has(name)?'checked':'';return `<div class="col-6 col-md-4 col-lg-3"><label class="form-check border rounded bg-white px-2 py-2 w-100 mb-0"><input class="form-check-input validator-bulk-class-v7046" type="checkbox" data-class="${enc}" ${checked} onchange="validatorBulkClassChangedV7046(this)"><span class="form-check-label ms-1 fw-semibold">${validatorEscV7045(name)}</span></label></div>`;}).join(''):'<div class="col-12 text-muted small">Không có lớp chính phù hợp bộ lọc.</div>';
+  validatorUpdateBulkCountV7046();
+}
+function validatorBulkClassChangedV7046(cb){const name=decodeURIComponent(String(cb?.dataset?.class||''));if(!name)return;if(cb.checked)validatorBulkSelectedV7046.add(name);else validatorBulkSelectedV7046.delete(name);validatorUpdateBulkCountV7046();}
+function validatorBulkSelectVisibleV7046(checked){document.querySelectorAll('.validator-bulk-class-v7046').forEach(cb=>{cb.checked=!!checked;validatorBulkClassChangedV7046(cb);});}
+function validatorBulkClearAllV7046(){validatorBulkSelectedV7046.clear();document.querySelectorAll('.validator-bulk-class-v7046').forEach(cb=>cb.checked=false);validatorUpdateBulkCountV7046();}
+function validatorCurrentSlotsV7046(){return [...document.querySelectorAll('.validator-slot-v7045:checked')].map(cb=>({thu:Number(cb.dataset.thu),buoi:String(cb.dataset.buoi),tiet:Number(cb.dataset.tiet)}));}
 function renderCauHinhKiemTraTuanV7045(){
-  validatorFillTargetV7045();
+  validatorFillTargetV7045();validatorRenderBulkClassesV7046();
   const wrap=document.getElementById('validatorMatrixV7045');if(!wrap)return;
-  const target=String(document.getElementById('validatorTargetV7045')?.value||''),rules=validatorSelectedRulesV7045(),set=new Set(rules.map(r=>`${Number(r.thu)}|${String(r.buoi)}|${Number(r.tiet)}`));
-  const days=[2,3,4,5,6,7],sessions=[['SANG','Sáng'],['CHIEU','Chiều']];
-  wrap.innerHTML=!target?'<div class="text-muted small py-3">Chọn lớp/nhóm để cấu hình.</div>':`<table class="table table-sm table-bordered align-middle mb-0"><thead class="table-light"><tr><th>Thứ</th><th>Buổi</th>${[1,2,3,4,5].map(p=>`<th class="text-center">Tiết ${p}</th>`).join('')}</tr></thead><tbody>${days.map(d=>sessions.map(([code,label],idx)=>`<tr><td class="fw-semibold">${idx?'':('Thứ '+d)}</td><td>${label}</td>${[1,2,3,4,5].map(p=>`<td class="text-center"><input class="form-check-input validator-slot-v7045" type="checkbox" data-thu="${d}" data-buoi="${code}" data-tiet="${p}" ${set.has(`${d}|${code}|${p}`)?'checked':''}></td>`).join('')}</tr>`).join('')).join('')}</tbody></table>`;
-  const st=document.getElementById('validatorConfigStatusV7045');if(st)st.textContent=target?`${target}: ${rules.length} ô đang cấu hình · Năm học ${validatorConfigV7045.namHoc||''}`:`Năm học ${validatorConfigV7045.namHoc||''}`;
+  const kind=String(document.getElementById('validatorKindV7045')?.value||'CLASS'),target=String(document.getElementById('validatorTargetV7045')?.value||''),rules=validatorSelectedRulesV7045(),set=new Set(rules.map(r=>`${Number(r.thu)}|${String(r.buoi)}|${Number(r.tiet)}`));
+  const days=[2,3,4,5,6,7],sessions=[['SANG','Sáng'],['CHIEU','Chiều']],canRender=kind==='CLASS'||!!target;
+  wrap.innerHTML=!canRender?'<div class="text-muted small py-3">Chọn nhóm để cấu hình.</div>':`<table class="table table-sm table-bordered align-middle mb-0"><thead class="table-light"><tr><th>Thứ</th><th>Buổi</th>${[1,2,3,4,5].map(p=>`<th class="text-center">Tiết ${p}</th>`).join('')}</tr></thead><tbody>${days.map(d=>sessions.map(([code,label],idx)=>`<tr><td class="fw-semibold">${idx?'':('Thứ '+d)}</td><td>${label}</td>${[1,2,3,4,5].map(p=>`<td class="text-center"><input class="form-check-input validator-slot-v7045" type="checkbox" data-thu="${d}" data-buoi="${code}" data-tiet="${p}" ${set.has(`${d}|${code}|${p}`)?'checked':''}></td>`).join('')}</tr>`).join('')).join('')}</tbody></table>`;
+  const st=document.getElementById('validatorConfigStatusV7045');if(st)st.textContent=target?`${target}: ${rules.length} ô đang cấu hình · Năm học ${validatorConfigV7045.namHoc||''}`:(kind==='CLASS'?`Ma trận mới / áp dụng hàng loạt · Năm học ${validatorConfigV7045.namHoc||''}`:`Năm học ${validatorConfigV7045.namHoc||''}`);
 }
 async function taiCauHinhKiemTraTuanV7045(force=false){
   if(!hasRoleV4('ADMIN'))return;
-  try{const r=await callSodbEdgeRpcV67('layCauHinhKiemTraTuanV7045',[validatorAuthV7045()]);if(!r?.success)throw new Error(r?.message||'Không tải được cấu hình kiểm tra tuần.');validatorConfigV7045=r;renderCauHinhKiemTraTuanV7045();}
+  try{const r=await callSodbEdgeRpcV67('layCauHinhKiemTraTuanV7045',[validatorAuthV7045()]);if(!r?.success)throw new Error(r?.message||'Không tải được cấu hình kiểm tra tuần.');validatorConfigV7045=r;validatorBulkSyncValidV7046();renderCauHinhKiemTraTuanV7045();}
   catch(e){showToastV9(e.message||String(e),'danger');const st=document.getElementById('validatorConfigStatusV7045');if(st)st.textContent='Lỗi: '+(e.message||e);}
 }
 function mauKhungSang4TietV7045(){document.querySelectorAll('.validator-slot-v7045').forEach(cb=>{cb.checked=String(cb.dataset.buoi)==='SANG'&&Number(cb.dataset.thu)>=2&&Number(cb.dataset.thu)<=6&&Number(cb.dataset.tiet)<=4;});}
+function mauKhungChieu4TietV7046(){document.querySelectorAll('.validator-slot-v7045').forEach(cb=>{cb.checked=String(cb.dataset.buoi)==='CHIEU'&&Number(cb.dataset.thu)>=2&&Number(cb.dataset.thu)<=6&&Number(cb.dataset.tiet)<=4;});}
+function mauKhungCaHai4TietV7046(){document.querySelectorAll('.validator-slot-v7045').forEach(cb=>{cb.checked=Number(cb.dataset.thu)>=2&&Number(cb.dataset.thu)<=6&&Number(cb.dataset.tiet)<=4&&['SANG','CHIEU'].includes(String(cb.dataset.buoi));});}
 function xoaChonKhungV7045(){document.querySelectorAll('.validator-slot-v7045').forEach(cb=>cb.checked=false);}
 async function luuCauHinhKiemTraTuanV7045(){
-  const kind=String(document.getElementById('validatorKindV7045')?.value||'CLASS'),target=String(document.getElementById('validatorTargetV7045')?.value||'').trim();if(!target){showToastV9('Chọn lớp/nhóm cần lưu.','warning');return;}
-  const slots=[...document.querySelectorAll('.validator-slot-v7045:checked')].map(cb=>({thu:Number(cb.dataset.thu),buoi:String(cb.dataset.buoi),tiet:Number(cb.dataset.tiet)}));
+  const kind=String(document.getElementById('validatorKindV7045')?.value||'CLASS'),target=String(document.getElementById('validatorTargetV7045')?.value||'').trim();if(!target){showToastV9('Chọn lớp/nhóm cần lưu riêng. Nếu muốn đăng ký nhiều lớp, hãy tích các lớp ở mục “Đăng ký nhiều lớp”.','warning');return;}
+  const slots=validatorCurrentSlotsV7046();
   try{setBusyV13(true,'Đang lưu khung kiểm tra...');const r=await callSodbEdgeRpcV67('luuCauHinhKiemTraTuanV7045',[{kind,target,slots},validatorAuthV7045()]);if(!r?.success)throw new Error(r?.message||'Không lưu được cấu hình.');showToastV9(r.message||'Đã lưu.','success');await taiCauHinhKiemTraTuanV7045(true);document.getElementById('validatorKindV7045').value=kind;renderCauHinhKiemTraTuanV7045();document.getElementById('validatorTargetV7045').value=target;renderCauHinhKiemTraTuanV7045();}catch(e){alertV13('❌ '+(e.message||e));}finally{setBusyV13(false);}
+}
+async function luuKhungNhieuLopV7046(){
+  if(String(document.getElementById('validatorKindV7045')?.value||'CLASS')!=='CLASS'){showToastV9('Đăng ký nhiều lớp chỉ áp dụng cho Lớp chính. Nhóm GDTC/Chuyên đề vẫn cấu hình riêng để bảo đảm đúng lịch nhóm.','warning');return;}
+  const targets=[...validatorBulkSelectedV7046];if(!targets.length){showToastV9('Hãy chọn ít nhất 1 lớp cần áp dụng.','warning');return;}
+  const slots=validatorCurrentSlotsV7046();
+  const question=slots.length?`Áp dụng ${slots.length} ô Sáng/Chiều cho ${targets.length} lớp đã chọn?`:`Ma trận đang trống. Xóa toàn bộ khung kiểm tra của ${targets.length} lớp đã chọn?`;
+  if(typeof confirmV13==='function'&&!await confirmV13(question,{title:'Đăng ký khung GVCN nhiều lớp',confirmText:slots.length?'Áp dụng':'Xóa khung'}))return;
+  try{setBusyV13(true,`Đang áp dụng cho ${targets.length} lớp...`);const r=await callSodbEdgeRpcV67('luuCauHinhKiemTraTuanNhieuLopV7046',[{targets,slots},validatorAuthV7045()]);if(!r?.success)throw new Error(r?.message||'Không lưu được cấu hình nhiều lớp.');showToastV9(r.message||'Đã áp dụng.','success');await taiCauHinhKiemTraTuanV7045(true);validatorRenderBulkClassesV7046();}catch(e){alertV13('❌ '+(e.message||e));}finally{setBusyV13(false);}
 }
 window.addEventListener('load',()=>{setTimeout(()=>{if(typeof hasRoleV4==='function'&&hasRoleV4('ADMIN')&&document.getElementById('validatorMatrixV7045'))taiCauHinhKiemTraTuanV7045(false);},1200);});

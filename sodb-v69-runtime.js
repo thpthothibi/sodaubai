@@ -14,8 +14,26 @@
   const SODB_SUPABASE_URL_V66 = "https://mlwhxxpmnhrrkbkivvye.supabase.co";
   const SODB_SUPABASE_PUBLISHABLE_KEY_V66 = "sb_publishable_Hq6KRH5KDT1eiOYLwwQhkw_c45sZkgi";
   const SODB_EDGE_URL_V66 = SODB_SUPABASE_URL_V66 + "/functions/v1/sodb-core-v69";
-  const SODB_FRONTEND_VERSION = "V69";
+  const SODB_FRONTEND_VERSION = "V70.4.4";
   window.__SODB_BACKEND_VERSION__ = "UNKNOWN";
+  // V69.2.2 Stable: đo thời gian thực tế các chặng mạng để tối ưu dựa trên số liệu.
+  window.__SODB_PERF__ = Array.isArray(window.__SODB_PERF__) ? window.__SODB_PERF__ : [];
+  function recordSodbPerfV6922(source, action, startedAt, ok){
+    try{
+      const ms=Math.max(0,Math.round(performance.now()-startedAt));
+      const row={ts:new Date().toISOString(),source:String(source||''),action:String(action||''),ms,ok:!!ok};
+      window.__SODB_PERF__.push(row);
+      if(window.__SODB_PERF__.length>200)window.__SODB_PERF__.splice(0,window.__SODB_PERF__.length-200);
+      return row;
+    }catch(_e){return null;}
+  }
+  window.sodbPerfReportV6922=function(){
+    const rows=(window.__SODB_PERF__||[]).slice();
+    const groups={};
+    rows.forEach(r=>{const k=r.source+':'+r.action;(groups[k]||(groups[k]=[])).push(Number(r.ms)||0);});
+    const summary=Object.entries(groups).map(([action,vals])=>({action,count:vals.length,avgMs:Math.round(vals.reduce((a,b)=>a+b,0)/Math.max(1,vals.length)),maxMs:Math.max(...vals)})).sort((a,b)=>b.avgMs-a.avgMs);
+    return {rows,summary};
+  };
 
   function normalizeSignatureUrlV67_1(raw){
     let url=String(raw||'').trim();
@@ -84,10 +102,10 @@
   // V68: các RPC dữ liệu vận hành chạy trực tiếp trên Supabase Edge.
   // Các chức năng Google Drive/backup đặc thù vẫn đi Apps Script.
   const SODB_EDGE_RPC_METHODS_V67 = new Set([
-    'getBootstrapClientV6','getDanhSachLopMoiV29','layPhanCongDayCuaGVV39','xacThucPhienHeThongV4',
+    'getBootstrapClientV6','getDanhSachLopMoiV29','dangXuatHeThongV701','capNhatDanhSachLopV701','capNhatDanhSachHocSinhV701','layDanhSachHocSinhLopV701','layPhanCongDayCuaGVV39','xacThucPhienHeThongV4',
     'getDanhSachBaiDayTheoMon','layDanhSachKHBDTheoKhoiV36','capNhatKeHoachBaiDay',
-    'layDanhSachDuyetKHBDV50','layKhbdDaTaiCuaTTCMV659','xuLyDuyetKHBDV50','layKhbdCaNhanV67','chonKhbdCaNhanV67',
-    'layTrangSoDauBaiV24','layDuLieuSoDauBaiTuanGop','luuSoDauBai','luuChotTuanGVCN','duyetTuanBGHV684',
+    'layDanhSachDuyetKHBDV50','layKhbdDaTaiCuaTTCMV659','xuLyDuyetKHBDV50','layKhbdCaNhanV67','chonKhbdCaNhanV67','resetKhbdAdminV69552',
+    'layTrangSoDauBaiV24','layDuLieuSoDauBaiTuanGop','luuSoDauBai','luuChotTuanGVCN','duyetTuanBGHV684','layTrungTamDuyetTuanBGHV698','layMaTranDuyetTuanBGHV698',
     'kiemTraTrangThaiKhoaTuan','adminMoKhoaTuan','adminMoKhoaTuanHangLoatV685','layMoKhoaTuanHangLoatV685','dongMoKhoaTuanHangLoatV685','kiemTraMoKhoaTuanHangLoatV685','layNhatKyV4',
     'getDanhSachMonAdminV7','getDanhSachMonKHBD','getDanhSachGVTheoMon','luuCauHinhV4',
     'traCuuChiTietGiamThi','kiemTraNhapTreGiamThi','traCuuThongKeTheoKhoiNgay',
@@ -96,7 +114,13 @@
     'ghiTrangThaiTietGiamThiV683','traCuuTrangThaiTietGiamThiV683','huyTrangThaiTietGiamThiV691',
     'luuChuKyGiaoVienV21','xoaChuKyGiaoVienV21','traCuuChuKyTheoCCCD','doiMatKhauTaiKhoanV6853',
     'capNhatSoDauBaiV4','guiYeuCauChinhSuaV4','layYeuCauCuaToiV4','layYeuCauChinhSuaV4','xuLyYeuCauChinhSuaV4','layBanGhiCuaToiV4',
-    'layQuyenDacBietV69','luuQuyenDacBietV69','thuHoiQuyenDacBietV69'
+    'layQuyenDacBietV69','luuQuyenDacBietV69','thuHoiQuyenDacBietV69',
+    'layPhanQuyenTaiKhoanV69553','luuPhanQuyenTaiKhoanV69553','khoiPhucPhanQuyenTuDongV69553','moKhoaDangNhapAdminV699','layTrungTamChatLuongDuLieuV699','layLichSuBanGhiV699',
+    'layVongDoiNamHocV700','kiemTraDongNamHocV700','dongNamHocTaoNamMoiV700','layLuuTruNamHocV700','layLuuTruNamHocV702','layChuKyLuuTruV702','layHoSoInLuuTruV702',
+    'layDuLieuGocAdminV696','luuGiaoVienAdminV696','luuPhanCongDayAdminV696','xoaPhanCongDayAdminV696','luuGvcnAdminV696','xoaGvcnAdminV696','luuToChuyenMonAdminV696','xoaToChuyenMonAdminV696',
+    'layDanhSachGiaoVienDieuHanhV693','layChuongTrinhNgoaiTruongV7044','luuChuongTrinhNgoaiTruongV7044','danhDauDaKiemTraBGHV7044','duyetNhieuSoDaKiemTraV7044','layNhanSuNgoaiTruongV693','luuNhanSuNgoaiTruongV693','doiTrangThaiNhanSuNgoaiTruongV693','layNhanSuNgoaiTruongChoKyV693',
+    'layHoSoNghiGiaoVienV693','luuHoSoNghiGiaoVienV693','duyetHoSoNghiGiaoVienV693',
+    'layDieuHanhTietDayV693','luuDieuHanhTietDayV693','duyetDieuHanhTietDayV693','layDieuHanhTietCuaToiV693','layNhiemVuDieuHanhCuaToiV693','tongQuanDieuHanhV693','layDanhMucMaTranKHBDV694','layMaTranKHBDLopV694','baoCaoDieuHanhNangCaoV694','layCanhBaoTuDongV695','layDanhSachHocSinhNhomV6951','luuDanhSachHocSinhNhomV6951','luuChotTuanNhomV6951','duyetTuanNhomBGHV6951','baoCaoNhomHocV6951'
   ]);
 
   (function installSodbV69RuntimeBridge(){
@@ -134,6 +158,7 @@
     }
 
     async function callAppsScriptRpcV59(action,args){
+      const perfStart=performance.now(); let perfOk=false;
       const apiUrl=assertApiUrlV59();
       const controller=new AbortController();
       const timeout=setTimeout(()=>controller.abort(),60000);
@@ -171,6 +196,7 @@
         if(String(payload.appVersion||'')!==SODB_FRONTEND_VERSION){
           throw new Error('Lệch phiên bản: frontend '+SODB_FRONTEND_VERSION+' nhưng backend '+(payload.appVersion||'không xác định')+'. Hãy deploy lại Apps Script đúng phiên bản.');
         }
+        perfOk=true;
         return payload.result;
       }catch(err){
         if(err&&err.name==='AbortError') throw new Error('Máy chủ phản hồi quá 60 giây. Kiểm tra Apps Script hoặc thử lại.');
@@ -180,6 +206,7 @@
         throw err;
       }finally{
         clearTimeout(timeout);
+        recordSodbPerfV6922('APPS_SCRIPT',action,perfStart,perfOk);
       }
     }
 
@@ -235,22 +262,25 @@
     return String(value);
   }
 
-  async function callSodbEdgeV66(payload){
+  async function callSodbEdgeV66(payload,timeoutMs){
+    const perfStart=performance.now(); let perfOk=false;
+    const perfAction=String(payload?.method||payload?.action||'edge');
     const controller=new AbortController();
-    const timeout=setTimeout(()=>controller.abort(),12000);
+    const timeoutLimit=Math.max(3000,Number(timeoutMs)||90000);
+    const timeout=setTimeout(()=>controller.abort(),timeoutLimit);
     try{
       const r=await fetch(SODB_EDGE_URL_V66,{method:'POST',mode:'cors',credentials:'omit',cache:'no-store',headers:{'Content-Type':'application/json','apikey':SODB_SUPABASE_PUBLISHABLE_KEY_V66},body:JSON.stringify(payload||{}),signal:controller.signal});
       let data=null;try{data=await r.json();}catch(_e){}
-      if(r.ok)return data;
-      if(data&&data.success===false&&[400,401,403,429].includes(r.status))return data;
+      if(r.ok){perfOk=true;return data;}
+      if(data&&data.success===false&&[400,401,403,429].includes(r.status)){perfOk=true;return data;}
       throw new Error(data&&data.message?sodbErrorTextV658(data.message):('Supabase Edge HTTP '+r.status));
     }catch(e){
-      if(e&&e.name==='AbortError')throw new Error('Supabase Edge phản hồi quá 12 giây.');
+      if(e&&e.name==='AbortError')throw new Error(`Supabase Edge phản hồi quá ${Math.round(timeoutLimit/1000)} giây.`);
       throw e;
-    }finally{clearTimeout(timeout);}
+    }finally{clearTimeout(timeout);recordSodbPerfV6922('EDGE',perfAction,perfStart,perfOk);}
   }
-  async function callSodbEdgeRpcV67(method,args){
-    const data=await callSodbEdgeV66({action:'rpc',method:String(method||''),args:Array.isArray(args)?args:[]});
+  async function callSodbEdgeRpcV67(method,args,timeoutMs){
+    const data=await callSodbEdgeV66({action:'rpc',method:String(method||''),args:Array.isArray(args)?args:[]},timeoutMs);
     if(!data||data.success!==true)throw new Error(data&&data.message?sodbErrorTextV658(data.message):'Supabase V69 không thực hiện được yêu cầu.');
     return data.result;
   }

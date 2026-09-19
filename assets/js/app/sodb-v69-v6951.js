@@ -173,7 +173,7 @@ function updateGroupFooterLabelsV6951(isGroup){
   if(title)title.textContent=isGroup?'GIÁO VIÊN PHỤ TRÁCH NHÓM':'GIÁO VIÊN CHỦ NHIỆM';
 }
 function applyGroupBookUiV6951(payload,lop,tuan,bookMode){
-  const isGroup=!!payload?.groupBook||['CHUYEN_DE','GDTC'].includes(String(bookMode||'').toUpperCase())||isGroupBookClassV6951(lop);
+  const isGroup=!!payload?.groupBook||isGroupBookClassV6951(lop); // V70.4.6.17: GDTC tổng hợp của lớp chính chỉ là góc xem, không phải sổ nhóm nguồn.
   updateGroupFooterLabelsV6951(isGroup);
   const panel=document.getElementById('groupWeekCloseV6951');if(!panel)return;
   if(!isGroup){panel.classList.add('d-none');return;}

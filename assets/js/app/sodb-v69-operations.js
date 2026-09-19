@@ -478,7 +478,7 @@
         space.innerHTML='<span class="badge bg-danger" style="font-size:.55rem;">⚠ Cần duyệt lại</span>';name.textContent='';
       }else{space.innerHTML='<span class="text-muted" style="font-size:.55rem;">Chưa duyệt</span>';name.textContent='';}
     }
-    const bgh=getBghSessionV684(),mode=String(document.getElementById('viewBookMode')?.value||'LOP_CHINH'),isGroup=mode==='CHUYEN_DE'||mode==='GDTC';
+    const bgh=getBghSessionV684(),mode=String(document.getElementById('viewBookMode')?.value||'LOP_CHINH'),selectedClass=String(document.getElementById('viewLop')?.value||''),isGroup=['CHUYEN_DE','GDTC'].includes(String(loaiSoTheoLopV22(selectedClass)||'')); // V70.4.6.17
     if(panel)panel.classList.toggle('d-none',!(bgh&&bgh.sessionToken));if(!(bgh&&bgh.sessionToken))return;
     if(note)note.value=priorApproval?(approval.ykien||''):'';
     if(state){state.textContent=stale?'Dữ liệu đã thay đổi':hasApproval?'Đã duyệt':'Chưa duyệt';state.className='badge '+(stale?'bg-danger':hasApproval?'bg-primary':'bg-secondary');}
@@ -503,7 +503,8 @@
     if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner-border spinner-border-sm me-1"></span>Đang duyệt...';}
     try{
       const mode=String(document.getElementById('viewBookMode')?.value||'LOP_CHINH');
-      const method=(mode==='CHUYEN_DE'||mode==='GDTC')?'duyetTuanNhomBGHV6951':'duyetTuanBGHV684';
+      const classType=String(loaiSoTheoLopV22(lop)||'LOP_CHINH');
+      const method=(classType==='CHUYEN_DE'||classType==='GDTC')?'duyetTuanNhomBGHV6951':'duyetTuanBGHV684';
       const revision=typeof bghOpenedReviewV7044!=='undefined'&&bghOpenedReviewV7044?.lop===lop&&Number(bghOpenedReviewV7044?.tuan)===tuan?bghOpenedReviewV7044.revision:null;
       const r=await callSodbEdgeRpcV67(method,[{lop,tuan,ykien,revision,requestId:crypto.randomUUID()},{token:bgh.sessionToken}]);
       if(!r?.success)throw new Error(r?.message||'Không duyệt được tuần.');

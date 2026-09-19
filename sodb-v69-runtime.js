@@ -266,7 +266,7 @@
     const perfStart=performance.now(); let perfOk=false;
     const perfAction=String(payload?.method||payload?.action||'edge');
     const controller=new AbortController();
-    const timeoutLimit=Math.max(3000,Number(timeoutMs)||90000);
+    const timeoutLimit=Math.max(3000,Number(timeoutMs)||120000);
     const timeout=setTimeout(()=>controller.abort(),timeoutLimit);
     try{
       const r=await fetch(SODB_EDGE_URL_V66,{method:'POST',mode:'cors',credentials:'omit',cache:'no-store',headers:{'Content-Type':'application/json','apikey':SODB_SUPABASE_PUBLISHABLE_KEY_V66},body:JSON.stringify(payload||{}),signal:controller.signal});

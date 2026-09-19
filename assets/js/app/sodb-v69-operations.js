@@ -975,22 +975,17 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
     return null;
   }
 
-  // V70.4.6.12: quy tắc Tiết CT cho bài BH/CĐ.
-  // - BH: giữ mã BH (kèm số nếu tên bài ghi BH1/BH 1).
-  // - CĐ/CD khối 10,11: Tiết CT lấy NGUYÊN VĂN cột Tiết PPCT của dòng KHBD.
-  // - CĐ/CD khối khác: giữ mã CĐ (kèm số nếu có).
+  // V70.4.6.15: Tiết CT đặc biệt lấy MÃ ngay từ TÊN BÀI, không lấy số PPCT.
+  // Ví dụ: BH1/BH 1 -> BH1; CĐ1/CD 1 -> CĐ1.
+  // Chỉ bài bình thường mới dùng plan.tietPPCT.
   function specialLessonPeriodCodeV70612(plan){
     if(!plan)return '';
     const raw=String(plan.tenBai||'').trim();
     const title=raw.toUpperCase();
-    const grade=Number(plan.khoi||document.getElementById('khoi')?.value||0);
     const bh=title.match(/^BH\s*(\d+)?(?:\s*[-.:]|$)/);
-    if(bh)return bh[1]?`BH ${bh[1]}`:'BH';
+    if(bh)return bh[1]?`BH${bh[1]}`:'BH';
     const cd=title.match(/^(?:CĐ|CD)\s*(\d+)?(?:\s*[-.:]|$)/);
-    if(cd){
-      if((grade===10||grade===11)&&String(plan.tietPPCT||'').trim())return String(plan.tietPPCT).trim();
-      return cd[1]?`CĐ ${cd[1]}`:'CĐ';
-    }
+    if(cd)return cd[1]?`CĐ${cd[1]}`:'CĐ';
     return '';
   }
 

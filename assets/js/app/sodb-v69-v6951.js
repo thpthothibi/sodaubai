@@ -144,13 +144,13 @@ async function refreshGroupAttendanceV6951(preserveIds){
     groupRosterKeyV6951=key;
     const valid=new Set(groupRosterV6951.map(x=>String(x.maHS||'')));groupAbsentIdsV6951=new Set([...keep].filter(x=>valid.has(x)));
     attendanceRosterReadyV7013=groupRosterV6951.length>0;
-    attendanceRosterMessageV7013=attendanceRosterReadyV7013?'':attendanceMissingRosterTextV7013();
+    attendanceRosterMessageV7013=attendanceRosterReadyV7013?(r.message||''):(r.message||attendanceMissingRosterTextV7013());
     if(completeEl){
       completeEl.disabled=!attendanceRosterReadyV7013;
       completeEl.checked=attendanceRosterReadyV7013&&(preserveArray?preserveArray.length===0:true);
     }
     if(metaEl){
-      if(type==='GDTC')metaEl.textContent=attendanceRosterReadyV7013?`GDTC ${lop}${r.subject?' · '+r.subject:''} · ${groupRosterV6951.length} học sinh · danh sách hiệu lực ngày ${date.split('-').reverse().join('/')}.`:attendanceRosterMessageV7013;
+      if(type==='GDTC')metaEl.textContent=attendanceRosterReadyV7013?`GDTC ${lop}${r.subject?' · '+r.subject:''} · ${groupRosterV6951.length} học sinh · danh sách hiệu lực ngày ${date.split('-').reverse().join('/')}.${r.rosterSource==='MAIN_CLASS_SAME_NAME_FALLBACK'?' · Dùng DS lớp chính cùng tên.':''}`:attendanceRosterMessageV7013;
       else if(type==='CHUYEN_DE')metaEl.textContent=attendanceRosterReadyV7013?`Chuyên đề ${lop}${r.subject?' · '+r.subject:''} · ${groupRosterV6951.length} học sinh · danh sách hiệu lực ngày ${date.split('-').reverse().join('/')}.`:attendanceRosterMessageV7013;
       else metaEl.textContent=attendanceRosterReadyV7013?`Lớp chính khóa ${lop} · ${groupRosterV6951.length} học sinh · nguồn Supabase.`:attendanceRosterMessageV7013;
     }

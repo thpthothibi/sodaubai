@@ -13,8 +13,8 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <link rel="stylesheet" href="assets/css/sodb-v69.css?v=70.4.6.3">
-  <link rel="stylesheet" href="assets/css/sodb-workspace.css?v=70.4.6.3">
+  <link rel="stylesheet" href="assets/css/sodb-v69.css?v=70.4.6.4">
+  <link rel="stylesheet" href="assets/css/sodb-workspace.css?v=70.4.6.4">
 
 
 
@@ -175,7 +175,7 @@
 
   <aside id="workspaceSidebar" class="workspace-sidebar no-print" aria-label="Điều hướng chính">
     <button type="button" id="workspaceCloseMenu" class="workspace-close-menu" aria-label="Ẩn menu điều hướng"><span aria-hidden="true">×</span> Ẩn menu</button>
-    <div class="workspace-brand"><img src="assets/img/logo-htb-160.webp?v=70.4.6.3" alt="Logo THPT Hồ Thị Bi"><div><strong>THPT HỒ THỊ BI</strong><small>Quản lý sổ đầu bài điện tử</small></div></div>
+    <div class="workspace-brand"><img src="assets/img/logo-htb-160.webp?v=70.4.6.4" alt="Logo THPT Hồ Thị Bi"><div><strong>THPT HỒ THỊ BI</strong><small>Quản lý sổ đầu bài điện tử</small></div></div>
     <div class="workspace-nav-label">KHÔNG GIAN LÀM VIỆC</div>
   <!-- THANH TAB CHUYỂN ĐỔI -->
   <ul class="nav nav-tabs no-print mb-3" id="sodbTab" role="tablist">
@@ -2111,7 +2111,32 @@
                     <div class="col-lg-6"><input id="permissionSearchV69553" class="form-control" placeholder="Tìm tài khoản, họ tên, chức vụ, môn..." oninput="renderPhanQuyenTaiKhoanV69553()"></div>
                     <div class="col-lg-6"><div id="permissionStatusV69553" class="small text-muted"></div></div>
                   </div>
-                  <div class="alert alert-light border small py-2 mb-3"><b>Nguồn tự động</b>: quyền suy ra từ Giáo viên/GVCN/Tổ chuyên môn/chức vụ. <b>Tùy chỉnh</b>: quyền được ghi tại bảng <code>phan_quyen</code>. Nút <b>Khôi phục tự động</b> sẽ xóa bản ghi tùy chỉnh và quay về quyền theo dữ liệu gốc.</div>
+                  <div class="card border-primary-subtle shadow-sm mb-3" id="adminAccountCreateCardV70464">
+                    <div class="card-header bg-primary-subtle d-flex flex-wrap justify-content-between align-items-center gap-2">
+                      <strong>Tạo tài khoản đăng nhập mới</strong><span class="badge text-bg-primary">Admin</span>
+                    </div>
+                    <div class="card-body">
+                      <div class="row g-2 align-items-end">
+                        <div class="col-md-3"><label class="form-label small fw-bold" for="adminNewAccountV70464">Tài khoản / SĐT *</label><input id="adminNewAccountV70464" class="form-control" autocomplete="off" placeholder="VD: 0912345678"></div>
+                        <div class="col-md-3"><label class="form-label small fw-bold" for="adminNewNameV70464">Họ tên *</label><input id="adminNewNameV70464" class="form-control" autocomplete="off" placeholder="Họ và tên"></div>
+                        <div class="col-md-3"><label class="form-label small fw-bold" for="adminNewPasswordV70464">Mật khẩu ban đầu *</label><input id="adminNewPasswordV70464" type="password" class="form-control" autocomplete="new-password" placeholder="Ít nhất 8 ký tự, có chữ và số"></div>
+                        <div class="col-md-3"><label class="form-label small fw-bold" for="adminNewPasswordConfirmV70464">Xác nhận mật khẩu *</label><input id="adminNewPasswordConfirmV70464" type="password" class="form-control" autocomplete="new-password"></div>
+                        <div class="col-12 mt-3"><div class="small fw-bold mb-2">Vai trò ban đầu</div><div class="d-flex flex-wrap gap-3">
+                          <label class="form-check"><input class="form-check-input admin-new-role-v70464" type="checkbox" value="GVBM" checked> <span class="form-check-label">GVBM</span></label>
+                          <label class="form-check"><input class="form-check-input admin-new-role-v70464" type="checkbox" value="GVCN"> <span class="form-check-label">GVCN</span></label>
+                          <label class="form-check"><input class="form-check-input admin-new-role-v70464" type="checkbox" value="TTCM"> <span class="form-check-label">TTCM</span></label>
+                          <label class="form-check"><input class="form-check-input admin-new-role-v70464" type="checkbox" value="GIAM_THI"> <span class="form-check-label">Giám thị</span></label>
+                          <label class="form-check"><input class="form-check-input admin-new-role-v70464" type="checkbox" value="BGH"> <span class="form-check-label">BGH</span></label>
+                          <label class="form-check"><input class="form-check-input admin-new-role-v70464" type="checkbox" value="ADMIN"> <span class="form-check-label">Admin</span></label>
+                          <label class="form-check ms-md-2"><input class="form-check-input" id="adminNewActiveV70464" type="checkbox" checked> <span class="form-check-label fw-semibold">Kích hoạt ngay</span></label>
+                        </div></div>
+                        <div class="col-lg-9"><div class="form-text">Chức năng này tạo credential đăng nhập và quyền hệ thống. Nếu là giáo viên, tiếp tục khai báo hồ sơ, môn, lớp dạy/GVCN/TTCM tại <b>Dữ liệu gốc</b> để có đúng phạm vi chuyên môn.</div></div>
+                        <div class="col-lg-3 d-grid"><button type="button" class="btn btn-primary fw-bold" id="btnCreateAccountV70464" onclick="taoTaiKhoanAdminV70464()">+ Tạo tài khoản</button></div>
+                        <div class="col-12"><div id="adminAccountCreateStatusV70464" class="small text-muted" role="status" aria-live="polite"></div></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="alert alert-light border small py-2 mb-3"><b>Nguồn tự động</b>: quyền suy ra từ Giáo viên/GVCN/Tổ chuyên môn/chức vụ. <b>Tùy chỉnh</b>: quyền được ghi tại bảng <code>phan_quyen</code>. Nút <b>Khôi phục tự động</b> sẽ xóa bản ghi tùy chỉnh và quay về quyền theo dữ liệu gốc. <b>Đặt lại mật khẩu</b> sẽ thu hồi toàn bộ phiên cũ của tài khoản.</div>
                   <div class="table-responsive permission-table-wrap-v69553">
                     <table class="table table-sm table-hover align-middle mb-0 permission-table-v69553">
                       <thead class="table-light"><tr><th>Tài khoản</th><th>Họ tên</th><th>Chức vụ / Môn</th><th class="text-center">GVBM</th><th class="text-center">GVCN</th><th class="text-center">TTCM</th><th class="text-center">Giám thị</th><th class="text-center">BGH</th><th class="text-center">Admin</th><th class="text-center">Kích hoạt</th><th>Đăng nhập</th><th>Nguồn</th><th>Thao tác</th></tr></thead>
@@ -2215,28 +2240,45 @@
   </div>
 </div>
 
-
-
+<!-- V70.4.6.4: ADMIN ĐẶT LẠI MẬT KHẨU TÀI KHOẢN -->
+<div class="modal fade" id="modalAdminResetPasswordV70464" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title fw-bold">ĐẶT LẠI MẬT KHẨU TÀI KHOẢN</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+      </div>
+      <div class="modal-body p-4">
+        <input type="hidden" id="adminResetAccountV70464">
+        <div class="alert alert-warning py-2 small">Admin đang đặt mật khẩu mới cho <strong id="adminResetAccountLabelV70464"></strong>. Sau khi lưu, <strong>tất cả phiên đăng nhập cũ của tài khoản này sẽ bị thu hồi</strong>.</div>
+        <div class="mb-3"><label class="form-label fw-semibold" for="adminResetPasswordV70464">Mật khẩu mới</label><input type="password" class="form-control" id="adminResetPasswordV70464" autocomplete="new-password"><div class="form-text">Ít nhất 8 ký tự, gồm chữ và số.</div></div>
+        <div class="mb-0"><label class="form-label fw-semibold" for="adminResetPasswordConfirmV70464">Xác nhận mật khẩu mới</label><input type="password" class="form-control" id="adminResetPasswordConfirmV70464" autocomplete="new-password" onkeypress="if(event.key==='Enter'){event.preventDefault();thucHienDatLaiMatKhauAdminV70464();}"></div>
+        <div id="adminResetPasswordStatusV70464" class="d-none" role="alert"></div>
+      </div>
+      <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button><button type="button" class="btn btn-dark fw-bold" id="btnAdminResetPasswordV70464" onclick="thucHienDatLaiMatKhauAdminV70464()">Lưu mật khẩu mới</button></div>
+    </div>
+  </div>
+</div>
 
 <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/sodb-v69-runtime.js?v=70.4.6.3"></script>
-<script src="assets/js/app/sodb-v69-core.js?v=70.4.6.3"></script>
-<script src="assets/js/app/sodb-v69-khbd.js?v=70.4.6.3"></script>
-<script src="assets/js/app/sodb-v69-operations.js?v=70.4.6.3"></script>
-<script src="assets/js/app/sodb-v69-print.js?v=70.4.6.3"></script>
-<script src="assets/js/app/sodb-v69-admin.js?v=70.4.6.3"></script>
-<script src="assets/js/app/sodb-v70-lifecycle.js?v=70.4.6.3"></script>
-<script src="assets/js/app/sodb-v69-bgh.js?v=70.4.6.3"></script>
-<script src="assets/js/app/sodb-v69-masterdata.js?v=70.4.6.3"></script>
-<script src="assets/js/app/sodb-v69-control.js?v=70.4.6.3"></script>
-<script src="assets/js/app/sodb-v69-v694.js?v=70.4.6.3"></script>
-<script src="assets/js/app/sodb-v69-v695.js?v=70.4.6.3"></script>
-<script src="assets/js/app/sodb-v69-v6951.js?v=70.4.6.3"></script>
-<script src="assets/js/app/sodb-v69-ux.js?v=70.4.6.3"></script>
-<script src="assets/js/sodb-v69-gvcn.js?v=70.4.6.3"></script>
-<script src="assets/js/sodb-v69-reports.js?v=70.4.6.3"></script>
+<script src="assets/js/sodb-v69-runtime.js?v=70.4.6.4"></script>
+<script src="assets/js/app/sodb-v69-core.js?v=70.4.6.4"></script>
+<script src="assets/js/app/sodb-v69-khbd.js?v=70.4.6.4"></script>
+<script src="assets/js/app/sodb-v69-operations.js?v=70.4.6.4"></script>
+<script src="assets/js/app/sodb-v69-print.js?v=70.4.6.4"></script>
+<script src="assets/js/app/sodb-v69-admin.js?v=70.4.6.4"></script>
+<script src="assets/js/app/sodb-v70-lifecycle.js?v=70.4.6.4"></script>
+<script src="assets/js/app/sodb-v69-bgh.js?v=70.4.6.4"></script>
+<script src="assets/js/app/sodb-v69-masterdata.js?v=70.4.6.4"></script>
+<script src="assets/js/app/sodb-v69-control.js?v=70.4.6.4"></script>
+<script src="assets/js/app/sodb-v69-v694.js?v=70.4.6.4"></script>
+<script src="assets/js/app/sodb-v69-v695.js?v=70.4.6.4"></script>
+<script src="assets/js/app/sodb-v69-v6951.js?v=70.4.6.4"></script>
+<script src="assets/js/app/sodb-v69-ux.js?v=70.4.6.4"></script>
+<script src="assets/js/sodb-v69-gvcn.js?v=70.4.6.4"></script>
+<script src="assets/js/sodb-v69-reports.js?v=70.4.6.4"></script>
 
 
-<script src="assets/js/app/sodb-workspace.js?v=70.4.6.3"></script>
+<script src="assets/js/app/sodb-workspace.js?v=70.4.6.4"></script>
 </body>
 </html>

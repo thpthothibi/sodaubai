@@ -881,7 +881,7 @@ function renderPhanQuyenTaiKhoanV69553(){
     const mon=Array.isArray(r.mon)?r.mon.join(', '):'';
     const loginState=r.loginLocked?`<span class="badge text-bg-danger">Đang khóa</span><small class="d-block text-danger mt-1">đến ${escapeHtml(r.loginBlockedUntil||'')}</small><small class="d-block text-muted">Sai ${Number(r.loginFailCount||0)} lần</small>`:`<span class="badge text-bg-success">Bình thường</span>${Number(r.loginFailCount||0)>0?`<small class="d-block text-muted mt-1">Sai ${Number(r.loginFailCount||0)} lần gần đây</small>`:''}`;
     const unlockBtn=r.loginLocked?`<button type="button" class="btn btn-sm btn-outline-danger ms-1" onclick="moKhoaDangNhapAdminV699(decodeURIComponent('${enc}'))">Mở khóa đăng nhập</button>`:'';
-    return `<tr><td class="permission-account-v69553"><strong>${escapeHtml(a)}</strong></td><td>${escapeHtml(r.hoTen||'')}</td><td class="permission-meta-v69553"><div>${escapeHtml(r.chucVu||'')}</div><small class="text-muted">${escapeHtml(mon)}</small></td><td class="text-center">${ck('GVBM')}</td><td class="text-center">${ck('GVCN')}</td><td class="text-center">${ck('TTCM')}</td><td class="text-center">${ck('GIAM_THI')}</td><td class="text-center">${ck('BGH')}</td><td class="text-center">${ck('ADMIN')}</td><td class="text-center"><input class="form-check-input permission-role-check-v69553" type="checkbox" id="${activeId}" ${r.active!==false?'checked':''} ${locked?'disabled':''}></td><td>${loginState}</td><td>${src}</td><td class="permission-actions-v69553"><button type="button" class="btn btn-sm btn-primary me-1" onclick="luuPhanQuyenTaiKhoanV69553(decodeURIComponent('${enc}'))">Lưu</button>${r.managed&&!locked?`<button type="button" class="btn btn-sm btn-outline-secondary" onclick="khoiPhucPhanQuyenTuDongV69553(decodeURIComponent('${enc}'))">Khôi phục tự động</button>`:''}${unlockBtn}</td></tr>`;
+    return `<tr><td class="permission-account-v69553"><strong>${escapeHtml(a)}</strong></td><td>${escapeHtml(r.hoTen||'')}</td><td class="permission-meta-v69553"><div>${escapeHtml(r.chucVu||'')}</div><small class="text-muted">${escapeHtml(mon)}</small></td><td class="text-center">${ck('GVBM')}</td><td class="text-center">${ck('GVCN')}</td><td class="text-center">${ck('TTCM')}</td><td class="text-center">${ck('GIAM_THI')}</td><td class="text-center">${ck('BGH')}</td><td class="text-center">${ck('ADMIN')}</td><td class="text-center"><input class="form-check-input permission-role-check-v69553" type="checkbox" id="${activeId}" ${r.active!==false?'checked':''} ${locked?'disabled':''}></td><td>${loginState}</td><td>${src}</td><td class="permission-actions-v69553"><button type="button" class="btn btn-sm btn-primary me-1" onclick="luuPhanQuyenTaiKhoanV69553(decodeURIComponent('${enc}'))">Lưu</button><button type="button" class="btn btn-sm btn-outline-dark me-1 mt-1" onclick="moDatLaiMatKhauAdminV70464(decodeURIComponent('${enc}'))">Đặt lại mật khẩu</button>${r.managed&&!locked?`<button type="button" class="btn btn-sm btn-outline-secondary mt-1" onclick="khoiPhucPhanQuyenTuDongV69553(decodeURIComponent('${enc}'))">Khôi phục tự động</button>`:''}${unlockBtn}</td></tr>`;
   }).join('');
 }
 async function luuPhanQuyenTaiKhoanV69553(account){
@@ -961,6 +961,50 @@ document.addEventListener('DOMContentLoaded',()=>{
   const tab=document.querySelector('[data-bs-target="#pills-classes"]');
   if(tab)tab.addEventListener('shown.bs.tab',()=>taiQuanHeLopNhomV7031(false));
 });
+
+/* ========================================================================
+   V70.4.6.4 - ADMIN TẠO TÀI KHOẢN + ĐẶT LẠI MẬT KHẨU
+   ======================================================================== */
+function adminNewRolesV70464(){return [...document.querySelectorAll('.admin-new-role-v70464:checked')].map(x=>String(x.value||'').trim()).filter(Boolean);}
+function clearCreateAccountV70464(){
+  ['adminNewAccountV70464','adminNewNameV70464','adminNewPasswordV70464','adminNewPasswordConfirmV70464'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  document.querySelectorAll('.admin-new-role-v70464').forEach(e=>{e.checked=String(e.value)==='GVBM';});
+  const a=document.getElementById('adminNewActiveV70464');if(a)a.checked=true;
+}
+async function taoTaiKhoanAdminV70464(){
+  if(!hasRoleV4('ADMIN'))return;
+  const account=String(document.getElementById('adminNewAccountV70464')?.value||'').trim().replace(/\s+/g,''),name=String(document.getElementById('adminNewNameV70464')?.value||'').trim(),password=String(document.getElementById('adminNewPasswordV70464')?.value||''),confirmPw=String(document.getElementById('adminNewPasswordConfirmV70464')?.value||''),roles=adminNewRolesV70464(),active=document.getElementById('adminNewActiveV70464')?.checked!==false,status=document.getElementById('adminAccountCreateStatusV70464'),btn=document.getElementById('btnCreateAccountV70464');
+  if(!account||!name||!password||!confirmPw){showToastV9('Vui lòng nhập đủ tài khoản, họ tên và mật khẩu.','warning');return;}
+  if(password!==confirmPw){showToastV9('Xác nhận mật khẩu chưa khớp.','warning');return;}
+  if(password.length<8||!/[A-Za-zÀ-ỹ]/.test(password)||!/[0-9]/.test(password)){showToastV9('Mật khẩu cần ít nhất 8 ký tự, gồm chữ và số.','warning');return;}
+  if(!roles.length){showToastV9('Vui lòng chọn ít nhất một vai trò.','warning');return;}
+  const ok=await confirmV13(`Tạo tài khoản ${account} với vai trò: ${roles.join(', ')}?`,{title:'Tạo tài khoản mới',confirmText:'Tạo tài khoản'});if(!ok)return;
+  if(btn){btn.disabled=true;btn.textContent='Đang tạo...';}if(status)status.textContent='Đang tạo credential và phân quyền trên Supabase...';
+  google.script.run.withSuccessHandler(function(res){
+    if(btn){btn.disabled=false;btn.textContent='+ Tạo tài khoản';}
+    if(!res||!res.success){if(status)status.textContent='Không tạo được tài khoản.';showToastV9(res?.message||'Không tạo được tài khoản.','danger');return;}
+    if(status)status.textContent=res.message||'Đã tạo tài khoản.';showToastV9(res.message||'Đã tạo tài khoản.','success');clearCreateAccountV70464();accountPermissionsV69553=[];accountPermissionsLoadedAtV69553=0;taiPhanQuyenTaiKhoanV69553(true);
+  }).withFailureHandler(function(err){if(btn){btn.disabled=false;btn.textContent='+ Tạo tài khoản';}if(status)status.textContent='Lỗi tạo tài khoản.';showToastV9((err&&err.message)||String(err||'Lỗi'),'danger');}).taoTaiKhoanAdminV70464({taiKhoan:account,hoTen:name,matKhau:password,roles,active},permissionAuthV69553());
+}
+function moDatLaiMatKhauAdminV70464(account){
+  if(!hasRoleV4('ADMIN')||!account)return;
+  const row=(accountPermissionsV69553||[]).find(x=>String(x.taiKhoan||'')===String(account));
+  const a=document.getElementById('adminResetAccountV70464'),label=document.getElementById('adminResetAccountLabelV70464'),p1=document.getElementById('adminResetPasswordV70464'),p2=document.getElementById('adminResetPasswordConfirmV70464'),st=document.getElementById('adminResetPasswordStatusV70464');
+  if(a)a.value=account;if(label)label.textContent=(row?.hoTen?`${row.hoTen} · `:'')+account;if(p1)p1.value='';if(p2)p2.value='';if(st){st.className='d-none';st.textContent='';}
+  const modal=document.getElementById('modalAdminResetPasswordV70464');if(modal&&window.bootstrap){bootstrap.Modal.getOrCreateInstance(modal).show();setTimeout(()=>p1?.focus(),180);}
+}
+function thucHienDatLaiMatKhauAdminV70464(){
+  if(!hasRoleV4('ADMIN'))return;
+  const account=String(document.getElementById('adminResetAccountV70464')?.value||'').trim(),password=String(document.getElementById('adminResetPasswordV70464')?.value||''),confirmPw=String(document.getElementById('adminResetPasswordConfirmV70464')?.value||''),btn=document.getElementById('btnAdminResetPasswordV70464'),st=document.getElementById('adminResetPasswordStatusV70464');
+  if(!account)return;if(password!==confirmPw){showToastV9('Xác nhận mật khẩu chưa khớp.','warning');return;}if(password.length<8||!/[A-Za-zÀ-ỹ]/.test(password)||!/[0-9]/.test(password)){showToastV9('Mật khẩu cần ít nhất 8 ký tự, gồm chữ và số.','warning');return;}
+  if(btn){btn.disabled=true;btn.textContent='Đang lưu...';}if(st){st.className='alert alert-info mt-3 mb-0 py-2';st.textContent='Đang cập nhật mật khẩu và thu hồi phiên cũ...';}
+  google.script.run.withSuccessHandler(function(res){
+    if(btn){btn.disabled=false;btn.textContent='Lưu mật khẩu mới';}
+    if(!res||!res.success){if(st){st.className='alert alert-danger mt-3 mb-0 py-2';st.textContent=res?.message||'Không đặt lại được mật khẩu.';}return;}
+    if(st){st.className='alert alert-success mt-3 mb-0 py-2';st.textContent=res.message||'Đã đặt lại mật khẩu.';}showToastV9(res.message||'Đã đặt lại mật khẩu.','success');accountPermissionsV69553=[];accountPermissionsLoadedAtV69553=0;setTimeout(()=>taiPhanQuyenTaiKhoanV69553(true),250);
+  }).withFailureHandler(function(err){if(btn){btn.disabled=false;btn.textContent='Lưu mật khẩu mới';}if(st){st.className='alert alert-danger mt-3 mb-0 py-2';st.textContent=(err&&err.message)||String(err||'Lỗi');}}).datLaiMatKhauAdminV70464({taiKhoan:account,matKhauMoi:password},permissionAuthV69553());
+}
+
 
 /* ===== V70.4.6: CẤU HÌNH CLASS WEEK VALIDATOR + ĐĂNG KÝ NHIỀU LỚP ===== */
 let validatorConfigV7045={classRules:[],groupRules:[],classes:[],groups:[],namHoc:''};

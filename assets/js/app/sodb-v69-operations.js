@@ -1006,7 +1006,8 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
 
   function loadDanhSachBaiDay(forceRefresh) {
     const metaV26=getClassMetaClientV26(document.getElementById('lop')?.value||'');
-    if(metaV26&&metaV26.type==='CHUYEN_DE'&&metaV26.subject){
+    if(metaV26&&(metaV26.type==='CHUYEN_DE'||metaV26.type==='GDTC')&&metaV26.subject){
+      // V70.4.6.5: bảo đảm lớp GDTC khôi phục đúng môn nền/nhánh khi mở lại form.
       ensureTeacherSubjectOptionV26(metaV26.subject);
     }
     configureGdtcInputV25();

@@ -15,7 +15,7 @@
   const SODB_SUPABASE_PUBLISHABLE_KEY_V66 = "sb_publishable_Hq6KRH5KDT1eiOYLwwQhkw_c45sZkgi";
   const SODB_EDGE_URL_V66 = SODB_SUPABASE_URL_V66 + "/functions/v1/sodb-core-v69";
   // Apps Script bridge compatibility marker; keep equal to SODB_APP_VERSION_.
-  // Release V70.4.6.3 retains the V70.4.5 Apps Script API.
+  // Patch V70.4.6.5 retains the V70.4.5 Apps Script API.
   const SODB_FRONTEND_VERSION = "V70.4.5";
   window.__SODB_BACKEND_VERSION__ = "UNKNOWN";
   // V69.2.2 Stable: đo thời gian thực tế các chặng mạng để tối ưu dựa trên số liệu.
@@ -117,7 +117,7 @@
     'luuChuKyGiaoVienV21','xoaChuKyGiaoVienV21','traCuuChuKyTheoCCCD','doiMatKhauTaiKhoanV6853',
     'capNhatSoDauBaiV4','guiYeuCauChinhSuaV4','layYeuCauCuaToiV4','layYeuCauChinhSuaV4','xuLyYeuCauChinhSuaV4','layBanGhiCuaToiV4',
     'layQuyenDacBietV69','luuQuyenDacBietV69','thuHoiQuyenDacBietV69',
-    'layPhanQuyenTaiKhoanV69553','luuPhanQuyenTaiKhoanV69553','khoiPhucPhanQuyenTuDongV69553','moKhoaDangNhapAdminV699','layTrungTamChatLuongDuLieuV699','layLichSuBanGhiV699',
+    'layPhanQuyenTaiKhoanV69553','luuPhanQuyenTaiKhoanV69553','khoiPhucPhanQuyenTuDongV69553','moKhoaDangNhapAdminV699','taoTaiKhoanAdminV70464','datLaiMatKhauAdminV70464','layTrungTamChatLuongDuLieuV699','layLichSuBanGhiV699',
     'layVongDoiNamHocV700','kiemTraDongNamHocV700','dongNamHocTaoNamMoiV700','layLuuTruNamHocV700','layLuuTruNamHocV702','layChuKyLuuTruV702','layHoSoInLuuTruV702',
     'layDuLieuGocAdminV696','luuGiaoVienAdminV696','luuPhanCongDayAdminV696','xoaPhanCongDayAdminV696','luuGvcnAdminV696','xoaGvcnAdminV696','luuToChuyenMonAdminV696','xoaToChuyenMonAdminV696',
     'layDanhSachGiaoVienDieuHanhV693','layChuongTrinhNgoaiTruongV7044','luuChuongTrinhNgoaiTruongV7044','danhDauDaKiemTraBGHV7044','duyetNhieuSoDaKiemTraV7044','layNhanSuNgoaiTruongV693','luuNhanSuNgoaiTruongV693','doiTrangThaiNhanSuNgoaiTruongV693','layNhanSuNgoaiTruongChoKyV693',

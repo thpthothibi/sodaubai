@@ -193,6 +193,41 @@ async function taiVaHienThiDanhSachTuanGiamThi(lop, dsTuan, bookMode) {
   }
 }
 
+
+/* ===== V70.4.6.10: A3 - đồng bộ dòng con của tiết TRỘN ===== */
+function a3PrintEntriesV704610(cellData){
+  const entries=(typeof getCellEntries==='function'?getCellEntries(cellData):[])||[];
+  return entries.length?entries:[{mon:'',tietCT:'',tenBai:''}];
+}
+function a3PrintEntryCountV704610(cellData){
+  return a3PrintEntriesV704610(cellData).length;
+}
+function a3PrintRowMultiClassV704610(cellData){
+  const count=a3PrintEntryCountV704610(cellData);
+  if(count<=1)return '';
+  return ` a3-row-multi-v704610 a3-row-lines-${Math.min(count,3)}-v704610`;
+}
+function renderA3MixedStackV704610(cellData,fieldName,prefixHtml=''){
+  const entries=a3PrintEntriesV704610(cellData);
+  const count=entries.length;
+  return `<div class="a3-sync-stack-v704610" style="--a3-sync-lines:${count}">${entries.map((entry,index)=>{
+    const mixedBadge=(fieldName==='mon'&&count>1&&index===0)
+      ? '<span class="badge sodb-status-badge sodb-status-badge-mixed mixed-badge me-1">TRỘN</span> '
+      : '';
+    const prefix=index===0?String(prefixHtml||''):'';
+    return `<div class="a3-sync-line-v704610 a3-sync-${String(fieldName||'').toLowerCase()}-v704610">${prefix}${mixedBadge}${escapeHtml(entry?.[fieldName]||'')}</div>`;
+  }).join('')}</div>`;
+}
+function renderA3FieldV704610(cellData,fieldName,prefixHtml=''){
+  if(a3PrintEntryCountV704610(cellData)>1){
+    return renderA3MixedStackV704610(cellData,fieldName,prefixHtml);
+  }
+  const content=`${prefixHtml||''}${renderMixedField(cellData,fieldName)}`;
+  if(fieldName==='mon')return `<div class="a3-cell-clamp-v56 a3-one-line-v56">${content}</div>`;
+  if(fieldName==='tenBai')return `<div class="a3-cell-clamp-v56">${content}</div>`;
+  return content;
+}
+
 function taoRowsSoDacBietPrintA3V45(res,mondayOfWeek){
   const dayOrder={'Thứ 2':0,'Thứ 3':1,'Thứ 4':2,'Thứ 5':3,'Thứ 6':4,'Thứ 7':5,'Chủ Nhật':6};
   const rows=Object.entries(res.matrix||{}).map(([key,cell])=>{
@@ -224,14 +259,14 @@ function taoRowsSoDacBietPrintA3V45(res,mondayOfWeek){
       const c=r.cell||{};
       const sigCell=renderSignatureCell(c,false);
       const buoiLabel=r.buoi==='Sang'?'S':'C';
-      out+=`<tr class="${i===0&&dayIdx>0?'row-day-start':''}">`;
+      out+=`<tr class="${i===0&&dayIdx>0?'row-day-start':''}${a3PrintRowMultiClassV704610(c)}">`;
       if(i===0)out+=`<td rowspan="${dayRows.length}" class="compact-day-v29 text-center align-middle"><div>${escapeHtml(thu)}</div><div>${dateFormatted}</div></td>`;
       out+=`
         <td class="compact-slot-v29"><span class="badge ${r.buoi==='Sang'?'text-primary':'text-danger'} buoi-tag">${buoiLabel}</span> ${r.tiet}</td>
-        <td class="text-left-cell"><div class="a3-cell-clamp-v56 a3-one-line-v56">${renderPeriodStatusBadgeV683(c)}${renderMixedField(c,'mon')}</div></td>
-        <td class="fw-bold text-primary">${renderMixedField(c,'tietCT')}</td>
+        <td class="text-left-cell">${renderA3FieldV704610(c,'mon',renderPeriodStatusBadgeV683(c))}</td>
+        <td class="fw-bold text-primary">${renderA3FieldV704610(c,'tietCT')}</td>
         <td class="text-left-cell"><div class="a3-cell-clamp-v56 a3-one-line-v56">${escapeHtml(c.hsVang||'')}</div></td>
-        <td class="text-left-cell"><div class="a3-cell-clamp-v56">${renderMixedField(c,'tenBai')}</div></td>
+        <td class="text-left-cell">${renderA3FieldV704610(c,'tenBai')}</td>
         <td class="text-left-cell"><div class="a3-cell-clamp-v56">${escapeHtml(sodbNhanXetSafeV83(c))}</div></td>
         <td>${c.diemHT||''}</td><td>${c.diemKL||''}</td><td>${c.diemNN||''}</td>
         <td class="fw-bold">${c.diemTB||''}</td><td>${sigCell}</td>
@@ -279,14 +314,15 @@ function layHtmlOnePageA3GiamThi(lop, tuan, bookMode) {
               let rowClass = '';
               if (i === 0 && dayIdx > 0) rowClass = 'row-day-start';
               else if (i === 5) rowClass = 'row-chieu-start';
-              tableBodyHtml += `<tr class="${rowClass}">`;
+              rowClass += a3PrintRowMultiClassV704610(cellData);
+              tableBodyHtml += `<tr class="${rowClass.trim()}">`;
               if (i === 0) tableBodyHtml += `<td rowspan="10" class="fw-bold align-middle bg-light text-center"><div>${thuObj.name}</div><div class="text-dark" style="font-size:0.55rem;">${dateFormatted}</div></td>`;
               tableBodyHtml += `
                 <td class="fw-bold"><span class="badge ${buoi === 'Sang' ? 'text-primary' : 'text-danger'} buoi-tag">${buoi === 'Sang' ? 'S' : 'C'}</span> ${tiet}</td>
-                <td class="text-left-cell"><div class="a3-cell-clamp-v56 a3-one-line-v56">${renderPeriodStatusBadgeV683(cellData)}${renderMixedField(cellData, 'mon')}</div></td>
-                <td class="fw-bold text-primary">${renderMixedField(cellData, 'tietCT')}</td>
+                <td class="text-left-cell">${renderA3FieldV704610(cellData,'mon',renderPeriodStatusBadgeV683(cellData))}</td>
+                <td class="fw-bold text-primary">${renderA3FieldV704610(cellData,'tietCT')}</td>
                 <td class="text-left-cell"><div class="a3-cell-clamp-v56 a3-one-line-v56">${escapeHtml(cellData.hsVang || '')}</div></td>
-                <td class="text-left-cell"><div class="a3-cell-clamp-v56">${renderMixedField(cellData, 'tenBai')}</div></td>
+                <td class="text-left-cell">${renderA3FieldV704610(cellData,'tenBai')}</td>
                 <td class="text-left-cell"><div class="a3-cell-clamp-v56">${escapeHtml(sodbNhanXetSafeV83(cellData))}</div></td>
                 <td>${cellData.diemHT || ''}</td><td>${cellData.diemKL || ''}</td><td>${cellData.diemNN || ''}</td>
                 <td class="fw-bold">${cellData.diemTB || ''}</td><td>${sigCell}</td>

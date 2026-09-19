@@ -826,8 +826,10 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
   // Tiết trộn: mỗi giáo viên chỉ nhập phần của chính mình. Backend tự ghép 2 GV cùng lớp-ngày-buổi-tiết.
   let isMixed = document.getElementById('isTietTron').checked;
 
-  if(typeof inputTeachingLoadingV7042!=='undefined' && inputTeachingLoadingV7042){showToastV9('Đang kiểm tra hồ sơ điều hành. Vui lòng chờ rồi bấm lưu lại.','info');return;}
-  if(typeof inputTeachingFailedV7042!=='undefined' && inputTeachingFailedV7042){refreshTeachingOperationForInputV693();showToastV9('Chưa kiểm tra được hồ sơ điều hành. Đang thử lại, vui lòng bấm lưu sau khi tải xong.','warning');return;}
+  // V70.4.6.9: kiểm tra điều hành ở frontend chỉ để hiển thị banner, KHÔNG chặn tiết bình thường.
+  // Backend rpcSaveSodb luôn tự tra lại hồ sơ điều hành đã duyệt theo session + lớp/ngày/buổi/tiết/môn trước khi commit.
+  if(typeof inputTeachingLoadingV7042!=='undefined' && inputTeachingLoadingV7042){showToastV9('Hồ sơ điều hành đang được kiểm tra nền; máy chủ sẽ xác minh lại khi lưu.','info');}
+  if(typeof inputTeachingFailedV7042!=='undefined' && inputTeachingFailedV7042){try{refreshTeachingOperationForInputV693();}catch(_e){}showToastV9('Chưa tải được banner điều hành; máy chủ vẫn kiểm tra hồ sơ khi lưu.','warning');}
   const teachingOperation=typeof currentInputOperationV693!=='undefined'?currentInputOperationV693:null;
   const isDayThay=!!(teachingOperation?.id && teachingOperation.loai==='DAY_THAY');
   const gvDuocThay=isDayThay?String(teachingOperation.gvGocName||'').trim():'';

@@ -563,7 +563,7 @@
 
   function renderOverviewActionsV20(role){
     const actions={
-      GVBM:[['Nhập tiết học','input-tab'],['Xem sổ đầu bài','view-tab']],
+      GVBM:[['Nhập tiết học','input-tab'],['Xem sổ đầu bài','view-tab'],['Tiết của tôi','my-lessons-tab-v70468']],
       GVCN:[['Kiểm tra và chốt tuần','gvcn-tab'],['Xem sổ đầu bài','view-tab']],
       TTCM:[['Kế hoạch bài dạy','ttcm-tab']],
       BGH:[['Trung tâm duyệt tuần','bgh-workflow-tab-v698'],['Điều hành tiết dạy','control-tab-v693'],['Kế hoạch bài dạy','ttcm-tab'],['Xem sổ đầu bài','view-tab']],

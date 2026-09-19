@@ -24,7 +24,7 @@
   };
   const svg = name => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[name] || icons.book}</svg>`;
   const tabNames = {
-    'dashboard-tab-v9':['Tổng quan','home'], 'view-tab':['Xem sổ đầu bài','book'], 'input-tab':['Nhập tiết học','edit'],
+    'dashboard-tab-v9':['Tổng quan','home'], 'view-tab':['Xem sổ đầu bài','book'], 'my-lessons-tab-v70468':['Tiết của tôi','calendar'], 'input-tab':['Nhập tiết học','edit'],
     'gvcn-tab':['Công tác chủ nhiệm','users'], 'giamthi-tab':['Tra cứu & thống kê','chart'], 'ttcm-tab':['Kế hoạch bài dạy','book'],
     'control-tab-v693':['Điều hành','calendar'], 'bgh-workflow-tab-v698':['Duyệt tuần BGH','shield'], 'admin-tab':['Quản trị hệ thống','settings']
   };

@@ -533,6 +533,7 @@ let varDiemTB = 10;
     const more=document.getElementById('mobileMoreMenuV54');
     if(more){
       const extras=[
+        ['my-lessons-tab-v70468','Tiết của tôi'],
         ['gvcn-tab','Chủ nhiệm'],
         ['giamthi-tab','Tra cứu, thống kê'],
         ['ttcm-tab','Kế hoạch bài dạy'],
@@ -994,6 +995,7 @@ let varDiemTB = 10;
     // V54: chỉ hiện đúng mô-đun thuộc vai trò đang có; tài khoản nhiều vai trò dùng hợp quyền.
     setTopTabVisibleV4('dashboard-tab-v9',true);
     setTopTabVisibleV4('view-tab',!!sessions.GVBM||!!sessions.GVCN||!!sessions.BGH);
+    setTopTabVisibleV4('my-lessons-tab-v70468',!!sessions.GVBM);
     setTopTabVisibleV4('input-tab',!!sessions.GVBM);
     setTopTabVisibleV4('gvcn-tab',!!sessions.GVCN);
     setTopTabVisibleV4('giamthi-tab',!!sessions.GIAM_THI);

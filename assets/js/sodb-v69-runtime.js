@@ -115,7 +115,7 @@
     'kiemTraHanNhapTietV683','adminMoKhoaNhapTietV683','layMoKhoaNhapTietV683',
     'ghiTrangThaiTietGiamThiV683','traCuuTrangThaiTietGiamThiV683','huyTrangThaiTietGiamThiV691',
     'luuChuKyGiaoVienV21','xoaChuKyGiaoVienV21','traCuuChuKyTheoCCCD','doiMatKhauTaiKhoanV6853',
-    'capNhatSoDauBaiV4','guiYeuCauChinhSuaV4','layYeuCauCuaToiV4','layYeuCauChinhSuaV4','xuLyYeuCauChinhSuaV4','layBanGhiCuaToiV4',
+    'capNhatSoDauBaiV4','guiYeuCauChinhSuaV4','layYeuCauCuaToiV4','layYeuCauChinhSuaV4','xuLyYeuCauChinhSuaV4','layBanGhiCuaToiV4','layTietCuaToiTheoTuanV70468',
     'layQuyenDacBietV69','luuQuyenDacBietV69','thuHoiQuyenDacBietV69',
     'layPhanQuyenTaiKhoanV69553','luuPhanQuyenTaiKhoanV69553','khoiPhucPhanQuyenTuDongV69553','moKhoaDangNhapAdminV699','taoTaiKhoanAdminV70464','datLaiMatKhauAdminV70464','layTrungTamChatLuongDuLieuV699','layLichSuBanGhiV699',
     'layVongDoiNamHocV700','kiemTraDongNamHocV700','dongNamHocTaoNamMoiV700','layLuuTruNamHocV700','layLuuTruNamHocV702','layChuKyLuuTruV702','layHoSoInLuuTruV702',

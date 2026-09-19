@@ -167,6 +167,11 @@ function renderInputOperationBannerV693(op){const box=document.getElementById('i
 let inputTeachingRequestV7042=0;
 let inputTeachingLoadingV7042=false;
 let inputTeachingFailedV7042=false;
+let inputTeachingRefreshTimerV70469=null;
+function scheduleTeachingOperationRefreshV70469(delay=180){
+  if(inputTeachingRefreshTimerV70469)clearTimeout(inputTeachingRefreshTimerV70469);
+  inputTeachingRefreshTimerV70469=setTimeout(()=>{inputTeachingRefreshTimerV70469=null;refreshTeachingOperationForInputV693();},delay);
+}
 function syncTeachingOperationFieldsV7042(op){
   const cb=document.getElementById('isDayThayV683');
   if(cb)cb.checked=!!(op?.id && op.loai==='DAY_THAY');
@@ -211,7 +216,7 @@ document.addEventListener('DOMContentLoaded',function(){
   const dash=document.getElementById('dashboard-tab-v9');if(dash)dash.addEventListener('shown.bs.tab',()=>setTimeout(()=>refreshDashboardControlSummaryV693(false),180));
   const dashDate=document.getElementById('overviewDateV20');if(dashDate)dashDate.addEventListener('change',()=>setTimeout(()=>refreshDashboardControlSummaryV693(true),160));
   [['absenceAccountV693','absenceNameV693'],['opOriginTeacherAccountV693','opOriginTeacherNameV693'],['opExecTeacherAccountV693','opExecTeacherNameV693'],['opProxyAccountV693','opProxyNameV693'],['swapAAccountV693','swapANameV693'],['swapBAccountV693','swapBNameV693']].forEach(([a,n])=>{const x=document.getElementById(a);if(x)x.addEventListener('change',()=>syncTeacherNameV693(a,n));});
-  ['ngayDay','lop','buoiDay','tietDay','monHoc','gdtcTeachingSubjectV25','technologyTeachingSubjectV657'].forEach(id=>{const x=document.getElementById(id);if(x)x.addEventListener('change',()=>{clearInputTeachingOperationV7042();inputTeachingLoadingV7042=true;setTimeout(refreshTeachingOperationForInputV693,80);if(document.getElementById('proxySigningToggleV682')?.checked)setTimeout(loadProxyStaffOptionsV693,100);});});
+  ['ngayDay','lop','buoiDay','tietDay','monHoc','gdtcTeachingSubjectV25','technologyTeachingSubjectV657'].forEach(id=>{const x=document.getElementById(id);if(x)x.addEventListener('change',()=>{clearInputTeachingOperationV7042();scheduleTeachingOperationRefreshV70469(180);if(document.getElementById('proxySigningToggleV682')?.checked)setTimeout(loadProxyStaffOptionsV693,120);});});
   const inputTab=document.getElementById('input-tab');if(inputTab)inputTab.addEventListener('shown.bs.tab',()=>{setTimeout(()=>{taiNhiemVuCuaToiV693();refreshTeachingOperationForInputV693();},120);});
 });
 

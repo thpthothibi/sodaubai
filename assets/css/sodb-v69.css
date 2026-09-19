@@ -3485,3 +3485,52 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
 @media (max-width:767.98px){
   .class-group-table-v7031{max-height:360px;}
 }
+
+
+/* ===== V70.4.6.10: FIX LÕI IN A3 TIẾT TRỘN / NHIỀU DÒNG ===== */
+.a3-sync-stack-v704610{
+  display:flex;flex-direction:column;width:100%;min-width:0;overflow:hidden;
+}
+.a3-sync-line-v704610{
+  display:block;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.a3-sync-line-v704610 + .a3-sync-line-v704610{
+  border-top:1px dashed #cbd5e1;
+}
+
+@media print{
+  body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb tbody tr.a3-row-multi-v704610{
+    height:3.95mm!important;min-height:3.95mm!important;max-height:3.95mm!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb tbody tr.a3-row-multi-v704610>td{
+    height:3.95mm!important;min-height:3.95mm!important;max-height:3.95mm!important;
+    padding:.03mm .16mm!important;vertical-align:middle!important;overflow:hidden!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb tbody tr.a3-row-lines-3-v704610,
+  body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb tbody tr.a3-row-lines-3-v704610>td{
+    height:5.35mm!important;min-height:5.35mm!important;max-height:5.35mm!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-sync-stack-v704610{
+    display:grid!important;grid-template-rows:repeat(var(--a3-sync-lines),minmax(0,1fr))!important;
+    height:100%!important;min-height:0!important;width:100%!important;overflow:hidden!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-sync-line-v704610{
+    display:block!important;min-height:0!important;padding:0 .02mm!important;
+    font-size:4.65pt!important;line-height:.92!important;white-space:nowrap!important;
+    overflow:hidden!important;text-overflow:ellipsis!important;box-sizing:border-box!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-sync-line-v704610 + .a3-sync-line-v704610{
+    border-top:.45px dashed #aab4c2!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-sync-tietct-v704610{
+    text-align:center!important;font-weight:800!important;color:#0d6efd!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-sync-tenbai-v704610{
+    text-align:left!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-sync-mon-v704610{
+    text-align:left!important;
+  }
+  /* V56 cũ ép mixed-entry thành inline; stack V70.4.6.10 phải luôn giữ từng dòng riêng. */
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-sync-stack-v704610 .mixed-entry{display:block!important;}
+}

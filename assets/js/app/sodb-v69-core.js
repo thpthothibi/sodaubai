@@ -197,21 +197,31 @@ let varDiemTB = 10;
     });
     return out;
   }
+  function assignedSpecialClassesForSubjectV70463(subject,map){
+    const target=subjectKeyV6955(subject),assigned=new Set();
+    Object.values(map||{}).forEach(xs=>(Array.isArray(xs)?xs:[]).forEach(x=>assigned.add(normalizeTextKey(x))));
+    const out=[];Object.values(classMetaV26||{}).forEach(meta=>{
+      if(!meta||meta.type!=='CHUYEN_DE')return;const name=String(meta.lop||'').trim(),ms=canonicalSubjectV6955(meta.subject||meta.monKhbd||'');
+      if(name&&subjectKeyV6955(ms)===target&&assigned.has(normalizeTextKey(name)))out.push(name);
+    });return [...new Set(out)];
+  }
+  function teacherSubjectsWithSpecialV70463(info){
+    const out=canonicalSubjectListV6955(info?.dsMonGV||[]),map=info?.phanCongLopTheoMon||{},assigned=new Set();
+    Object.values(map).forEach(xs=>(Array.isArray(xs)?xs:[]).forEach(x=>assigned.add(normalizeTextKey(x))));
+    Object.values(classMetaV26||{}).forEach(meta=>{if(!meta||meta.type!=='CHUYEN_DE')return;const name=String(meta.lop||'').trim(),m=canonicalSubjectV6955(meta.subject||meta.monKhbd||'');if(name&&m&&assigned.has(normalizeTextKey(name))&&!out.some(x=>subjectKeyV6955(x)===subjectKeyV6955(m)))out.push(m);});
+    return canonicalSubjectListV6955(out);
+  }
   function getAssignedClassesForSubjectV39(subject){
     if(!gvbmDangNhapInfo)return [];
     // GDTC là ngoại lệ nghiệp vụ: được chọn tất cả lớp chính của 3 khối
     // và các lớp/nhóm GDTC (Cầu lông/Bóng chuyền/GDTC), không gồm Chuyên đề.
-    if(isGdtcBaseSubjectV25(subject)||isGdtcDetailSubjectV25(subject)){
-      return getAllGdtcClassesClientV70316();
-    }
-    const map=gvbmDangNhapInfo.phanCongLopTheoMon||{};
-    const direct=(map[subjectKeyV6955(subject)]||[]).filter(Boolean);
-    if(direct.length)return [...new Set(direct)];
-    if(isTechnologyDetailSubjectV657(subject)){
-      const base=(map[subjectKeyV6955('Công nghệ')]||[]).filter(Boolean);
-      if(base.length)return base;
-    }
-    return [];
+    if(isGdtcBaseSubjectV25(subject)||isGdtcDetailSubjectV25(subject))return getAllGdtcClassesClientV70316();
+    const map=gvbmDangNhapInfo.phanCongLopTheoMon||{},direct=(map[subjectKeyV6955(subject)]||[]).filter(Boolean);let out=direct.slice();
+    if(isTechnologyDetailSubjectV657(subject))out.push(...((map[subjectKeyV6955('Công nghệ')]||[]).filter(Boolean)));
+    // V70.4.6.3: chỉ bổ sung lớp Chuyên đề đã xuất hiện trong phân công của chính GV,
+    // nhưng ánh xạ theo mon_khbd động của Supabase thay vì khóa môn cũ trong phân công.
+    out.push(...assignedSpecialClassesForSubjectV70463(subject,map));
+    return [...new Set(out.map(x=>String(x||'').trim()).filter(Boolean))];
   }
   function renderAssignmentNoteV39(subject,classes){
     const note=document.getElementById('phanCongDayNoteV39');if(!note)return;
@@ -759,7 +769,7 @@ let varDiemTB = 10;
     document.getElementById('tenGV').value=res.tenGV||'';
     document.getElementById('cccd').value=res.cccd||'';
     const selectMon=document.getElementById('monHoc');selectMon.innerHTML='';
-    canonicalSubjectListV6955(res.dsMonGV||[]).forEach(m=>selectMon.add(new Option(m,m)));
+    teacherSubjectsWithSpecialV70463(res).forEach(m=>selectMon.add(new Option(m,m)));
     if(!(res.dsMonGV||[]).length)selectMon.add(new Option('-- Chưa có môn --',''));
     configureGdtcInputV25();
     configureTechnologyInputV657();
@@ -849,7 +859,7 @@ let varDiemTB = 10;
     document.getElementById('ttcmMainContent')?.classList.remove('d-none');
     const gv=sessions.GVBM;
     const monSel=document.getElementById('khbdMyMonV67');
-    if(monSel){const old=monSel.value;monSel.innerHTML='';expandGdtcSubjectsV25(canonicalSubjectListV6955(gv.dsMonGV||[])).forEach(m=>monSel.add(new Option(m,m)));if([...monSel.options].some(o=>o.value===old))monSel.value=old;}
+    if(monSel){const old=monSel.value;monSel.innerHTML='';expandGdtcSubjectsV25(teacherSubjectsWithSpecialV70463(gv)).forEach(m=>monSel.add(new Option(m,m)));if([...monSel.options].some(o=>o.value===old))monSel.value=old;}
     napLopKhbdCaNhanV691();
     if(!hasManage){
       document.getElementById('khbd-upload-tab-v38')?.parentElement?.classList.add('d-none');
@@ -877,9 +887,7 @@ let varDiemTB = 10;
   function napLopKhbdCaNhanV691(){
     const sel=document.getElementById('khbdMyLopV691');if(!sel)return;
     const old=sel.value,khoi=Number(document.getElementById('khbdMyKhoiV67')?.value||10),mon=canonicalSubjectV6955(document.getElementById('khbdMyMonV67')?.value);
-    const map=gvbmDangNhapInfo?.phanCongLopTheoMon||{},key=subjectKeyV6955(mon);let classes=Array.isArray(map[key])?map[key].slice():[];
-    if(!classes.length&&(isGdtcBaseSubjectV25(mon)||isGdtcDetailSubjectV25(mon))){Object.keys(map).forEach(k=>{if(isGdtcBaseSubjectV25(k)||isGdtcDetailSubjectV25(k))classes.push(...(map[k]||[]));});}
-    if(!classes.length&&isTechnologyDetailSubjectV657(mon)){Object.keys(map).forEach(k=>{if(isTechnologyBaseSubjectV657(k)||isTechnologyDetailSubjectV657(k))classes.push(...(map[k]||[]));});}
+    let classes=getAssignedClassesForSubjectV39(mon);
     classes=[...new Set(classes.map(x=>String(x||'').trim()).filter(Boolean))].filter(c=>{const meta=classMetaV26[normalizeTextKey(c)]||{};const g=Number(meta.khoi||String(c).match(/^(10|11|12)/)?.[1]||0);return !g||g===khoi;}).sort((a,b)=>a.localeCompare(b,'vi'));
     sel.innerHTML='<option value="">-- Chọn lớp --</option>';classes.forEach(c=>sel.add(new Option(c,c)));if(classes.includes(old))sel.value=old;else if(classes.length===1)sel.value=classes[0];
   }

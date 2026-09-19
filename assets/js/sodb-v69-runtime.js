@@ -14,7 +14,9 @@
   const SODB_SUPABASE_URL_V66 = "https://mlwhxxpmnhrrkbkivvye.supabase.co";
   const SODB_SUPABASE_PUBLISHABLE_KEY_V66 = "sb_publishable_Hq6KRH5KDT1eiOYLwwQhkw_c45sZkgi";
   const SODB_EDGE_URL_V66 = SODB_SUPABASE_URL_V66 + "/functions/v1/sodb-core-v69";
-  const SODB_FRONTEND_VERSION = "V70.4.4";
+  // Apps Script bridge compatibility marker; keep equal to SODB_APP_VERSION_.
+  // Release V70.4.6.3 retains the V70.4.5 Apps Script API.
+  const SODB_FRONTEND_VERSION = "V70.4.5";
   window.__SODB_BACKEND_VERSION__ = "UNKNOWN";
   // V69.2.2 Stable: đo thời gian thực tế các chặng mạng để tối ưu dựa trên số liệu.
   window.__SODB_PERF__ = Array.isArray(window.__SODB_PERF__) ? window.__SODB_PERF__ : [];
@@ -227,7 +229,7 @@
             const args=Array.prototype.slice.call(arguments);
             const method=String(prop);
             const rpcPromise=SODB_EDGE_RPC_METHODS_V67.has(method)
-              ? callSodbEdgeRpcV67(method,args)
+              ? callSodbEdgeRpcV67(method,args,sodbEdgeRpcTimeoutV70463(method))
               : callAppsScriptRpcV59(method,args);
             rpcPromise
               .then(function(result){ if(successHandler) successHandler(result); })
@@ -262,11 +264,17 @@
     return String(value);
   }
 
+  function sodbEdgeRpcTimeoutV70463(method){
+    const m=String(method||'');
+    // V70.4.6.3: KHBD đã được tối ưu song song; 30s chỉ là ngưỡng an toàn cho cold start/mạng chậm.
+    if(['getDanhSachBaiDayTheoMon','layKhbdCaNhanV67','chonKhbdCaNhanV67'].includes(m))return 30000;
+    return 20000;
+  }
   async function callSodbEdgeV66(payload,timeoutMs){
     const perfStart=performance.now(); let perfOk=false;
     const perfAction=String(payload?.method||payload?.action||'edge');
     const controller=new AbortController();
-    const timeoutLimit=Math.max(3000,Number(timeoutMs)||12000);
+    const timeoutLimit=Math.max(3000,Number(timeoutMs)||20000);
     const timeout=setTimeout(()=>controller.abort(),timeoutLimit);
     try{
       const r=await fetch(SODB_EDGE_URL_V66,{method:'POST',mode:'cors',credentials:'omit',cache:'no-store',headers:{'Content-Type':'application/json','apikey':SODB_SUPABASE_PUBLISHABLE_KEY_V66},body:JSON.stringify(payload||{}),signal:controller.signal});

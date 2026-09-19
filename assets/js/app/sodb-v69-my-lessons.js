@@ -1,4 +1,4 @@
-/* V70.4.6.8: "Tiết của tôi" - tách riêng khỏi Xem sổ đầu bài. */
+/* V70.4.6.11: "Tiết của tôi" - ma trận tuần giống Xem sổ đầu bài. */
 (() => {
   'use strict';
   const $ = id => document.getElementById(id);
@@ -7,6 +7,9 @@
   let rows = [];
   let rowById = new Map();
   let loading = false;
+  let loadedFrom = '';
+  let loadedTo = '';
+  const dayNames=['Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy','Chủ Nhật'];
 
   function currentWeek(){
     try{
@@ -19,13 +22,21 @@
     const s=String(v||''); if(!/^\d{4}-\d{2}-\d{2}$/.test(s))return s||'—';
     const [y,m,d]=s.split('-'); return `${d}/${m}/${y}`;
   }
+  function parseIso(v){
+    const m=String(v||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?new Date(Number(m[1]),Number(m[2])-1,Number(m[3]),12):null;
+  }
+  function isoDate(d){return d?[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-'):'';}
+  function weekStart(week){
+    const p=String(START_DATE_WEEK1_STR||'2026-08-17').split('-').map(Number),d=new Date(p[0],p[1]-1,p[2],12);d.setDate(d.getDate()+(Number(week||1)-1)*7);return d;
+  }
+  function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x;}
   function statusLabel(r){
     const st=String(r.trangThaiTiet||'HOC_BINH_THUONG').toUpperCase();
-    if(r.mixed)return '<span class="badge text-bg-info">TRỘN</span>';
-    if(r.dayThay)return '<span class="badge text-bg-warning">DẠY THAY</span>';
-    if(st==='DAY_BU')return '<span class="badge text-bg-success">DẠY BÙ</span>';
-    if(st==='HOAN_DOI')return '<span class="badge text-bg-primary">ĐỔI TIẾT</span>';
-    return '<span class="badge text-bg-light border text-dark">Đã dạy</span>';
+    if(r.mixed)return '<span class="badge sodb-status-badge sodb-status-badge-mixed">TRỘN</span>';
+    if(r.dayThay)return '<span class="badge sodb-status-badge sodb-status-badge-substitute">DẠY THAY</span>';
+    if(st==='DAY_BU')return '<span class="badge sodb-status-badge sodb-status-badge-makeup">DẠY BÙ</span>';
+    if(st==='HOAN_DOI')return '<span class="badge sodb-status-badge sodb-status-badge-swap">ĐỔI TIẾT</span>';
+    return '';
   }
   function filtered(){
     const cls=$('myLessonsClassV70468')?.value||'ALL', sub=$('myLessonsSubjectV70468')?.value||'ALL';
@@ -43,23 +54,58 @@
     const substitute=list.filter(x=>x.dayThay).length;
     const signed=list.filter(x=>x.signed).length;
     const data=[[list.length,'Tiết đã dạy'],[classes.size,'Lớp đã dạy'],[subjects.size,'Môn'],[signed,'Tiết đã ký']];
-    $('myLessonsMetricsV70468').innerHTML=data.map(([v,l],i)=>`<div class="my-lessons-metric-v70468"><strong>${v}</strong><span>${l}</span>${i===0&&substitute?`<small>${substitute} tiết dạy thay</small>`:''}</div>`).join('');
+    const mount=$('myLessonsMetricsV70468');if(!mount)return;
+    mount.innerHTML=data.map(([v,l],i)=>`<div class="my-lessons-metric-v70468"><strong>${v}</strong><span>${l}</span>${i===0&&substitute?`<small>${substitute} tiết dạy thay</small>`:''}</div>`).join('');
+  }
+  function sessionKey(v){
+    const s=String(v||'').toLowerCase();
+    if(s.includes('chiều')||s.includes('chieu'))return 'CHIEU';
+    if(s.includes('bù')||s.includes('bu'))return 'DAY_BU';
+    return 'SANG';
+  }
+  function groupBySlot(list){
+    const map=new Map();
+    list.forEach(r=>{const key=`${String(r.ngay||'')}|${sessionKey(r.buoi)}|${Number(r.tiet||0)}`;if(!map.has(key))map.set(key,[]);map.get(key).push(r);});
+    return map;
+  }
+  function lessonCard(r){
+    const title=[r.lop,r.mon].filter(Boolean).join(' · ')||'Tiết đã dạy';
+    const meta=[];if(r.tietCT)meta.push(`Tiết CT ${r.tietCT}`);if(r.tenBai)meta.push(r.tenBai);
+    const absent=Number(r.soHsVang||0)>0?`<span class="my-lesson-absence-v704611">Vắng ${Number(r.soHsVang)}</span>`:'';
+    return `<article class="workspace-lesson my-lesson-card-v704611" data-my-lesson-open="${esc(r.recordId)}" tabindex="0" role="button" aria-label="Mở nhập tiết ${esc(title)}">
+      <button type="button" class="workspace-lesson-more" data-my-lesson-open="${esc(r.recordId)}" aria-label="Mở Nhập tiết" title="Mở Nhập tiết">⋯</button>
+      <div class="workspace-lesson-entry"><strong>${esc(title)}</strong>${meta.length?`<span>${esc(meta.join(' · '))}</span>`:''}</div>
+      <div class="workspace-lesson-badges">${statusLabel(r)}${r.signed?'<span class="badge text-bg-success">Đã ký</span>':'<span class="badge text-bg-danger">Chưa ký</span>'}${absent}</div>
+    </article>`;
+  }
+  function renderSession(label,key,days,slotMap,list){
+    const hasRows=list.some(r=>sessionKey(r.buoi)===key);
+    if(key==='DAY_BU'&&!hasRows)return '';
+    const icon=key==='SANG'?'☀':'☾';
+    const header=days.map((d,i)=>`<th scope="col">${dayNames[i]}<small>${viDate(isoDate(d))}</small></th>`).join('');
+    const trs=Array.from({length:5},(_,idx)=>{
+      const period=idx+1;
+      const cells=days.map(d=>{
+        const date=isoDate(d),slot=slotMap.get(`${date}|${key}|${period}`)||[];
+        if(!slot.length)return '<td class="workspace-empty"><span aria-label="Không có tiết">—</span></td>';
+        return `<td><div class="my-lesson-slot-v704611">${slot.map(lessonCard).join('')}</div></td>`;
+      }).join('');
+      return `<tr><th scope="row"><strong>Tiết ${period}</strong></th>${cells}</tr>`;
+    }).join('');
+    return `<section class="workspace-session my-lessons-session-v704611"><h3><span class="my-lessons-session-icon-v704611" aria-hidden="true">${icon}</span> ${label} <small>Tiết 1 – 5</small></h3><div class="workspace-grid-scroll" tabindex="0" role="region" aria-label="${esc(label)}"><table class="workspace-grid my-lessons-week-table-v704611"><caption class="visually-hidden">Tiết của tôi · Tuần ${Number($('myLessonsWeekV70468')?.value||1)} · ${esc(label)}</caption><thead><tr><th scope="col">Tiết</th>${header}</tr></thead><tbody>${trs}</tbody></table></div></section>`;
   }
   function render(){
-    const list=filtered(), body=$('myLessonsBodyV70468'); if(!body)return;
+    const list=filtered(), mount=$('myLessonsGridV70468'); if(!mount)return;
     renderMetrics(list);
-    if(!list.length){body.innerHTML='<tr><td colspan="9" class="text-center text-muted py-4">Không có tiết phù hợp trong tuần/bộ lọc đang chọn.</td></tr>';return;}
-    body.innerHTML=list.map(r=>`<tr>
-      <td><strong>${esc(r.thu||'')}</strong><div class="small text-muted">${esc(viDate(r.ngay))}</div></td>
-      <td>${esc(r.buoi||'')} · <strong>Tiết ${Number(r.tiet||0)}</strong></td>
-      <td><strong>${esc(r.lop||'')}</strong></td>
-      <td>${esc(r.mon||'')}</td>
-      <td>${esc(r.tietCT||'—')}</td>
-      <td><div class="my-lessons-title-v70468">${esc(r.tenBai||'—')}</div>${r.soHsVang?`<small class="text-danger">Vắng: ${Number(r.soHsVang)}</small>`:''}</td>
-      <td>${statusLabel(r)}</td>
-      <td>${r.signed?'<span class="badge text-bg-success">Đã ký</span>':'<span class="badge text-bg-danger">Chưa ký</span>'}</td>
-      <td class="text-end"><button type="button" class="btn btn-sm btn-outline-primary" data-my-lesson-open="${esc(r.recordId)}">Mở Nhập tiết</button></td>
-    </tr>`).join('');
+    const week=Number($('myLessonsWeekV70468')?.value||loadedWeek||currentWeek()),start=parseIso(loadedFrom)||weekStart(week);
+    const allDays=Array.from({length:7},(_,i)=>addDays(start,i));
+    const sundayIso=isoDate(allDays[6]),showSunday=list.some(r=>String(r.ngay||'')===sundayIso);
+    const days=allDays.slice(0,showSunday?7:6),slotMap=groupBySlot(list);
+    if(!list.length){
+      mount.innerHTML=`${renderSession('Buổi sáng','SANG',days,slotMap,list)}${renderSession('Buổi chiều','CHIEU',days,slotMap,list)}`;
+      return;
+    }
+    mount.innerHTML=[renderSession('Buổi sáng','SANG',days,slotMap,list),renderSession('Buổi chiều','CHIEU',days,slotMap,list),renderSession('Dạy bù','DAY_BU',days,slotMap,list)].join('');
   }
   async function load(force=false){
     const token=typeof gvbmDangNhapInfo!=='undefined'&&gvbmDangNhapInfo?.sessionToken;
@@ -67,21 +113,22 @@
     const week=Math.max(1,Math.min(53,Number($('myLessonsWeekV70468')?.value||currentWeek())));
     if(!force && loading)return;
     loading=true; $('myLessonsWeekV70468').value=String(week);
-    $('myLessonsStatusV70468').textContent='Đang tải các tiết do chính bạn đã dạy trong tuần...';
-    $('myLessonsBodyV70468').innerHTML='<tr><td colspan="9" class="text-center text-muted py-4"><span class="spinner-border spinner-border-sm me-2"></span>Đang tải...</td></tr>';
+    $('myLessonsStatusV70468').textContent='Đang tải ma trận các tiết do chính bạn đã dạy trong tuần...';
+    $('myLessonsGridV70468').innerHTML='<div class="text-center text-muted py-5"><span class="spinner-border spinner-border-sm me-2"></span>Đang tải...</div>';
     try{
       const res=await callSodbEdgeRpcV67('layTietCuaToiTheoTuanV70468',[week,{token}],20000);
       if(!res?.success)throw new Error(res?.message||'Không tải được Tiết của tôi.');
-      loadedWeek=week; rows=Array.isArray(res.data)?res.data:[]; rowById=new Map(rows.map(r=>[String(r.recordId||''),r]));
+      loadedWeek=week; loadedFrom=String(res.from||''); loadedTo=String(res.to||'');
+      rows=Array.isArray(res.data)?res.data:[]; rowById=new Map(rows.map(r=>[String(r.recordId||''),r]));
       fillSelect('myLessonsClassV70468',Array.isArray(res.classes)?res.classes:[], 'Tất cả lớp');
       fillSelect('myLessonsSubjectV70468',Array.isArray(res.subjects)?res.subjects:[], 'Tất cả môn');
       $('myLessonsRangeV70468').textContent=`Tuần ${week} · ${viDate(res.from)} – ${viDate(res.to)} · ${rows.length} tiết thực dạy`;
       $('myLessonsUpdatedV70468').textContent='Cập nhật '+new Intl.DateTimeFormat('vi-VN',{hour:'2-digit',minute:'2-digit'}).format(new Date());
-      $('myLessonsStatusV70468').textContent=rows.length?'Chỉ hiển thị các tiết thuộc chính giáo viên đang đăng nhập; không gồm tiết ký thay cho nhân sự ngoài trường.':'Tuần này chưa có tiết nào của bạn trong Sổ đầu bài.';
+      $('myLessonsStatusV70468').textContent=rows.length?'Ma trận chỉ hiển thị các tiết của chính giáo viên đang đăng nhập. Bấm vào thẻ tiết để mở Nhập tiết.':'Tuần này chưa có tiết nào của bạn trong Sổ đầu bài.';
       render();
     }catch(e){
       rows=[];rowById.clear();renderMetrics([]);
-      $('myLessonsBodyV70468').innerHTML=`<tr><td colspan="9" class="text-center text-danger py-4">${esc(e?.message||e)}</td></tr>`;
+      $('myLessonsGridV70468').innerHTML=`<div class="text-center text-danger py-5">${esc(e?.message||e)}</div>`;
       $('myLessonsStatusV70468').textContent='Không tải được dữ liệu. Vui lòng thử lại.';
     }finally{loading=false;}
   }
@@ -123,7 +170,8 @@
     $('myLessonsPrevV70468')?.addEventListener('click',()=>switchWeek(-1));
     $('myLessonsCurrentV70468')?.addEventListener('click',()=>switchWeek('today'));
     $('myLessonsNextV70468')?.addEventListener('click',()=>switchWeek(1));
-    $('myLessonsBodyV70468')?.addEventListener('click',e=>{const b=e.target.closest('[data-my-lesson-open]');if(b)openInput(b.dataset.myLessonOpen);});
+    $('myLessonsGridV70468')?.addEventListener('click',e=>{const b=e.target.closest('[data-my-lesson-open]');if(b)openInput(b.dataset.myLessonOpen);});
+    $('myLessonsGridV70468')?.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('[data-my-lesson-open]')){e.preventDefault();openInput(e.target.dataset.myLessonOpen);}});
   }
   window.taiTietCuaToiV70468=load;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();

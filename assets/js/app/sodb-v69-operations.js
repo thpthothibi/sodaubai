@@ -320,7 +320,7 @@
     let entries = getCellEntries(cellData);
     return entries.map((entry, index) => {
       let badge = '';
-      if(fieldName === "mon" && entries.length > 1 && index === 0){
+      if(fieldName === "mon" && cellData && cellData.isTietTron && entries.length > 1 && index === 0){
         badge = `<span class="badge sodb-status-badge sodb-status-badge-mixed mixed-badge me-1"${popoverAttrsV7032('Tiết trộn',mixedPopoverTextV7032(cellData))}>TRỘN</span> `;
       }
       return `<div class="mixed-entry">${badge}${escapeHtml(entry[fieldName] || "")}</div>`;
@@ -381,8 +381,6 @@
 
   function sodbNhanXetSafeV83(cellData){
     if(!cellData) return '';
-    const value=String(cellData.nhanXet||'').trim();
-    if(!value) return '';
     const normalize=v=>String(v||'').trim().toLocaleLowerCase('vi');
     const bad=new Set();
     (cellData.entries||[]).forEach(e=>{
@@ -390,10 +388,17 @@
       if(e.cccd) bad.add(String(e.cccd).trim());
       if(e.teacherLookup) bad.add(String(e.teacherLookup).trim());
     });
-    const vnorm=normalize(value);
-    if(bad.has(vnorm)||bad.has(value)) return '';
-    if(/^IMAGE:/i.test(value)||/^https?:\/\//i.test(value)) return '';
-    return value;
+    const clean=value=>{
+      value=String(value||'').trim();if(!value)return '';
+      const vnorm=normalize(value);
+      if(bad.has(vnorm)||bad.has(value))return '';
+      if(/^IMAGE:/i.test(value)||/^https?:\/\//i.test(value))return '';
+      return value;
+    };
+    const entryNotes=[];
+    (cellData.entries||[]).forEach(e=>{const v=clean(e&&e.nhanXet);if(v&&!entryNotes.some(x=>normalize(x)===normalize(v)))entryNotes.push(v);});
+    if(entryNotes.length)return entryNotes.join(' / ');
+    return clean(cellData.nhanXet);
   }
 
 
@@ -960,7 +965,7 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
       return {
         tenBaiDay: plan.tenBai,
         // Nếu Tên bài KHBD = BH/CĐ thì luôn lưu đúng mã Tiết CT tương ứng.
-        tietCT: specialLessonPeriodCodeV7067(plan) || document.getElementById('tietCT').value.trim(),
+        tietCT: specialLessonPeriodCodeV70612(plan) || document.getElementById('tietCT').value.trim(),
         // Không hiển thị ô YCCĐ ở tab nhập tiết; vẫn giữ dữ liệu KHBD tự động để tương thích dữ liệu cũ.
         yeuCauCanDat: plan.yeuCauCanDat || "",
         khbdId: plan.khbdId || plan.id || "",
@@ -970,13 +975,22 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
     return null;
   }
 
-  // V70.4.6.7.1: BH/CĐ được suy DUY NHẤT từ TÊN BÀI KHBD.
-  // Không dùng cột Tiết PPCT để suy BH/CĐ, tránh gán sai Tiết CT.
-  function specialLessonPeriodCodeV7067(plan){
+  // V70.4.6.12: quy tắc Tiết CT cho bài BH/CĐ.
+  // - BH: giữ mã BH (kèm số nếu tên bài ghi BH1/BH 1).
+  // - CĐ/CD khối 10,11: Tiết CT lấy NGUYÊN VĂN cột Tiết PPCT của dòng KHBD.
+  // - CĐ/CD khối khác: giữ mã CĐ (kèm số nếu có).
+  function specialLessonPeriodCodeV70612(plan){
     if(!plan)return '';
-    const title=String(plan.tenBai||'').trim().toUpperCase();
-    if(title==='BH')return 'BH';
-    if(title==='CĐ'||title==='CD')return 'CĐ';
+    const raw=String(plan.tenBai||'').trim();
+    const title=raw.toUpperCase();
+    const grade=Number(plan.khoi||document.getElementById('khoi')?.value||0);
+    const bh=title.match(/^BH\s*(\d+)?(?:\s*[-.:]|$)/);
+    if(bh)return bh[1]?`BH ${bh[1]}`:'BH';
+    const cd=title.match(/^(?:CĐ|CD)\s*(\d+)?(?:\s*[-.:]|$)/);
+    if(cd){
+      if((grade===10||grade===11)&&String(plan.tietPPCT||'').trim())return String(plan.tietPPCT).trim();
+      return cd[1]?`CĐ ${cd[1]}`:'CĐ';
+    }
     return '';
   }
 
@@ -990,7 +1004,7 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
     }
     selectElement.innerHTML = '<option value="">-- Chọn bài dạy đúng tuần --</option>';
     plans.forEach((plan, index) => {
-      const special=specialLessonPeriodCodeV7067(plan);
+      const special=specialLessonPeriodCodeV70612(plan);
       // Với Tên bài = BH/CĐ, không lặp thành "BH — BH" hoặc "CĐ — CĐ".
       let prefix = special ? "" : (plan.tietPPCT ? `PPCT ${plan.tietPPCT} — ` : "");
       selectElement.add(new Option(prefix + plan.tenBai, `PLAN_${index}`));
@@ -1100,7 +1114,7 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
       customInput.classList.add('d-none');
       customInput.required = false;
       let plan = selectVal.indexOf("PLAN_") === 0 ? danhSachBaiDay1[Number(selectVal.replace("PLAN_", ""))] : null;
-      document.getElementById('tietCT').value = plan ? (specialLessonPeriodCodeV7067(plan) || plan.tietPPCT || "") : "";
+      document.getElementById('tietCT').value = plan ? (specialLessonPeriodCodeV70612(plan) || plan.tietPPCT || "") : "";
     }
   }
 

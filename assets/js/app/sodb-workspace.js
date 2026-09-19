@@ -34,7 +34,9 @@
   const status = c => String(c?.trangThaiTiet || 'HOC_BINH_THUONG').toUpperCase();
   const entries = c => getCellEntries(c).filter(e => e.mon || e.tenBai || e.tenGV || e.kySo);
   const occupied = c => !!(c && (entries(c).length || c.operationId || status(c) !== 'HOC_BINH_THUONG'));
-  const mixed = c => entries(c).length > 1 || !!c?.mixedMeta;
+  // V70.4.6.13: nhiều entry do GDTC/Chuyên đề chiếu về lớp chủ nhiệm KHÔNG phải tiết TRỘN.
+  // Chỉ bản ghi có ma_tiet_tron thật (backend đánh isTietTron/mixedMeta) mới mang nhãn TRỘN.
+  const mixed = c => !!(c?.isTietTron || c?.mixedMeta);
   const needsReview = c => ['NGHI','GV_VANG','BO_TIET'].includes(status(c)) ||
     (mixed(c) && (c.mixedMeta ? !c.mixedMeta.complete : entries(c).some(e => !e.kySo || /chưa\s*(ký|xác nhận)/i.test(e.kySo)))) ||
     (status(c) === 'HOAN_DOI' && (!c.operationMeta?.counterpart?.completed || (c.operationMeta?.pairCount >= 2 && !c.operationMeta?.pairComplete)));

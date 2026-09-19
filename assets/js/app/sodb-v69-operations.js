@@ -975,16 +975,16 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
     return null;
   }
 
-  // V70.4.6.15: Tiết CT đặc biệt lấy MÃ ngay từ TÊN BÀI, không lấy số PPCT.
-  // Ví dụ: BH1/BH 1 -> BH1; CĐ1/CD 1 -> CĐ1.
-  // Chỉ bài bình thường mới dùng plan.tietPPCT.
+  // V70.4.6.16: dùng một quy tắc cho khối 10/11/12.
+  // Tiết CT đặc biệt lấy MÃ trực tiếp từ TÊN BÀI, không lấy số PPCT thường.
+  // BH1/BH 1 -> BH1; CĐ1/CD 1/Chuyên đề 1 -> CĐ1.
   function specialLessonPeriodCodeV70612(plan){
     if(!plan)return '';
     const raw=String(plan.tenBai||'').trim();
     const title=raw.toUpperCase();
     const bh=title.match(/^BH\s*(\d+)?(?:\s*[-.:]|$)/);
     if(bh)return bh[1]?`BH${bh[1]}`:'BH';
-    const cd=title.match(/^(?:CĐ|CD)\s*(\d+)?(?:\s*[-.:]|$)/);
+    const cd=title.match(/^(?:CĐ|CD|CHUYÊN\s+ĐỀ|CHUYEN\s+DE)\s*(\d+)?(?:\s*[-.:]|$)/);
     if(cd)return cd[1]?`CĐ${cd[1]}`:'CĐ';
     return '';
   }

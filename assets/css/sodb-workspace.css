@@ -17,7 +17,7 @@
   .workspace-v704 #appShellV4.d-none{display:none!important;}
   .workspace-v704 .workspace-sidebar{position:fixed;inset:0 auto 0 0;width:var(--ws-sidebar);z-index:1040;display:flex;flex-direction:column;background:linear-gradient(165deg,#2566a5 0%,#1c5088 56%,#173e6b 100%);border-right:1px solid #2c6098;box-shadow:5px 0 24px #0c244329;padding:0 13px 18px;}
   .workspace-brand{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:130px;padding:19px 4px 13px;text-align:center;}
-  .workspace-v704 .workspace-brand img{display:block;position:static;inset:auto;transform:none;width:96px;height:96px;object-fit:contain;object-position:center;margin:0 auto;padding:3px;background:#fff;border-radius:50%;box-shadow:0 3px 10px #0e2e4d26;}
+  .workspace-v704 .workspace-brand img{display:block;position:static;inset:auto;transform:none;width:60px;height:60px;object-fit:contain;object-position:center;margin:0 auto;padding:3px;background:#fff;border-radius:50%;box-shadow:0 3px 10px #0e2e4d26;}
   .workspace-brand strong{color:#f4f8ff;font-size:14px;letter-spacing:.1px;display:block;}
   .workspace-brand small{font-size:12px;color:#b6cbed;display:block;margin-top:4px;}
   .workspace-nav-label{font-size:12px;letter-spacing:1.1px;color:#a4bedf;font-weight:700;padding:14px 12px 12px;}
@@ -255,3 +255,8 @@
 .proxy-signer-v693{font-size:.66rem!important;line-height:1.2;margin-top:.12rem}
 .bgh-bulk-item-v7044:disabled{opacity:.3;cursor:not-allowed}
 @media print{.external-staff-badge-v7044{border:0!important;background:transparent!important;color:#000!important;padding:0!important;border-radius:0!important}.proxy-signer-v693{color:#000!important}}
+
+/* V70.4.6.7 - click ô sổ để mở Nhập tiết */
+.workspace-input-cell{cursor:pointer;transition:box-shadow .15s ease,background-color .15s ease}
+.workspace-input-cell:hover{box-shadow:inset 0 0 0 2px rgba(13,110,253,.22)}
+.workspace-input-cell.workspace-empty:hover{background:rgba(13,110,253,.045)}

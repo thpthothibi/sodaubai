@@ -891,6 +891,37 @@ let varDiemTB = 10;
     classes=[...new Set(classes.map(x=>String(x||'').trim()).filter(Boolean))].filter(c=>{const meta=classMetaV26[normalizeTextKey(c)]||{};const g=Number(meta.khoi||String(c).match(/^(10|11|12)/)?.[1]||0);return !g||g===khoi;}).sort((a,b)=>a.localeCompare(b,'vi'));
     sel.innerHTML='<option value="">-- Chọn lớp --</option>';classes.forEach(c=>sel.add(new Option(c,c)));if(classes.includes(old))sel.value=old;else if(classes.length===1)sel.value=classes[0];
   }
+  function ensureBulkKhbdModalV7067(){
+    let el=document.getElementById('khbdBulkModalV7067');
+    if(el)return el;
+    document.body.insertAdjacentHTML('beforeend',`<div class="modal fade" id="khbdBulkModalV7067" tabindex="-1" aria-labelledby="khbdBulkTitleV7067" aria-hidden="true"><div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><div><h5 class="modal-title" id="khbdBulkTitleV7067">Áp dụng KHBD cho nhiều lớp</h5><div class="small text-muted" id="khbdBulkMetaV7067"></div></div><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button></div><div class="modal-body"><div class="d-flex flex-wrap gap-2 mb-3"><button type="button" class="btn btn-sm btn-outline-primary" onclick="chonTatCaLopKhbdV7067(true)">Chọn tất cả</button><button type="button" class="btn btn-sm btn-outline-secondary" onclick="chonTatCaLopKhbdV7067(false)">Bỏ chọn</button></div><div id="khbdBulkClassesV7067" class="row g-2"></div><div class="alert alert-light border mt-3 mb-0 small"><strong>Nguyên tắc:</strong> hệ thống chỉ hiển thị lớp nằm trong phân công của giáo viên, cùng Khối/Môn hiện tại. Các tiết đang tích trên màn hình sẽ được đồng bộ cho từng lớp đã chọn.</div></div><div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Đóng</button><button type="button" class="btn btn-success fw-bold" id="khbdBulkApplyBtnV7067" onclick="apDungKhbdNhieuLopV7067()">Áp dụng cho các lớp đã chọn</button></div></div></div></div>`);
+    return document.getElementById('khbdBulkModalV7067');
+  }
+  function lopKhbdHopLeV7067(){
+    const khoi=Number(document.getElementById('khbdMyKhoiV67')?.value||10),mon=canonicalSubjectV6955(document.getElementById('khbdMyMonV67')?.value);
+    return [...new Set(getAssignedClassesForSubjectV39(mon).map(x=>String(x||'').trim()).filter(Boolean))].filter(c=>{const meta=classMetaV26[normalizeTextKey(c)]||{};const g=Number(meta.khoi||String(c).match(/^(10|11|12)/)?.[1]||0);return !g||g===khoi;}).sort((a,b)=>a.localeCompare(b,'vi',{numeric:true}));
+  }
+  function moApDungKhbdNhieuLopV7067(){
+    const checks=[...document.querySelectorAll('.khbd-my-check-v67')],khbdIds=checks.filter(x=>x.checked).map(x=>String(x.dataset.khbdId||'').trim()).filter(Boolean);
+    if(!checks.length){showToastV9('Chưa có KHBD để áp dụng.','warning');return;}
+    if(!khbdIds.length){showToastV9('Hãy tích ít nhất một tiết/bài KHBD trước khi áp dụng nhiều lớp.','warning');return;}
+    const classes=lopKhbdHopLeV7067();if(!classes.length){showToastV9('Không có lớp phù hợp trong phân công.','warning');return;}
+    const current=String(document.getElementById('khbdMyLopV691')?.value||'').trim(),box=ensureBulkKhbdModalV7067(),wrap=document.getElementById('khbdBulkClassesV7067');
+    document.getElementById('khbdBulkMetaV7067').textContent=`${document.getElementById('khbdMyMonV67')?.value||''} · Khối ${document.getElementById('khbdMyKhoiV67')?.value||''} · ${khbdIds.length}/${checks.length} tiết đang tích`;
+    wrap.innerHTML=classes.map((c,i)=>`<div class="col-md-4 col-sm-6"><label class="form-check border rounded p-2 w-100 h-100"><input class="form-check-input me-2 khbd-bulk-class-v7067" type="checkbox" value="${escapeHtml(c)}" ${c===current?'checked':''}><span class="form-check-label fw-semibold">${escapeHtml(c)}</span></label></div>`).join('');
+    bootstrap.Modal.getOrCreateInstance(box).show();
+  }
+  function chonTatCaLopKhbdV7067(on){document.querySelectorAll('.khbd-bulk-class-v7067').forEach(x=>x.checked=!!on);}
+  function apDungKhbdNhieuLopV7067(){
+    const khoi=Number(document.getElementById('khbdMyKhoiV67')?.value||10),mon=canonicalSubjectV6955(document.getElementById('khbdMyMonV67')?.value),khbdIds=[...document.querySelectorAll('.khbd-my-check-v67:checked')].map(x=>String(x.dataset.khbdId||'').trim()).filter(Boolean),classes=[...document.querySelectorAll('.khbd-bulk-class-v7067:checked')].map(x=>String(x.value||'').trim()).filter(Boolean);
+    if(!classes.length){showToastV9('Chọn ít nhất một lớp.','warning');return;}
+    if(!khbdIds.length){showToastV9('Hãy tích ít nhất một tiết/bài KHBD.','warning');return;}
+    const btn=document.getElementById('khbdBulkApplyBtnV7067');if(btn)btn.disabled=true;setBusyV13(true,`Đang áp dụng KHBD cho ${classes.length} lớp...`);
+    let i=0,ok=0,failed=[];
+    const next=()=>{if(i>=classes.length){setBusyV13(false);if(btn)btn.disabled=false;lessonPlanCache={};bootstrap.Modal.getInstance(document.getElementById('khbdBulkModalV7067'))?.hide();showToastV9(`Đã áp dụng cho ${ok}/${classes.length} lớp${failed.length?'. Lỗi: '+failed.join(', '):''}`,failed.length?'warning':'success');taiKhbdCaNhanV67();return;}const lop=classes[i++];google.script.run.withSuccessHandler(res=>{if(res?.success)ok++;else failed.push(lop);next();}).withFailureHandler(()=>{failed.push(lop);next();}).chonKhbdCaNhanV67({mode:'SYNC_LESSONS',khoi,mon,lop,khbdIds},getKhbdMyAuthV67());};
+    next();
+  }
+
   function capNhatThongKeKhbdTietV692(){
     const checks=[...document.querySelectorAll('.khbd-my-check-v67')], selected=checks.filter(x=>x.checked);
     const lop=String(document.getElementById('khbdMyLopV691')?.value||'').trim();

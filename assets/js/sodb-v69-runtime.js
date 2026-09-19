@@ -15,7 +15,7 @@
   const SODB_SUPABASE_PUBLISHABLE_KEY_V66 = "sb_publishable_Hq6KRH5KDT1eiOYLwwQhkw_c45sZkgi";
   const SODB_EDGE_URL_V66 = SODB_SUPABASE_URL_V66 + "/functions/v1/sodb-core-v69";
   // Apps Script bridge compatibility marker; keep equal to SODB_APP_VERSION_.
-  // Patch V70.4.6.5 retains the V70.4.5 Apps Script API.
+  // Patch V70.4.6.6 retains the V70.4.5 Apps Script API.
   const SODB_FRONTEND_VERSION = "V70.4.5";
   window.__SODB_BACKEND_VERSION__ = "UNKNOWN";
   // V69.2.2 Stable: đo thời gian thực tế các chặng mạng để tối ưu dựa trên số liệu.

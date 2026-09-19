@@ -72,10 +72,10 @@
         const period = i+1;
         return `<tr><th scope="row"><strong>Tiết ${period}</strong></th>${activeDays.map(day=>{
           const key = `${day}_${session}_${period}`, c = matrix[key];
-          if (!occupied(c)) return '<td class="workspace-empty"><span aria-label="Chưa có dữ liệu">—</span></td>';
+          if (!occupied(c)) return `<td class="workspace-empty workspace-input-cell" data-input-cell="${esc(key)}" title="Nhập tiết ${period}"><span aria-label="Chưa có dữ liệu">—</span></td>`;
           const match = matches(c);if(match)matchCount++;
-          if(!match) return '<td class="workspace-empty"><span aria-label="Không thuộc trạng thái đang lọc">—</span></td>';
-          return `<td><article class="workspace-lesson${needsReview(c)?' needs-review':''}"><button type="button" class="workspace-lesson-more" data-cell="${esc(key)}" aria-label="Chi tiết ${esc(day)}, buổi ${si?'chiều':'sáng'}, tiết ${period}" title="Xem đầy đủ tiết học">⋯</button><div class="workspace-lesson-entries">${entries(c).map(e=>`<div class="workspace-lesson-entry"><strong>${esc(e.mon || 'Chưa có môn')}</strong>${e.tenGV ? `<span>${esc(e.tenGV)}</span>` : ''}</div>`).join('') || '<strong>Tiết có trạng thái</strong>'}</div><div class="workspace-lesson-badges">${badges(c)}</div></article></td>`;
+          if(!match) return `<td class="workspace-empty workspace-input-cell" data-input-cell="${esc(key)}" title="Mở nhập tiết ${period}"><span aria-label="Không thuộc trạng thái đang lọc">—</span></td>`;
+          return `<td class="workspace-input-cell" data-input-cell="${esc(key)}" title="Mở nhập tiết ${period}"><article class="workspace-lesson${needsReview(c)?' needs-review':''}"><button type="button" class="workspace-lesson-more" data-cell="${esc(key)}" aria-label="Chi tiết ${esc(day)}, buổi ${si?'chiều':'sáng'}, tiết ${period}" title="Xem đầy đủ tiết học">⋯</button><div class="workspace-lesson-entries">${entries(c).map(e=>`<div class="workspace-lesson-entry"><strong>${esc(e.mon || 'Chưa có môn')}</strong>${e.tenGV ? `<span>${esc(e.tenGV)}</span>` : ''}</div>`).join('') || '<strong>Tiết có trạng thái</strong>'}</div><div class="workspace-lesson-badges">${badges(c)}</div></article></td>`;
         }).join('')}</tr>`;
       }).join('');
       return `<section class="workspace-session"><h3>${svg(si?'moon':'sun')} Buổi ${si?'chiều':'sáng'} <small>Tiết 1 – 5</small></h3><div class="workspace-grid-scroll" tabindex="0" role="region" aria-label="Bảng buổi ${si?'chiều':'sáng'}, cuộn ngang để xem các ngày"><table class="workspace-grid"><caption class="visually-hidden">${esc(context.lop)} · Tuần ${context.tuan} · Buổi ${si?'chiều':'sáng'}</caption><thead><tr><th scope="col">Tiết</th>${header}</tr></thead><tbody>${rows}</tbody></table></div></section>`;
@@ -84,6 +84,18 @@
     $('workspaceBookStatus').textContent = !total ? `Chưa có dữ liệu lớp ${context.lop} – Tuần ${context.tuan}. Ô trống không có nghĩa là nghỉ học.` : filter === 'ALL' ? '' : `Có ${matchCount} ô tiết phù hợp với bộ lọc. Bản in A3 vẫn lấy đầy đủ dữ liệu tuần.`;
     $('workspaceBookStatus').hidden = !!total && filter === 'ALL';
   }
+  function openInputCellV7067(key){
+    if(!current||!key)return;
+    if(!(typeof gvbmDangNhapInfo!=='undefined'&&gvbmDangNhapInfo&&gvbmDangNhapInfo.sessionToken)){if(typeof showToastV9==='function')showToastV9('Tài khoản hiện tại không có quyền nhập tiết.','warning');return;}
+    const parts=String(key).split('_'),dayIndex=days.indexOf(parts[0]),session=parts[1]==='Chieu'?'Chiều':'Sáng',period=Number(parts[2]||1),date=dateAt(current.context.mondayOfWeek,dayIndex),iso=[date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-'),lop=current.context.lop||'';
+    const meta=(typeof classMetaV26!=='undefined'&&classMetaV26?.[normalizeTextKey(lop)])||{},grade=Number(meta.khoi||String(lop).match(/^(10|11|12)/)?.[1]||document.getElementById('viewKhoi')?.value||10);
+    const tab=document.getElementById('input-tab');try{if(tab&&window.bootstrap)bootstrap.Tab.getOrCreateInstance(tab).show();else tab?.click();}catch(_e){tab?.click();}
+    const set=()=>{
+      const khoi=document.getElementById('khoi'),lopSel=document.getElementById('lop');if(khoi){khoi.value=String(grade);try{chonKhoiLopInput();}catch(_e){}}
+      setTimeout(()=>{if(lopSel){const opt=[...lopSel.options].find(o=>String(o.value).trim()===lop);if(opt)lopSel.value=lop;try{onInputClassChangedV26();}catch(_e){}}const n=document.getElementById('ngayDay'),b=document.getElementById('buoiDay'),t=document.getElementById('tietDay');if(n)n.value=iso;if(b)b.value=session;if(t)t.value=String(period);try{capNhatTuanVaThu();}catch(_e){}try{capNhatHanNhapTietV683();}catch(_e){}try{if(typeof refreshGroupAttendanceV6951==='function')refreshGroupAttendanceV6951();}catch(_e){}try{loadDanhSachBaiDay();}catch(_e){}document.getElementById('sodbForm')?.scrollIntoView({behavior:'smooth',block:'start'});if(typeof showToastV9==='function')showToastV9(`Đã mở Nhập tiết: ${lop} · ${iso} · ${session} · Tiết ${period}`,'info');},80);
+    };setTimeout(set,50);
+  }
+
   function detail(key, trigger) {
     if (!current || loading) return;
     const c = current.res.matrix?.[key];if (!occupied(c)) return;
@@ -211,7 +223,7 @@
     });
     $('sodbTab').addEventListener('shown.bs.tab',()=>{syncTitle();menu(false);});
     $('workspaceStatus').addEventListener('change',drawGrid);
-    $('workspaceWeekGrid').addEventListener('click',event=>{const btn=event.target.closest('[data-cell]');if(btn)detail(btn.dataset.cell,btn);});
+    $('workspaceWeekGrid').addEventListener('click',event=>{const btn=event.target.closest('[data-cell]');if(btn){event.stopPropagation();detail(btn.dataset.cell,btn);return;}const cell=event.target.closest('[data-input-cell]');if(cell)openInputCellV7067(cell.dataset.inputCell);});
     document.querySelectorAll('[data-week-step]').forEach(btn=>btn.addEventListener('click',()=>loadWeek(btn.dataset.weekStep)));
     $('workspacePrint').addEventListener('click',printView);
     ['viewKhoi','viewLop','viewBookMode','viewTuan'].forEach(id=>$(id).addEventListener('change',()=>{

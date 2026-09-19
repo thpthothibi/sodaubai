@@ -13,8 +13,8 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <link rel="stylesheet" href="assets/css/sodb-v69.css?v=70.4.6.4">
-  <link rel="stylesheet" href="assets/css/sodb-workspace.css?v=70.4.6.4">
+  <link rel="stylesheet" href="assets/css/sodb-v69.css?v=70.4.6.7.1">
+  <link rel="stylesheet" href="assets/css/sodb-workspace.css?v=70.4.6.7.1">
 
 
 
@@ -175,7 +175,7 @@
 
   <aside id="workspaceSidebar" class="workspace-sidebar no-print" aria-label="Điều hướng chính">
     <button type="button" id="workspaceCloseMenu" class="workspace-close-menu" aria-label="Ẩn menu điều hướng"><span aria-hidden="true">×</span> Ẩn menu</button>
-    <div class="workspace-brand"><img src="assets/img/logo-htb-160.webp?v=70.4.6.4" alt="Logo THPT Hồ Thị Bi"><div><strong>THPT HỒ THỊ BI</strong><small>Quản lý sổ đầu bài điện tử</small></div></div>
+    <div class="workspace-brand"><img src="assets/img/logo-htb-160.webp?v=70.4.6.7.1" alt="Logo THPT Hồ Thị Bi"><div><strong>THPT HỒ THỊ BI</strong><small>Quản lý sổ đầu bài điện tử</small></div></div>
     <div class="workspace-nav-label">KHÔNG GIAN LÀM VIỆC</div>
   <!-- THANH TAB CHUYỂN ĐỔI -->
   <ul class="nav nav-tabs no-print mb-3" id="sodbTab" role="tablist">
@@ -1275,6 +1275,7 @@
                   </div>
                   <div class="d-flex flex-wrap gap-2 mb-3">
                     <button class="btn btn-success fw-bold" type="button" onclick="luuKhbdDaTichV67()">✓ Lưu các tiết đã chọn</button>
+                    <button class="btn btn-success fw-bold" type="button" onclick="moApDungKhbdNhieuLopV7067()">⇉ Áp dụng cho nhiều lớp</button>
                     <button class="btn btn-primary fw-bold" type="button" onclick="chonToanBoKhbdV67()">✓ Tích toàn bộ cho lớp đang chọn</button>
                     <button class="btn btn-outline-secondary" type="button" onclick="boChonKhbdV67()">Bỏ chọn tất cả</button>
                   </div>
@@ -1892,6 +1893,58 @@
                 </div>
                 <div id="lopPreviewV23" class="small text-muted mt-2"></div>
 
+                <div class="border rounded p-3 mt-3 bg-light" id="classDirectEditorV70466">
+                  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                    <div>
+                      <div class="fw-bold text-primary">Thêm / sửa lớp trực tiếp</div>
+                      <div class="small text-muted">Lớp Chuyên đề, Cầu lông, Bóng chuyền hoặc GDTC đang dùng bắt buộc phải có <b>Môn/KHBD</b>.</div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearClassDirectEditorV70466()">Tạo lớp mới</button>
+                  </div>
+                  <div id="classKhbdGuardWarningV70466" class="alert alert-warning py-2 d-none"></div>
+                  <div class="row g-2 align-items-end">
+                    <div class="col-lg-3 col-md-6">
+                      <label class="form-label mb-1 fw-semibold">Chọn lớp hiện có</label>
+                      <select id="classDirectExistingV70466" class="form-select" onchange="loadClassDirectEditorV70466(this.value)"><option value="">-- Tạo mới / chọn lớp để sửa --</option></select>
+                    </div>
+                    <div class="col-lg-1 col-md-3">
+                      <label class="form-label mb-1 fw-semibold">Khối</label>
+                      <select id="classDirectGradeV70466" class="form-select"><option value="10">10</option><option value="11">11</option><option value="12">12</option></select>
+                    </div>
+                    <div class="col-lg-2 col-md-6">
+                      <label class="form-label mb-1 fw-semibold">Tên lớp</label>
+                      <input id="classDirectNameV70466" class="form-control" placeholder="VD: BC7 / CL3 / 12 Chuyên đề 01">
+                    </div>
+                    <div class="col-lg-2 col-md-6">
+                      <label class="form-label mb-1 fw-semibold">Loại lớp</label>
+                      <select id="classDirectTypeV70466" class="form-select" onchange="syncClassDirectKhbdV70466()">
+                        <option value="Lớp chính">Lớp chính</option>
+                        <option value="Chuyên đề">Chuyên đề</option>
+                        <option value="Cầu lông">Cầu lông</option>
+                        <option value="Bóng chuyền">Bóng chuyền</option>
+                        <option value="GDTC">GDTC</option>
+                      </select>
+                    </div>
+                    <div class="col-lg-2 col-md-6">
+                      <label class="form-label mb-1 fw-semibold">Môn / KHBD <span id="classDirectSubjectRequiredV70466" class="text-danger d-none">*</span></label>
+                      <input id="classDirectSubjectV70466" class="form-control" list="classDirectSubjectListV70466" placeholder="VD: Bóng chuyền / Vật lý">
+                      <datalist id="classDirectSubjectListV70466"><option value="GDTC"><option value="Cầu lông"><option value="Bóng chuyền"><option value="Vật lý"><option value="Hóa học"><option value="Sinh học"><option value="Tin học"><option value="Công nghệ"></datalist>
+                    </div>
+                    <div class="col-lg-1 col-md-3">
+                      <label class="form-label mb-1 fw-semibold">Trạng thái</label>
+                      <select id="classDirectStatusV70466" class="form-select" onchange="syncClassDirectKhbdV70466()"><option value="Đang dùng">Đang dùng</option><option value="Ngừng">Ngừng</option></select>
+                    </div>
+                    <div class="col-lg-1 col-md-3">
+                      <label class="form-label mb-1 fw-semibold">Thứ tự</label>
+                      <input id="classDirectOrderV70466" type="number" min="1" class="form-control" value="999">
+                    </div>
+                    <div class="col-12 d-flex flex-wrap gap-2 align-items-center mt-2">
+                      <button type="button" class="btn btn-primary fw-bold" onclick="saveClassDirectV70466()">Lưu lớp vào Supabase</button>
+                      <span id="classDirectStatusTextV70466" class="small text-muted">Chưa chỉnh sửa.</span>
+                    </div>
+                  </div>
+                </div>
+
                 <div class="border rounded p-3 mt-3 class-group-relation-v7031">
                   <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
                     <div>
@@ -2261,24 +2314,24 @@
 </div>
 
 <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/sodb-v69-runtime.js?v=70.4.6.4"></script>
-<script src="assets/js/app/sodb-v69-core.js?v=70.4.6.4"></script>
-<script src="assets/js/app/sodb-v69-khbd.js?v=70.4.6.4"></script>
-<script src="assets/js/app/sodb-v69-operations.js?v=70.4.6.4"></script>
-<script src="assets/js/app/sodb-v69-print.js?v=70.4.6.4"></script>
-<script src="assets/js/app/sodb-v69-admin.js?v=70.4.6.4"></script>
-<script src="assets/js/app/sodb-v70-lifecycle.js?v=70.4.6.4"></script>
-<script src="assets/js/app/sodb-v69-bgh.js?v=70.4.6.4"></script>
-<script src="assets/js/app/sodb-v69-masterdata.js?v=70.4.6.4"></script>
-<script src="assets/js/app/sodb-v69-control.js?v=70.4.6.4"></script>
-<script src="assets/js/app/sodb-v69-v694.js?v=70.4.6.4"></script>
-<script src="assets/js/app/sodb-v69-v695.js?v=70.4.6.4"></script>
-<script src="assets/js/app/sodb-v69-v6951.js?v=70.4.6.4"></script>
-<script src="assets/js/app/sodb-v69-ux.js?v=70.4.6.4"></script>
-<script src="assets/js/sodb-v69-gvcn.js?v=70.4.6.4"></script>
-<script src="assets/js/sodb-v69-reports.js?v=70.4.6.4"></script>
+<script src="assets/js/sodb-v69-runtime.js?v=70.4.6.7.1"></script>
+<script src="assets/js/app/sodb-v69-core.js?v=70.4.6.7.1"></script>
+<script src="assets/js/app/sodb-v69-khbd.js?v=70.4.6.7.1"></script>
+<script src="assets/js/app/sodb-v69-operations.js?v=70.4.6.7.1"></script>
+<script src="assets/js/app/sodb-v69-print.js?v=70.4.6.7.1"></script>
+<script src="assets/js/app/sodb-v69-admin.js?v=70.4.6.7.1"></script>
+<script src="assets/js/app/sodb-v70-lifecycle.js?v=70.4.6.7.1"></script>
+<script src="assets/js/app/sodb-v69-bgh.js?v=70.4.6.7.1"></script>
+<script src="assets/js/app/sodb-v69-masterdata.js?v=70.4.6.7.1"></script>
+<script src="assets/js/app/sodb-v69-control.js?v=70.4.6.7.1"></script>
+<script src="assets/js/app/sodb-v69-v694.js?v=70.4.6.7.1"></script>
+<script src="assets/js/app/sodb-v69-v695.js?v=70.4.6.7.1"></script>
+<script src="assets/js/app/sodb-v69-v6951.js?v=70.4.6.7.1"></script>
+<script src="assets/js/app/sodb-v69-ux.js?v=70.4.6.7.1"></script>
+<script src="assets/js/sodb-v69-gvcn.js?v=70.4.6.7.1"></script>
+<script src="assets/js/sodb-v69-reports.js?v=70.4.6.7.1"></script>
 
 
-<script src="assets/js/app/sodb-workspace.js?v=70.4.6.4"></script>
+<script src="assets/js/app/sodb-workspace.js?v=70.4.6.7.1"></script>
 </body>
 </html>

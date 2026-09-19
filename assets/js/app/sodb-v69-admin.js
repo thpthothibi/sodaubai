@@ -217,6 +217,57 @@
     finally{setBusyV13(false);}
   }
 
+
+
+  /* V70.4.6.6 - Admin class editor + Môn/KHBD guard */
+  function classTypeNeedsKhbdV70466(type,status){
+    const k=normalizeTextKey(type||''), st=normalizeTextKey(status||'dang dung');
+    if(st.includes('ngung'))return false;
+    return k.includes('chuyen de')||k.includes('cau long')||k.includes('bong chuyen')||k==='gdtc'||k.includes('giao duc the chat');
+  }
+  function validateClassRowKhbdV70466(r,rowNo){
+    const lop=String(r?.[1]||'').trim(),type=String(r?.[2]||'').trim(),subject=String(r?.[3]||'').trim(),status=String(r?.[4]||'Đang dùng').trim()||'Đang dùng';
+    if(!lop)return '';
+    if(classTypeNeedsKhbdV70466(type,status)&&!subject)return `Dòng ${rowNo}: ${lop} (${type||'nhóm đặc thù'}) chưa khai báo Môn/KHBD.`;
+    if(normalizeTextKey(type).includes('chuyen de')&&normalizeTextKey(subject)==='chuyen de')return `Dòng ${rowNo}: ${lop} phải khai báo môn thực của Chuyên đề, không dùng “Chuyên đề” làm Môn/KHBD.`;
+    return '';
+  }
+  function classRowsForDirectEditorV70466(){
+    const out=[];Object.values(classMetaV26||{}).forEach(m=>{if(!m||!m.lop)return;out.push(m);});
+    return out.sort((a,b)=>Number(a.khoi||0)-Number(b.khoi||0)||String(a.lop).localeCompare(String(b.lop),'vi'));
+  }
+  function refreshClassDirectEditorV70466(){
+    const sel=document.getElementById('classDirectExistingV70466');
+    if(sel){const current=sel.value,rows=classRowsForDirectEditorV70466();sel.innerHTML='<option value="">-- Tạo mới / chọn lớp để sửa --</option>'+rows.map(m=>`<option value="${escapeHtml(String(m.lop||''))}">${escapeHtml(String(m.lop||''))} · K${escapeHtml(String(m.khoi||''))} · ${escapeHtml(String(m.nhomSo||m.type||'Lớp chính'))}</option>`).join('');if(rows.some(m=>String(m.lop)===current))sel.value=current;}
+    const missing=classRowsForDirectEditorV70466().filter(m=>classTypeNeedsKhbdV70466(m.nhomSo||m.type,m.trangThai||'Đang dùng')&&!String(m.monKhbd||m.subject||'').trim());
+    const warn=document.getElementById('classKhbdGuardWarningV70466');
+    if(warn){warn.classList.toggle('d-none',!missing.length);warn.innerHTML=missing.length?`<b>Cần bổ sung Môn/KHBD cho ${missing.length} lớp đang dùng:</b> ${missing.slice(0,16).map(m=>escapeHtml(String(m.lop))).join(', ')}${missing.length>16?'…':''}`:'';}
+    syncClassDirectKhbdV70466();
+  }
+  function clearClassDirectEditorV70466(){
+    const ids={classDirectExistingV70466:'',classDirectGradeV70466:'10',classDirectNameV70466:'',classDirectTypeV70466:'Lớp chính',classDirectSubjectV70466:'',classDirectStatusV70466:'Đang dùng',classDirectOrderV70466:'999'};
+    Object.entries(ids).forEach(([id,v])=>{const el=document.getElementById(id);if(el)el.value=v;});
+    const st=document.getElementById('classDirectStatusTextV70466');if(st)st.textContent='Đang tạo lớp mới.';syncClassDirectKhbdV70466();
+  }
+  function loadClassDirectEditorV70466(lop){
+    const m=classRowsForDirectEditorV70466().find(x=>String(x.lop||'')===String(lop||''));if(!m){clearClassDirectEditorV70466();return;}
+    const type=String(m.nhomSo||'').trim()||(m.type==='CHUYEN_DE'?'Chuyên đề':m.type==='GDTC'?'GDTC':'Lớp chính');
+    [['classDirectGradeV70466',String(m.khoi||'10')],['classDirectNameV70466',String(m.lop||'')],['classDirectTypeV70466',type],['classDirectSubjectV70466',String(m.monKhbd||m.subject||'')],['classDirectStatusV70466',String(m.trangThai||'Đang dùng')],['classDirectOrderV70466',String(m.thuTu||m.order||999)]].forEach(([id,v])=>{const el=document.getElementById(id);if(el)el.value=v;});
+    const st=document.getElementById('classDirectStatusTextV70466');if(st)st.textContent=`Đang sửa ${m.lop}. Tên lớp là khóa nhận diện; muốn đổi tên nên tạo lớp mới rồi ngừng lớp cũ.`;syncClassDirectKhbdV70466();
+  }
+  function syncClassDirectKhbdV70466(){
+    const type=String(document.getElementById('classDirectTypeV70466')?.value||''),status=String(document.getElementById('classDirectStatusV70466')?.value||'Đang dùng'),input=document.getElementById('classDirectSubjectV70466'),req=document.getElementById('classDirectSubjectRequiredV70466'),needed=classTypeNeedsKhbdV70466(type,status);
+    if(req)req.classList.toggle('d-none',!needed);if(input){input.required=needed;if((type==='Cầu lông'||type==='Bóng chuyền')&&!String(input.value||'').trim())input.value=type;}
+  }
+  async function saveClassDirectV70466(){
+    if(!adminDangNhapInfo?.sessionToken)return;
+    const khoi=Number(document.getElementById('classDirectGradeV70466')?.value||0),lop=String(document.getElementById('classDirectNameV70466')?.value||'').trim(),type=String(document.getElementById('classDirectTypeV70466')?.value||'').trim(),subject=canonicalSubjectV6955(document.getElementById('classDirectSubjectV70466')?.value||''),status=String(document.getElementById('classDirectStatusV70466')?.value||'Đang dùng').trim(),order=Number(document.getElementById('classDirectOrderV70466')?.value||999)||999;
+    if(![10,11,12].includes(khoi)){alertV13('⚠️ Chọn đúng khối 10, 11 hoặc 12.');return;}if(!lop){alertV13('⚠️ Vui lòng nhập tên lớp.');return;}
+    const err=validateClassRowKhbdV70466([khoi,lop,type,subject,status,order],1);if(err){alertV13('⚠️ '+err.replace(/^Dòng 1:\s*/,''));document.getElementById('classDirectSubjectV70466')?.focus();return;}
+    try{setBusyV13(true,'Đang lưu lớp vào Supabase...');const res=await callSodbEdgeRpcV67('capNhatDanhSachLopV701',[[[khoi,lop,type,subject,status,order]],'UPSERT',{token:adminDangNhapInfo.sessionToken}]);if(!res?.success)throw new Error(res?.message||'Không lưu được lớp.');applyClassCatalogV23(res);classCatalogLoadedAtV47=Date.now();const sel=document.getElementById('classDirectExistingV70466');if(sel)sel.value=lop;loadClassDirectEditorV70466(lop);try{await taiQuanHeLopNhomV7031(true);}catch(_e){}showToastV9(`Đã lưu ${lop}${subject?' · '+subject:''}.`,'success');}
+    catch(e){alertV13('❌ '+(e.message||e));}finally{setBusyV13(false);}
+  }
+
   function docFileExcelLopV23(event){
     if(!window.XLSX){
       const input=event&&event.target;
@@ -233,7 +284,8 @@
         const ws=wb.Sheets[preferred];
         const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
         parsedLopDataV23=(rows||[]).slice(1).filter(r=>r.some(v=>String(v).trim()!==''));
-        document.getElementById('lopPreviewV23').innerText=`Đã đọc ${parsedLopDataV23.length} dòng lớp từ sheet "${preferred}".`;
+        const khbdErrors=parsedLopDataV23.map((r,i)=>validateClassRowKhbdV70466(r,i+2)).filter(Boolean);
+        document.getElementById('lopPreviewV23').innerHTML=khbdErrors.length?`<span class="text-danger fw-semibold">Đã đọc ${parsedLopDataV23.length} dòng nhưng có ${khbdErrors.length} lỗi Môn/KHBD.</span><br>${khbdErrors.slice(0,8).map(escapeHtml).join('<br>')}${khbdErrors.length>8?'<br>…':''}`:`Đã đọc ${parsedLopDataV23.length} dòng lớp từ sheet "${escapeHtml(preferred)}". Không phát hiện lớp đặc thù đang dùng thiếu Môn/KHBD.`;
       }catch(err){
         parsedLopDataV23=[];
         alertV13('❌ File danh sách lớp không hợp lệ: '+err);
@@ -252,6 +304,7 @@
       dsLopTheoKhoi[k]=cls[k]||[...(dsLopChinhTheoKhoiV22[k]||[]),...(dsLopDacBietTheoKhoiV22[k]||[])];
     });
     chonKhoiLopView();chonKhoiLopInput();chonKhoiLopAdmin();khoiTaoDanhSachLopGiamThi();
+    try{refreshClassDirectEditorV70466();}catch(_e){}
     try{sessionStorage.removeItem('SODB_V6_BOOTSTRAP');sessionStorage.removeItem(bootstrapCacheKeyV62());}catch(e){}
   }
 
@@ -297,6 +350,7 @@
   async function uploadLopV23(){
     if(!adminDangNhapInfo||!adminDangNhapInfo.sessionToken)return;
     if(!parsedLopDataV23.length){alertV13('⚠️ Chưa chọn file danh sách lớp.');return;}
+    const khbdErrors=parsedLopDataV23.map((r,i)=>validateClassRowKhbdV70466(r,i+2)).filter(Boolean);if(khbdErrors.length){alertV13('❌ Không thể import. Hãy bổ sung Môn/KHBD cho lớp đặc thù đang dùng.\n\n'+khbdErrors.slice(0,12).join('\n')+(khbdErrors.length>12?'\n…':''));return;}
     const mode=document.getElementById('lopModeV23').value;setBusyV13(true,'Đang cập nhật danh mục lớp trên Supabase...');
     try{
       const res=await callSodbEdgeRpcV67('capNhatDanhSachLopV701',[parsedLopDataV23,mode,{token:adminDangNhapInfo.sessionToken}]);

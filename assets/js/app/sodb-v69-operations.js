@@ -957,7 +957,8 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
       if (!plan) return null;
       return {
         tenBaiDay: plan.tenBai,
-        tietCT: document.getElementById('tietCT').value.trim(),
+        // Nếu Tên bài KHBD = BH/CĐ thì luôn lưu đúng mã Tiết CT tương ứng.
+        tietCT: specialLessonPeriodCodeV7067(plan) || document.getElementById('tietCT').value.trim(),
         // Không hiển thị ô YCCĐ ở tab nhập tiết; vẫn giữ dữ liệu KHBD tự động để tương thích dữ liệu cũ.
         yeuCauCanDat: plan.yeuCauCanDat || "",
         khbdId: plan.khbdId || plan.id || "",
@@ -965,6 +966,16 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
       };
     }
     return null;
+  }
+
+  // V70.4.6.7.1: BH/CĐ được suy DUY NHẤT từ TÊN BÀI KHBD.
+  // Không dùng cột Tiết PPCT để suy BH/CĐ, tránh gán sai Tiết CT.
+  function specialLessonPeriodCodeV7067(plan){
+    if(!plan)return '';
+    const title=String(plan.tenBai||'').trim().toUpperCase();
+    if(title==='BH')return 'BH';
+    if(title==='CĐ'||title==='CD')return 'CĐ';
+    return '';
   }
 
   function fillLessonSelect(selectElement, plans) {
@@ -977,7 +988,9 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
     }
     selectElement.innerHTML = '<option value="">-- Chọn bài dạy đúng tuần --</option>';
     plans.forEach((plan, index) => {
-      let prefix = plan.tietPPCT ? `PPCT ${plan.tietPPCT} — ` : "";
+      const special=specialLessonPeriodCodeV7067(plan);
+      // Với Tên bài = BH/CĐ, không lặp thành "BH — BH" hoặc "CĐ — CĐ".
+      let prefix = special ? "" : (plan.tietPPCT ? `PPCT ${plan.tietPPCT} — ` : "");
       selectElement.add(new Option(prefix + plan.tenBai, `PLAN_${index}`));
     });
     if(!(policy&&mode==='REQUIRED'))selectElement.add(new Option("➕ Nhập tên bài dạy khác...", "KHAC"));
@@ -1085,7 +1098,7 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
       customInput.classList.add('d-none');
       customInput.required = false;
       let plan = selectVal.indexOf("PLAN_") === 0 ? danhSachBaiDay1[Number(selectVal.replace("PLAN_", ""))] : null;
-      document.getElementById('tietCT').value = plan ? (plan.tietPPCT || "") : "";
+      document.getElementById('tietCT').value = plan ? (specialLessonPeriodCodeV7067(plan) || plan.tietPPCT || "") : "";
     }
   }
 

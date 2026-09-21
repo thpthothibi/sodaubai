@@ -1,0 +1,375 @@
+name: Supabase Full Daily Backup
+
+on:
+  workflow_dispatch:
+  schedule:
+    # GitHub Actions dùng UTC.
+    # 19:00 UTC = 02:00 sáng hôm sau tại Việt Nam (UTC+7).
+    - cron: "0 19 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-full-daily-backup
+  cancel-in-progress: false
+
+jobs:
+  full-backup:
+    name: Database + Storage
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+
+      SUPABASE_S3_ENDPOINT: ${{ secrets.SUPABASE_S3_ENDPOINT }}
+      SUPABASE_S3_ACCESS_KEY_ID: ${{ secrets.SUPABASE_S3_ACCESS_KEY_ID }}
+      SUPABASE_S3_SECRET_ACCESS_KEY: ${{ secrets.SUPABASE_S3_SECRET_ACCESS_KEY }}
+      SUPABASE_S3_REGION: ${{ secrets.SUPABASE_S3_REGION }}
+
+      # Tùy chọn:
+      # Nếu tạo Repository Variable SUPABASE_STORAGE_BUCKETS,
+      # chỉ các bucket được liệt kê mới được backup.
+      # Ví dụ: signatures,attachments
+      SELECTED_BUCKETS: ${{ vars.SUPABASE_STORAGE_BUCKETS }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Validate required secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          missing=0
+          for name in \
+            SUPABASE_DB_URL \
+            SUPABASE_S3_ENDPOINT \
+            SUPABASE_S3_ACCESS_KEY_ID \
+            SUPABASE_S3_SECRET_ACCESS_KEY \
+            SUPABASE_S3_REGION
+          do
+            if [ -z "${!name:-}" ]; then
+              echo "::error::Missing GitHub Secret: $name"
+              missing=1
+            fi
+          done
+
+          exit "$missing"
+
+      - name: Install backup tools
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          sudo apt-get update
+          sudo apt-get install -y awscli postgresql-client zip
+
+          aws --version
+          psql --version
+          supabase --version
+
+      - name: Create backup workspace
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          BACKUP_DATE="$(TZ=Asia/Ho_Chi_Minh date +'%Y-%m-%d_%H-%M-%S')"
+          BACKUP_ROOT="supabase-full-backup_${BACKUP_DATE}"
+
+          mkdir -p \
+            "$BACKUP_ROOT/database" \
+            "$BACKUP_ROOT/storage/objects" \
+            "$BACKUP_ROOT/storage/manifests"
+
+          echo "backup_date=$BACKUP_DATE" >> "$GITHUB_OUTPUT"
+          echo "backup_root=$BACKUP_ROOT" >> "$GITHUB_OUTPUT"
+
+      # ==========================================================
+      # DATABASE
+      # ==========================================================
+
+      - name: Backup database roles
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          supabase db dump \
+            --db-url "$SUPABASE_DB_URL" \
+            -f "${{ steps.meta.outputs.backup_root }}/database/roles.sql" \
+            --role-only
+
+      - name: Backup database schema
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          supabase db dump \
+            --db-url "$SUPABASE_DB_URL" \
+            -f "${{ steps.meta.outputs.backup_root }}/database/schema.sql"
+
+      - name: Backup database data
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          supabase db dump \
+            --db-url "$SUPABASE_DB_URL" \
+            -f "${{ steps.meta.outputs.backup_root }}/database/data.sql" \
+            --data-only \
+            --use-copy \
+            -x "storage.buckets_vectors" \
+            -x "storage.vector_indexes"
+
+      - name: Verify database dump
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ROOT="${{ steps.meta.outputs.backup_root }}"
+
+          test -s "$ROOT/database/roles.sql"
+          test -s "$ROOT/database/schema.sql"
+          test -s "$ROOT/database/data.sql"
+
+          ls -lh "$ROOT/database"
+
+      # ==========================================================
+      # STORAGE METADATA
+      # ==========================================================
+
+      - name: Export Storage bucket metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ROOT="${{ steps.meta.outputs.backup_root }}"
+
+          # Lưu toàn bộ metadata bucket hiện có dưới dạng JSON Lines.
+          psql "$SUPABASE_DB_URL" \
+            -X -A -t -v ON_ERROR_STOP=1 \
+            -c "select to_jsonb(b)::text from storage.buckets b order by id;" \
+            > "$ROOT/storage/buckets_metadata.jsonl"
+
+          # Danh sách bucket.
+          psql "$SUPABASE_DB_URL" \
+            -X -A -t -v ON_ERROR_STOP=1 \
+            -c "select id from storage.buckets order by id;" \
+            > "$ROOT/storage/buckets_all.txt"
+
+      - name: Select Storage buckets
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ROOT="${{ steps.meta.outputs.backup_root }}"
+          TARGET="$ROOT/storage/buckets_to_backup.txt"
+
+          if [ -n "${SELECTED_BUCKETS:-}" ]; then
+            printf '%s\n' "$SELECTED_BUCKETS" \
+              | tr ',' '\n' \
+              | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' \
+              | sed '/^$/d' \
+              | sort -u \
+              > "$TARGET"
+
+            # Kiểm tra bucket chỉ định có tồn tại.
+            while IFS= read -r bucket || [ -n "$bucket" ]; do
+              [ -z "$bucket" ] && continue
+
+              if ! grep -Fxq "$bucket" "$ROOT/storage/buckets_all.txt"; then
+                echo "::error::Bucket '$bucket' does not exist in storage.buckets"
+                exit 1
+              fi
+            done < "$TARGET"
+          else
+            cp "$ROOT/storage/buckets_all.txt" "$TARGET"
+          fi
+
+          echo "Buckets selected for backup:"
+          cat "$TARGET" || true
+
+      # ==========================================================
+      # STORAGE OBJECTS
+      # ==========================================================
+
+      - name: Configure S3 credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p "$HOME/.aws"
+
+          cat > "$HOME/.aws/credentials" <<EOF
+          [supabase]
+          aws_access_key_id=${SUPABASE_S3_ACCESS_KEY_ID}
+          aws_secret_access_key=${SUPABASE_S3_SECRET_ACCESS_KEY}
+          EOF
+
+          cat > "$HOME/.aws/config" <<EOF
+          [profile supabase]
+          region=${SUPABASE_S3_REGION}
+          output=json
+          s3 =
+            addressing_style = path
+          EOF
+
+          chmod 600 "$HOME/.aws/credentials" "$HOME/.aws/config"
+
+      - name: Test S3 connection
+        shell: bash
+        env:
+          AWS_PROFILE: supabase
+        run: |
+          set -euo pipefail
+
+          aws s3api list-buckets \
+            --endpoint-url "$SUPABASE_S3_ENDPOINT" \
+            --region "$SUPABASE_S3_REGION" \
+            > /tmp/supabase-s3-buckets.json
+
+          echo "S3 connection OK."
+
+      - name: Backup Storage objects
+        shell: bash
+        env:
+          AWS_PROFILE: supabase
+        run: |
+          set -euo pipefail
+
+          ROOT="${{ steps.meta.outputs.backup_root }}"
+          BUCKET_FILE="$ROOT/storage/buckets_to_backup.txt"
+
+          if [ ! -s "$BUCKET_FILE" ]; then
+            echo "No Storage bucket exists. Continuing with database + metadata backup."
+            exit 0
+          fi
+
+          while IFS= read -r bucket || [ -n "$bucket" ]; do
+            [ -z "$bucket" ] && continue
+
+            echo "=================================================="
+            echo "Backing up Storage bucket: $bucket"
+            echo "=================================================="
+
+            mkdir -p "$ROOT/storage/objects/$bucket"
+
+            # Manifest của object tại thời điểm backup.
+            aws s3api list-objects-v2 \
+              --bucket "$bucket" \
+              --endpoint-url "$SUPABASE_S3_ENDPOINT" \
+              --region "$SUPABASE_S3_REGION" \
+              --output json \
+              > "$ROOT/storage/manifests/${bucket}.json"
+
+            # Tải file thật.
+            aws s3 sync \
+              "s3://$bucket" \
+              "$ROOT/storage/objects/$bucket" \
+              --endpoint-url "$SUPABASE_S3_ENDPOINT" \
+              --region "$SUPABASE_S3_REGION" \
+              --only-show-errors
+
+          done < "$BUCKET_FILE"
+
+      # ==========================================================
+      # MANIFEST / ARCHIVE
+      # ==========================================================
+
+      - name: Create backup manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ROOT="${{ steps.meta.outputs.backup_root }}"
+
+          DB_SIZE="$(du -sh "$ROOT/database" | awk '{print $1}')"
+          STORAGE_SIZE="$(du -sh "$ROOT/storage" | awk '{print $1}')"
+          TOTAL_SIZE="$(du -sh "$ROOT" | awk '{print $1}')"
+
+          {
+            echo "SUPABASE FULL BACKUP"
+            echo "===================="
+            echo
+            echo "Backup time (Asia/Ho_Chi_Minh): ${{ steps.meta.outputs.backup_date }}"
+            echo "Repository: $GITHUB_REPOSITORY"
+            echo "Workflow run ID: $GITHUB_RUN_ID"
+            echo "Git commit: $GITHUB_SHA"
+            echo
+            echo "DATABASE"
+            echo "--------"
+            echo "Database folder size: $DB_SIZE"
+            echo "Files:"
+            ls -lh "$ROOT/database"
+            echo
+            echo "STORAGE"
+            echo "-------"
+            echo "Storage folder size: $STORAGE_SIZE"
+            echo "Buckets:"
+            cat "$ROOT/storage/buckets_to_backup.txt" || true
+            echo
+            echo "TOTAL"
+            echo "-----"
+            echo "Total backup folder size: $TOTAL_SIZE"
+            echo
+            echo "TOOLS"
+            echo "-----"
+            supabase --version
+            psql --version
+            aws --version 2>&1
+          } > "$ROOT/BACKUP_INFO.txt"
+
+          cat "$ROOT/BACKUP_INFO.txt"
+
+      - name: Create checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ROOT="${{ steps.meta.outputs.backup_root }}"
+
+          (
+            cd "$ROOT"
+            find . -type f ! -name SHA256SUMS.txt -print0 \
+              | sort -z \
+              | xargs -0 sha256sum \
+              > SHA256SUMS.txt
+          )
+
+          test -s "$ROOT/SHA256SUMS.txt"
+
+      - name: Create single full-backup archive
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ROOT="${{ steps.meta.outputs.backup_root }}"
+          ARCHIVE="supabase-full-backup_${{ steps.meta.outputs.backup_date }}.tar.gz"
+
+          tar -czf "$ARCHIVE" "$ROOT"
+
+          test -s "$ARCHIVE"
+          ls -lh "$ARCHIVE"
+
+      - name: Upload full backup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: supabase-full-backup-${{ steps.meta.outputs.backup_date }}
+          path: supabase-full-backup_${{ steps.meta.outputs.backup_date }}.tar.gz
+          retention-days: 7
+          if-no-files-found: error
+          compression-level: 0
+
+      - name: Remove temporary credentials
+        if: always()
+        shell: bash
+        run: |
+          rm -f "$HOME/.aws/credentials" "$HOME/.aws/config"

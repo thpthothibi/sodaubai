@@ -3534,3 +3534,13 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
   /* V56 cũ ép mixed-entry thành inline; stack V70.4.6.10 phải luôn giữ từng dòng riêng. */
   body.a3-tracuu-v56 #a3PrintRootV56 .a3-sync-stack-v704610 .mixed-entry{display:block!important;}
 }
+
+/* V70.4.6.18 - Admin teacher lesson manager */
+.admin-teacher-lesson-card-v704618{position:relative;border:1px solid #d6e2f2;border-radius:9px;background:#fff;padding:8px 9px;cursor:pointer;box-shadow:0 1px 2px rgba(15,23,42,.04);min-width:0}
+.admin-teacher-lesson-card-v704618:hover{border-color:#93b4e8;box-shadow:0 3px 10px rgba(30,64,175,.08)}
+.admin-teacher-lesson-card-v704618 strong{display:block;color:#0f3f87;font-size:.87rem;line-height:1.25}
+.admin-teacher-lesson-card-v704618>span{display:block;color:#475569;font-size:.78rem;line-height:1.3;margin-top:2px;overflow-wrap:anywhere}
+.admin-teacher-slot-v704618{display:grid;gap:6px}.admin-teacher-week-table-v704618 td{min-width:165px;vertical-align:top}.admin-teacher-week-table-v704618 th:first-child{min-width:72px}
+.admin-teacher-admin-toolbar-v704618{background:linear-gradient(180deg,#f8fbff,#f3f7fc);border:1px solid #dbe6f3;border-radius:12px;padding:14px}
+.admin-sodb-title-cell-v704618{min-width:220px;max-width:360px;white-space:normal}.admin-sodb-record-table-v704618{font-size:.84rem}.admin-sodb-record-table-v704618 thead th{white-space:nowrap}
+@media(max-width:768px){.admin-teacher-week-table-v704618 td{min-width:150px}.admin-sodb-title-cell-v704618{min-width:190px}}

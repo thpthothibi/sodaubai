@@ -965,8 +965,9 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
       if (!plan) return null;
       return {
         tenBaiDay: plan.tenBai,
-        // Nếu Tên bài KHBD = BH/CĐ thì luôn lưu đúng mã Tiết CT tương ứng.
-        tietCT: specialLessonPeriodCodeV70612(plan) || document.getElementById('tietCT').value.trim(),
+        // V70.4.6.20: GDTC luôn lấy Tiết CT theo Tiết PPCT của đúng dòng KHBD.
+        // Các môn khác vẫn giữ quy tắc BH/CĐ từ Tên bài.
+        tietCT: lessonPeriodCodeV704620(plan) || document.getElementById('tietCT').value.trim(),
         // Không hiển thị ô YCCĐ ở tab nhập tiết; vẫn giữ dữ liệu KHBD tự động để tương thích dữ liệu cũ.
         yeuCauCanDat: plan.yeuCauCanDat || "",
         khbdId: plan.khbdId || plan.id || "",
@@ -990,6 +991,22 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
     return '';
   }
 
+  // V70.4.6.20: nhận diện ngữ cảnh GDTC để Tiết CT bám đúng PPCT của bộ môn.
+  function isGdtcLessonContextV704620(){
+    const lop=document.getElementById('lop')?.value||'';
+    const meta=typeof getClassMetaClientV26==='function'?getClassMetaClientV26(lop):null;
+    const rawMon=document.getElementById('monHoc')?.value||'';
+    const effective=typeof getEffectiveMonHocV25==='function'?getEffectiveMonHocV25():rawMon;
+    return String(meta?.type||'').toUpperCase()==='GDTC'
+      || (typeof isGdtcBaseSubjectV25==='function'&&isGdtcBaseSubjectV25(rawMon))
+      || (typeof isGdtcDetailSubjectV25==='function'&&isGdtcDetailSubjectV25(effective));
+  }
+  function lessonPeriodCodeV704620(plan){
+    if(!plan)return '';
+    if(isGdtcLessonContextV704620())return String(plan.tietPPCT||'').trim();
+    return specialLessonPeriodCodeV70612(plan)||String(plan.tietPPCT||'').trim();
+  }
+
   function fillLessonSelect(selectElement, plans) {
     const policy=(typeof currentExternalProgramPolicyV7044!=='undefined'?currentExternalProgramPolicyV7044:null),mode=String(policy?.khbdMode||'OPTIONAL').toUpperCase();
     if(policy&&mode==='NONE'){
@@ -1000,8 +1017,10 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
     }
     selectElement.innerHTML = '<option value="">-- Chọn bài dạy đúng tuần --</option>';
     plans.forEach((plan, index) => {
-      const special=specialLessonPeriodCodeV70612(plan);
-      // Với Tên bài = BH/CĐ, không lặp thành "BH — BH" hoặc "CĐ — CĐ".
+      const gdtc=isGdtcLessonContextV704620();
+      const special=gdtc?'':specialLessonPeriodCodeV70612(plan);
+      // GDTC luôn hiển thị PPCT để GV đối chiếu đúng tiến độ bộ môn.
+      // Với Tên bài BH/CĐ ở môn khác, không lặp thành "BH — BH" hoặc "CĐ — CĐ".
       let prefix = special ? "" : (plan.tietPPCT ? `PPCT ${plan.tietPPCT} — ` : "");
       selectElement.add(new Option(prefix + plan.tenBai, `PLAN_${index}`));
     });
@@ -1110,7 +1129,7 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
       customInput.classList.add('d-none');
       customInput.required = false;
       let plan = selectVal.indexOf("PLAN_") === 0 ? danhSachBaiDay1[Number(selectVal.replace("PLAN_", ""))] : null;
-      document.getElementById('tietCT').value = plan ? (specialLessonPeriodCodeV70612(plan) || plan.tietPPCT || "") : "";
+      document.getElementById('tietCT').value = plan ? lessonPeriodCodeV704620(plan) : "";
     }
   }
 

@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <link rel="stylesheet" href="assets/css/sodb-v69.css?v=70.4.6.13">
+  <link rel="stylesheet" href="assets/css/sodb-v69.css?v=70.4.6.18">
   <link rel="stylesheet" href="assets/css/sodb-workspace.css?v=70.4.6.13">
 
 
@@ -1634,6 +1634,9 @@
                 <button class="nav-link" data-bs-toggle="pill" data-bs-target="#pills-roster" type="button">Học sinh & phân nhóm</button>
               </li>
               <li class="nav-item" role="presentation">
+                <button class="nav-link" id="admin-teacher-lessons-tab-v704618" data-bs-toggle="pill" data-bs-target="#pills-admin-teacher-lessons-v704618" type="button" onclick="initAdminTeacherLessonsV704618(false)">Tiết giáo viên</button>
+              </li>
+              <li class="nav-item" role="presentation">
                 <button class="nav-link" data-bs-toggle="pill" data-bs-target="#pills-requests" type="button" onclick="taiYeuCauChinhSuaAdminV4()">Yêu cầu chỉnh sửa</button>
               </li>
               <li class="nav-item" role="presentation">
@@ -2195,6 +2198,54 @@
                 </div>
               </div>
 
+
+              <!-- V70.4.6.18: ADMIN XEM TIẾT GIÁO VIÊN + QUẢN LÝ SỔ ĐÃ NHẬP -->
+              <div class="tab-pane fade" id="pills-admin-teacher-lessons-v704618" role="tabpanel" aria-labelledby="admin-teacher-lessons-tab-v704618">
+                <div class="mb-3">
+                  <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+                    <div><h5 class="fw-bold text-primary mb-1">Tiết giáo viên & quản lý Sổ đầu bài</h5><div class="small text-muted">Admin xem lịch dạy tuần của từng giáo viên theo ma trận giống “Tiết của tôi”, đồng thời tra cứu – xem – sửa – xóa các bản ghi giáo viên đã nhập. Tất cả thao tác sửa/xóa đều kiểm tra quyền tại server và ghi Audit.</div></div>
+                    <button class="btn btn-outline-primary btn-sm" type="button" onclick="initAdminTeacherLessonsV704618(true)">Làm mới GV</button>
+                  </div>
+                  <datalist id="adminTeacherDirectoryV704618"></datalist>
+
+                  <div class="card border-primary-subtle shadow-sm mb-4">
+                    <div class="card-header bg-primary-subtle"><strong>1. Xem giáo viên dạy trong tuần</strong></div>
+                    <div class="card-body">
+                      <div class="admin-teacher-admin-toolbar-v704618 mb-3">
+                        <div class="row g-2 align-items-end">
+                          <div class="col-lg-5"><label class="form-label small fw-bold">Giáo viên</label><input id="adminTeacherWeekTeacherV704618" class="form-control" list="adminTeacherDirectoryV704618" placeholder="Gõ tên giáo viên hoặc chọn trong danh sách"></div>
+                          <div class="col-sm-4 col-lg-2"><label class="form-label small fw-bold">Tuần</label><input id="adminTeacherWeekV704618" type="number" min="1" max="53" class="form-control"></div>
+                          <div class="col-sm-8 col-lg-3"><button type="button" class="btn btn-primary w-100 fw-bold" onclick="loadAdminTeacherWeekV704618()">Xem lịch dạy tuần</button></div>
+                          <div class="col-lg-2"><div id="adminTeacherLessonStatusV704618" class="small text-muted"></div></div>
+                        </div>
+                      </div>
+                      <div class="d-flex flex-wrap justify-content-between gap-2 align-items-center mb-2"><strong id="adminTeacherWeekRangeV704618">Chưa chọn giáo viên</strong><span class="small text-muted">Chỉ tính tiết thực dạy; không tính NGHỈ / GV VẮNG / BỎ TIẾT.</span></div>
+                      <div id="adminTeacherWeekMetricsV704618" class="my-lessons-metrics-v70468 mb-3"></div>
+                      <div id="adminTeacherWeekGridV704618"><div class="text-center text-muted py-4">Chọn giáo viên và tuần để xem.</div></div>
+                    </div>
+                  </div>
+
+                  <div class="card border-danger-subtle shadow-sm">
+                    <div class="card-header bg-danger-subtle d-flex flex-wrap justify-content-between align-items-center gap-2"><strong>2. Tra cứu / sửa / xóa Sổ đầu bài giáo viên đã nhập</strong><span class="badge text-bg-danger">ADMIN</span></div>
+                    <div class="card-body">
+                      <div class="alert alert-warning small py-2"><b>Phạm vi sửa an toàn:</b> Admin được sửa nội dung chuyên môn, điểm, nhận xét và vắng của lớp chính. <b>Lớp / Ngày / Buổi / Tiết / Giáo viên được khóa</b> để tránh làm hỏng khóa vật lý; nếu nhập sai vị trí, Admin xóa bản ghi rồi giáo viên nhập lại đúng vị trí. Điểm danh của nhóm GDTC/Chuyên đề không sửa tay tại đây.</div>
+                      <div class="row g-2 align-items-end mb-3">
+                        <div class="col-lg-4"><label class="form-label small fw-bold">Tên giáo viên</label><input id="adminSodbTeacherV704618" class="form-control" list="adminTeacherDirectoryV704618" placeholder="Gõ tên giáo viên"></div>
+                        <div class="col-6 col-lg-1"><label class="form-label small fw-bold">Tuần</label><input id="adminSodbWeekV704618" type="number" min="1" max="53" class="form-control"></div>
+                        <div class="col-6 col-lg-2"><label class="form-label small fw-bold">Tiết</label><select id="adminSodbPeriodV704618" class="form-select"><option value="0">Tất cả tiết</option><option value="1">Tiết 1</option><option value="2">Tiết 2</option><option value="3">Tiết 3</option><option value="4">Tiết 4</option></select></div>
+                        <div class="col-6 col-lg-2"><label class="form-label small fw-bold">Lớp (tùy chọn)</label><input id="adminSodbClassV704618" class="form-control" placeholder="VD: 10A01"></div>
+                        <div class="col-6 col-lg-2"><label class="form-label small fw-bold">Môn (tùy chọn)</label><input id="adminSodbSubjectV704618" class="form-control" placeholder="VD: Toán"></div>
+                        <div class="col-lg-1 d-grid"><button class="btn btn-danger fw-bold" type="button" onclick="searchAdminSodbRecordsV704618()">Tìm</button></div>
+                      </div>
+                      <div class="d-flex justify-content-between align-items-center mb-2"><strong>Kết quả</strong><span id="adminSodbRecordCountV704618" class="small text-muted">0 bản ghi</span></div>
+                      <div class="table-responsive" style="max-height:520px;overflow:auto">
+                        <table class="table table-sm table-hover table-bordered align-middle admin-sodb-record-table-v704618 mb-0"><thead class="table-light sticky-top"><tr><th>Ngày</th><th>Lớp</th><th>Buổi/Tiết</th><th>Môn</th><th>Tiết CT</th><th>Tên bài</th><th>Ký</th><th>Nhận xét</th><th>Cập nhật</th><th>Thao tác</th></tr></thead><tbody id="adminSodbRecordBodyV704618"><tr><td colspan="10" class="text-center text-muted py-4">Chọn giáo viên, tuần/tiết rồi bấm Tìm.</td></tr></tbody></table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div class="tab-pane fade" id="pills-account-permission-v69553" role="tabpanel" aria-labelledby="admin-account-permission-tab-v69553">
                 <div class="permission-admin-v69553">
                   <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
@@ -2354,13 +2405,44 @@
   </div>
 </div>
 
+
+<!-- V70.4.6.18: ADMIN XEM/SỬA SỔ ĐẦU BÀI -->
+<div class="modal fade" id="modalAdminSodbEditV704618" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white"><div><h5 class="modal-title fw-bold mb-0">Xem / chỉnh sửa Sổ đầu bài</h5><small id="adminEditRecordMetaV704618"></small></div><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="adminEditRecordIdV704618">
+        <div class="alert alert-info small py-2">Admin chỉ sửa nội dung của bản ghi tại đúng vị trí đã nhập. Chữ ký giáo viên gốc được giữ làm bằng chứng lịch sử; hệ thống ghi <b>Admin sửa sau chữ ký</b> vào Audit và đánh dấu dữ liệu BGH cần kiểm tra lại.</div>
+        <div class="row g-3">
+          <div class="col-md-3"><label class="form-label fw-semibold">Môn</label><input id="adminEditMonV704618" class="form-control"></div>
+          <div class="col-md-3"><label class="form-label fw-semibold">Tiết CT</label><input id="adminEditTietCTV704618" class="form-control"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Tên bài</label><input id="adminEditTenBaiV704618" class="form-control"></div>
+          <div class="col-12"><label class="form-label fw-semibold">Yêu cầu cần đạt</label><textarea id="adminEditYeuCauV704618" class="form-control" rows="2"></textarea></div>
+          <div class="col-md-2"><label class="form-label fw-semibold">Học tập</label><input id="adminEditHocTapV704618" type="number" min="0" max="10" step="0.1" class="form-control"></div>
+          <div class="col-md-2"><label class="form-label fw-semibold">Kỷ luật</label><input id="adminEditKyLuatV704618" type="number" min="0" max="10" step="0.1" class="form-control"></div>
+          <div class="col-md-2"><label class="form-label fw-semibold">Vệ sinh</label><input id="adminEditVeSinhV704618" type="number" min="0" max="10" step="0.1" class="form-control"></div>
+          <div class="col-md-2"><label class="form-label fw-semibold">Số HS vắng</label><input id="adminEditSoVangV704618" type="number" min="0" class="form-control"></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Tên HS vắng</label><input id="adminEditTenVangV704618" class="form-control"></div>
+          <div id="adminEditGroupNoteV704618" class="col-12 d-none"><div class="alert alert-warning small py-2 mb-0">Đây là tiết nhóm GDTC/Chuyên đề có điểm danh theo <code>sodb_group_absences</code>; danh sách vắng được khóa tại cửa sổ này để tránh lệch dữ liệu nhóm.</div></div>
+          <div class="col-12"><label class="form-label fw-semibold">Nhận xét</label><textarea id="adminEditNhanXetV704618" class="form-control" rows="2"></textarea></div>
+          <div class="col-lg-8"><label class="form-label fw-semibold">Lý do chỉnh sửa *</label><input id="adminEditReasonV704618" class="form-control" placeholder="Bắt buộc, ít nhất 5 ký tự"></div>
+          <div class="col-lg-4"><label class="form-label fw-semibold">Chữ ký giáo viên gốc</label><div id="adminEditSignatureV704618" class="border rounded p-2 text-center bg-light"></div></div>
+        </div>
+      </div>
+      <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button><button type="button" class="btn btn-primary fw-bold" id="btnAdminSaveSodbV704618" onclick="saveAdminSodbRecordV704618()">Lưu chỉnh sửa</button></div>
+    </div>
+  </div>
+</div>
+
 <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/sodb-v69-runtime.js?v=70.4.6.13"></script>
+<script src="assets/js/sodb-v69-runtime.js?v=70.4.6.18"></script>
 <script src="assets/js/app/sodb-v69-core.js?v=70.4.6.13"></script>
 <script src="assets/js/app/sodb-v69-khbd.js?v=70.4.6.13"></script>
-<script src="assets/js/app/sodb-v69-operations.js?v=70.4.6.17"></script>
+<script src="assets/js/app/sodb-v69-operations.js?v=70.4.6.20"></script>
 <script src="assets/js/app/sodb-v69-print.js?v=70.4.6.13"></script>
 <script src="assets/js/app/sodb-v69-admin.js?v=70.4.6.13"></script>
+<script src="assets/js/app/sodb-v69-admin-lessons.js?v=70.4.6.18"></script>
 <script src="assets/js/app/sodb-v70-lifecycle.js?v=70.4.6.13"></script>
 <script src="assets/js/app/sodb-v69-bgh.js?v=70.4.6.13"></script>
 <script src="assets/js/app/sodb-v69-masterdata.js?v=70.4.6.13"></script>

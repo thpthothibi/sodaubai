@@ -965,9 +965,9 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
       if (!plan) return null;
       return {
         tenBaiDay: plan.tenBai,
-        // V70.4.6.20: GDTC luôn lấy Tiết CT theo Tiết PPCT của đúng dòng KHBD.
-        // Các môn khác vẫn giữ quy tắc BH/CĐ từ Tên bài.
-        tietCT: lessonPeriodCodeV704620(plan) || document.getElementById('tietCT').value.trim(),
+        // V70.4.6.21: giá trị giáo viên đang nhập/đã chỉnh tay luôn được ưu tiên.
+        // Nếu ô Tiết CT chưa có giá trị thì mới dùng gợi ý tự động từ KHBD/PPCT.
+        tietCT: document.getElementById('tietCT').value.trim() || lessonPeriodCodeV704620(plan),
         // Không hiển thị ô YCCĐ ở tab nhập tiết; vẫn giữ dữ liệu KHBD tự động để tương thích dữ liệu cũ.
         yeuCauCanDat: plan.yeuCauCanDat || "",
         khbdId: plan.khbdId || plan.id || "",

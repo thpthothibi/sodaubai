@@ -1632,7 +1632,7 @@
                 <button class="nav-link" data-bs-toggle="pill" data-bs-target="#pills-classes" type="button">Danh mục lớp</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#pills-roster" type="button">Học sinh & phân nhóm</button>
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#pills-roster" type="button" onclick="studentAdminInitV704625()">Học sinh & phân nhóm</button>
               </li>
               <li class="nav-item" role="presentation">
                 <button class="nav-link" id="admin-teacher-lessons-tab-v704618" data-bs-toggle="pill" data-bs-target="#pills-admin-teacher-lessons-v704618" type="button" onclick="initAdminTeacherLessonsV704618(false)">Tiết giáo viên</button>
@@ -2079,7 +2079,27 @@
 
               <div class="tab-pane fade" id="pills-roster" role="tabpanel">
                 <h6 class="fw-bold mb-1">Học sinh & phân nhóm</h6><div class="small text-muted mb-3"><b>Supabase là nguồn chuẩn</b> cho học sinh lớp chính khóa và thành viên các lớp/nhóm Chuyên đề - GDTC.</div>
-                <div class="alert alert-light border py-2">File Excel: <b>Lớp | Mã HS | Họ tên | Trạng thái</b>.</div>
+
+                <div class="card border-primary-subtle mb-4">
+                  <div class="card-header bg-primary-subtle d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div><div class="fw-bold text-primary">Quản lý danh sách học sinh trực tiếp</div><div class="small text-muted">Chọn lớp, tìm theo mã/họ tên và Thêm · Sửa · Xóa ngay trên web.</div></div>
+                    <span id="studentAdminCountV704625" class="badge text-bg-primary">0 học sinh</span>
+                  </div>
+                  <div class="card-body">
+                    <div class="row g-2 align-items-end mb-3">
+                      <div class="col-md-4"><label class="form-label small fw-bold">Lớp</label><select id="studentAdminClassV704625" class="form-select" onchange="studentAdminLoadV704625(true)"><option value="">-- Chọn lớp --</option></select></div>
+                      <div class="col-md-4"><label class="form-label small fw-bold">Tìm học sinh</label><input id="studentAdminSearchV704625" class="form-control" placeholder="Nhập họ tên hoặc mã HS" oninput="studentAdminRenderV704625()"></div>
+                      <div class="col-md-4 d-flex gap-2"><button type="button" class="btn btn-outline-primary flex-fill" onclick="studentAdminInitV704625(true)">Làm mới</button><button type="button" class="btn btn-primary flex-fill fw-bold" onclick="studentAdminAddV704625()">+ Thêm học sinh</button></div>
+                    </div>
+                    <div id="studentAdminStatusV704625" class="small text-muted mb-2">Chọn lớp để tải danh sách học sinh.</div>
+                    <div class="table-responsive" style="max-height:460px">
+                      <table class="table table-sm table-bordered align-middle mb-0"><thead class="table-light position-sticky top-0"><tr><th style="width:52px" class="text-center">STT</th><th style="width:150px">Mã HS</th><th>Họ tên học sinh</th><th>Nhóm GDTC/Chuyên đề đang học</th><th style="width:220px">Thao tác</th></tr></thead><tbody id="studentAdminBodyV704625"><tr><td colspan="5" class="text-center text-muted py-4">Chọn lớp để tải dữ liệu.</td></tr></tbody></table>
+                    </div>
+                    <div class="alert alert-warning py-2 mt-3 mb-0 small"><b>Xóa an toàn:</b> hệ thống chuyển học sinh sang trạng thái nghỉ học thay vì xóa vật lý, giữ nguyên lịch sử điểm danh. Các nhóm GDTC/Chuyên đề đang hoạt động của học sinh sẽ được ngừng.</div>
+                  </div>
+                </div>
+
+                <div class="alert alert-light border py-2">Nhập hàng loạt bằng Excel: <b>Lớp | Mã HS | Họ tên | Trạng thái</b>.</div>
                 <div class="d-flex flex-wrap gap-2">
                   <button type="button" class="btn btn-outline-secondary" onclick="taiFileMauHSV4()">File mẫu HS</button>
                   <input type="file" id="hsFileV4" class="form-control" style="max-width:420px" accept=".xlsx,.xls" onchange="docFileExcelHSV4(event)">
@@ -2097,6 +2117,45 @@
                   <button type="button" class="btn btn-primary fw-bold" onclick="uploadDanhSachNhomV6951()">Lưu DS nhóm</button>
                 </div>
                 <div id="groupRosterPreviewV6951" class="small text-muted mt-2"></div>
+
+                <div class="modal fade" id="modalAdminStudentV704625" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+                    <div class="modal-header"><h5 class="modal-title" id="studentAdminModalTitleV704625">Học sinh</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                    <div class="modal-body">
+                      <input type="hidden" id="studentAdminEditIdV704625">
+                      <div class="mb-3"><label class="form-label fw-bold">Lớp</label><input id="studentAdminEditClassV704625" class="form-control" readonly></div>
+                      <div class="mb-3"><label class="form-label fw-bold">Mã học sinh</label><input id="studentAdminEditCodeV704625" class="form-control" placeholder="Để trống để tự tạo"></div>
+                      <div class="mb-2"><label class="form-label fw-bold">Họ tên học sinh <span class="text-danger">*</span></label><input id="studentAdminEditNameV704625" class="form-control" autocomplete="off" placeholder="Nhập đầy đủ họ và tên"></div>
+                      <div id="studentAdminModalHelpV704625" class="small text-muted"></div>
+                    </div>
+                    <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Đóng</button><button type="button" id="btnAdminStudentSaveV704625" class="btn btn-primary fw-bold" onclick="studentAdminSaveV704625()">Lưu học sinh</button></div>
+                  </div></div>
+                </div>
+
+                <div class="modal fade" id="modalAdminStudentTransferV704626" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+                    <div class="modal-header"><h5 class="modal-title">Chuyển lớp học sinh</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                    <div class="modal-body">
+                      <input type="hidden" id="studentTransferIdV704626">
+                      <div class="alert alert-info py-2 small mb-3"><b>Giữ lịch sử:</b> học sinh ở lớp cũ được chuyển trạng thái <code>CHUYEN_LOP</code>, không xóa dữ liệu điểm danh/Sổ đầu bài cũ. Lớp mới nhận cùng Mã HS.</div>
+                      <div class="row g-2 mb-3">
+                        <div class="col-md-6"><label class="form-label fw-bold">Học sinh</label><input id="studentTransferNameV704626" class="form-control" readonly></div>
+                        <div class="col-md-6"><label class="form-label fw-bold">Mã HS</label><input id="studentTransferCodeV704626" class="form-control" readonly></div>
+                      </div>
+                      <div class="row g-2 mb-3">
+                        <div class="col-md-6"><label class="form-label fw-bold">Lớp hiện tại</label><input id="studentTransferFromV704626" class="form-control" readonly></div>
+                        <div class="col-md-6"><label class="form-label fw-bold">Chuyển đến lớp <span class="text-danger">*</span></label><select id="studentTransferToV704626" class="form-select"><option value="">-- Chọn lớp mới --</option></select></div>
+                      </div>
+                      <div class="row g-2 mb-3">
+                        <div class="col-md-6"><label class="form-label fw-bold">Ngày chuyển lớp <span class="text-danger">*</span></label><input id="studentTransferDateV704626" type="date" class="form-control"></div>
+                        <div class="col-md-6"><label class="form-label fw-bold">Xử lý nhóm GDTC/Chuyên đề</label><div class="form-check border rounded p-2 ps-5"><input class="form-check-input" type="checkbox" id="studentTransferKeepGroupsV704626"><label class="form-check-label small" for="studentTransferKeepGroupsV704626">Giữ nguyên các nhóm hiện tại và đổi lớp chủ nhiệm sang lớp mới từ ngày chuyển.</label></div></div>
+                      </div>
+                      <div class="mb-2"><label class="form-label fw-bold">Lý do chuyển lớp <span class="text-danger">*</span></label><input id="studentTransferReasonV704626" class="form-control" maxlength="300" placeholder="VD: Chuyển lớp theo quyết định của nhà trường"></div>
+                      <div class="small text-muted">Mặc định không tích “Giữ nguyên nhóm”: các nhóm GDTC/Chuyên đề hiện tại sẽ được kết thúc/ngừng để Admin phân nhóm lại cho phù hợp lớp mới.</div>
+                    </div>
+                    <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button><button type="button" id="btnStudentTransferV704626" class="btn btn-warning fw-bold" onclick="studentAdminTransferSaveV704626()">Xác nhận chuyển lớp</button></div>
+                  </div></div>
+                </div>
               </div>
 
               <div class="tab-pane fade" id="pills-requests" role="tabpanel">
@@ -2443,6 +2502,7 @@
 <script src="assets/js/app/sodb-v69-operations.js?v=70.4.6.21"></script>
 <script src="assets/js/app/sodb-v69-print.js?v=70.4.6.13"></script>
 <script src="assets/js/app/sodb-v69-admin.js?v=70.4.6.13"></script>
+<script src="assets/js/app/sodb-v69-admin-students.js?v=70.4.6.26"></script>
 <script src="assets/js/app/sodb-v69-admin-lessons.js?v=70.4.6.18"></script>
 <script src="assets/js/app/sodb-v70-lifecycle.js?v=70.4.6.13"></script>
 <script src="assets/js/app/sodb-v69-bgh.js?v=70.4.6.13"></script>
@@ -2452,7 +2512,7 @@
 <script src="assets/js/app/sodb-v69-v695.js?v=70.4.6.13"></script>
 <script src="assets/js/app/sodb-v69-v6951.js?v=70.4.6.17"></script>
 <script src="assets/js/app/sodb-v69-ux.js?v=70.4.6.13"></script>
-<script src="assets/js/sodb-v69-gvcn.js?v=70.4.6.13"></script>
+<script src="assets/js/sodb-v69-gvcn.js?v=70.4.6.27"></script>
 <script src="assets/js/sodb-v69-reports.js?v=70.4.6.13"></script>
 <script src="assets/js/app/sodb-v69-my-lessons.js?v=70.4.6.13"></script>
 

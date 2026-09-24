@@ -129,8 +129,15 @@ async function refreshGroupAttendanceV6951(preserveIds){
   if(metaEl)metaEl.textContent='Đang xác định loại lớp và tải danh sách điểm danh từ Supabase...';
   if(listEl)listEl.innerHTML='<div class="text-center text-muted py-3"><span class="spinner-border spinner-border-sm me-2"></span>Đang tải danh sách...</div>';
   try{
-    // V70.1.3: luôn gọi một RPC. Edge tự xác định Lớp chính / Chuyên đề / GDTC từ danh mục lớp Supabase.
-    const r=await callSodbEdgeRpcV67('layDanhSachHocSinhLopV701',[lop,date,{token:gvbmDangNhapInfo.sessionToken}]);
+    // V70.4.6.28: gửi đủ slot để Edge có thể xác thực hồ sơ DẠY THAY đã duyệt.
+    // Giáo viên dạy thay chỉ được xem/điểm danh đúng lớp + ngày + buổi + tiết của hồ sơ điều hành.
+    const attendanceCtxV704628={
+      buoi:String(document.getElementById('buoiDay')?.value||'Sáng'),
+      tiet:Number(document.getElementById('tietDay')?.value||0),
+      mon:String((typeof getEffectiveMonHocV25==='function'?getEffectiveMonHocV25():document.getElementById('monHoc')?.value)||''),
+      operationId:String((typeof currentInputOperationV693!=='undefined'&&currentInputOperationV693?.id)||'')
+    };
+    const r=await callSodbEdgeRpcV67('layDanhSachHocSinhLopV701',[lop,date,attendanceCtxV704628,{token:gvbmDangNhapInfo.sessionToken}]);
     if(requestSeq!==groupRosterRequestSeqV6951)return;
     if(!r?.success)throw new Error(r?.message||'Không tải được danh sách học sinh.');
     const type=String(r.loaiNhom||'LOP_CHINH').toUpperCase();
@@ -150,9 +157,10 @@ async function refreshGroupAttendanceV6951(preserveIds){
       completeEl.checked=attendanceRosterReadyV7013&&(preserveArray?preserveArray.length===0:true);
     }
     if(metaEl){
-      if(type==='GDTC')metaEl.textContent=attendanceRosterReadyV7013?`GDTC ${lop}${r.subject?' · '+r.subject:''} · ${groupRosterV6951.length} học sinh · danh sách hiệu lực ngày ${date.split('-').reverse().join('/')}.${r.rosterSource==='MAIN_CLASS_SAME_NAME_FALLBACK'?' · Dùng DS lớp chính cùng tên.':''}`:attendanceRosterMessageV7013;
-      else if(type==='CHUYEN_DE')metaEl.textContent=attendanceRosterReadyV7013?`Chuyên đề ${lop}${r.subject?' · '+r.subject:''} · ${groupRosterV6951.length} học sinh · danh sách hiệu lực ngày ${date.split('-').reverse().join('/')}.`:attendanceRosterMessageV7013;
-      else metaEl.textContent=attendanceRosterReadyV7013?`Lớp chính khóa ${lop} · ${groupRosterV6951.length} học sinh · nguồn Supabase.`:attendanceRosterMessageV7013;
+      const substituteAttendanceNoteV704628=r.attendanceAuthorization==='DAY_THAY_OPERATION'?' · Quyền điểm danh: DẠY THAY đã duyệt.':'';
+      if(type==='GDTC')metaEl.textContent=attendanceRosterReadyV7013?`GDTC ${lop}${r.subject?' · '+r.subject:''} · ${groupRosterV6951.length} học sinh · danh sách hiệu lực ngày ${date.split('-').reverse().join('/')}.${r.rosterSource==='MAIN_CLASS_SAME_NAME_FALLBACK'?' · Dùng DS lớp chính cùng tên.':''}${substituteAttendanceNoteV704628}`:attendanceRosterMessageV7013;
+      else if(type==='CHUYEN_DE')metaEl.textContent=attendanceRosterReadyV7013?`Chuyên đề ${lop}${r.subject?' · '+r.subject:''} · ${groupRosterV6951.length} học sinh · danh sách hiệu lực ngày ${date.split('-').reverse().join('/')}.${substituteAttendanceNoteV704628}`:attendanceRosterMessageV7013;
+      else metaEl.textContent=attendanceRosterReadyV7013?`Lớp chính khóa ${lop} · ${groupRosterV6951.length} học sinh · nguồn Supabase.${r.attendanceAuthorization==='DAY_THAY_OPERATION'?' · Quyền điểm danh: DẠY THAY đã duyệt.':''}`:attendanceRosterMessageV7013;
     }
     renderGroupAttendanceV6951();
   }catch(e){

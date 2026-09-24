@@ -2039,6 +2039,12 @@
                     <div class="col-md-4"><label class="form-label small fw-bold">Sửa riêng 1 lớp / nhóm</label><select id="validatorTargetV7045" class="form-select" onchange="renderCauHinhKiemTraTuanV7045()"><option value="">-- Chọn --</option></select></div>
                     <div class="col-md-6 d-flex flex-wrap gap-2"><button type="button" class="btn btn-outline-primary flex-fill" onclick="mauKhungSang4TietV7045()">Sáng 1–4</button><button type="button" class="btn btn-outline-primary flex-fill" onclick="mauKhungChieu4TietV7046()">Chiều 1–4</button><button type="button" class="btn btn-outline-primary flex-fill" onclick="mauKhungCaHai4TietV7046()">Sáng + Chiều</button><button type="button" class="btn btn-outline-danger" onclick="xoaChonKhungV7045()">Bỏ chọn</button><button type="button" class="btn btn-primary fw-bold" onclick="luuCauHinhKiemTraTuanV7045()">Lưu 1</button></div>
                   </div>
+                  <div class="row g-2 align-items-end mb-3 border rounded bg-light p-2">
+                    <div class="col-md-4"><label class="form-label small fw-bold">Tuần áp dụng</label><select id="validatorWeekV704629" class="form-select" onchange="validatorWeekChangedV704629()"><option value="">Mặc định (các tuần chưa khai báo riêng)</option></select></div>
+                    <div class="col-md-4 d-flex gap-2"><button type="button" class="btn btn-outline-primary flex-fill" onclick="validatorToggleMultiWeeksV704629()">Chọn áp dụng nhiều tuần</button><button type="button" class="btn btn-outline-secondary" onclick="validatorClearMultiWeeksV704629()">Xóa chọn tuần</button></div>
+                    <div class="col-md-4"><div class="small text-muted">Phạm vi lưu</div><span id="validatorWeekCountV704629" class="badge text-bg-primary">Khung mặc định</span></div>
+                    <div class="col-12 d-none" id="validatorMultiWeekPanelV704629"><div class="d-flex flex-wrap gap-2 mb-2"><button class="btn btn-sm btn-outline-secondary" type="button" onclick="validatorSelectWeekRangeV704629(1,18)">Tuần 1–18</button><button class="btn btn-sm btn-outline-secondary" type="button" onclick="validatorSelectWeekRangeV704629(19,35)">Tuần 19–35</button></div><div id="validatorMultiWeekListV704629" style="max-height:180px;overflow:auto"></div><div class="small text-muted mt-1">Nếu chọn nhiều tuần, nút Lưu/Áp dụng nhiều lớp sẽ ghi cùng ma trận cho tất cả tuần đã chọn.</div></div>
+                  </div>
                   <div id="validatorBulkClassPanelV7046" class="border rounded bg-light p-3 mb-3">
                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
                       <div><div class="fw-bold text-primary">Đăng ký khung kiểm tra GVCN cho nhiều lớp</div><div class="small text-muted">Chọn nhiều lớp chính rồi áp dụng cùng ma trận Sáng/Chiều một lần. Không ảnh hưởng lịch nhóm GDTC/Chuyên đề.</div></div>
@@ -2096,6 +2102,29 @@
                       <table class="table table-sm table-bordered align-middle mb-0"><thead class="table-light position-sticky top-0"><tr><th style="width:52px" class="text-center">STT</th><th style="width:150px">Mã HS</th><th>Họ tên học sinh</th><th>Nhóm GDTC/Chuyên đề đang học</th><th style="width:220px">Thao tác</th></tr></thead><tbody id="studentAdminBodyV704625"><tr><td colspan="5" class="text-center text-muted py-4">Chọn lớp để tải dữ liệu.</td></tr></tbody></table>
                     </div>
                     <div class="alert alert-warning py-2 mt-3 mb-0 small"><b>Xóa an toàn:</b> hệ thống chuyển học sinh sang trạng thái nghỉ học thay vì xóa vật lý, giữ nguyên lịch sử điểm danh. Các nhóm GDTC/Chuyên đề đang hoạt động của học sinh sẽ được ngừng.</div>
+                  </div>
+                </div>
+
+
+                <div class="card border-warning-subtle mb-4">
+                  <div class="card-header bg-warning-subtle d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div><div class="fw-bold text-dark">Ngoại lệ học sinh theo tiết</div><div class="small text-muted">Dùng cho HS không tham gia nhóm / ngồi chờ. Không tạo tiết giả, không tính vắng, không tính tiết GV.</div></div>
+                    <span id="studentExceptionWeekCountV704629" class="badge text-bg-warning">Chưa chọn tuần</span>
+                  </div>
+                  <div class="card-body">
+                    <div class="row g-2 align-items-end">
+                      <div class="col-md-3"><label class="form-label small fw-bold">Lớp chủ nhiệm</label><select id="studentExceptionClassV704629" class="form-select" onchange="studentExceptionLoadV704629()"><option value="">-- Chọn lớp --</option></select></div>
+                      <div class="col-md-2"><label class="form-label small fw-bold">Tuần</label><select id="studentExceptionWeekV704629" class="form-select" onchange="studentExceptionClearMultiWeeksV704629();studentExceptionLoadV704629()"><option value="">-- Tuần --</option></select></div>
+                      <div class="col-md-2"><label class="form-label small fw-bold">Thứ</label><select id="studentExceptionThuV704629" class="form-select" onchange="studentExceptionLoadV704629()"><option value="2">Thứ 2</option><option value="3">Thứ 3</option><option value="4">Thứ 4</option><option value="5">Thứ 5</option><option value="6">Thứ 6</option><option value="7">Thứ 7</option></select></div>
+                      <div class="col-md-2"><label class="form-label small fw-bold">Buổi</label><select id="studentExceptionBuoiV704629" class="form-select" onchange="studentExceptionLoadV704629()"><option value="SANG">Sáng</option><option value="CHIEU">Chiều</option></select></div>
+                      <div class="col-md-1"><label class="form-label small fw-bold">Tiết</label><select id="studentExceptionTietV704629" class="form-select" onchange="studentExceptionLoadV704629()"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+                      <div class="col-md-2"><button type="button" class="btn btn-outline-warning w-100" onclick="studentExceptionToggleWeeksV704629()">Áp dụng nhiều tuần</button></div>
+                    </div>
+                    <div id="studentExceptionMultiWeekPanelV704629" class="d-none border rounded bg-light p-2 mt-2"><div id="studentExceptionMultiWeekListV704629" style="max-height:160px;overflow:auto"></div><button type="button" class="btn btn-sm btn-outline-secondary mt-1" onclick="studentExceptionClearMultiWeeksV704629()">Bỏ chọn nhiều tuần</button></div>
+                    <div class="row g-2 mt-1 align-items-end"><div class="col-md-8"><label class="form-label small fw-bold">Lý do</label><input id="studentExceptionReasonV704629" class="form-control" value="Ngồi chờ / không tham gia nhóm" placeholder="VD: Ngồi chờ tiết 1"></div><div class="col-md-4 d-flex gap-2"><button type="button" class="btn btn-outline-secondary flex-fill" onclick="studentExceptionSelectAllV704629(false)">Bỏ chọn HS</button><button type="button" class="btn btn-warning flex-fill fw-bold" onclick="studentExceptionSaveV704629()">Lưu ngoại lệ</button></div></div>
+                    <div id="studentExceptionStatusV704629" class="small text-muted my-2">Chọn đủ Lớp · Tuần · Thứ · Buổi · Tiết để tải danh sách.</div>
+                    <div class="table-responsive" style="max-height:360px"><table class="table table-sm table-bordered align-middle mb-0"><thead class="table-light position-sticky top-0"><tr><th style="width:52px">STT</th><th style="width:150px">Mã HS</th><th>Họ tên</th><th style="width:130px" class="text-center">Không tham gia nhóm</th></tr></thead><tbody id="studentExceptionBodyV704629"><tr><td colspan="4" class="text-center text-muted py-3">Chưa tải dữ liệu.</td></tr></tbody></table></div>
+                    <div class="alert alert-info py-2 mt-2 mb-0 small">Khi GVCN kiểm tra tuần: <b>độ phủ = HS trong các nhóm + HS ngoại lệ hợp lệ</b>. Ví dụ 43 HS học nhóm + 2 HS ngồi chờ = 45/45, không chặn ký tuần.</div>
                   </div>
                 </div>
 
@@ -2501,21 +2530,21 @@
 <script src="assets/js/app/sodb-v69-khbd.js?v=70.4.6.13"></script>
 <script src="assets/js/app/sodb-v69-operations.js?v=70.4.6.21"></script>
 <script src="assets/js/app/sodb-v69-print.js?v=70.4.6.13"></script>
-<script src="assets/js/app/sodb-v69-admin.js?v=70.4.6.13"></script>
+<script src="assets/js/app/sodb-v69-admin.js?v=70.4.6.29"></script>
 <script src="assets/js/app/sodb-v69-admin-students.js?v=70.4.6.26"></script>
 <script src="assets/js/app/sodb-v69-admin-lessons.js?v=70.4.6.18"></script>
 <script src="assets/js/app/sodb-v70-lifecycle.js?v=70.4.6.13"></script>
 <script src="assets/js/app/sodb-v69-bgh.js?v=70.4.6.13"></script>
 <script src="assets/js/app/sodb-v69-masterdata.js?v=70.4.6.13"></script>
-<script src="assets/js/app/sodb-v69-control.js?v=70.4.6.13"></script>
+<script src="assets/js/app/sodb-v69-control.js?v=70.4.6.29"></script>
 <script src="assets/js/app/sodb-v69-v694.js?v=70.4.6.13"></script>
 <script src="assets/js/app/sodb-v69-v695.js?v=70.4.6.13"></script>
-<script src="assets/js/app/sodb-v69-v6951.js?v=70.4.6.17"></script>
+<script src="assets/js/app/sodb-v69-v6951.js?v=70.4.6.29"></script>
 <script src="assets/js/app/sodb-v69-ux.js?v=70.4.6.13"></script>
 <script src="assets/js/sodb-v69-gvcn.js?v=70.4.6.27"></script>
 <script src="assets/js/sodb-v69-reports.js?v=70.4.6.13"></script>
 <script src="assets/js/app/sodb-v69-my-lessons.js?v=70.4.6.13"></script>
 
-<script src="assets/js/app/sodb-workspace.js?v=70.4.6.13"></script>
+<script src="assets/js/app/sodb-workspace.js?v=70.4.6.29"></script>
 </body>
 </html>

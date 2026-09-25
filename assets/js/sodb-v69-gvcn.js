@@ -62,63 +62,65 @@
       return `<tr class="${signed?'':'gvcn-row-unsigned-v681'}"><td class="fw-semibold text-nowrap">${escapeHtml(gvcnSlotLabelV681(k))}</td><td>${statusBadge}${escapeHtml(mons)}</td><td>${escapeHtml(teachers)}</td><td>${escapeHtml(lessons)}</td><td class="text-nowrap">${signed?'<span class="badge text-bg-success">Đã ký</span>':'<span class="badge text-bg-warning">Chưa ký</span>'}</td></tr>`;
     }).join('');
   }
-  function gvcnIssueTitleV704644(code){
-    const map={
-      WEEK_SLOT_CONFIG_MISSING:'Chưa khai báo khung kiểm tra tuần',
-      MISSING_SLOT:'Thiếu tiết cần kiểm tra',
-      DUPLICATE_SLOT:'Có nhiều bản ghi cùng một ô tiết',
-      MIXED_INCOMPLETE:'Tiết trộn chưa hoàn tất',
-      UNSIGNED_LESSON:'Giáo viên chưa ký tiết',
-      GROUP_COVERAGE_INCOMPLETE:'Chưa phủ đủ học sinh của lớp',
-      GROUP_COVERAGE_MISMATCH:'Phân nhóm chưa khớp sĩ số lớp',
-      GROUP_COVERAGE_DUPLICATE:'Học sinh đang bị trùng nhóm',
-      SKIPPED_PERIOD:'Ô tiết đang ở trạng thái bỏ tiết',
-      TEACHER_ABSENT_UNRESOLVED:'Giáo viên vắng chưa được xử lý',
-      GROUP_SLOT_AUTO_DETECTED:'Khung nhóm chưa được khai báo đầy đủ',
-      STUDENT_SLOT_EXCEPTION:'Ngoại lệ học sinh đã được tính hợp lệ',
-      STUDENT_EXCEPTION_OVERLAP:'Học sinh vừa thuộc nhóm vừa có ngoại lệ',
-      STUDENT_EXCEPTION_STALE:'Ngoại lệ học sinh không còn phù hợp',
-      EXCUSED_NO_CLASS:'Ô tiết nghỉ hợp lệ'
-    };
-    return map[String(code||'')]||'Nội dung cần kiểm tra';
-  }
-  function gvcnHumanIssueLocationV704644(x){
-    const date=String(x?.date||String(x?.location||'').split(' · ')[0]||'').trim();
-    const session=String(x?.session||'').toUpperCase()==='CHIEU'?'Chiều':(String(x?.session||'').toUpperCase()==='SANG'?'Sáng':'');
-    const period=Number(x?.period||0);
+  const GVCN_ISSUE_TITLES_V704644={
+    WEEK_SLOT_CONFIG_MISSING:'Chưa cấu hình khung kiểm tra',
+    MISSING_SLOT:'Thiếu dữ liệu tiết học',
+    DUPLICATE_SLOT:'Trùng dữ liệu cùng ô tiết',
+    MIXED_INCOMPLETE:'Tiết trộn chưa hoàn tất',
+    UNSIGNED_LESSON:'Giáo viên chưa ký',
+    GROUP_COVERAGE_INCOMPLETE:'Chưa phủ đủ học sinh của lớp',
+    GROUP_COVERAGE_MISMATCH:'Phân nhóm chưa khớp sĩ số lớp',
+    GROUP_COVERAGE_DUPLICATE:'Học sinh đang trùng nhóm',
+    GROUP_MEMBER_STALE:'Nhóm còn học sinh không thuộc lớp hiện tại',
+    STUDENT_SLOT_EXCEPTION:'Ngoại lệ học sinh hợp lệ',
+    STUDENT_EXCEPTION_OVERLAP:'Học sinh vừa thuộc nhóm vừa được khai báo ngoại lệ',
+    STUDENT_EXCEPTION_STALE:'Ngoại lệ học sinh không còn phù hợp',
+    SKIPPED_PERIOD:'Tiết đang được ghi nhận bỏ tiết',
+    TEACHER_ABSENT_UNRESOLVED:'Giáo viên vắng chưa có xử lý thay thế',
+    GROUP_SLOT_AUTO_DETECTED:'Đã tự nhận diện tiết nhóm',
+    EXCUSED_NO_CLASS:'Nghỉ hợp lệ'
+  };
+  function gvcnIssueTitleV704644(x){return GVCN_ISSUE_TITLES_V704644[String(x?.code||'')]||'Cần kiểm tra';}
+  function gvcnIssueSlotLabelV704644(x){
+    const date=String(x?.date||'').slice(0,10),session=String(x?.session||'').toUpperCase()==='CHIEU'?'Chiều':'Sáng',period=Number(x?.period||0);
     let day='';
-    if(/^\d{4}-\d{2}-\d{2}$/.test(date)){
-      const d=new Date(date+'T00:00:00');
-      day=['Chủ Nhật','Thứ 2','Thứ 3','Thứ 4','Thứ 5','Thứ 6','Thứ 7'][d.getDay()]||'';
-      const [y,m,dd]=date.split('-');
-      return `${day}${session?` · ${session}`:''}${period?` · Tiết ${period}`:''} <span class="text-muted fw-normal">(${dd}/${m}/${y})</span>`;
-    }
-    return escapeHtml(String(x?.location||''));
+    if(date){try{const d=new Date(date+'T00:00:00');day=['Chủ Nhật','Thứ 2','Thứ 3','Thứ 4','Thứ 5','Thứ 6','Thứ 7'][d.getDay()]||'';}catch(_e){}}
+    const vnDate=date&&/^\d{4}-\d{2}-\d{2}$/.test(date)?date.slice(8,10)+'/'+date.slice(5,7)+'/'+date.slice(0,4):'';
+    return [day,session,period?`Tiết ${period}`:'',vnDate].filter(Boolean).join(' · ');
+  }
+  async function gvcnOpenIssueSlotV704644(date,session,period){
+    await moSoTuGvcnV681();
+    const iso=String(date||'').slice(0,10),sess=String(session||'').toUpperCase()==='CHIEU'?'Chieu':'Sang',p=Number(period||0);
+    if(!iso||!p)return;
+    let day='';try{const d=new Date(iso+'T00:00:00');day=['Chủ Nhật','Thứ 2','Thứ 3','Thứ 4','Thứ 5','Thứ 6','Thứ 7'][d.getDay()]||'';}catch(_e){}
+    const key=`${day}_${sess}_${p}`;
+    setTimeout(()=>{
+      const cell=[...document.querySelectorAll('[data-input-cell]')].find(el=>String(el.dataset.inputCell||'')===key);
+      if(cell){cell.scrollIntoView({behavior:'smooth',block:'center',inline:'center'});cell.classList.add('border','border-danger','border-3');setTimeout(()=>cell.classList.remove('border','border-danger','border-3'),3500);}
+      if(typeof showToastV9==='function')showToastV9(`Đã mở ${day} · ${sess==='Chieu'?'Chiều':'Sáng'} · Tiết ${p}.`,'info');
+    },250);
   }
   function gvcnRenderIssueV704627(x){
     const sev=String(x?.severity||'INFO'),blocking=sev==='BLOCKING',warning=sev==='WARNING';
     const cls=blocking?'bg-danger-subtle border-danger-subtle':warning?'bg-warning-subtle border-warning-subtle':'bg-light';
     const icon=blocking?'🔴':warning?'🟠':'ℹ️';
     const row=(label,value,kind='')=>value?`<div class="small mt-1 ${kind}"><span class="fw-semibold">${label}:</span> ${escapeHtml(String(value))}</div>`:'';
-    const missing=Array.isArray(x?.missingStudents)&&x.missingStudents.length?x.missingStudents.map(s=>`${s.hoTen||s.maHS}${s.maHS?` (${s.maHS})`:''}`).join(', '):'';
-    const dup=Array.isArray(x?.duplicateStudents)&&x.duplicateStudents.length?x.duplicateStudents.map(s=>`${s.hoTen||s.maHS}${s.maHS?` (${s.maHS})`:''}${s.count?` ×${s.count}`:''}`).join(', '):'';
-    const extra=Array.isArray(x?.extraStudents)&&x.extraStudents.length?x.extraStudents.map(s=>`${s.hoTen||s.maHS}${s.maHS?` (${s.maHS})`:''}`).join(', '):'';
-    const groups=Array.isArray(x?.groups)&&x.groups.length?x.groups.join(', '):'';
-    const loc=gvcnHumanIssueLocationV704644(x);
-    const coverage=(Number.isFinite(Number(x?.covered))&&Number.isFinite(Number(x?.total)))?`${Number(x.covered)}/${Number(x.total)} học sinh`:'';
+    const studentName=s=>String(s?.hoTen||s?.maHS||'').trim();
+    const missing=Array.isArray(x?.missingStudents)&&x.missingStudents.length?x.missingStudents.map(studentName).filter(Boolean).join(', '):'';
+    const dup=Array.isArray(x?.duplicateStudents)&&x.duplicateStudents.length?x.duplicateStudents.map(s=>`${studentName(s)}${s?.count?` ×${s.count}`:''}`).filter(Boolean).join(', '):'';
+    const extra=Array.isArray(x?.extraStudents)&&x.extraStudents.length?x.extraStudents.map(studentName).filter(Boolean).join(', '):'';
+    const slot=gvcnIssueSlotLabelV704644(x);
+    const canOpen=!!String(x?.date||'').trim()&&Number(x?.period||0)>0;
+    const action=canOpen?`<button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="gvcnOpenIssueSlotV704644('${escapeHtml(String(x.date||''))}','${escapeHtml(String(x.session||''))}',${Number(x.period||0)})">Xem tiết</button>`:'';
     return `<div class="border rounded p-2 ${cls}">
-      <div class="d-flex align-items-start justify-content-between gap-2 flex-wrap">
-        <div><span class="fw-bold">${icon} ${escapeHtml(gvcnIssueTitleV704644(x?.code))}</span>${loc?` · <span class="fw-semibold">${loc}</span>`:''}</div>
-        ${blocking||warning?'<button type="button" class="btn btn-sm btn-outline-primary" onclick="moSoTuGvcnV681()">Xem sổ tuần</button>':''}
-      </div>
-      ${coverage?row('Độ phủ',coverage,blocking?'text-danger-emphasis':'') : ''}
-      ${groups?row('Nhóm liên quan',groups):''}
-      ${missing?row(`Học sinh chưa được phủ${x?.missingCount?` (${x.missingCount})`:''}`,missing,'text-danger-emphasis'):''}
-      ${dup?row('Học sinh đang bị trùng nhóm',dup,'text-warning-emphasis'):''}
-      ${extra?row(`Học sinh không còn thuộc lớp nhưng vẫn còn trong nhóm${x?.extraCount?` (${x.extraCount})`:''}`,extra,'text-warning-emphasis'):''}
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-2"><div><span class="fw-bold">${icon} ${escapeHtml(gvcnIssueTitleV704644(x))}</span>${slot?`<div class="small fw-semibold mt-1">${escapeHtml(slot)}</div>`:''}</div>${action}</div>
+      <div class="small mt-1">${escapeHtml(x?.message||'')}</div>
       ${row('Nguyên nhân',x?.reason)}
       ${row('Cần kiểm tra',x?.checkAt,'text-primary-emphasis')}
       ${row('Cách xử lý',x?.fix,'text-success-emphasis')}
+      ${missing?row(`Học sinh chưa được phủ${x?.missingCount?` (${x.missingCount})`:''}`,missing,'text-danger-emphasis'):''}
+      ${dup?row('Học sinh đang bị trùng nhóm',dup,'text-warning-emphasis'):''}
+      ${extra?row(`Học sinh còn sót trong nhóm${x?.extraCount?` (${x.extraCount})`:''}`,extra,'text-warning-emphasis'):''}
     </div>`;
   }
   function gvcnRenderValidationV7045(v){
@@ -131,13 +133,9 @@
     const pass=String(v.status)==='PASS',fresh=!!v.storedFresh;
     if(summary){summary.className='alert '+(pass?(fresh?'alert-success':'alert-info'):'alert-warning')+' border py-2 mb-2';summary.innerHTML=pass?(fresh?`<b>ĐẠT</b> · ${v.validSlots}/${v.expectedSlots} ô hợp lệ · Đã kiểm tra ${escapeHtml(v.checkedAt||'')}`:`<b>Dữ liệu hiện tại đạt</b> ${v.validSlots}/${v.expectedSlots}, nhưng GVCN cần bấm <b>Kiểm tra sổ tuần</b> để xác nhận trước khi ký.`):`<b>CHƯA ĐẠT</b> · ${v.validSlots}/${v.expectedSlots} ô hợp lệ · ${v.blockingCount} lỗi chặn${v.warningCount?` · ${v.warningCount} cảnh báo`:''}. <span class="d-block small mt-1">Mỗi lỗi bên dưới ghi rõ nguyên nhân, vị trí cần kiểm tra và cách xử lý.</span>`;}
     const list=Array.isArray(v.issues)?v.issues:[];
-    const blockingList=list.filter(x=>x?.severity==='BLOCKING');
-    const warningList=list.filter(x=>x?.severity==='WARNING');
-    const usefulInfo=list.filter(x=>x?.severity==='INFO'&&['STUDENT_SLOT_EXCEPTION','EXCUSED_NO_CLASS'].includes(String(x?.code||'')));
-    const autoDetectedCount=list.filter(x=>String(x?.code||'')==='GROUP_SLOT_AUTO_DETECTED').length;
-    const ordered=[...blockingList,...warningList,...usefulInfo];
-    const autoNote=autoDetectedCount?`<div class="alert alert-info py-2 mt-2 mb-0 small">Có ${autoDetectedCount} ô GDTC/Chuyên đề đang được hệ thống tự nhận diện. Admin nên khai báo khung nhóm để kết quả kiểm tra ổn định hơn.</div>`:'';
-    if(issues)issues.innerHTML=ordered.length?`<div class="vstack gap-2">${ordered.slice(0,50).map(gvcnRenderIssueV704627).join('')}</div>${ordered.length>50?`<div class="text-muted mt-2">Còn ${ordered.length-50} mục khác; xử lý các lỗi chặn trước rồi bấm Kiểm tra sổ tuần lại.</div>`:''}${autoNote}`:`<div class="text-success fw-semibold">✓ Không có lỗi cần xử lý.</div>${autoNote}`;
+    const blockingList=list.filter(x=>x?.severity==='BLOCKING'),warningList=list.filter(x=>x?.severity==='WARNING'),infoList=list.filter(x=>x?.severity==='INFO');
+    const ordered=[...blockingList,...warningList];
+    if(issues)issues.innerHTML=ordered.length?`<div class="vstack gap-2">${ordered.slice(0,50).map(gvcnRenderIssueV704627).join('')}</div>${ordered.length>50?`<div class="text-muted mt-2">Còn ${ordered.length-50} mục khác; xử lý các lỗi chặn trước rồi bấm Kiểm tra sổ tuần lại.</div>`:''}${infoList.length?`<div class="small text-muted mt-2">${infoList.length} thông tin hợp lệ đã được hệ thống tự xử lý và không chặn ký tuần.</div>`:''}`:'<div class="text-success fw-semibold">✓ Không có lỗi cần xử lý.</div>';
   }
   async function kiemTraSoTuanGVCNV7045(persist=true){
     if(!gvcnDangNhapInfo?.sessionToken)return;
@@ -149,7 +147,7 @@
     const btn=document.getElementById('gvcnCloseBtnV681'),hint=document.getElementById('gvcnCloseHintV681'),v=gvcnLastValidationV7045,chot=gvcnLastCloseV681;
     const canClose=!chot&&v&&v.status==='PASS'&&v.storedFresh===true;
     if(btn){btn.disabled=!canClose;btn.textContent=chot?'Đã ký chốt':canClose?'Ký chốt tuần':'Chưa đủ điều kiện';}
-    if(hint){if(chot)hint.textContent='Tuần đã được GVCN ký chốt và khóa.';else if(!v)hint.textContent='Hãy tải dữ liệu và kiểm tra sổ tuần trước khi ký.';else if(v.configurationRequired)hint.textContent='Admin chưa cấu hình khung tiết Sáng/Chiều cho lớp này.';else if(v.status!=='PASS'){const first=(Array.isArray(v.issues)?v.issues:[]).find(x=>x?.severity==='BLOCKING');hint.textContent=first?`Bị chặn: ${first.code||'Lỗi'} — ${first.message||''} Xem chi tiết ngay phía trên để biết nơi sửa.`:`Còn ${v.blockingCount} lỗi chặn; xử lý xong rồi kiểm tra lại.`;}else if(!v.storedFresh)hint.textContent='Dữ liệu đạt nhưng cần bấm “Kiểm tra sổ tuần” để xác nhận kết quả hiện tại.';else hint.textContent='Kết quả kiểm tra PASS còn hiệu lực. Có thể ký chốt tuần.';}
+    if(hint){if(chot)hint.textContent='Tuần đã được GVCN ký chốt và khóa.';else if(!v)hint.textContent='Hãy tải dữ liệu và kiểm tra sổ tuần trước khi ký.';else if(v.configurationRequired)hint.textContent='Admin chưa cấu hình khung tiết Sáng/Chiều cho lớp này.';else if(v.status!=='PASS'){const first=(Array.isArray(v.issues)?v.issues:[]).find(x=>x?.severity==='BLOCKING');hint.textContent=first?`Bị chặn: ${gvcnIssueTitleV704644(first)}. ${first.message||''} Xem chi tiết ngay phía trên để biết nơi xử lý.`:`Còn ${v.blockingCount} lỗi chặn; xử lý xong rồi kiểm tra lại.`;}else if(!v.storedFresh)hint.textContent='Dữ liệu đạt nhưng cần bấm “Kiểm tra sổ tuần” để xác nhận kết quả hiện tại.';else hint.textContent='Kết quả kiểm tra PASS còn hiệu lực. Có thể ký chốt tuần.';}
   }
 
   function gvcnApplySummaryV681(payload,lockRes,validation){
@@ -187,7 +185,7 @@
     const name=res.tenGVCN||res.tenGV||'';
     const ds=(res.dsLop||[res.lop]).filter(Boolean).filter((x,i,a)=>a.indexOf(x)===i);
     if(!gvcnDangNhapInfo.lop&&ds.length)gvcnDangNhapInfo.lop=ds[0];
-    const welcome=document.getElementById('gvcnWelcomeMsg');if(welcome)welcome.textContent=`${name?name+' · ':''}Theo dõi và kiểm tra sổ lớp chủ nhiệm`;
+    const welcome=document.getElementById('gvcnWelcomeMsg');if(welcome)welcome.textContent=`${name?name+' · ':''}Theo dõi lớp chủ nhiệm`;
     const sel=document.getElementById('gvcnAuthorizedClassV4');
     if(sel){sel.innerHTML='';ds.forEach(l=>sel.add(new Option(l,l)));if(gvcnDangNhapInfo.lop)sel.value=gvcnDangNhapInfo.lop;sel.onchange=function(){gvcnDangNhapInfo.lop=this.value;document.getElementById('gvcnSummaryContent').classList.add('d-none');document.getElementById('gvcnPlaceholderMsg').classList.remove('d-none');taiThongTinChotTuan();};}
     const week=document.getElementById('gvcnTuan');if(week&&!Number(week.value))week.value=gvcnCurrentWeekV681();else if(week)week.value=gvcnCurrentWeekV681();

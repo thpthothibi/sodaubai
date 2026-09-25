@@ -1752,49 +1752,63 @@
                 </div>
               </div>
 
-              <!-- V51: ĐỐI SOÁT KHBD & CẮT XÉN TIẾN ĐỘ - CHỈ ADMIN -->
+              <!-- V70.4.6.30: ĐỐI SOÁT KHBD ĐÚNG CHIỀU KHBD LỚP -> SĐB THỰC TẾ -->
 <div class="tab-pane fade" id="gt-pills-khbd" role="tabpanel" aria-labelledby="admin-khbd-compare-tab">
-                <div class="row g-3 mb-4 p-3 bg-light rounded border align-items-end mx-auto" style="max-width: 1200px;">
-                  <div class="col-md-3">
-                    <label class="form-label fw-bold">1. Chọn Môn Học</label>
+                <div class="alert alert-info small mx-auto mb-3" style="max-width: 1500px;">
+                  <strong>Đối soát theo KHBD của lớp:</strong> hệ thống lấy các tiết KHBD giáo viên đã chọn cho lớp làm chuẩn, sau đó tìm tiết đã thực hiện trong Sổ đầu bài.
+                  PPCT được sắp <strong>tăng dần tự nhiên</strong>; riêng <strong>GDTC/Cầu lông/Bóng chuyền dùng số PPCT</strong>.
+                </div>
+                <div class="row g-3 mb-4 p-3 bg-light rounded border align-items-end mx-auto" style="max-width: 1500px;">
+                  <div class="col-md-2">
+                    <label class="form-label fw-bold">1. Môn học</label>
                     <select class="form-select border-primary fw-bold" id="gtCompareMon" onchange="loadDanhSachGVTheoMonGiamThi()">
                       <option value="">-- Đang tải danh sách Môn --</option>
                     </select>
                   </div>
                   <div class="col-md-3">
-                    <label class="form-label fw-bold">2. Chọn Giáo Viên Dạy Môn Này</label>
+                    <label class="form-label fw-bold">2. Giáo viên KHBD</label>
                     <select class="form-select fw-semibold" id="gtCompareGV">
                       <option value="">-- Chọn Môn trước --</option>
                     </select>
                   </div>
                   <div class="col-md-2">
-                    <label class="form-label fw-bold">3. Lớp (Tùy chọn)</label>
+                    <label class="form-label fw-bold">3. Lớp</label>
                     <select class="form-select" id="gtCompareLop">
                       <option value="">-- Tất cả Lớp --</option>
                     </select>
                   </div>
-                  <div class="col-md-4">
-                    <button type="button" class="btn btn-warning w-100 fw-bold py-2" onclick="thucHienDoiSoatKHBDGiamThi()">Kiểm tra tiến độ</button>
+                  <div class="col-md-3">
+                    <label class="form-label fw-bold">4. Tuần kiểm tra <span class="text-muted fw-normal">(chọn nhiều)</span></label>
+                    <select class="form-select" id="gtCompareWeeks" multiple size="4" aria-label="Chọn nhiều tuần KHBD"></select>
+                    <div class="form-text">Giữ Ctrl để chọn nhiều tuần. Không chọn = tất cả tuần.</div>
+                  </div>
+                  <div class="col-md-2">
+                    <button type="button" class="btn btn-warning w-100 fw-bold py-2" onclick="thucHienDoiSoatKHBDGiamThi()">Kiểm tra KHBD</button>
+                    <button type="button" class="btn btn-outline-secondary w-100 btn-sm mt-2" onclick="boChonTuanKhbdV704630()">Tất cả tuần</button>
                   </div>
                 </div>
 
                 <div id="gtCompareResultSection" class="d-none">
-                  <div class="d-flex justify-content-between align-items-center mb-2 mx-auto" style="max-width: 1400px;">
+                  <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-2 mx-auto" style="max-width: 1800px;">
                     <span class="fw-bold" id="gtCompareCountMsg"></span>
-                    <button type="button" class="btn btn-success btn-sm fw-bold" onclick="xuatExcelDoiSoatGiamThi()">Xuất Excel đối soát</button>
+                    <button type="button" class="btn btn-success btn-sm fw-bold" onclick="xuatExcelDoiSoatGiamThi()">Xuất hồ sơ KHBD Excel</button>
                   </div>
-                  <div class="table-responsive mx-auto" style="max-width: 1400px; max-height: 550px; overflow-y: auto;">
-                    <table class="table table-bordered table-hover text-center align-middle" id="gtCompareTableExcel" style="font-size: 0.82rem;">
+                  <div class="table-responsive mx-auto" style="max-width: 1800px; max-height: 600px; overflow-y: auto;">
+                    <table class="table table-bordered table-hover text-center align-middle" id="gtCompareTableExcel" style="font-size: 0.80rem;">
                       <thead class="table-dark sticky-top">
                         <tr>
-                          <th style="width: 7%;">Ngày Dạy</th>
-                          <th style="width: 6%;">Lớp</th>
-                          <th style="width: 7%;">Buổi - Tiết</th>
-                          <th style="width: 6%;">Tiết CT Ghi</th>
-                          <th style="width: 20%;">Tên Bài Dạy Trong Sổ Đầu Bài</th>
-                          <th style="width: 20%;">Tên Bài Chuẩn (Kế Hoạch Bài Dạy)</th>
-                          <th style="width: 18%;">Đánh Giá / Cảnh Báo Tiến Độ</th>
-                          <th style="width: 16%;">Giáo Viên</th>
+                          <th>Tuần</th>
+                          <th>PPCT KHBD</th>
+                          <th>Ngày thực hiện</th>
+                          <th>Lớp</th>
+                          <th>Buổi - Tiết</th>
+                          <th>Tiết CT trong SĐB</th>
+                          <th style="min-width:220px;">Nội dung KHBD</th>
+                          <th style="min-width:220px;">Nội dung thực tế</th>
+                          <th style="min-width:220px;">Yêu cầu cần đạt</th>
+                          <th style="min-width:190px;">Đánh giá</th>
+                          <th>GV KHBD</th>
+                          <th>GV thực dạy</th>
                         </tr>
                       </thead>
                       <tbody id="gtCompareTableBody"></tbody>
@@ -1803,7 +1817,7 @@
                 </div>
 
                 <div id="gtComparePlaceholder" class="text-center py-5 text-muted">
-                  Vui lòng chọn <strong>Môn học</strong>, <strong>Giáo viên</strong> và bấm <strong>'Kiểm Tra Tiến Độ & Đôn Tiết'</strong>.
+                  Chọn <strong>Môn học</strong>, <strong>Giáo viên/Tất cả giáo viên</strong>, lớp và các tuần cần kiểm tra. Hệ thống sẽ đi từ <strong>KHBD của lớp → tiết thực tế</strong>.
                 </div>
               </div>
 

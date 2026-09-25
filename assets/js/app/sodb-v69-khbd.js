@@ -1,48 +1,71 @@
-  /* V51: LOAD MÔN HỌC/GIÁO VIÊN CHO ĐỐI SOÁT KHBD - CHỈ ADMIN */
+  /* V70.4.6.30: ĐỐI SOÁT KHBD ĐÚNG CHIỀU KHBD LỚP -> SĐB THỰC TẾ */
+  window.__KHBD_COMPARE_V704630__ = null;
+
   function getAdminCompareAuthV51(){
     const token=(adminDangNhapInfo&&adminDangNhapInfo.sessionToken)||(currentUnifiedLoginV4&&currentUnifiedLoginV4.sessions&&currentUnifiedLoginV4.sessions.ADMIN&&currentUnifiedLoginV4.sessions.ADMIN.sessionToken)||'';
     return {token:token};
   }
 
+  function napTuanDoiSoatKhbdV704630(){
+    const sel=document.getElementById('gtCompareWeeks');
+    if(!sel||sel.options.length)return;
+    const frag=document.createDocumentFragment();
+    for(let w=1;w<=53;w++)frag.appendChild(new Option('Tuần '+w,String(w)));
+    sel.appendChild(frag);
+  }
+  function boChonTuanKhbdV704630(){
+    const sel=document.getElementById('gtCompareWeeks');if(!sel)return;
+    Array.from(sel.options).forEach(o=>o.selected=false);
+  }
+  function layTuanDoiSoatKhbdV704630(){
+    const sel=document.getElementById('gtCompareWeeks');
+    return sel?Array.from(sel.selectedOptions).map(o=>Number(o.value)).filter(Boolean):[];
+  }
+
   function loadDanhSachMonKHBDGiamThi() {
+    napTuanDoiSoatKhbdV704630();
     google.script.run.withSuccessHandler(function(dsMon) {
       let selectMon = document.getElementById('gtCompareMon');
-      selectMon.innerHTML = '<option value="">-- Chọn Môn học --</option>';
-      if (dsMon && dsMon.length > 0) {
-        dsMon.forEach(m => { selectMon.add(new Option(m, m)); });
-      } else {
-        selectMon.innerHTML = '<option value="">-- Chưa có Kế hoạch bài dạy --</option>';
-      }
+      selectMon.replaceChildren(new Option('-- Chọn Môn học --',''));
+      if (dsMon && dsMon.length > 0) dsMon.forEach(m => selectMon.add(new Option(m, m)));
+      else selectMon.replaceChildren(new Option('-- Chưa có Kế hoạch bài dạy --',''));
     }).getDanhSachMonKHBD(getAdminCompareAuthV51());
   }
 
   function loadDanhSachGVTheoMonGiamThi() {
-  let mon = document.getElementById('gtCompareMon').value;
-  let selectGV = document.getElementById('gtCompareGV');
-  selectGV.innerHTML = '<option value="">-- Đang tải danh sách GV... --</option>';
-  if (!mon) return;
-
-  google.script.run.withSuccessHandler(function(dsGV) {
-    selectGV.replaceChildren(new Option('⚠️ Tất cả Giáo Viên dạy môn ' + String(mon||''), 'ALL_GV'));
-    if (dsGV && dsGV.length > 0) {
-      dsGV.forEach(gv => { selectGV.add(new Option(gv.tenGV, gv.tenGV)); });
-    }
-  }).getDanhSachGVTheoMon(mon, getAdminCompareAuthV51());
-}
-
-  /* THỰC HIỆN ĐỐI SOÁT BÀI DẠY THỰC TẾ VỚI KẾ HOẠCH BÀI DẠY */
-  function thucHienDoiSoatKHBDGiamThi() {
     let mon = document.getElementById('gtCompareMon').value;
-    let tenGV = document.getElementById('gtCompareGV').value;
-    let lop = document.getElementById('gtCompareLop').value;
+    let selectGV = document.getElementById('gtCompareGV');
+    selectGV.replaceChildren(new Option('-- Đang tải danh sách GV... --',''));
+    if (!mon) return;
+    google.script.run.withSuccessHandler(function(dsGV) {
+      selectGV.replaceChildren(new Option('Tất cả Giáo viên dạy môn ' + String(mon||''), 'ALL_GV'));
+      if (dsGV && dsGV.length > 0) dsGV.forEach(gv => selectGV.add(new Option(gv.tenGV, gv.tenGV)));
+    }).getDanhSachGVTheoMon(mon, getAdminCompareAuthV51());
+  }
+
+  function badgeKhbdCompareV704630(type){
+    if(type==='NOT_DONE')return 'bg-secondary';
+    if(type==='WARNING_PPCT')return 'bg-danger';
+    if(type==='WARNING_MISMATCH'||type==='ACTUAL_ONLY')return 'bg-warning text-dark';
+    if(type==='DAY_THAY')return 'bg-warning text-dark';
+    if(type==='DAY_BU')return 'bg-success';
+    if(type==='HOAN_DOI')return 'bg-primary';
+    return 'bg-success';
+  }
+
+  function thucHienDoiSoatKHBDGiamThi() {
+    const mon = document.getElementById('gtCompareMon').value;
+    const tenGV = document.getElementById('gtCompareGV').value;
+    const lop = document.getElementById('gtCompareLop').value;
+    const weeks = layTuanDoiSoatKhbdV704630();
 
     if (!mon || !tenGV) {
-      showToastV9('Vui lòng chọn Môn học và Giáo viên cần kiểm tra.','danger');
+      showToastV9('Vui lòng chọn Môn học và Giáo viên/Tất cả giáo viên cần kiểm tra.','danger');
       return;
     }
 
-    let tbody = document.getElementById('gtCompareTableBody');
-    tbody.innerHTML = `<tr><td colspan="8" class="py-3 text-center">⏳ Hệ thống đang rà soát dữ liệu Sổ Đầu Bài & KHBD...</td></tr>`;
+    const tbody = document.getElementById('gtCompareTableBody');
+    tbody.innerHTML = `<tr><td colspan="12" class="py-3 text-center">⏳ Đang lấy KHBD đã chọn của lớp và đối chiếu với Sổ đầu bài...</td></tr>`;
     document.getElementById('gtCompareResultSection').classList.remove('d-none');
     document.getElementById('gtComparePlaceholder').classList.add('d-none');
 
@@ -51,40 +74,66 @@
         alertV13("❌ Lỗi đối soát: " + (res ? res.message : "Không phản hồi"));
         return;
       }
+      window.__KHBD_COMPARE_V704630__={res,mon,tenGV,lop,weeks};
 
-      document.getElementById('gtCompareCountMsg').innerText = `📊 TÌM THẤY ${res.totalCount} TIẾT HỌC | 🚨 PHÁT HIỆN ${res.warningCount} TIẾT BẤT THƯỜNG (CẮT XÉN / ĐÔN TIẾT / SAI BÀI)`;
+      document.getElementById('gtCompareCountMsg').innerText =
+        `KHBD/đối soát: ${res.totalCount||0} dòng | ✅ Khớp/đã thực hiện: ${res.matchedCount||0} | ⏳ Chưa thực hiện: ${res.notDoneCount||0} | ⚠️ Chênh lệch: ${res.warningCount||0}`;
+
       tbody.innerHTML = "";
-
-      if (res.results.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="py-4 text-warning fw-bold fs-6">⚠️ Không tìm thấy tiết học nào được ghi nhận cho giáo viên này!</td></tr>`;
+      if (!res.results || res.results.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="12" class="py-4 text-warning fw-bold">⚠️ Không có KHBD đã được giáo viên chọn cho phạm vi đang kiểm tra.</td></tr>`;
         return;
       }
 
       res.results.forEach(item => {
-        let badgeBg = "bg-success";
-        if (item.statusType === "WARNING_JUMP") { badgeBg = "bg-danger"; }
-        else if (item.statusType === "WARNING_MISMATCH") { badgeBg = "bg-warning text-dark"; }
-        else if (item.statusType === "WARNING_DUPLICATE") { badgeBg = "bg-secondary"; }
-
+        const badgeBg=badgeKhbdCompareV704630(item.statusType);
+        const slot=item.ngayDay?`<span class="badge ${item.buoi === 'Sáng' ? 'bg-primary' : 'bg-danger'}">${escapeHtml(item.buoi||'')}</span> ${item.tiet?('Tiết '+escapeHtml(item.tiet)):'—'}`:'—';
         tbody.innerHTML += `<tr>
-          <td class="fw-bold">${escapeHtml(item.ngayFormatted)}</td>
-          <td class="fw-bold text-primary">${escapeHtml(item.lop)}</td>
-          <td><span class="badge ${item.buoi === 'Sáng' ? 'bg-primary' : 'bg-danger'}">${escapeHtml(item.buoi)}</span> Tiết ${escapeHtml(item.tiet)}</td>
-          <td class="fw-bold text-success fs-6">${escapeHtml(item.tietCT)}</td>
-          <td class="text-start bg-light">${escapeHtml(item.tenBaiThucTe)}</td>
-          <td class="text-start bg-light">${escapeHtml(item.tenBaiChuan)}</td>
-          <td><span class="badge ${badgeBg} p-2" style="font-size:0.75rem;">${escapeHtml(item.trangThaiAlert)}</span></td>
-          <td class="text-start"><b>${escapeHtml(item.tenGV)}</b></td>
+          <td class="fw-bold">${escapeHtml(item.tuan||'')}</td>
+          <td class="fw-bold text-success fs-6">${escapeHtml(item.ppct||'—')}</td>
+          <td class="fw-bold">${escapeHtml(item.ngayFormatted||'—')}</td>
+          <td class="fw-bold text-primary">${escapeHtml(item.lop||'')}</td>
+          <td>${slot}</td>
+          <td>${escapeHtml(item.tietCT||'—')}</td>
+          <td class="text-start bg-light">${escapeHtml(item.tenBaiChuan||'—')}</td>
+          <td class="text-start">${escapeHtml(item.tenBaiThucTe||'—')}</td>
+          <td class="text-start small">${escapeHtml(item.yeuCauCanDat||'')}</td>
+          <td><span class="badge ${badgeBg} p-2 text-wrap" style="font-size:0.75rem;">${escapeHtml(item.trangThaiAlert||'')}</span></td>
+          <td class="text-start">${escapeHtml(item.gvKhbd||'')}</td>
+          <td class="text-start"><b>${escapeHtml(item.tenGV||'')}</b></td>
         </tr>`;
       });
-    }).doiSoatKHBDGiamThi(mon, tenGV, lop, getAdminCompareAuthV51());
+    }).doiSoatKHBDGiamThi(mon, tenGV, lop, weeks, getAdminCompareAuthV51());
   }
 
   function xuatExcelDoiSoatGiamThi() {
-  if (retryWithXlsxV7(() => xuatExcelDoiSoatGiamThi())) return;
-    let table = document.getElementById("gtCompareTableExcel");
-    let wb = XLSX.utils.table_to_book(table, { sheet: "DoiSoatTienDoBaiDay" });
-    XLSX.writeFile(wb, `BaoCao_DoiSoat_TienDo_BaiDay.xlsx`);
+    if (retryWithXlsxV7(() => xuatExcelDoiSoatGiamThi())) return;
+    const state=window.__KHBD_COMPARE_V704630__;
+    if(!state||!state.res||!Array.isArray(state.res.results)){
+      showToastV9('Vui lòng chạy kiểm tra KHBD trước khi xuất Excel.','warning');return;
+    }
+    const r=state.res,rows=r.results;
+    const weeks=state.weeks&&state.weeks.length?state.weeks.join(', '):'Tất cả';
+    const summary=[
+      ['TRƯỜNG THPT HỒ THỊ BI - HỒ SƠ ĐỐI SOÁT KHBD'],
+      ['Môn',state.mon||''],
+      ['Lớp',state.lop||'Tất cả lớp'],
+      ['Giáo viên KHBD',state.tenGV==='ALL_GV'?'Tất cả giáo viên':state.tenGV],
+      ['Tuần',weeks],
+      ['Tổng dòng KHBD/đối soát',r.totalCount||0],
+      ['Khớp/đã thực hiện',r.matchedCount||0],
+      ['Chưa thực hiện',r.notDoneCount||0],
+      ['Chênh lệch',r.warningCount||0],
+      ['Nguyên tắc PPCT',r.ppctPolicy||'KHBD_PPCT_NATURAL_ASC']
+    ];
+    const detail=[['Tuần','PPCT KHBD','Ngày thực hiện','Lớp','Buổi','Tiết','Tiết CT trong SĐB','Nội dung KHBD','Nội dung thực tế','Yêu cầu cần đạt','Đánh giá','GV KHBD','GV thực dạy']];
+    rows.forEach(x=>detail.push([x.tuan||'',x.ppct||'',x.ngayFormatted||'',x.lop||'',x.buoi||'',x.tiet||'',x.tietCT||'',x.tenBaiChuan||'',x.tenBaiThucTe||'',x.yeuCauCanDat||'',x.trangThaiAlert||'',x.gvKhbd||'',x.tenGV||'']));
+    const wb=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(summary),'TongHop');
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(detail),'KHBD_DoiSoat');
+    const clean=v=>String(v||'Tat_ca').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9_-]+/g,'_').replace(/^_+|_+$/g,'');
+    const weekPart=state.weeks&&state.weeks.length?('Tuan_'+state.weeks.join('-')):'Tat_ca_tuan';
+    XLSX.writeFile(wb,`KHBD_${clean(state.lop||'Tat_ca_lop')}_${clean(state.mon)}_${weekPart}.xlsx`);
   }
 
   /* HÀM TỰ ĐỘNG XÓA NỀN TRẮNG CỦA ẢNH CHỮ KÝ */

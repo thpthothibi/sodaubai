@@ -576,11 +576,22 @@ let varDiemTB = 10;
   function ensureTeacherSubjectOptionV26(subject){
     const sel=document.getElementById('monHoc');
     if(!sel||!subject)return false;
-    subject=canonicalSubjectV6955(subject);const key=subjectKeyV6955(subject);
-    let opt=[...sel.options].find(o=>normalizeTextKey(o.value)===key);
+    subject=canonicalSubjectV6955(subject);
+    // Nhóm GDTC có thể khai báo Môn/KHBD là Cầu lông hoặc Bóng chuyền,
+    // nhưng ô Môn vẫn phải giữ GDTC; nhánh cụ thể nằm ở selector phía dưới.
+    if(isGdtcDetailSubjectV25(subject)){
+      if(!gvbmHasGdtcV25())return false;
+      let base=[...sel.options].find(o=>isGdtcBaseSubjectV25(o.value));
+      if(!base){base=new Option('GDTC','GDTC');sel.add(base);}
+      sel.value=base.value;
+      configureGdtcInputV25();
+      const detail=document.getElementById('gdtcTeachingSubjectV25');if(detail)detail.value=subject;
+      return true;
+    }
+    const key=subjectKeyV6955(subject);
+    let opt=[...sel.options].find(o=>subjectKeyV6955(o.value)===key);
     if(!opt){
-      const allowed=(gvbmDangNhapInfo?.dsMonGV||[]).some(m=>subjectKeyV6955(m)===key)
-        || (isGdtcDetailSubjectV25(subject)&&gvbmHasGdtcV25());
+      const allowed=(gvbmDangNhapInfo?.dsMonGV||[]).some(m=>subjectKeyV6955(m)===key);
       if(!allowed)return false;
       opt=new Option(subject,subject);sel.add(opt);
     }
@@ -674,7 +685,17 @@ let varDiemTB = 10;
     return show;
   }
   function gvbmHasGdtcV25(){
-    return !!(gvbmDangNhapInfo&&(gvbmDangNhapInfo.dsMonGV||[]).some(isGdtcBaseSubjectV25));
+    return !!(gvbmDangNhapInfo&&(gvbmDangNhapInfo.dsMonGV||[]).some(m=>isGdtcBaseSubjectV25(m)||isGdtcDetailSubjectV25(m)));
+  }
+  // V70.4.6.31: ô Môn của Nhập tiết chỉ hiển thị 1 lựa chọn GDTC.
+  // Cầu lông/Bóng chuyền được chọn ở ô Phân môn GDTC phía dưới.
+  function inputSubjectOptionsV704631(values){
+    const out=[],seen=new Set();
+    canonicalSubjectListV6955(values||[]).forEach(raw=>{
+      const m=(isGdtcBaseSubjectV25(raw)||isGdtcDetailSubjectV25(raw))?'GDTC':canonicalSubjectV6955(raw);
+      const k=subjectKeyV6955(m);if(m&&!seen.has(k)){seen.add(k);out.push(m);}
+    });
+    return out;
   }
   function getGdtcBaseOptionValueV25(){
     const sel=document.getElementById('monHoc');
@@ -770,7 +791,7 @@ let varDiemTB = 10;
     document.getElementById('tenGV').value=res.tenGV||'';
     document.getElementById('cccd').value=res.cccd||'';
     const selectMon=document.getElementById('monHoc');selectMon.innerHTML='';
-    teacherSubjectsWithSpecialV70463(res).forEach(m=>selectMon.add(new Option(m,m)));
+    inputSubjectOptionsV704631(teacherSubjectsWithSpecialV70463(res)).forEach(m=>selectMon.add(new Option(m,m)));
     if(!(res.dsMonGV||[]).length)selectMon.add(new Option('-- Chưa có môn --',''));
     configureGdtcInputV25();
     configureTechnologyInputV657();

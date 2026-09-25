@@ -452,13 +452,13 @@ function xemChiTietChuKySo(teacherLookup, thoiGianKy) {
 
 
 /* ===== V70.4.6.36: Độ đậm chữ ký hiển thị / in ===== */
-const SIGNATURE_INK_STORAGE_V704636='sodb_signature_ink_v704640';
+const SIGNATURE_INK_STORAGE_V704636='sodb_signature_ink_v704643';
 
 function signatureInkParamsV704636(levelRaw){
-  const level=Math.max(100,Math.min(150,Number(levelRaw)||135));
+  const level=Math.max(100,Math.min(150,Number(levelRaw)||100));
   const t=(level-100)/50;
   // 100% giữ gần mức cũ; 150% làm đậm rõ nhưng vẫn giữ chi tiết nét.
-  const contrast=Math.round(150+(100*t));
+  const contrast=Math.round(100+(100*t));
   const brightness=(1-(0.12*t)).toFixed(3);
   return {level,contrast,brightness};
 }
@@ -482,14 +482,14 @@ function capNhatDoDamChuKyV704636(value){
 }
 
 function datLaiDoDamChuKyV704636(){
-  apDungDoDamChuKyV704636(135,true);
+  apDungDoDamChuKyV704636(100,true);
 }
 
 function khoiTaoDoDamChuKyV704636(){
-  let saved=135;
+  let saved=100;
   try{
     const raw=localStorage.getItem(SIGNATURE_INK_STORAGE_V704636);
-    if(raw!==null&&raw!=='')saved=Number(raw)||135;
+    if(raw!==null&&raw!=='')saved=Number(raw)||100;
   }catch(_e){}
   apDungDoDamChuKyV704636(saved,false);
 }

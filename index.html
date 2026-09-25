@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <link rel="stylesheet" href="assets/css/sodb-v69.css?v=70.4.6.42">
+  <link rel="stylesheet" href="assets/css/sodb-v69.css?v=70.4.6.43">
   <link rel="stylesheet" href="assets/css/sodb-workspace.css?v=70.4.6.13">
 
 
@@ -1108,13 +1108,19 @@
           <div class="d-flex align-items-center gap-2 flex-wrap">
             <label for="gtSignatureDarknessV704636" class="small fw-semibold mb-0">Độ đậm chữ ký</label>
             <input type="range" class="form-range signature-ink-range-v704636" id="gtSignatureDarknessV704636"
-                   min="100" max="150" step="5" value="135"
+                   min="100" max="150" step="5" value="100"
                    oninput="capNhatDoDamChuKyV704636(this.value)">
-            <span class="badge bg-light text-primary border" id="gtSignatureDarknessValueV704636">135%</span>
+            <span class="badge bg-light text-primary border" id="gtSignatureDarknessValueV704636">100%</span>
             <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2"
-                    onclick="datLaiDoDamChuKyV704636()">Mặc định</button>
+                    onclick="datLaiChuKyV704643()">Về ảnh gốc</button>
           </div>
-          <div class="small text-muted">Chỉ làm đậm khi hiển thị/in; không thay đổi ảnh chữ ký gốc đã lưu.</div>
+          <div class="d-flex align-items-center gap-2 flex-wrap mt-2">
+            <label for="gtSignatureThicknessV704643" class="small fw-semibold mb-0">Độ dày nét chữ ký</label>
+            <input type="range" class="form-range signature-ink-range-v704636" id="gtSignatureThicknessV704643"
+                   min="0" max="100" step="5" value="0" oninput="capNhatDoDayChuKyV704643(this.value)">
+            <span class="badge bg-light text-primary border" id="gtSignatureThicknessValueV704643">0%</span>
+          </div>
+          <div class="small text-muted mt-1">Đậm 100% · Dày 0%: ảnh gốc. Kéo riêng từng thanh để xem trước; giữ tỉ lệ ảnh, không sửa chữ ký đã lưu.</div>
         </div>
       </div>
       <button type="button" class="btn btn-info btn-sm fw-bold text-white px-4" id="btnGtPrintSearch" onclick="traCuuInSodbGiamThiHandler()">Tải bản in</button>
@@ -2570,7 +2576,7 @@
 <script src="assets/js/app/sodb-v69-core.js?v=70.4.6.32"></script>
 <script src="assets/js/app/sodb-v69-khbd.js?v=70.4.6.41"></script>
 <script src="assets/js/app/sodb-v69-operations.js?v=70.4.6.41"></script>
-<script src="assets/js/app/sodb-v69-print.js?v=70.4.6.41"></script>
+<script src="assets/js/app/sodb-v69-print.js?v=70.4.6.43"></script>
 <script src="assets/js/app/sodb-v69-admin.js?v=70.4.6.29"></script>
 <script src="assets/js/app/sodb-v69-admin-students.js?v=70.4.6.26"></script>
 <script src="assets/js/app/sodb-v69-admin-lessons.js?v=70.4.6.18"></script>
@@ -2588,6 +2594,6 @@
 
 <script src="assets/js/app/sodb-workspace.js?v=70.4.6.29"></script>
 <script src="assets/js/app/sodb-v69-print-ready.js?v=70.4.6.41"></script>
-<script src="assets/js/app/sodb-v69-print-ink.js?v=70.4.6.42"></script>
+<script src="assets/js/app/sodb-v69-print-ink.js?v=70.4.6.43"></script>
 </body>
 </html>

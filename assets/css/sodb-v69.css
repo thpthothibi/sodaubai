@@ -3619,8 +3619,8 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
    Chỉ thay đổi cách HIỂN THỊ/IN, không sửa file chữ ký gốc.
    ========================================================= */
 :root{
-  --sodb-signature-contrast-v704636:220%;
-  --sodb-signature-brightness-v704636:.916;
+  --sodb-signature-contrast-v704636:100%;
+  --sodb-signature-brightness-v704636:1;
 }
 .signature-ink-control-v704636{
   max-width:440px;
@@ -3760,5 +3760,23 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
    -webkit-filter:url("#sodb-print-signature-ink-v42")!important;
    opacity:1!important;
    print-color-adjust:exact!important;-webkit-print-color-adjust:exact!important;
+ }
+}
+
+/* V43: independent controls, exact unfiltered image at default settings. */
+#gtPrintPagesContainer .sig-img-preview,
+#gtPrintPagesContainer .sig-gvcn-print,
+#gtPrintPagesContainer .sig-bgh-print {
+ filter:var(--sodb-ink-filter-v43,none)!important;
+ -webkit-filter:var(--sodb-ink-filter-v43,none)!important;
+ object-fit:contain!important;
+}
+@media print {
+ body.a3-tracuu-v56 #a3PrintRootV56 .sig-img-preview,
+ body.a3-tracuu-v56 #a3PrintRootV56 .sig-gvcn-print,
+ body.a3-tracuu-v56 #a3PrintRootV56 .sig-bgh-print {
+   filter:var(--sodb-ink-filter-v43,none)!important;
+   -webkit-filter:var(--sodb-ink-filter-v43,none)!important;
+   object-fit:contain!important;
  }
 }

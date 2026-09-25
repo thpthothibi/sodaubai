@@ -58,18 +58,18 @@
     const all=Array.isArray(rows)?rows:[];
     const assigned=all.filter(x=>String(x.statusType||'')!=='ACTUAL_ONLY');
     const notDone=assigned.filter(x=>String(x.statusType||'')==='NOT_DONE').length;
-    const done=all.filter(x=>['OK','DAY_THAY','DAY_BU','HOAN_DOI'].includes(String(x.statusType||''))).length;
+    const done=assigned.length-notDone;
     const mismatch=all.filter(x=>['WARNING_PPCT','WARNING_MISMATCH','ACTUAL_ONLY'].includes(String(x.statusType||''))).length;
-    const substitute=all.filter(x=>khbdCompareMatchFilterV704634(x,'DAY_THAY')).length;
-    return {total:all.length,assigned:assigned.length,done,notDone,mismatch,substitute};
+    const substitute=all.filter(x=>String(x.statusType||'')==='DAY_THAY').length;
+    return {assigned:assigned.length,done,notDone,mismatch,substitute};
   }
 
   function renderTongHopDoiSoatKhbdV704634(rows){
     const host=document.getElementById('gtCompareSummaryV704634');if(!host)return;
     const s=thongKeDoiSoatKhbdV704634(rows);
     const cards=[
-      ['Tất cả dòng đối soát',s.total,'primary','ALL'],
-      ['Khớp KHBD',s.done,'success','DONE'],
+      ['KHBD được giao',s.assigned,'primary','ALL'],
+      ['Đã thực hiện',s.done,'success','DONE'],
       ['Chưa thực hiện',s.notDone,'secondary','NOT_DONE'],
       ['Chênh lệch',s.mismatch,'danger','WARNING'],
       ['Dạy thay',s.substitute,'warning','DAY_THAY']
@@ -81,8 +81,8 @@
     const t=String(item?.statusType||'');
     if(filter==='NOT_DONE')return t==='NOT_DONE';
     if(filter==='WARNING')return ['WARNING_PPCT','WARNING_MISMATCH','ACTUAL_ONLY'].includes(t);
-    if(filter==='DAY_THAY')return t==='DAY_THAY'||String(item?.operationType||'').trim().toUpperCase()==='DAY_THAY'||item?.isSubstitute===true;
-    if(filter==='DONE')return ['OK','DAY_THAY','DAY_BU','HOAN_DOI'].includes(t);
+    if(filter==='DAY_THAY')return t==='DAY_THAY';
+    if(filter==='DONE')return t!=='NOT_DONE'&&t!=='ACTUAL_ONLY';
     return true;
   }
 
@@ -130,12 +130,10 @@
   }
 
   function locDoiSoatKhbdV704634(filter,btn){
-    const f=['ALL','DONE','NOT_DONE','WARNING','DAY_THAY'].includes(filter)?filter:'ALL';
+    const f=filter||'ALL';
     document.querySelectorAll('.gt-compare-filter-v704634').forEach(b=>{
       const active=String(b.dataset.khbdFilter||'')===f;
-      b.setAttribute('aria-pressed',String(active));
       b.classList.toggle('btn-primary',active);
-      b.classList.toggle('btn-outline-success',!active&&String(b.dataset.khbdFilter||'')==='DONE');
       b.classList.toggle('btn-outline-secondary',!active&&String(b.dataset.khbdFilter||'')==='NOT_DONE');
       b.classList.toggle('btn-outline-danger',!active&&String(b.dataset.khbdFilter||'')==='WARNING');
       b.classList.toggle('btn-outline-warning',!active&&String(b.dataset.khbdFilter||'')==='DAY_THAY');
@@ -185,44 +183,28 @@
       return;
     }
 
-    const requestId=(window.__KHBD_COMPARE_REQUEST_V704641__||0)+1;
-    window.__KHBD_COMPARE_REQUEST_V704641__=requestId;
-    window.__KHBD_COMPARE_V704630__=null;
-    document.getElementById('gtCompareSummaryV704634').innerHTML='';
-    document.getElementById('gtCompareFilterCountV704634').textContent='Đang tải dữ liệu…';
-    document.getElementById('gtCompareCountMsg').textContent='';
     const tbody = document.getElementById('gtCompareTableBody');
-    tbody.innerHTML = `<tr><td colspan="13" class="py-3 text-center">⏳ Đang lấy KHBD đã chọn của lớp và đối chiếu với Sổ đầu bài...</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="12" class="py-3 text-center">⏳ Đang lấy KHBD đã chọn của lớp và đối chiếu với Sổ đầu bài...</td></tr>`;
     document.getElementById('gtCompareResultSection').classList.remove('d-none');
     document.getElementById('gtComparePlaceholder').classList.add('d-none');
 
     google.script.run.withSuccessHandler(function(res) {
-      if(requestId!==window.__KHBD_COMPARE_REQUEST_V704641__)return;
       if (!res || !res.success) {
-        document.getElementById('gtCompareFilterCountV704634').textContent='Không tải được dữ liệu';
-        tbody.innerHTML='<tr><td colspan="13">Không tải được dữ liệu đối soát. Vui lòng thử lại.</td></tr>';
         alertV13("❌ Lỗi đối soát: " + (res ? res.message : "Không phản hồi"));
         return;
       }
-      const totals=thongKeDoiSoatKhbdV704634(res.results);
-      res={...res,totalCount:totals.total,matchedCount:totals.done,notDoneCount:totals.notDone,warningCount:totals.mismatch};
       window.__KHBD_COMPARE_V704630__={res,mon,tenGV,lop,weeks};
 
       document.getElementById('gtCompareCountMsg').innerText =
-        `KHBD/đối soát: ${res.totalCount||0} dòng | ✅ Khớp KHBD: ${res.matchedCount||0} | ⏳ Chưa thực hiện: ${res.notDoneCount||0} | ⚠️ Chênh lệch: ${res.warningCount||0}`;
+        `KHBD/đối soát: ${res.totalCount||0} dòng | ✅ Khớp/đã thực hiện: ${res.matchedCount||0} | ⏳ Chưa thực hiện: ${res.notDoneCount||0} | ⚠️ Chênh lệch: ${res.warningCount||0}`;
 
       if (!res.results || res.results.length === 0) {
         document.getElementById('gtCompareSummaryV704634').innerHTML='';
-        document.getElementById('gtCompareFilterCountV704634').textContent='Đang hiển thị 0/0 dòng';
         tbody.innerHTML = `<tr><td colspan="13" class="py-4 text-warning fw-bold">⚠️ Không có KHBD đã được giáo viên chọn cho phạm vi đang kiểm tra.</td></tr>`;
         return;
       }
       renderTongHopDoiSoatKhbdV704634(res.results);
       locDoiSoatKhbdV704634('ALL',null);
-    }).withFailureHandler(function(err){
-      if(requestId!==window.__KHBD_COMPARE_REQUEST_V704641__)return;
-      document.getElementById('gtCompareFilterCountV704634').textContent='Không tải được dữ liệu';
-      tbody.innerHTML='<tr><td colspan="13">'+escapeHtml(err?.message||'Lỗi tải đối soát. Vui lòng thử lại.')+'</td></tr>';
     }).doiSoatKHBDGiamThi(mon, tenGV, lop, weeks, getAdminCompareAuthV51());
   }
 
@@ -241,7 +223,7 @@
       ['Giáo viên KHBD',state.tenGV==='ALL_GV'?'Tất cả giáo viên':state.tenGV],
       ['Tuần',weeks],
       ['Tổng dòng KHBD/đối soát',r.totalCount||0],
-      ['Khớp KHBD',r.matchedCount||0],
+      ['Khớp/đã thực hiện',r.matchedCount||0],
       ['Chưa thực hiện',r.notDoneCount||0],
       ['Chênh lệch',r.warningCount||0],
       ['Nguyên tắc PPCT',r.ppctPolicy||'KHBD_PPCT_NATURAL_ASC']

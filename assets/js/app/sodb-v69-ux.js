@@ -238,7 +238,7 @@
       window.print();
     }catch(err){
       console.error('Lỗi chuẩn bị bản in A3',err);
-      alertV13('❌ '+(err?.message||'Không chuẩn bị được bản in A3. Vui lòng thử lại.'));
+      alertV13('❌ Không chuẩn bị được bản in A3. Vui lòng thử lại.');
       document.body.classList.remove('a3-tracuu-v56');
       root.remove();
       setBusyV13(false);

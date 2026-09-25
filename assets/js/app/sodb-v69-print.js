@@ -183,9 +183,6 @@ async function taiVaHienThiDanhSachTuanGiamThi(lop, dsTuan, bookMode) {
   if (htmlAllPages) {
     const coverHtml=document.getElementById('gtPrintCoverV684')?.checked?taoTrangBiaA3V684(lop,bookMode):'';
     container.innerHTML = coverHtml + htmlAllPages;
-    if(typeof hydrateSignatureFallbackPlaceholdersV704637==='function'){
-      try{ await hydrateSignatureFallbackPlaceholdersV704637(container,true); }catch(_e){}
-    }
     const layout=(laSoGop5TuanV57()?document.getElementById('gtPrintLayoutV57')?.value:'ONE_WEEK')||'ONE_WEEK';
     const msg=layout==='FIVE_WEEKS'
       ? `Đã chuẩn bị ${loaded}/${dsTuan.length} tuần · khi in sẽ gộp tối đa 5 tuần / trang A3 - ${bookLabel}.`
@@ -229,9 +226,6 @@ function renderA3FieldV704610(cellData,fieldName,prefixHtml=''){
   if(fieldName==='mon')return `<div class="a3-cell-clamp-v56 a3-one-line-v56">${content}</div>`;
   if(fieldName==='tenBai')return `<div class="a3-cell-clamp-v56">${content}</div>`;
   return content;
-}
-function a3GuideContentWrapV704639(html,enabled){
-  return html; // V704640: full-width row borders, including populated cells.
 }
 
 function taoRowsSoDacBietPrintA3V45(res,mondayOfWeek){
@@ -317,26 +311,19 @@ function layHtmlOnePageA3GiamThi(lop, tuan, bookMode) {
               const key = thuObj.name + '_' + buoi + '_' + tiet;
               const cellData = res.matrix[key] || {};
               const sigCell = renderSignatureCell(cellData, false);
-              const guideRow = (i > 0 && i < 5) || i > 5;
               let rowClass = '';
               if (i === 0 && dayIdx > 0) rowClass = 'row-day-start';
               else if (i === 5) rowClass = 'row-chieu-start';
-              if (guideRow) rowClass += ' a3-guide-row-v704639';
               rowClass += a3PrintRowMultiClassV704610(cellData);
               tableBodyHtml += `<tr class="${rowClass.trim()}">`;
               if (i === 0) tableBodyHtml += `<td rowspan="10" class="fw-bold align-middle bg-light text-center"><div>${thuObj.name}</div><div class="text-dark" style="font-size:0.55rem;">${dateFormatted}</div></td>`;
-              const monHtml = a3GuideContentWrapV704639(renderA3FieldV704610(cellData,'mon',renderPeriodStatusBadgeV683(cellData)), guideRow);
-              const tietCtHtml = a3GuideContentWrapV704639(renderA3FieldV704610(cellData,'tietCT'), guideRow);
-              const hsVangHtml = a3GuideContentWrapV704639(`<div class="a3-cell-clamp-v56 a3-one-line-v56">${escapeHtml(cellData.hsVang || '')}</div>`, guideRow);
-              const tenBaiHtml = a3GuideContentWrapV704639(renderA3FieldV704610(cellData,'tenBai'), guideRow);
-              const nhanXetHtml = a3GuideContentWrapV704639(`<div class="a3-cell-clamp-v56">${escapeHtml(sodbNhanXetSafeV83(cellData))}</div>`, guideRow);
               tableBodyHtml += `
                 <td class="fw-bold"><span class="badge ${buoi === 'Sang' ? 'text-primary' : 'text-danger'} buoi-tag">${buoi === 'Sang' ? 'S' : 'C'}</span> ${tiet}</td>
-                <td class="text-left-cell">${monHtml}</td>
-                <td class="fw-bold text-primary">${tietCtHtml}</td>
-                <td class="text-left-cell">${hsVangHtml}</td>
-                <td class="text-left-cell">${tenBaiHtml}</td>
-                <td class="text-left-cell">${nhanXetHtml}</td>
+                <td class="text-left-cell">${renderA3FieldV704610(cellData,'mon',renderPeriodStatusBadgeV683(cellData))}</td>
+                <td class="fw-bold text-primary">${renderA3FieldV704610(cellData,'tietCT')}</td>
+                <td class="text-left-cell"><div class="a3-cell-clamp-v56 a3-one-line-v56">${escapeHtml(cellData.hsVang || '')}</div></td>
+                <td class="text-left-cell">${renderA3FieldV704610(cellData,'tenBai')}</td>
+                <td class="text-left-cell"><div class="a3-cell-clamp-v56">${escapeHtml(sodbNhanXetSafeV83(cellData))}</div></td>
                 <td>${cellData.diemHT || ''}</td><td>${cellData.diemKL || ''}</td><td>${cellData.diemNN || ''}</td>
                 <td class="fw-bold">${cellData.diemTB || ''}</td><td>${sigCell}</td>
               </tr>`;
@@ -452,14 +439,14 @@ function xemChiTietChuKySo(teacherLookup, thoiGianKy) {
 
 
 /* ===== V70.4.6.36: Độ đậm chữ ký hiển thị / in ===== */
-const SIGNATURE_INK_STORAGE_V704636='sodb_signature_ink_v704643';
+const SIGNATURE_INK_STORAGE_V704636='sodb_signature_ink_v704636';
 
 function signatureInkParamsV704636(levelRaw){
-  const level=Math.max(100,Math.min(150,Number(levelRaw)||100));
+  const level=Math.max(100,Math.min(150,Number(levelRaw)||115));
   const t=(level-100)/50;
   // 100% giữ gần mức cũ; 150% làm đậm rõ nhưng vẫn giữ chi tiết nét.
-  const contrast=Math.round(100+(100*t));
-  const brightness=(1-(0.12*t)).toFixed(3);
+  const contrast=Math.round(130+(70*t));
+  const brightness=(1-(0.18*t)).toFixed(3);
   return {level,contrast,brightness};
 }
 
@@ -482,14 +469,14 @@ function capNhatDoDamChuKyV704636(value){
 }
 
 function datLaiDoDamChuKyV704636(){
-  apDungDoDamChuKyV704636(100,true);
+  apDungDoDamChuKyV704636(115,true);
 }
 
 function khoiTaoDoDamChuKyV704636(){
-  let saved=100;
+  let saved=115;
   try{
     const raw=localStorage.getItem(SIGNATURE_INK_STORAGE_V704636);
-    if(raw!==null&&raw!=='')saved=Number(raw)||100;
+    if(raw!==null&&raw!=='')saved=Number(raw)||115;
   }catch(_e){}
   apDungDoDamChuKyV704636(saved,false);
 }

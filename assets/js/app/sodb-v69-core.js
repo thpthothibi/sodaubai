@@ -221,6 +221,11 @@ let varDiemTB = 10;
     // V70.4.6.3: chỉ bổ sung lớp Chuyên đề đã xuất hiện trong phân công của chính GV,
     // nhưng ánh xạ theo mon_khbd động của Supabase thay vì khóa môn cũ trong phân công.
     out.push(...assignedSpecialClassesForSubjectV70463(subject,map));
+    // V70.4.6.32: lớp DẠY THAY đã duyệt/chưa hoàn thành phải xuất hiện cho GV thực hiện,
+    // kể cả khi lớp đó không thuộc phân công thường xuyên. Backend vẫn chỉ cho lưu đúng slot hồ sơ đã duyệt.
+    const approvedTasks=(typeof myTeachingTasksCacheV693!=='undefined'&&Array.isArray(myTeachingTasksCacheV693))?myTeachingTasksCacheV693:[];
+    approvedTasks.filter(r=>String(r?.loai||'').toUpperCase()==='DAY_THAY'&&subjectKeyV6955(r?.monThucHien||'')===subjectKeyV6955(subject))
+      .forEach(r=>{const c=String(r?.lopThucHien||'').trim();if(c)out.push(c);});
     return [...new Set(out.map(x=>String(x||'').trim()).filter(Boolean))];
   }
   function renderAssignmentNoteV39(subject,classes){

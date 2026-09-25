@@ -758,8 +758,9 @@ async function capNhatHanNhapTietV683(){
   try{
     const r=await callSodbEdgeRpcV67('kiemTraHanNhapTietV683',[lop,date,buoi,tiet,{token:gvbmDangNhapInfo.sessionToken}]);
     inputDeadlineLockedV683=!!r?.locked;
-    box.className='alert border py-2 px-3 mb-3 small '+(r?.locked?'alert-danger':(['ADMIN_UNLOCK','BULK_WEEK_UNLOCK'].includes(String(r?.state||''))?'alert-warning':'alert-info'));
-    box.innerHTML=`<strong>${r?.locked?'Đã khóa':'Thời hạn ký'}:</strong> ${escapeHtml(r?.message||'')}`;
+    const deadlineState=String(r?.state||''),approvedLate=deadlineState==='APPROVED_DAY_THAY_LATE';
+    box.className='alert border py-2 px-3 mb-3 small '+(r?.locked?'alert-danger':(approvedLate?'alert-success':(['ADMIN_UNLOCK','BULK_WEEK_UNLOCK'].includes(deadlineState)?'alert-warning':'alert-info')));
+    box.innerHTML=`<strong>${r?.locked?'Đã khóa':(approvedLate?'Dạy thay đã duyệt':'Thời hạn ký')}:</strong> ${escapeHtml(r?.message||'')}`;
     if(btn&&!isSodbSubmitting)btn.disabled=inputDeadlineLockedV683;
   }catch(err){
     inputDeadlineLockedV683=false;

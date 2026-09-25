@@ -343,6 +343,70 @@
     return '';
   }
 
+  const signatureFallbackCacheV704637=new Map();
+  const signatureFallbackPendingV704637=new Map();
+  function signatureFallbackKeyV704637(lookup,name){
+    return `${String(lookup||'').trim().toLocaleLowerCase('vi')}|${String(name||'').trim().toLocaleLowerCase('vi')}`;
+  }
+  function renderSignatureFallbackPlaceholderV704637(nameHtml,lookup,name,time,clickAttr){
+    const encodedLookup=escapeHtml(String(lookup||''));
+    const encodedName=escapeHtml(String(name||''));
+    const encodedTime=escapeHtml(String(time||''));
+    return `<div class="sig-container mixed-entry sig-fallback-loading-v704637 sig-fallback-pending-v704637" data-signature-hydrated="0" data-teacher-lookup="${encodedLookup}" data-teacher-name="${encodedName}" data-teacher-time="${encodedTime}"${clickAttr}><div class="sig-fallback-slot-v704637"></div>${nameHtml}${name?'<div class="sig-fallback-note-v704637">Đang bổ sung chữ ký hiện tại…</div>':''}</div>`;
+  }
+  function fetchTeacherSignatureFallbackV704637(lookup,name,time){
+    const key=signatureFallbackKeyV704637(lookup,name);
+    if(signatureFallbackCacheV704637.has(key))return Promise.resolve(signatureFallbackCacheV704637.get(key));
+    if(signatureFallbackPendingV704637.has(key))return signatureFallbackPendingV704637.get(key);
+    const promise=new Promise(resolve=>{
+      const candidateLookup=String(lookup||name||'').trim();
+      if(!candidateLookup||!(window.google&&google.script&&google.script.run&&typeof google.script.run.withSuccessHandler==='function')){
+        signatureFallbackCacheV704637.set(key,'');
+        resolve('');
+        return;
+      }
+      google.script.run
+        .withSuccessHandler(function(res){
+          const url=normalizeSignatureUrlV67_1(res&&res.urlChuKy||'');
+          signatureFallbackCacheV704637.set(key,url||'');
+          signatureFallbackPendingV704637.delete(key);
+          resolve(url||'');
+        })
+        .withFailureHandler(function(){
+          signatureFallbackCacheV704637.set(key,'');
+          signatureFallbackPendingV704637.delete(key);
+          resolve('');
+        })
+        .layChiTietChuKySo(candidateLookup,time||'');
+    });
+    signatureFallbackPendingV704637.set(key,promise);
+    return promise;
+  }
+  function hydrateSignatureFallbackPlaceholdersV704637(root=document,waitForAll=false){
+    const host=root&&root.querySelectorAll?root:document;
+    const nodes=[...host.querySelectorAll('.sig-fallback-pending-v704637[data-signature-hydrated="0"]')];
+    const tasks=nodes.map(node=>{
+      node.dataset.signatureHydrated='1';
+      const lookup=String(node.dataset.teacherLookup||'').trim();
+      const name=String(node.dataset.teacherName||'').trim();
+      const time=String(node.dataset.teacherTime||'').trim();
+      return fetchTeacherSignatureFallbackV704637(lookup,name,time).then(url=>{
+        const slot=node.querySelector('.sig-fallback-slot-v704637');
+        if(url&&slot){
+          const safeUrl=escapeHtml(url);
+          const altText=name?`Chữ ký ${name}`:'Chữ ký giáo viên';
+          slot.innerHTML=`<img src="${safeUrl}" class="sig-img-preview" loading="eager" decoding="async" alt="${escapeHtml(altText)}" onerror="handleSignatureImageErrorV682(this)">`;
+          node.classList.remove('sig-fallback-loading-v704637','sig-fallback-error-v704637','sig-fallback-empty-v704637');
+          node.classList.add('sig-fallback-ready-v704637');
+        }else{
+          node.classList.remove('sig-fallback-loading-v704637');
+          node.classList.add(name?'sig-fallback-error-v704637':'sig-fallback-empty-v704637');
+        }
+        return url||'';
+      });
+    });
+    return waitForAll?Promise.all(tasks):Promise.resolve(tasks);
+  }
   function renderSignatureCell(cellData, clickable = true) {
     /* V8.2: ô trống phải thực sự trống; không dùng chữ mặc định "Giáo viên". */
     const entries=getCellEntries(cellData).filter(entry=>{
@@ -373,7 +437,7 @@
         const firstSig=candidates[0]||sigUrl;
         return `<div class="sig-container mixed-entry"${clickAttr}><img src="${escapeHtml(firstSig)}" class="sig-img-preview" loading="eager" decoding="async" alt="${escapeHtml(altText)}" data-sig-candidates='${escapeHtml(JSON.stringify(candidates))}' data-sig-index="0" onerror="handleSignatureImageErrorV682(this)">${nameHtml}</div>`;
       }
-      return name?`<div class="sig-container mixed-entry"${clickAttr}>${nameHtml}</div>`:'';
+      return name?renderSignatureFallbackPlaceholderV704637(nameHtml,lookup,name,time,clickAttr):'';
     }).join('')}</div>`;
   }
 
@@ -460,6 +524,7 @@
       });
     });
     tbody.innerHTML=out;
+    hydrateSignatureFallbackPlaceholdersV704637(tbody,false);
   }
 
   function getBghSessionV684(){
@@ -639,6 +704,7 @@
         }
       });
       tbody.innerHTML=out;
+      hydrateSignatureFallbackPlaceholdersV704637(tbody,false);
       document.getElementById('sumVangP').innerText=res.summary.vangP;
       document.getElementById('sumVangKP').innerText=res.summary.vangKP;
       document.getElementById('sumDTB').innerText=res.summary.dtbTuan;

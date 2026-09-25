@@ -106,6 +106,10 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
     .sodb-status-popover-v7032 .popover-header { font-size:.84rem;font-weight:800; }
     .sig-stack { display: flex; flex-direction: column; gap: 1px; }
     .sig-stack .sig-name { white-space: normal; }
+    .sig-fallback-note-v704637{font-size:.52rem;line-height:1.05;color:#64748b;font-style:italic;}
+    .sig-fallback-loading-v704637 .sig-fallback-note-v704637{display:block;}
+    .sig-fallback-ready-v704637 .sig-fallback-note-v704637,.sig-fallback-empty-v704637 .sig-fallback-note-v704637{display:none;}
+    .sig-fallback-error-v704637 .sig-fallback-note-v704637{display:block;color:#94a3b8;}
     .khbd-meta { font-size: 0.78rem; color: #475569; }
     .teacher-verified { border-color: #198754 !important; background-color: #f0fdf4 !important; }
     
@@ -1301,9 +1305,18 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
       min-height:0!important;
     }
     .sig-stack-mixed-v14 .mixed-entry + .mixed-entry{
-      border-top:.5px dashed #999!important;
-      padding-top:.12mm!important;
+      border-top:0!important;
+      position:relative!important;
+      padding-top:.18mm!important;
       margin-top:.08mm!important;
+    }
+    .sig-stack-mixed-v14 .mixed-entry + .mixed-entry::before{
+      content:""!important;
+      position:absolute!important;
+      left:0!important;right:0!important;top:0!important;height:.20mm!important;
+      background-image:repeating-linear-gradient(90deg,#8f98a8 0 1.2mm,transparent 1.2mm 2.0mm)!important;
+      background-repeat:repeat-x!important;
+      background-position:left top!important;
     }
 
     .summary-box{
@@ -3519,8 +3532,52 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
     font-size:4.65pt!important;line-height:.92!important;white-space:nowrap!important;
     overflow:hidden!important;text-overflow:ellipsis!important;box-sizing:border-box!important;
   }
+  /* V70.4.6.37 - làm nét đứt trong cột Thứ thưa hơn, thoáng hơn và gần mẫu hơn */
   body.a3-tracuu-v56 #a3PrintRootV56 .a3-sync-line-v704610 + .a3-sync-line-v704610{
-    border-top:.45px dashed #aab4c2!important;
+    border-top:0!important;
+    position:relative!important;
+    margin-top:0!important;
+    padding-top:.3mm!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-sync-line-v704610 + .a3-sync-line-v704610::before{
+    content:""!important;
+    position:absolute!important;
+    left:0!important;
+    right:0!important;
+    top:0!important;
+    height:.18mm!important;
+    background-image:repeating-linear-gradient(90deg,#95a3b8 0 1.05mm,transparent 1.05mm 3.65mm)!important;
+    background-repeat:repeat-x!important;
+    background-position:left top!important;
+    background-size:auto 100%!important;
+    opacity:.98!important;
+    pointer-events:none!important;
+    print-color-adjust:exact!important;
+    -webkit-print-color-adjust:exact!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-sync-stack-v704610{
+    overflow:hidden!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .sig-stack-mixed-v14 .mixed-entry + .mixed-entry{
+    border-top:0!important;
+    position:relative!important;
+    margin-top:.08mm!important;
+    padding-top:.2mm!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .sig-stack-mixed-v14 .mixed-entry + .mixed-entry::before{
+    content:""!important;
+    position:absolute!important;
+    left:0!important;
+    right:0!important;
+    top:0!important;
+    height:.16mm!important;
+    background-image:repeating-linear-gradient(90deg,#98a2b3 0 .95mm,transparent .95mm 3.2mm)!important;
+    background-repeat:repeat-x!important;
+    background-position:left top!important;
+    opacity:.95!important;
+    pointer-events:none!important;
+    print-color-adjust:exact!important;
+    -webkit-print-color-adjust:exact!important;
   }
   body.a3-tracuu-v56 #a3PrintRootV56 .a3-sync-tietct-v704610{
     text-align:center!important;font-weight:800!important;color:#0d6efd!important;
@@ -3544,3 +3601,44 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
 .admin-teacher-admin-toolbar-v704618{background:linear-gradient(180deg,#f8fbff,#f3f7fc);border:1px solid #dbe6f3;border-radius:12px;padding:14px}
 .admin-sodb-title-cell-v704618{min-width:220px;max-width:360px;white-space:normal}.admin-sodb-record-table-v704618{font-size:.84rem}.admin-sodb-record-table-v704618 thead th{white-space:nowrap}
 @media(max-width:768px){.admin-teacher-week-table-v704618 td{min-width:150px}.admin-sodb-title-cell-v704618{min-width:190px}}
+
+
+/* =========================================================
+   V70.4.6.36 - SIGNATURE DARKNESS CONTROL
+   Chỉ thay đổi cách HIỂN THỊ/IN, không sửa file chữ ký gốc.
+   ========================================================= */
+:root{
+  --sodb-signature-contrast-v704636:151%;
+  --sodb-signature-brightness-v704636:.946;
+}
+.signature-ink-control-v704636{
+  max-width:440px;
+  padding:7px 10px;
+  border:1px solid #dbe4ef;
+  border-radius:9px;
+  background:#fff;
+}
+.signature-ink-range-v704636{
+  width:155px;
+  min-width:120px;
+  margin:0!important;
+}
+.sig-img-preview,
+.sig-gvcn-print,
+.sig-bgh-print,
+.signature-preview-v21 img,
+.gvcn-signature-preview-v681 img,
+#certSigImage{
+  filter:contrast(var(--sodb-signature-contrast-v704636)) brightness(var(--sodb-signature-brightness-v704636))!important;
+  -webkit-filter:contrast(var(--sodb-signature-contrast-v704636)) brightness(var(--sodb-signature-brightness-v704636))!important;
+}
+@media print{
+  .sig-img-preview,
+  .sig-gvcn-print,
+  .sig-bgh-print{
+    filter:contrast(var(--sodb-signature-contrast-v704636)) brightness(var(--sodb-signature-brightness-v704636))!important;
+    -webkit-filter:contrast(var(--sodb-signature-contrast-v704636)) brightness(var(--sodb-signature-brightness-v704636))!important;
+    print-color-adjust:exact!important;
+    -webkit-print-color-adjust:exact!important;
+  }
+}

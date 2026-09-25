@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <link rel="stylesheet" href="assets/css/sodb-v69.css?v=70.4.6.18">
+  <link rel="stylesheet" href="assets/css/sodb-v69.css?v=70.4.6.37">
   <link rel="stylesheet" href="assets/css/sodb-workspace.css?v=70.4.6.13">
 
 
@@ -1104,6 +1104,18 @@
           <input class="form-check-input" type="checkbox" id="gtPrintCoverV684" checked onchange="capNhatTrangBiaPreviewV684()">
           <label class="form-check-label fw-semibold small" for="gtPrintCoverV684">In trang bìa A3 ngang</label>
         </div>
+        <div class="signature-ink-control-v704636 mt-1">
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <label for="gtSignatureDarknessV704636" class="small fw-semibold mb-0">Độ đậm chữ ký</label>
+            <input type="range" class="form-range signature-ink-range-v704636" id="gtSignatureDarknessV704636"
+                   min="100" max="150" step="5" value="115"
+                   oninput="capNhatDoDamChuKyV704636(this.value)">
+            <span class="badge bg-light text-primary border" id="gtSignatureDarknessValueV704636">115%</span>
+            <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2"
+                    onclick="datLaiDoDamChuKyV704636()">Mặc định</button>
+          </div>
+          <div class="small text-muted">Chỉ làm đậm khi hiển thị/in; không thay đổi ảnh chữ ký gốc đã lưu.</div>
+        </div>
       </div>
       <button type="button" class="btn btn-info btn-sm fw-bold text-white px-4" id="btnGtPrintSearch" onclick="traCuuInSodbGiamThiHandler()">Tải bản in</button>
     </div>
@@ -1793,6 +1805,19 @@
                     <span class="fw-bold" id="gtCompareCountMsg"></span>
                     <button type="button" class="btn btn-success btn-sm fw-bold" onclick="xuatExcelDoiSoatGiamThi()">Xuất hồ sơ KHBD Excel</button>
                   </div>
+
+                  <!-- V70.4.6.34: tổng hợp nhanh phục vụ kiểm tra chuyên môn -->
+                  <div id="gtCompareSummaryV704634" class="row g-2 mb-3 mx-auto" style="max-width:1800px;"></div>
+
+                  <div class="d-flex flex-wrap gap-2 align-items-center mb-3 mx-auto" style="max-width:1800px;">
+                    <span class="small fw-bold text-muted me-1">Lọc nhanh:</span>
+                    <button type="button" class="btn btn-sm btn-primary gt-compare-filter-v704634" data-khbd-filter="ALL" onclick="locDoiSoatKhbdV704634('ALL',this)">Tất cả</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary gt-compare-filter-v704634" data-khbd-filter="NOT_DONE" onclick="locDoiSoatKhbdV704634('NOT_DONE',this)">Chưa thực hiện</button>
+                    <button type="button" class="btn btn-sm btn-outline-danger gt-compare-filter-v704634" data-khbd-filter="WARNING" onclick="locDoiSoatKhbdV704634('WARNING',this)">Chênh lệch</button>
+                    <button type="button" class="btn btn-sm btn-outline-warning gt-compare-filter-v704634" data-khbd-filter="DAY_THAY" onclick="locDoiSoatKhbdV704634('DAY_THAY',this)">Dạy thay</button>
+                    <span id="gtCompareFilterCountV704634" class="small text-muted ms-2"></span>
+                  </div>
+
                   <div class="table-responsive mx-auto" style="max-width: 1800px; max-height: 600px; overflow-y: auto;">
                     <table class="table table-bordered table-hover text-center align-middle" id="gtCompareTableExcel" style="font-size: 0.80rem;">
                       <thead class="table-dark sticky-top">
@@ -1806,9 +1831,10 @@
                           <th style="min-width:220px;">Nội dung KHBD</th>
                           <th style="min-width:220px;">Nội dung thực tế</th>
                           <th style="min-width:220px;">Yêu cầu cần đạt</th>
-                          <th style="min-width:190px;">Đánh giá</th>
+                          <th style="min-width:210px;">Đánh giá</th>
                           <th>GV KHBD</th>
                           <th>GV thực dạy</th>
+                          <th style="min-width:95px;">Xem SĐB</th>
                         </tr>
                       </thead>
                       <tbody id="gtCompareTableBody"></tbody>
@@ -2541,9 +2567,9 @@
 <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="assets/js/sodb-v69-runtime.js?v=70.4.6.18"></script>
 <script src="assets/js/app/sodb-v69-core.js?v=70.4.6.32"></script>
-<script src="assets/js/app/sodb-v69-khbd.js?v=70.4.6.13"></script>
-<script src="assets/js/app/sodb-v69-operations.js?v=70.4.6.32"></script>
-<script src="assets/js/app/sodb-v69-print.js?v=70.4.6.13"></script>
+<script src="assets/js/app/sodb-v69-khbd.js?v=70.4.6.34"></script>
+<script src="assets/js/app/sodb-v69-operations.js?v=70.4.6.37"></script>
+<script src="assets/js/app/sodb-v69-print.js?v=70.4.6.37"></script>
 <script src="assets/js/app/sodb-v69-admin.js?v=70.4.6.29"></script>
 <script src="assets/js/app/sodb-v69-admin-students.js?v=70.4.6.26"></script>
 <script src="assets/js/app/sodb-v69-admin-lessons.js?v=70.4.6.18"></script>

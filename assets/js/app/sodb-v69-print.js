@@ -183,6 +183,9 @@ async function taiVaHienThiDanhSachTuanGiamThi(lop, dsTuan, bookMode) {
   if (htmlAllPages) {
     const coverHtml=document.getElementById('gtPrintCoverV684')?.checked?taoTrangBiaA3V684(lop,bookMode):'';
     container.innerHTML = coverHtml + htmlAllPages;
+    if(typeof hydrateSignatureFallbackPlaceholdersV704637==='function'){
+      try{ await hydrateSignatureFallbackPlaceholdersV704637(container,true); }catch(_e){}
+    }
     const layout=(laSoGop5TuanV57()?document.getElementById('gtPrintLayoutV57')?.value:'ONE_WEEK')||'ONE_WEEK';
     const msg=layout==='FIVE_WEEKS'
       ? `Đã chuẩn bị ${loaded}/${dsTuan.length} tuần · khi in sẽ gộp tối đa 5 tuần / trang A3 - ${bookLabel}.`
@@ -436,3 +439,53 @@ function xemChiTietChuKySo(teacherLookup, thoiGianKy) {
     .layChiTietChuKySo(teacherLookup, thoiGianKy);
 }
 
+
+
+/* ===== V70.4.6.36: Độ đậm chữ ký hiển thị / in ===== */
+const SIGNATURE_INK_STORAGE_V704636='sodb_signature_ink_v704636';
+
+function signatureInkParamsV704636(levelRaw){
+  const level=Math.max(100,Math.min(150,Number(levelRaw)||115));
+  const t=(level-100)/50;
+  // 100% giữ gần mức cũ; 150% làm đậm rõ nhưng vẫn giữ chi tiết nét.
+  const contrast=Math.round(130+(70*t));
+  const brightness=(1-(0.18*t)).toFixed(3);
+  return {level,contrast,brightness};
+}
+
+function apDungDoDamChuKyV704636(levelRaw,persist=true){
+  const p=signatureInkParamsV704636(levelRaw);
+  document.documentElement.style.setProperty('--sodb-signature-contrast-v704636',`${p.contrast}%`);
+  document.documentElement.style.setProperty('--sodb-signature-brightness-v704636',p.brightness);
+  const input=document.getElementById('gtSignatureDarknessV704636');
+  const label=document.getElementById('gtSignatureDarknessValueV704636');
+  if(input&&Number(input.value)!==p.level)input.value=String(p.level);
+  if(label)label.textContent=`${p.level}%`;
+  if(persist){
+    try{localStorage.setItem(SIGNATURE_INK_STORAGE_V704636,String(p.level));}catch(_e){}
+  }
+  return p;
+}
+
+function capNhatDoDamChuKyV704636(value){
+  apDungDoDamChuKyV704636(value,true);
+}
+
+function datLaiDoDamChuKyV704636(){
+  apDungDoDamChuKyV704636(115,true);
+}
+
+function khoiTaoDoDamChuKyV704636(){
+  let saved=115;
+  try{
+    const raw=localStorage.getItem(SIGNATURE_INK_STORAGE_V704636);
+    if(raw!==null&&raw!=='')saved=Number(raw)||115;
+  }catch(_e){}
+  apDungDoDamChuKyV704636(saved,false);
+}
+
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',khoiTaoDoDamChuKyV704636,{once:true});
+}else{
+  khoiTaoDoDamChuKyV704636();
+}

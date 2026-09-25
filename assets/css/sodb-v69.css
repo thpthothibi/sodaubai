@@ -3532,6 +3532,17 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
     font-size:4.65pt!important;line-height:.92!important;white-space:nowrap!important;
     overflow:hidden!important;text-overflow:ellipsis!important;box-sizing:border-box!important;
   }
+  /* V70.4.6.39 - nét đứt theo mẫu trong các dòng trống của buổi sáng / chiều */
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-guide-line-cell-v704639{
+    display:block!important;position:relative!important;min-height:2.55mm!important;height:100%!important;
+    box-sizing:border-box!important;padding-top:.18mm!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-guide-line-cell-v704639::before{
+    content:""!important;position:absolute!important;left:.08mm!important;right:.08mm!important;top:0!important;height:.14mm!important;
+    background-image:repeating-linear-gradient(90deg,#7f8796 0 .52mm,transparent .52mm .86mm)!important;
+    background-repeat:repeat-x!important;background-position:left top!important;background-size:auto 100%!important;
+    opacity:.96!important;pointer-events:none!important;print-color-adjust:exact!important;-webkit-print-color-adjust:exact!important;
+  }
   /* V70.4.6.38 - chỉnh nét đứt trong cột Thứ giống mẫu ảnh hơn: ngắn, dày vừa và đều */
   body.a3-tracuu-v56 #a3PrintRootV56 .a3-sync-line-v704610 + .a3-sync-line-v704610{
     border-top:0!important;

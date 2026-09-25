@@ -230,6 +230,12 @@ function renderA3FieldV704610(cellData,fieldName,prefixHtml=''){
   if(fieldName==='tenBai')return `<div class="a3-cell-clamp-v56">${content}</div>`;
   return content;
 }
+function a3GuideContentWrapV704639(html,enabled){
+  if(!enabled)return html;
+  const plain=String(html||'').replace(/<[^>]+>/g,' ').replace(/&nbsp;/gi,' ').replace(/\s+/g,' ').trim();
+  if(plain)return html;
+  return `<div class="a3-guide-line-cell-v704639">&nbsp;</div>`;
+}
 
 function taoRowsSoDacBietPrintA3V45(res,mondayOfWeek){
   const dayOrder={'Thứ 2':0,'Thứ 3':1,'Thứ 4':2,'Thứ 5':3,'Thứ 6':4,'Thứ 7':5,'Chủ Nhật':6};
@@ -314,19 +320,26 @@ function layHtmlOnePageA3GiamThi(lop, tuan, bookMode) {
               const key = thuObj.name + '_' + buoi + '_' + tiet;
               const cellData = res.matrix[key] || {};
               const sigCell = renderSignatureCell(cellData, false);
+              const guideRow = (i > 0 && i < 5) || i > 5;
               let rowClass = '';
               if (i === 0 && dayIdx > 0) rowClass = 'row-day-start';
               else if (i === 5) rowClass = 'row-chieu-start';
+              if (guideRow) rowClass += ' a3-guide-row-v704639';
               rowClass += a3PrintRowMultiClassV704610(cellData);
               tableBodyHtml += `<tr class="${rowClass.trim()}">`;
               if (i === 0) tableBodyHtml += `<td rowspan="10" class="fw-bold align-middle bg-light text-center"><div>${thuObj.name}</div><div class="text-dark" style="font-size:0.55rem;">${dateFormatted}</div></td>`;
+              const monHtml = a3GuideContentWrapV704639(renderA3FieldV704610(cellData,'mon',renderPeriodStatusBadgeV683(cellData)), guideRow);
+              const tietCtHtml = a3GuideContentWrapV704639(renderA3FieldV704610(cellData,'tietCT'), guideRow);
+              const hsVangHtml = a3GuideContentWrapV704639(`<div class="a3-cell-clamp-v56 a3-one-line-v56">${escapeHtml(cellData.hsVang || '')}</div>`, guideRow);
+              const tenBaiHtml = a3GuideContentWrapV704639(renderA3FieldV704610(cellData,'tenBai'), guideRow);
+              const nhanXetHtml = a3GuideContentWrapV704639(`<div class="a3-cell-clamp-v56">${escapeHtml(sodbNhanXetSafeV83(cellData))}</div>`, guideRow);
               tableBodyHtml += `
                 <td class="fw-bold"><span class="badge ${buoi === 'Sang' ? 'text-primary' : 'text-danger'} buoi-tag">${buoi === 'Sang' ? 'S' : 'C'}</span> ${tiet}</td>
-                <td class="text-left-cell">${renderA3FieldV704610(cellData,'mon',renderPeriodStatusBadgeV683(cellData))}</td>
-                <td class="fw-bold text-primary">${renderA3FieldV704610(cellData,'tietCT')}</td>
-                <td class="text-left-cell"><div class="a3-cell-clamp-v56 a3-one-line-v56">${escapeHtml(cellData.hsVang || '')}</div></td>
-                <td class="text-left-cell">${renderA3FieldV704610(cellData,'tenBai')}</td>
-                <td class="text-left-cell"><div class="a3-cell-clamp-v56">${escapeHtml(sodbNhanXetSafeV83(cellData))}</div></td>
+                <td class="text-left-cell">${monHtml}</td>
+                <td class="fw-bold text-primary">${tietCtHtml}</td>
+                <td class="text-left-cell">${hsVangHtml}</td>
+                <td class="text-left-cell">${tenBaiHtml}</td>
+                <td class="text-left-cell">${nhanXetHtml}</td>
                 <td>${cellData.diemHT || ''}</td><td>${cellData.diemKL || ''}</td><td>${cellData.diemNN || ''}</td>
                 <td class="fw-bold">${cellData.diemTB || ''}</td><td>${sigCell}</td>
               </tr>`;

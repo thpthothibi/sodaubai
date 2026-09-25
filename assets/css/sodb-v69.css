@@ -3750,3 +3750,15 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
   body.a3-tracuu-v56 #a3PrintRootV56 .sig-gvcn-print,
   body.a3-tracuu-v56 #a3PrintRootV56 .sig-bgh-print {height:3.8mm!important;max-height:3.8mm!important;max-width:25mm!important;object-fit:contain!important;}
 }
+
+/* V42: keep faint ink instead of clipping it to white with high contrast. */
+@media print {
+ body.a3-tracuu-v56 #a3PrintRootV56 .sig-img-preview,
+ body.a3-tracuu-v56 #a3PrintRootV56 .sig-gvcn-print,
+ body.a3-tracuu-v56 #a3PrintRootV56 .sig-bgh-print {
+   filter:url("#sodb-print-signature-ink-v42")!important;
+   -webkit-filter:url("#sodb-print-signature-ink-v42")!important;
+   opacity:1!important;
+   print-color-adjust:exact!important;-webkit-print-color-adjust:exact!important;
+ }
+}

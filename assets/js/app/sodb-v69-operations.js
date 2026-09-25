@@ -371,7 +371,7 @@
       if(sigUrl){
         const altText=name?`Chữ ký ${name}`:'Chữ ký giáo viên';
         const rawSig=entry.signatureUrl||entry.kySo||'';
-        const candidates=buildSignatureUrlCandidatesV682(rawSig);
+        const candidates=buildSignatureUrlCandidatesV682(normalizeSignatureUrlV67_1(rawSig));
         const firstSig=candidates[0]||sigUrl;
         return `<div class="sig-container mixed-entry"${clickAttr}><img src="${escapeHtml(firstSig)}" class="sig-img-preview" loading="eager" decoding="async" alt="${escapeHtml(altText)}" data-sig-candidates='${escapeHtml(JSON.stringify(candidates))}' data-sig-index="0" onerror="handleSignatureImageErrorV682(this)">${nameHtml}</div>`;
       }

@@ -343,144 +343,8 @@
     return '';
   }
 
-  const signatureFallbackCacheV704637=new Map();
-  const signatureFallbackPendingV704637=new Map();
-  let signatureDirectoryRowsV704639=null;
-  let signatureDirectoryPendingV704639=null;
-  function signatureNormalizeKeyV704639(value){
-    return String(value||'').trim().toLocaleLowerCase('vi').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/\s+/g,' ');
-  }
-  function signatureFallbackKeyV704637(lookup,name){
-    return `${signatureNormalizeKeyV704639(lookup)}|${signatureNormalizeKeyV704639(name)}`;
-  }
-  function signatureTeacherIdentifiersV704639(obj){
-    const fields=[obj&&obj.teacherLookup,obj&&obj.cccd,obj&&obj.account,obj&&obj.taiKhoan,obj&&obj.username,obj&&obj.email,obj&&obj.phone,obj&&obj.sdt,obj&&obj.name,obj&&obj.tenGV,obj&&obj.hoTen,obj&&obj.displayName,obj&&obj.fullName];
-    return [...new Set(fields.map(signatureNormalizeKeyV704639).filter(Boolean))];
-  }
-  function signatureTeacherUrlV704639(obj){
-    if(!obj||typeof obj!=='object')return '';
-    const raw=obj.urlChuKy||obj.signatureUrl||obj.signatureRef||obj.signaturePath||obj.url_chu_ky||obj.signature_url||obj.signature_ref||'';
-    return typeof normalizeSignatureUrlV67_1==='function'?normalizeSignatureUrlV67_1(raw):String(raw||'').trim();
-  }
-  function lookupSessionSignatureV704639(lookup,name){
-    const wanted=new Set([signatureNormalizeKeyV704639(lookup),signatureNormalizeKeyV704639(name)].filter(Boolean));
-    if(!wanted.size)return '';
-    const buckets=[];
-    if(typeof gvbmDangNhapInfo!=='undefined'&&gvbmDangNhapInfo)buckets.push(gvbmDangNhapInfo);
-    if(typeof gvcnDangNhapInfo!=='undefined'&&gvcnDangNhapInfo)buckets.push(gvcnDangNhapInfo);
-    if(typeof adminDangNhapInfo!=='undefined'&&adminDangNhapInfo)buckets.push(adminDangNhapInfo);
-    if(typeof currentUnifiedLoginV4!=='undefined'){
-      const sessions=(currentUnifiedLoginV4&&currentUnifiedLoginV4.sessions)||{};
-      Object.keys(sessions).forEach(k=>{ if(sessions[k]) buckets.push(sessions[k]); });
-      if(currentUnifiedLoginV4.profile)buckets.push(currentUnifiedLoginV4.profile);
-    }
-    for(const item of buckets){
-      const url=signatureTeacherUrlV704639(item);
-      if(!url)continue;
-      const ids=signatureTeacherIdentifiersV704639(item);
-      if(ids.some(id=>wanted.has(id)))return url;
-    }
-    return '';
-  }
-  async function loadTeacherDirectoryForSignatureV704639(){
-    if(Array.isArray(signatureDirectoryRowsV704639))return signatureDirectoryRowsV704639;
-    if(signatureDirectoryPendingV704639)return signatureDirectoryPendingV704639;
-    if(typeof callSodbEdgeRpcV67!=='function' || typeof getAnyAuthV6!=='function')return [];
-    const auth=getAnyAuthV6();
-    if(!auth||!auth.token)return [];
-    signatureDirectoryPendingV704639=(async()=>{
-      try{
-        const res=await callSodbEdgeRpcV67('layDanhSachGiaoVienAdminV704618',[auth],15000);
-        signatureDirectoryRowsV704639=Array.isArray(res&&res.data)?res.data:[];
-      }catch(_e){
-        signatureDirectoryRowsV704639=[];
-      }finally{
-        signatureDirectoryPendingV704639=null;
-      }
-      return signatureDirectoryRowsV704639;
-    })();
-    return signatureDirectoryPendingV704639;
-  }
-  async function lookupDirectorySignatureV704639(lookup,name){
-    const wanted=new Set([signatureNormalizeKeyV704639(lookup),signatureNormalizeKeyV704639(name)].filter(Boolean));
-    if(!wanted.size)return '';
-    const rows=await loadTeacherDirectoryForSignatureV704639();
-    for(const row of rows||[]){
-      const ids=signatureTeacherIdentifiersV704639(row);
-      if(ids.some(id=>wanted.has(id))){
-        const url=signatureTeacherUrlV704639(row);
-        if(url)return url;
-      }
-    }
-    return '';
-  }
-  function renderSignatureFallbackPlaceholderV704637(nameHtml,lookup,name,time,clickAttr){
-    const encodedLookup=escapeHtml(String(lookup||''));
-    const encodedName=escapeHtml(String(name||''));
-    const encodedTime=escapeHtml(String(time||''));
-    return `<div class="sig-container mixed-entry sig-fallback-loading-v704637 sig-fallback-pending-v704637" data-signature-hydrated="0" data-teacher-lookup="${encodedLookup}" data-teacher-name="${encodedName}" data-teacher-time="${encodedTime}"${clickAttr}><div class="sig-fallback-slot-v704637"></div>${nameHtml}${name?'<div class="sig-fallback-note-v704637">Đang bổ sung chữ ký hiện tại…</div>':''}</div>`;
-  }
-  function fetchTeacherSignatureFallbackV704637(lookup,name,time){
-    const key=signatureFallbackKeyV704637(lookup,name);
-    if(signatureFallbackCacheV704637.has(key))return Promise.resolve(signatureFallbackCacheV704637.get(key));
-    if(signatureFallbackPendingV704637.has(key))return signatureFallbackPendingV704637.get(key);
-    const promise=(async()=>{
-      const candidateLookup=String(lookup||name||'').trim();
-      if(!candidateLookup){
-        signatureFallbackCacheV704637.set(key,'');
-        return '';
-      }
-      const sessionUrl=lookupSessionSignatureV704639(lookup,name);
-      if(sessionUrl){
-        signatureFallbackCacheV704637.set(key,sessionUrl);
-        return sessionUrl;
-      }
-      const edgeUrl=await lookupDirectorySignatureV704639(lookup,name);
-      if(edgeUrl){
-        signatureFallbackCacheV704637.set(key,edgeUrl);
-        return edgeUrl;
-      }
-      if(window.google&&google.script&&google.script.run&&typeof google.script.run.withSuccessHandler==='function'){
-        const gasUrl=await new Promise(resolve=>{
-          google.script.run
-            .withSuccessHandler(function(res){ resolve(normalizeSignatureUrlV67_1(res&&res.urlChuKy||'')); })
-            .withFailureHandler(function(){ resolve(''); })
-            .layChiTietChuKySo(candidateLookup,time||'');
-        });
-        signatureFallbackCacheV704637.set(key,gasUrl||'');
-        return gasUrl||'';
-      }
-      signatureFallbackCacheV704637.set(key,'');
-      return '';
-    })().finally(()=>{ signatureFallbackPendingV704637.delete(key); });
-    signatureFallbackPendingV704637.set(key,promise);
-    return promise;
-  }
-  function hydrateSignatureFallbackPlaceholdersV704637(root=document,waitForAll=false){
-    const host=root&&root.querySelectorAll?root:document;
-    const nodes=[...host.querySelectorAll('.sig-fallback-pending-v704637[data-signature-hydrated="0"]')];
-    const tasks=nodes.map(node=>{
-      node.dataset.signatureHydrated='1';
-      const lookup=String(node.dataset.teacherLookup||'').trim();
-      const name=String(node.dataset.teacherName||'').trim();
-      const time=String(node.dataset.teacherTime||'').trim();
-      return fetchTeacherSignatureFallbackV704637(lookup,name,time).then(url=>{
-        const slot=node.querySelector('.sig-fallback-slot-v704637');
-        if(url&&slot){
-          const safeUrl=escapeHtml(url);
-          const altText=name?`Chữ ký ${name}`:'Chữ ký giáo viên';
-          slot.innerHTML=`<img src="${safeUrl}" class="sig-img-preview" loading="eager" decoding="async" alt="${escapeHtml(altText)}" onerror="handleSignatureImageErrorV682(this)">`;
-          node.classList.remove('sig-fallback-loading-v704637','sig-fallback-error-v704637','sig-fallback-empty-v704637');
-          node.classList.add('sig-fallback-ready-v704637');
-        }else{
-          node.classList.remove('sig-fallback-loading-v704637');
-          node.classList.add(name?'sig-fallback-error-v704637':'sig-fallback-empty-v704637');
-        }
-        return url||'';
-      });
-    });
-    return waitForAll?Promise.all(tasks):Promise.resolve(tasks);
-  }
+  // V704640: signatures arrive with the authorized book response.
+  function hydrateSignatureFallbackPlaceholdersV704637(){return Promise.resolve([]);}
   function renderSignatureCell(cellData, clickable = true) {
     /* V8.2: ô trống phải thực sự trống; không dùng chữ mặc định "Giáo viên". */
     const entries=getCellEntries(cellData).filter(entry=>{
@@ -511,7 +375,7 @@
         const firstSig=candidates[0]||sigUrl;
         return `<div class="sig-container mixed-entry"${clickAttr}><img src="${escapeHtml(firstSig)}" class="sig-img-preview" loading="eager" decoding="async" alt="${escapeHtml(altText)}" data-sig-candidates='${escapeHtml(JSON.stringify(candidates))}' data-sig-index="0" onerror="handleSignatureImageErrorV682(this)">${nameHtml}</div>`;
       }
-      return name?renderSignatureFallbackPlaceholderV704637(nameHtml,lookup,name,time,clickAttr):'';
+      return name?`<div class="sig-container mixed-entry"${clickAttr}>${nameHtml}</div>`:'';
     }).join('')}</div>`;
   }
 

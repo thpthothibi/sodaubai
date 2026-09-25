@@ -3619,8 +3619,8 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
    Chỉ thay đổi cách HIỂN THỊ/IN, không sửa file chữ ký gốc.
    ========================================================= */
 :root{
-  --sodb-signature-contrast-v704636:151%;
-  --sodb-signature-brightness-v704636:.946;
+  --sodb-signature-contrast-v704636:220%;
+  --sodb-signature-brightness-v704636:.916;
 }
 .signature-ink-control-v704636{
   max-width:440px;
@@ -3640,16 +3640,39 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
 .signature-preview-v21 img,
 .gvcn-signature-preview-v681 img,
 #certSigImage{
-  filter:contrast(var(--sodb-signature-contrast-v704636)) brightness(var(--sodb-signature-brightness-v704636))!important;
-  -webkit-filter:contrast(var(--sodb-signature-contrast-v704636)) brightness(var(--sodb-signature-brightness-v704636))!important;
+  filter:brightness(var(--sodb-signature-brightness-v704636)) contrast(var(--sodb-signature-contrast-v704636))!important;
+  -webkit-filter:brightness(var(--sodb-signature-brightness-v704636)) contrast(var(--sodb-signature-contrast-v704636))!important;
 }
 @media print{
   .sig-img-preview,
   .sig-gvcn-print,
   .sig-bgh-print{
-    filter:contrast(var(--sodb-signature-contrast-v704636)) brightness(var(--sodb-signature-brightness-v704636))!important;
-    -webkit-filter:contrast(var(--sodb-signature-contrast-v704636)) brightness(var(--sodb-signature-brightness-v704636))!important;
+    filter:brightness(var(--sodb-signature-brightness-v704636)) contrast(var(--sodb-signature-contrast-v704636))!important;
+    -webkit-filter:brightness(var(--sodb-signature-brightness-v704636)) contrast(var(--sodb-signature-contrast-v704636))!important;
     print-color-adjust:exact!important;
     -webkit-print-color-adjust:exact!important;
   }
+}
+
+/* V70.4.6.40: continuous dotted boundaries, like the supplied ruled-book sample.
+   Override BOTH collapsed-border edges so an old solid edge cannot win. */
+@media print {
+ body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb tbody tr,
+ body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb tbody {
+   border-top:0!important;border-bottom:0!important;
+ }
+ body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb tbody tr>td {
+   border-top:0!important;border-bottom:.18mm dotted #333!important;
+   border-left:.18mm solid #333!important;border-right:.18mm solid #333!important;
+ }
+ body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb tbody tr.row-day-start>td,
+ body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb tbody tr.row-chieu-start>td,
+ body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb tbody tr:first-child>td {
+   border-top:.22mm solid #222!important;
+ }
+ body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb tbody tr:last-child>td,
+ body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb tbody td[rowspan] {
+   border-bottom:.22mm solid #222!important;
+ }
+ body.a3-tracuu-v56 #a3PrintRootV56 .a3-guide-line-cell-v704639::before {content:none!important;}
 }

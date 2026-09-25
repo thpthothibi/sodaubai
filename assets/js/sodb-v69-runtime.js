@@ -122,6 +122,7 @@
     'layVongDoiNamHocV700','kiemTraDongNamHocV700','dongNamHocTaoNamMoiV700','layLuuTruNamHocV700','layLuuTruNamHocV702','layChuKyLuuTruV702','layHoSoInLuuTruV702',
     'layDuLieuGocAdminV696','luuGiaoVienAdminV696','luuPhanCongDayAdminV696','xoaPhanCongDayAdminV696','luuGvcnAdminV696','xoaGvcnAdminV696','luuToChuyenMonAdminV696','xoaToChuyenMonAdminV696',
     'layDanhSachGiaoVienDieuHanhV693','layChuongTrinhNgoaiTruongV7044','luuChuongTrinhNgoaiTruongV7044','danhDauDaKiemTraBGHV7044','duyetNhieuSoDaKiemTraV7044','layNhanSuNgoaiTruongV693','luuNhanSuNgoaiTruongV693','doiTrangThaiNhanSuNgoaiTruongV693','layNhanSuNgoaiTruongChoKyV693',
+    'layDanhMucKyThayHangLoatV704645','layKhungTietLienKetV704645','luuKhungTietLienKetV704645','ngungKhungTietLienKetV704645','xemTruocKyThayHangLoatV704645','datPinKyThayV704645','kyThayHangLoatV704645',
     'layHoSoNghiGiaoVienV693','luuHoSoNghiGiaoVienV693','duyetHoSoNghiGiaoVienV693',
     'layDieuHanhTietDayV693','luuDieuHanhTietDayV693','duyetDieuHanhTietDayV693','layDieuHanhTietCuaToiV693','layNhiemVuDieuHanhCuaToiV693','tongQuanDieuHanhV693','layDanhMucMaTranKHBDV694','layMaTranKHBDLopV694','baoCaoDieuHanhNangCaoV694','layCanhBaoTuDongV695','layDanhSachHocSinhNhomV6951','luuDanhSachHocSinhNhomV6951','luuChotTuanNhomV6951','duyetTuanNhomBGHV6951','baoCaoNhomHocV6951'
   ]);

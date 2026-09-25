@@ -97,6 +97,7 @@ function initControlV693(force=false){
   if(force||(now-controlDataLoadedAtV6954)>30000){taiTongQuanDieuHanhV693();taiDieuHanhV693();controlDataLoadedAtV6954=now;}
   if(force||!externalProgramsCacheV7044.length){taiChuongTrinhNgoaiV7044(true);}
   if(force||!externalStaffCacheV693.length||(now-externalStaffLoadedAtV6954)>600000){taiNhanSuNgoaiV693(true);}
+  try{apDungHienThiKyThayHangLoatV704645();}catch(_e){}
 }
 function taiTongQuanDieuHanhV693(){const auth=controlAuthV693();if(!auth.token)return;google.script.run.withSuccessHandler(res=>{if(!res||!res.success)return;const m=res.metrics||{};document.querySelectorAll('#controlSummaryV693 [data-metric]').forEach(x=>x.textContent=String(m[x.dataset.metric]??0));}).tongQuanDieuHanhV693(schoolTodayV693(),auth);}
 
@@ -153,8 +154,15 @@ function suaNhanSuNgoaiV693(id){const r=externalStaffCacheV693.find(x=>x.id===id
 function luuNhanSuNgoaiV693(){const payload={phuongThucKy:document.getElementById('externalModeV7044').value,taiKhoanTuKy:document.getElementById('externalAccountV7044').value,id:document.getElementById('externalIdV693').value,programId:document.getElementById('externalProgramSelectV7044')?.value||'',hoTen:document.getElementById('externalNameV693').value,donVi:document.getElementById('externalOrgV693').value,chucDanh:document.getElementById('externalTitleV693').value,chuyenMon:canonicalSubjectV6955(document.getElementById('externalSpecialtyV693').value),sdt:document.getElementById('externalPhoneV693').value,tuNgay:document.getElementById('externalFromV693').value,denNgay:document.getElementById('externalToV693').value,phamViLop:splitScopeV693(document.getElementById('externalClassesV693').value),phamViMon:canonicalSubjectListV6955(splitScopeV693(document.getElementById('externalSubjectsV693').value)),trangThai:document.getElementById('externalStatusV693').value,ghiChu:document.getElementById('externalNoteV693').value};google.script.run.withSuccessHandler(res=>{if(!res||!res.success){showToastV9(res&&res.message||'Không lưu được nhân sự.','danger');return;}showToastV9(res.message||'Đã lưu.','success');document.getElementById('externalIdV693').value=res.data?.id||'';taiNhanSuNgoaiV693();taiTongQuanDieuHanhV693();}).luuNhanSuNgoaiTruongV693(payload,controlAuthV693());}
 
 function proxyAuthV693(){const s=currentUnifiedLoginV4&&currentUnifiedLoginV4.sessions||{};return {token:(s.ADMIN||s.BGH||{}).sessionToken||''};}
-function capQuyenKyThayV693(){const externalId=document.getElementById('proxyExternalV693').value,payload={taiKhoan:document.getElementById('proxyAccountV693').value,quyen:'PROXY_SIGN',tuNgay:document.getElementById('proxyFromV693').value,denNgay:document.getElementById('proxyToV693').value,lyDo:document.getElementById('proxyReasonV693').value,kichHoat:true,phamVi:{external_staff_ids:externalId?[externalId]:[],subjects:canonicalSubjectListV6955(splitScopeV693(document.getElementById('proxySubjectsV693').value)),classes:splitScopeV693(document.getElementById('proxyClassesV693').value)}};if(!payload.taiKhoan||!externalId){showToastV9('Phải chọn tài khoản ký và nhân sự ngoài trường.','danger');return;}google.script.run.withSuccessHandler(res=>{if(!res||!res.success){showToastV9(res&&res.message||'Không cấp được quyền.','danger');return;}showToastV9('Đã cấp quyền ký thay theo phạm vi.','success');taiQuyenKyThayV693();}).luuQuyenDacBietV69(payload,proxyAuthV693());}
-function taiQuyenKyThayV693(){const body=document.getElementById('proxyBodyV693');if(!body)return;if(!externalStaffCacheV693.length)taiNhanSuNgoaiV693(true);body.innerHTML='<tr><td colspan="7" class="text-center text-muted">Đang tải...</td></tr>';google.script.run.withSuccessHandler(res=>{if(!res||!res.success){body.innerHTML=`<tr><td colspan="7" class="text-danger text-center">${escV693(res&&res.message||'Lỗi')}</td></tr>`;return;}const rows=(res.data||[]).filter(r=>r.quyen==='PROXY_SIGN');body.innerHTML=rows.length?rows.map(r=>{const sc=r.pham_vi||{},ids=Array.isArray(sc.external_staff_ids)?sc.external_staff_ids:[],names=ids.map(id=>externalStaffCacheV693.find(x=>x.id===id)?.hoTen||id);return `<tr><td><strong>${escV693(r.tai_khoan)}</strong></td><td>${escV693(names.join(', ')||'Legacy: chưa giới hạn')}</td><td>${escV693((sc.subjects||[]).join(', ')||'Tất cả')}</td><td>${escV693((sc.classes||[]).join(', ')||'Tất cả')}</td><td>${escV693(r.tu_ngay)} → ${escV693(r.den_ngay||'Không giới hạn')}</td><td>${escV693(r.ly_do||'')}</td><td>${r.kich_hoat!==false?`<button class="btn btn-sm btn-outline-danger" onclick="thuHoiQuyenKyThayV693('${escV693(r.id)}')">Thu hồi</button>`:'—'}</td></tr>`;}).join(''):'<tr><td colspan="7" class="text-center text-muted">Chưa có quyền ký thay.</td></tr>';}).layQuyenDacBietV69(proxyAuthV693());}
+function capQuyenKyThayV693(){
+  const externalId=document.getElementById('proxyExternalV693').value;
+  const batchSign=!!document.getElementById('proxyBatchSignV704645')?.checked;
+  const batchCreate=!!document.getElementById('proxyBatchCreateV704645')?.checked;
+  const payload={taiKhoan:document.getElementById('proxyAccountV693').value,quyen:'PROXY_SIGN',tuNgay:document.getElementById('proxyFromV693').value,denNgay:document.getElementById('proxyToV693').value,lyDo:document.getElementById('proxyReasonV693').value,kichHoat:true,phamVi:{external_staff_ids:externalId?[externalId]:[],subjects:canonicalSubjectListV6955(splitScopeV693(document.getElementById('proxySubjectsV693').value)),classes:splitScopeV693(document.getElementById('proxyClassesV693').value),batch_sign:batchSign,batch_create:batchCreate}};
+  if(!payload.taiKhoan||!externalId){showToastV9('Phải chọn tài khoản ký và nhân sự ngoài trường.','danger');return;}
+  google.script.run.withSuccessHandler(res=>{if(!res||!res.success){showToastV9(res&&res.message||'Không cấp được quyền.','danger');return;}showToastV9(batchSign?'Đã cấp quyền ký thay, bao gồm ký hàng loạt.':'Đã cấp quyền ký thay theo phạm vi.','success');taiQuyenKyThayV693();}).luuQuyenDacBietV69(payload,proxyAuthV693());
+}
+function taiQuyenKyThayV693(){const body=document.getElementById('proxyBodyV693');if(!body)return;if(!externalStaffCacheV693.length)taiNhanSuNgoaiV693(true);body.innerHTML='<tr><td colspan="7" class="text-center text-muted">Đang tải...</td></tr>';google.script.run.withSuccessHandler(res=>{if(!res||!res.success){body.innerHTML=`<tr><td colspan="7" class="text-danger text-center">${escV693(res&&res.message||'Lỗi')}</td></tr>`;return;}const rows=(res.data||[]).filter(r=>r.quyen==='PROXY_SIGN');body.innerHTML=rows.length?rows.map(r=>{const sc=r.pham_vi||{},ids=Array.isArray(sc.external_staff_ids)?sc.external_staff_ids:[],names=ids.map(id=>externalStaffCacheV693.find(x=>x.id===id)?.hoTen||id);const batchBadges=`${sc.batch_sign?'<span class="badge text-bg-primary mt-1 me-1">Ký hàng loạt</span>':''}${sc.batch_create?'<span class="badge text-bg-info mt-1">Tạo tiết + ký</span>':''}`;return `<tr><td><strong>${escV693(r.tai_khoan)}</strong></td><td>${escV693(names.join(', ')||'Legacy: chưa giới hạn')}${batchBadges?`<br>${batchBadges}`:''}</td><td>${escV693((sc.subjects||[]).join(', ')||'Tất cả')}</td><td>${escV693((sc.classes||[]).join(', ')||'Tất cả')}</td><td>${escV693(r.tu_ngay)} → ${escV693(r.den_ngay||'Không giới hạn')}</td><td>${escV693(r.ly_do||'')}</td><td>${r.kich_hoat!==false?`<button class="btn btn-sm btn-outline-danger" onclick="thuHoiQuyenKyThayV693('${escV693(r.id)}')">Thu hồi</button>`:'—'}</td></tr>`;}).join(''):'<tr><td colspan="7" class="text-center text-muted">Chưa có quyền ký thay.</td></tr>';}).layQuyenDacBietV69(proxyAuthV693());}
 function thuHoiQuyenKyThayV693(id){const reason=prompt('Lý do thu hồi:','Hết phân công ký thay');if(reason===null)return;google.script.run.withSuccessHandler(res=>{if(!res||!res.success){showToastV9(res&&res.message||'Không thu hồi được.','danger');return;}showToastV9('Đã thu hồi quyền.','success');taiQuyenKyThayV693();}).thuHoiQuyenDacBietV69(id,reason,proxyAuthV693());}
 
 // ----------------------------- NHẬP TIẾT V69.3 -----------------------------
@@ -223,3 +231,119 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 
 function newExternalStaffV7044(){for(const id of ['externalIdV693','externalNameV693','externalOrgV693','externalTitleV693','externalSpecialtyV693','externalPhoneV693','externalToV693','externalNoteV693','externalAccountV7044','externalProgramSelectV7044']){const e=document.getElementById(id);if(e)e.value='';}document.getElementById('externalModeV7044').value='PROXY_SIGN';document.getElementById('externalStatusV693').value='DANG_HOAT_DONG';setScopePickerValuesV6953('externalClassesV693',[]);setScopePickerValuesV6953('externalSubjectsV693',[]);}
+
+/* ========================================================================
+   V70.4.6.45 - KHUNG TIẾT CHƯƠNG TRÌNH LIÊN KẾT + KÝ THAY HÀNG LOẠT
+   Không phụ thuộc TKB. Server luôn kiểm lại quyền/slot trước khi ký.
+   ======================================================================== */
+let batchCatalogV704645={programs:[],staff:[],canBatchSign:false,canBatchCreate:false,hasPin:false};
+let batchPreviewV704645=[];
+let extSlotsV704645=[];
+
+function specialPermissionsClientV704645(){
+  const b=currentUnifiedLoginV4?.bootstrap?.specialPermissions||[];
+  const s=currentUnifiedLoginV4?.sessions||{};
+  const more=Object.values(s).flatMap(x=>Array.isArray(x?.specialPermissions)?x.specialPermissions:[]);
+  return [...new Set([...(Array.isArray(b)?b:[]),...more])];
+}
+function hasProxyPermissionClientV704645(){return specialPermissionsClientV704645().includes('PROXY_SIGN');}
+function batchSessionV704645(){
+  const s=currentUnifiedLoginV4?.sessions||{};
+  return s.ADMIN||s.BGH||s.TTCM||s.GIAM_THI||s.GVBM||null;
+}
+function batchAuthV704645(){const s=batchSessionV704645();return {token:s?.sessionToken||''};}
+function canManageSlotsV704645(){const r=controlRolesV693();return r.includes('ADMIN')||r.includes('BGH');}
+function apDungHienThiKyThayHangLoatV704645(){
+  const hasProxy=hasProxyPermissionClientV704645(),manager=canManageSlotsV704645(),roles=controlRolesV693(),canOps=manager||roles.includes('GIAM_THI');
+  document.querySelectorAll('#tabControlV693 .manage-external-slot-v704645').forEach(x=>x.classList.toggle('d-none',!manager));
+  document.querySelectorAll('#tabControlV693 .batch-sign-tab-v704645').forEach(x=>x.classList.toggle('d-none',!hasProxy));
+  if(!canOps&&hasProxy){
+    ['#controlSubTabsV6953 [data-bs-target="#control-ops-v693"]','#controlSubTabsV6953 [data-bs-target="#control-absence-v693"]','#controlSubTabsV6953 [data-bs-target="#control-external-v693"]','#controlSubTabsV6953 [data-bs-target="#control-proxy-v693"]','#controlSubTabsV6953 [data-bs-target="#control-alerts-v695"]','#controlSubTabsV6953 [data-bs-target="#control-report-v694"]','#controlSubTabsV6953 [data-bs-target="#group-report-v6951"]'].forEach(sel=>{const b=document.querySelector(sel);if(b?.closest('li'))b.closest('li').classList.add('d-none');});
+    const btn=document.getElementById('control-batch-sign-tab-v704645');if(btn){setTimeout(()=>{try{window.bootstrap?bootstrap.Tab.getOrCreateInstance(btn).show():btn.click();}catch(_e){btn.click();}},60);}
+  }
+}
+function initBatchDatesV704645(){
+  const today=schoolTodayV693();
+  const from=document.getElementById('extSlotFromV704645'),to=document.getElementById('extSlotToV704645');
+  if(from&&!from.value)from.value=today;if(to&&!to.value)to.value=addDaysClientV693(today,120);
+  const wk=document.getElementById('batchWeekV704645');const cur=Number(currentUnifiedLoginV4?.bootstrap?.currentWeek||currentUnifiedLoginV4?.bootstrap?.schoolYear?.currentWeek||0);if(wk&&(!wk.value||Number(wk.value)===1)&&cur>0)wk.value=String(cur);
+}
+function locLopKhungTietV704645(){
+  const grade=String(document.getElementById('extSlotGradeV704645')?.value||'10');const el=document.getElementById('extSlotClassesV704645');if(!el)return;
+  const values=(operationalClassesV6953||[]).filter(c=>String(c).startsWith(grade)).sort((a,b)=>String(a).localeCompare(String(b),'vi',{numeric:true}));
+  el.innerHTML=values.map(c=>`<option value="${escV693(c)}">${escV693(c)}</option>`).join('');
+}
+function chonCaKhoiKhungTietV704645(){const el=document.getElementById('extSlotClassesV704645');if(el)[...el.options].forEach(o=>o.selected=true);}
+function populateBatchCatalogV704645(){
+  const pOpts=['<option value="">-- Chọn chương trình --</option>'].concat((batchCatalogV704645.programs||[]).map(p=>`<option value="${escV693(p.id)}">${escV693(p.tenChuongTrinh)} · ${escV693(p.tenMon)}</option>`)).join('');
+  ['extSlotProgramV704645','batchProgramV704645'].forEach(id=>{const e=document.getElementById(id);if(!e)return;const old=e.value;e.innerHTML=pOpts;if([...e.options].some(o=>o.value===old))e.value=old;});
+  doiChuongTrinhKhungTietV704645();locLopKhungTietV704645();
+}
+function doiChuongTrinhKhungTietV704645(){
+  const pid=document.getElementById('extSlotProgramV704645')?.value||'',sel=document.getElementById('extSlotStaffV704645');if(!sel)return;
+  const rows=(batchCatalogV704645.staff||[]).filter(x=>!pid||String(x.programId||'')===pid);
+  sel.innerHTML='<option value="">-- Chọn nhân sự --</option>'+rows.map(x=>`<option value="${escV693(x.id)}">${escV693(x.hoTen)}${x.chucDanh?' · '+escV693(x.chucDanh):''}</option>`).join('');
+}
+function taiDanhMucBatchV704645(done){
+  const auth=batchAuthV704645();if(!auth.token)return;
+  google.script.run.withSuccessHandler(res=>{if(!res?.success){showToastV9(res?.message||'Không tải được danh mục ký thay.','danger');return;}batchCatalogV704645=res;populateBatchCatalogV704645();if(typeof done==='function')done(res);}).layDanhMucKyThayHangLoatV704645(auth);
+}
+function moKyThayHangLoatV704645(){initBatchDatesV704645();taiDanhMucLopMonDieuHanhV6953(false);taiDanhMucBatchV704645();}
+function taiKhungTietLienKetV704645(){
+  if(!canManageSlotsV704645())return;initBatchDatesV704645();taiDanhMucLopMonDieuHanhV6953(false);
+  taiDanhMucBatchV704645(()=>{
+    const body=document.getElementById('extSlotBodyV704645');if(body)body.innerHTML='<tr><td colspan="7" class="text-center text-muted">Đang tải...</td></tr>';
+    google.script.run.withSuccessHandler(res=>{if(!res?.success){if(body)body.innerHTML=`<tr><td colspan="7" class="text-center text-danger">${escV693(res?.message||'Lỗi')}</td></tr>`;return;}extSlotsV704645=res.data||[];if(body)body.innerHTML=extSlotsV704645.length?extSlotsV704645.map(r=>`<tr><td><strong>${escV693(r.programName)}</strong><br><small>${escV693(r.subject)}</small></td><td>${escV693(r.staffName)}</td><td><strong>${escV693(r.lop)}</strong><br><small>Khối ${escV693(r.khoi)}</small></td><td>Thứ ${escV693(r.thu)} · ${escV693(r.buoi)} · Tiết ${escV693(r.tiet)}</td><td>${escV693(r.tuNgay)} → ${escV693(r.denNgay||'Không giới hạn')}</td><td>${r.kichHoat?'<span class="badge text-bg-success">Đang dùng</span>':'<span class="badge text-bg-secondary">Đã ngừng</span>'}</td><td>${r.kichHoat?`<button class="btn btn-sm btn-outline-danger" onclick="ngungKhungTietLienKetV704645('${escV693(r.id)}')">Ngừng</button>`:'—'}</td></tr>`).join(''):'<tr><td colspan="7" class="text-center text-muted">Chưa có khung tiết.</td></tr>';}).layKhungTietLienKetV704645({},batchAuthV704645());
+  });
+}
+function luuKhungTietLienKetV704645(){
+  const classes=[...(document.getElementById('extSlotClassesV704645')?.selectedOptions||[])].map(o=>o.value).filter(Boolean);
+  const payload={programId:document.getElementById('extSlotProgramV704645')?.value||'',externalStaffId:document.getElementById('extSlotStaffV704645')?.value||'',hocKy:document.getElementById('extSlotSemesterV704645')?.value||'HK1',khoi:Number(document.getElementById('extSlotGradeV704645')?.value||0),classes,thu:Number(document.getElementById('extSlotWeekdayV704645')?.value||0),buoi:document.getElementById('extSlotSessionV704645')?.value||'Sáng',tiet:Number(document.getElementById('extSlotPeriodV704645')?.value||0),tuNgay:document.getElementById('extSlotFromV704645')?.value||'',denNgay:document.getElementById('extSlotToV704645')?.value||'',ghiChu:document.getElementById('extSlotNoteV704645')?.value||''};
+  if(!payload.programId||!payload.externalStaffId||!classes.length||!payload.tuNgay){showToastV9('Cần chọn chương trình, nhân sự, ít nhất một lớp và ngày bắt đầu.','warning');return;}
+  google.script.run.withSuccessHandler(res=>{if(!res?.success){showToastV9(res?.message||'Không lưu được khung tiết.','danger');return;}showToastV9(res.message||'Đã lưu khung tiết.','success');taiKhungTietLienKetV704645();}).luuKhungTietLienKetV704645(payload,batchAuthV704645());
+}
+function ngungKhungTietLienKetV704645(id){const reason=prompt('Lý do ngừng khung tiết:','Thay đổi lịch chương trình liên kết');if(reason===null)return;google.script.run.withSuccessHandler(res=>{if(res?.success){showToastV9(res.message||'Đã ngừng khung tiết.','success');taiKhungTietLienKetV704645();}else showToastV9(res?.message||'Không ngừng được khung tiết.','danger');}).ngungKhungTietLienKetV704645(id,reason,batchAuthV704645());}
+function batchGradesV704645(){return [...document.querySelectorAll('.batch-grade-v704645:checked')].map(x=>Number(x.value)).filter(x=>[10,11,12].includes(x));}
+function batchStatusBadgeV704645(r){const m={READY:['success','Sẵn sàng ký'],READY_CREATE:['primary','Sẵn sàng tạo & ký'],ALREADY_SIGNED:['secondary','Đã ký'],BLOCKED:['danger','Không được ký'],SKIP:['warning','Bỏ qua']};const x=m[r.status]||['secondary',r.status||''];return `<span class="badge text-bg-${x[0]}">${escV693(x[1])}</span>${r.reason?`<div class="small text-muted mt-1">${escV693(r.reason)}</div>`:''}`;}
+function renderBatchPreviewV704645(){
+  const body=document.getElementById('batchPreviewBodyV704645'),summary=document.getElementById('batchSummaryV704645'),btn=document.getElementById('btnBatchSignV704645');if(!body)return;
+  if(!batchPreviewV704645.length){body.innerHTML='<tr><td colspan="9" class="text-center text-muted py-4">Không có tiết phù hợp.</td></tr>';if(btn)btn.disabled=true;return;}
+  body.innerHTML=batchPreviewV704645.map((r,i)=>{const selectable=['READY','READY_CREATE'].includes(r.status);return `<tr data-batch-index="${i}"><td class="text-center"><input class="form-check-input batch-row-check-v704645" type="checkbox" ${selectable?'checked':'disabled'} onchange="capNhatBatchSummaryV704645()"></td><td><strong>${escV693(r.lop)}</strong><br><small>Khối ${escV693(r.khoi)}</small></td><td>${escV693(r.ngayDay)}<br><small>Thứ ${escV693(r.thu)} · ${escV693(r.buoi)} · Tiết ${escV693(r.tiet)}</small></td><td>${escV693(r.staffName)}<br><small>${escV693(r.staffTitle||'Nhân sự liên kết')}</small></td><td><input class="form-control form-control-sm batch-tietct-v704645" value="${escV693(r.tietCT||'')}" ${selectable?'':'disabled'}></td><td><input class="form-control form-control-sm batch-lesson-v704645" value="${escV693(r.lesson||document.getElementById('batchLessonDefaultV704645')?.value||'')}" ${selectable?'':'disabled'}></td><td><strong>${escV693(r.rosterCount??'—')} / ${escV693(r.absentCount??0)}</strong>${r.exists?'<div class="small text-muted">Theo SĐB hiện có</div>':'<div class="small text-success">Mặc định điểm danh đủ</div>'}</td><td><input class="form-control form-control-sm batch-comment-v704645" value="${escV693(r.comment||document.getElementById('batchCommentV704645')?.value||'')}" ${selectable?'':'disabled'}></td><td>${batchStatusBadgeV704645(r)}</td></tr>`;}).join('');
+  if(summary){summary.classList.remove('d-none');summary.innerHTML=`Tìm thấy <strong>${batchPreviewV704645.length}</strong> tiết theo khung đã đăng ký.`;}
+  capNhatBatchSummaryV704645();
+}
+function capNhatBatchSummaryV704645(){
+  const checks=[...document.querySelectorAll('.batch-row-check-v704645')],n=checks.filter(x=>x.checked&&!x.disabled).length,create=checks.filter(x=>x.checked&&!x.disabled&&batchPreviewV704645[Number(x.closest('tr')?.dataset.batchIndex||-1)]?.status==='READY_CREATE').length;
+  const btn=document.getElementById('btnBatchSignV704645');if(btn)btn.disabled=n===0;
+  const sum=document.getElementById('batchSummaryV704645');if(sum&&!sum.classList.contains('d-none'))sum.innerHTML=`Đang chọn <strong>${n}</strong> tiết${create?` · <strong>${create}</strong> tiết chưa có SĐB sẽ được tạo và ký`:''}.`;
+}
+function chonTatCaBatchV704645(v){document.querySelectorAll('.batch-row-check-v704645:not(:disabled)').forEach(x=>x.checked=!!v);capNhatBatchSummaryV704645();}
+function xemTruocKyThayHangLoatV704645(){
+  const payload={tuan:Number(document.getElementById('batchWeekV704645')?.value||0),programId:document.getElementById('batchProgramV704645')?.value||'',grades:batchGradesV704645()};
+  if(!payload.tuan||!payload.programId||!payload.grades.length){showToastV9('Vui lòng chọn tuần, chương trình và ít nhất một khối.','warning');return;}
+  const body=document.getElementById('batchPreviewBodyV704645');if(body)body.innerHTML='<tr><td colspan="9" class="text-center py-4"><span class="spinner-border spinner-border-sm me-2"></span>Đang kiểm tra từng tiết...</td></tr>';
+  google.script.run.withSuccessHandler(res=>{if(!res?.success){batchPreviewV704645=[];renderBatchPreviewV704645();showToastV9(res?.message||'Không tạo được danh sách ký.','danger');return;}batchPreviewV704645=res.data||[];batchCatalogV704645.canBatchCreate=!!res.canBatchCreate;renderBatchPreviewV704645();}).xemTruocKyThayHangLoatV704645(payload,batchAuthV704645());
+}
+function selectedBatchItemsV704645(){
+  const out=[];document.querySelectorAll('#batchPreviewBodyV704645 tr[data-batch-index]').forEach(tr=>{const cb=tr.querySelector('.batch-row-check-v704645');if(!cb?.checked||cb.disabled)return;const i=Number(tr.dataset.batchIndex||-1),r=batchPreviewV704645[i];if(!r)return;out.push({slotId:r.slotId,status:r.status,recordId:r.recordId||'',tietCT:tr.querySelector('.batch-tietct-v704645')?.value||'',lesson:tr.querySelector('.batch-lesson-v704645')?.value||'',comment:tr.querySelector('.batch-comment-v704645')?.value||''});});return out;
+}
+function moXacNhanKyThayHangLoatV704645(){
+  const items=selectedBatchItemsV704645();if(!items.length)return;const week=Number(document.getElementById('batchWeekV704645')?.value||0),p=batchCatalogV704645.programs.find(x=>x.id===document.getElementById('batchProgramV704645')?.value),create=items.filter(x=>x.status==='READY_CREATE').length;
+  const box=document.getElementById('batchConfirmTextV704645');if(box)box.innerHTML=`Xác nhận ký thay cho <strong>${items.length} tiết</strong> · ${escV693(p?.tenChuongTrinh||'Chương trình liên kết')} · Tuần <strong>${week}</strong> · Khối ${batchGradesV704645().join(', ')}.${create?`<br><strong>${create} tiết</strong> chưa có SĐB sẽ được tạo với điểm danh đủ.`:''}`;
+  const att=document.getElementById('batchAttendanceConfirmV704645');if(att){att.checked=create===0;att.disabled=create===0;}
+  const pin=document.getElementById('batchPinV704645');if(pin)pin.value='';
+  const modal=document.getElementById('modalBatchSignV704645');if(modal){try{bootstrap.Modal.getOrCreateInstance(modal).show();}catch(_e){}}
+}
+function doiPinKyThayV704645(){
+  const a=prompt('Nhập PIN ký thay mới gồm đúng 6 chữ số:','');if(a===null)return;if(!/^\d{6}$/.test(a)){showToastV9('PIN phải gồm đúng 6 chữ số.','warning');return;}const b=prompt('Nhập lại PIN để xác nhận:','');if(b===null)return;if(a!==b){showToastV9('Hai lần nhập PIN không khớp.','danger');return;}
+  google.script.run.withSuccessHandler(res=>{if(res?.success){batchCatalogV704645.hasPin=true;showToastV9('Đã thiết lập PIN ký thay.','success');}else showToastV9(res?.message||'Không lưu được PIN.','danger');}).datPinKyThayV704645(a,batchAuthV704645());
+}
+function thucHienKyThayHangLoatV704645(){
+  const items=selectedBatchItemsV704645(),pin=document.getElementById('batchPinV704645')?.value||'',needsCreate=items.some(x=>x.status==='READY_CREATE');
+  if(!/^\d{6}$/.test(pin)){showToastV9('Nhập PIN 6 chữ số để xác nhận.','warning');return;}if(needsCreate&&!document.getElementById('batchAttendanceConfirmV704645')?.checked){showToastV9('Cần xác nhận điểm danh đủ cho các tiết sẽ được tạo mới.','warning');return;}
+  const payload={tuan:Number(document.getElementById('batchWeekV704645')?.value||0),programId:document.getElementById('batchProgramV704645')?.value||'',grades:batchGradesV704645(),pin,items,rating:document.getElementById('batchRatingV704645')?.value||'TOT',attendanceConfirmed:!needsCreate||!!document.getElementById('batchAttendanceConfirmV704645')?.checked};
+  const btn=document.getElementById('btnConfirmBatchSignV704645');if(btn){btn.disabled=true;btn.textContent='Đang ký...';}
+  google.script.run.withSuccessHandler(res=>{if(btn){btn.disabled=false;btn.textContent='XÁC NHẬN & KÝ';}if(!res?.success){showToastV9(res?.message||'Ký hàng loạt thất bại.','danger');return;}try{bootstrap.Modal.getInstance(document.getElementById('modalBatchSignV704645'))?.hide();}catch(_e){}const box=document.getElementById('batchResultV704645');if(box){box.innerHTML=`<div class="alert ${res.failedCount?'alert-warning':'alert-success'}"><strong>Đợt ${escV693(res.batchCode||'')}</strong>: ${escV693(res.successCount||0)} tiết thành công${res.failedCount?` · ${escV693(res.failedCount)} tiết chưa hoàn tất`:''}.</div>`+(res.items||[]).filter(x=>x.status==='FAILED').map(x=>`<div class="small text-danger">${escV693(x.lop)} · ${escV693(x.ngayDay)} · Tiết ${escV693(x.tiet)}: ${escV693(x.message)}</div>`).join('');}showToastV9(res.failedCount?'Đã ký một phần; xem các dòng chưa hoàn tất.':'Đã ký thay hàng loạt thành công.',res.failedCount?'warning':'success');xemTruocKyThayHangLoatV704645();}).withFailureHandler(err=>{if(btn){btn.disabled=false;btn.textContent='XÁC NHẬN & KÝ';}showToastV9(err?.message||String(err),'danger');}).kyThayHangLoatV704645(payload,batchAuthV704645());
+}
+
+document.addEventListener('DOMContentLoaded',()=>{initBatchDatesV704645();const g=document.getElementById('extSlotGradeV704645');if(g)g.addEventListener('change',locLopKhungTietV704645);});

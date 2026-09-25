@@ -106,6 +106,10 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
     .sodb-status-popover-v7032 .popover-header { font-size:.84rem;font-weight:800; }
     .sig-stack { display: flex; flex-direction: column; gap: 1px; }
     .sig-stack .sig-name { white-space: normal; }
+    .sig-fallback-note-v704637{font-size:.52rem;line-height:1.05;color:#64748b;font-style:italic;}
+    .sig-fallback-loading-v704637 .sig-fallback-note-v704637{display:block;}
+    .sig-fallback-ready-v704637 .sig-fallback-note-v704637,.sig-fallback-empty-v704637 .sig-fallback-note-v704637{display:none;}
+    .sig-fallback-error-v704637 .sig-fallback-note-v704637{display:block;color:#94a3b8;}
     .khbd-meta { font-size: 0.78rem; color: #475569; }
     .teacher-verified { border-color: #198754 !important; background-color: #f0fdf4 !important; }
     
@@ -3528,12 +3532,23 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
     font-size:4.65pt!important;line-height:.92!important;white-space:nowrap!important;
     overflow:hidden!important;text-overflow:ellipsis!important;box-sizing:border-box!important;
   }
-  /* V70.4.6.35 - làm nét đứt trong cột Thứ đồng đều, rõ và không bị vỡ đoạn khi in */
+  /* V70.4.6.39 - nét đứt theo mẫu trong các dòng trống của buổi sáng / chiều */
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-guide-line-cell-v704639{
+    display:block!important;position:relative!important;min-height:2.55mm!important;height:100%!important;
+    box-sizing:border-box!important;padding-top:.18mm!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-guide-line-cell-v704639::before{
+    content:""!important;position:absolute!important;left:.08mm!important;right:.08mm!important;top:0!important;height:.14mm!important;
+    background-image:repeating-linear-gradient(90deg,#7f8796 0 .52mm,transparent .52mm .86mm)!important;
+    background-repeat:repeat-x!important;background-position:left top!important;background-size:auto 100%!important;
+    opacity:.96!important;pointer-events:none!important;print-color-adjust:exact!important;-webkit-print-color-adjust:exact!important;
+  }
+  /* V70.4.6.38 - chỉnh nét đứt trong cột Thứ giống mẫu ảnh hơn: ngắn, dày vừa và đều */
   body.a3-tracuu-v56 #a3PrintRootV56 .a3-sync-line-v704610 + .a3-sync-line-v704610{
     border-top:0!important;
     position:relative!important;
     margin-top:0!important;
-    padding-top:.24mm!important;
+    padding-top:.26mm!important;
   }
   body.a3-tracuu-v56 #a3PrintRootV56 .a3-sync-line-v704610 + .a3-sync-line-v704610::before{
     content:""!important;
@@ -3541,11 +3556,12 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
     left:0!important;
     right:0!important;
     top:0!important;
-    height:.24mm!important;
-    background-image:repeating-linear-gradient(90deg,#95a3b8 0 1.45mm,transparent 1.45mm 2.25mm)!important;
+    height:.16mm!important;
+    background-image:repeating-linear-gradient(90deg,#7f8b9d 0 .62mm,transparent .62mm .98mm)!important;
     background-repeat:repeat-x!important;
     background-position:left top!important;
     background-size:auto 100%!important;
+    opacity:.97!important;
     pointer-events:none!important;
     print-color-adjust:exact!important;
     -webkit-print-color-adjust:exact!important;
@@ -3565,10 +3581,11 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
     left:0!important;
     right:0!important;
     top:0!important;
-    height:.2mm!important;
-    background-image:repeating-linear-gradient(90deg,#98a2b3 0 1.2mm,transparent 1.2mm 2.05mm)!important;
+    height:.15mm!important;
+    background-image:repeating-linear-gradient(90deg,#8e99aa 0 .58mm,transparent .58mm .92mm)!important;
     background-repeat:repeat-x!important;
     background-position:left top!important;
+    opacity:.95!important;
     pointer-events:none!important;
     print-color-adjust:exact!important;
     -webkit-print-color-adjust:exact!important;
@@ -3602,8 +3619,8 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
    Chỉ thay đổi cách HIỂN THỊ/IN, không sửa file chữ ký gốc.
    ========================================================= */
 :root{
-  --sodb-signature-contrast-v704636:151%;
-  --sodb-signature-brightness-v704636:.946;
+  --sodb-signature-contrast-v704636:100%;
+  --sodb-signature-brightness-v704636:1;
 }
 .signature-ink-control-v704636{
   max-width:440px;
@@ -3623,16 +3640,143 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
 .signature-preview-v21 img,
 .gvcn-signature-preview-v681 img,
 #certSigImage{
-  filter:contrast(var(--sodb-signature-contrast-v704636)) brightness(var(--sodb-signature-brightness-v704636))!important;
-  -webkit-filter:contrast(var(--sodb-signature-contrast-v704636)) brightness(var(--sodb-signature-brightness-v704636))!important;
+  filter:brightness(var(--sodb-signature-brightness-v704636)) contrast(var(--sodb-signature-contrast-v704636))!important;
+  -webkit-filter:brightness(var(--sodb-signature-brightness-v704636)) contrast(var(--sodb-signature-contrast-v704636))!important;
 }
 @media print{
   .sig-img-preview,
   .sig-gvcn-print,
   .sig-bgh-print{
-    filter:contrast(var(--sodb-signature-contrast-v704636)) brightness(var(--sodb-signature-brightness-v704636))!important;
-    -webkit-filter:contrast(var(--sodb-signature-contrast-v704636)) brightness(var(--sodb-signature-brightness-v704636))!important;
+    filter:brightness(var(--sodb-signature-brightness-v704636)) contrast(var(--sodb-signature-contrast-v704636))!important;
+    -webkit-filter:brightness(var(--sodb-signature-brightness-v704636)) contrast(var(--sodb-signature-contrast-v704636))!important;
     print-color-adjust:exact!important;
     -webkit-print-color-adjust:exact!important;
   }
+}
+
+/* V70.4.6.40: continuous dotted boundaries, like the supplied ruled-book sample.
+   Override BOTH collapsed-border edges so an old solid edge cannot win. */
+@media print {
+ body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb tbody tr,
+ body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb tbody {
+   border-top:0!important;border-bottom:0!important;
+ }
+ body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb tbody tr>td {
+   border-top:0!important;border-bottom:.18mm dotted #333!important;
+   border-left:.18mm solid #333!important;border-right:.18mm solid #333!important;
+ }
+ body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb tbody tr.row-day-start>td,
+ body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb tbody tr.row-chieu-start>td,
+ body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb tbody tr:first-child>td {
+   border-top:.22mm solid #222!important;
+ }
+ body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb tbody tr:last-child>td,
+ body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb tbody td[rowspan] {
+   border-bottom:.22mm solid #222!important;
+ }
+ body.a3-tracuu-v56 #a3PrintRootV56 .a3-guide-line-cell-v704639::before {content:none!important;}
+}
+
+/* V70.4.6.41 — fine rules, serif typography and non-shrinking signatures. */
+#gtPrintPagesContainer .print-page-block,
+#gtPrintPagesContainer .print-page-block * {
+  font-family:"Times New Roman",Times,serif!important;
+}
+@media print {
+  body.a3-tracuu-v56 #a3PrintRootV56,
+  body.a3-tracuu-v56 #a3PrintRootV56 * {
+    font-family:"Times New Roman",Times,serif!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb tbody tr>td {
+    border-bottom:.12mm dotted #555!important;
+    border-left:.15mm solid #333!important;border-right:.15mm solid #333!important;
+    padding:.08mm .28mm!important;font-size:5.8pt!important;line-height:1!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb tbody tr.row-day-start>td,
+  body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb tbody tr.row-chieu-start>td,
+  body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb tbody tr:first-child>td {
+    border-top:.2mm solid #222!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb tbody tr:last-child>td,
+  body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb tbody td[rowspan] {
+    border-bottom:.2mm solid #222!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .table-sodb th {
+    font-size:6.1pt!important;line-height:1.05!important;font-weight:700!important;
+    background:#f5f5f5!important;color:#111!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-week-page-v56>.so-header-print {
+    flex-basis:14mm!important;min-height:14mm!important;max-height:14mm!important;
+    text-align:center!important;margin-bottom:.8mm!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-week-page-v56 .so-title {
+    font-size:11pt!important;line-height:1.08!important;font-weight:700!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-week-page-v56 .so-subhead {font-size:7pt!important;line-height:1.1!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-cell-clamp-v56 {
+    font-size:5.6pt!important;line-height:1!important;max-height:2em!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-one-line-v56 {max-height:1em!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .sig-container {
+    min-width:0!important;gap:.65mm!important;align-items:center!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .sig-img-preview {
+    display:block!important;flex:0 0 10mm!important;width:10mm!important;
+    height:3mm!important;max-height:3mm!important;max-width:10mm!important;
+    object-fit:contain!important;object-position:center!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .sig-name {
+    flex:1 1 auto!important;min-width:0!important;font-size:5.6pt!important;line-height:1!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .sig-stack-mixed-v14 {
+    display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:0!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .sig-stack-mixed-v14 .sig-container {
+    flex:0 0 auto!important;min-height:0!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .sig-stack-mixed-v14 .sig-img-preview {
+    height:1.65mm!important;max-height:1.65mm!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .sig-stack-mixed-v14 .sig-name {font-size:4.65pt!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .sig-stack-mixed-v14 .mixed-entry+.mixed-entry {
+    padding-top:0!important;margin-top:0!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .sig-stack-mixed-v14 .mixed-entry+.mixed-entry::before {content:none!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-week-page-v56>.summary-box {
+    flex:0 0 27mm!important;height:27mm!important;max-height:27mm!important;
+    margin-top:1mm!important;padding:.6mm 1mm!important;font-size:6pt!important;line-height:1.05!important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .signature-space {height:4mm!important;}
+  body.a3-tracuu-v56 #a3PrintRootV56 .sig-gvcn-print,
+  body.a3-tracuu-v56 #a3PrintRootV56 .sig-bgh-print {height:3.8mm!important;max-height:3.8mm!important;max-width:25mm!important;object-fit:contain!important;}
+}
+
+/* V42: keep faint ink instead of clipping it to white with high contrast. */
+@media print {
+ body.a3-tracuu-v56 #a3PrintRootV56 .sig-img-preview,
+ body.a3-tracuu-v56 #a3PrintRootV56 .sig-gvcn-print,
+ body.a3-tracuu-v56 #a3PrintRootV56 .sig-bgh-print {
+   filter:url("#sodb-print-signature-ink-v42")!important;
+   -webkit-filter:url("#sodb-print-signature-ink-v42")!important;
+   opacity:1!important;
+   print-color-adjust:exact!important;-webkit-print-color-adjust:exact!important;
+ }
+}
+
+/* V43: independent controls, exact unfiltered image at default settings. */
+#gtPrintPagesContainer .sig-img-preview,
+#gtPrintPagesContainer .sig-gvcn-print,
+#gtPrintPagesContainer .sig-bgh-print {
+ filter:var(--sodb-ink-filter-v43,none)!important;
+ -webkit-filter:var(--sodb-ink-filter-v43,none)!important;
+ object-fit:contain!important;
+}
+@media print {
+ body.a3-tracuu-v56 #a3PrintRootV56 .sig-img-preview,
+ body.a3-tracuu-v56 #a3PrintRootV56 .sig-gvcn-print,
+ body.a3-tracuu-v56 #a3PrintRootV56 .sig-bgh-print {
+   filter:var(--sodb-ink-filter-v43,none)!important;
+   -webkit-filter:var(--sodb-ink-filter-v43,none)!important;
+   object-fit:contain!important;
+ }
 }

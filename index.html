@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <link rel="stylesheet" href="assets/css/sodb-v69.css?v=70.4.6.36">
+  <link rel="stylesheet" href="assets/css/sodb-v69.css?v=70.4.6.48">
   <link rel="stylesheet" href="assets/css/sodb-workspace.css?v=70.4.6.13">
 
 
@@ -29,6 +29,7 @@
 
 
 
+  <meta name="sodb-release" content="70.4.6.49">
 </head>
 <!-- MODAL THÔNG TIN XÁC NHẬN ĐIỆN TỬ -->
 <div class="modal fade" id="modalChuKySoDetail" tabindex="-1" aria-hidden="true">
@@ -701,6 +702,7 @@
                 </div>
                 <div id="proxySignHintV682" class="small text-muted"></div>
               </div>
+              <div id="saveProgressV49" class="small mt-2 d-none" role="status" aria-live="polite" aria-atomic="true"></div>
               <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" id="btnSubmit">Lưu vào Sổ Đầu Bài</button>
               <div id="saveSuccessV54" class="alert alert-success py-2 px-3 mt-2 mb-0 d-none fw-semibold" role="status" aria-live="polite"></div>
                 <button type="button" id="btnRequestEditV4" class="btn btn-outline-warning w-100 mt-2 fw-bold d-none" onclick="guiYeuCauSuaBanGhiV4()">Yêu cầu chỉnh sửa bản ghi vừa lưu</button>
@@ -753,7 +755,7 @@
 
             <div id="gvcnPlaceholderMsg" class="gvcn-empty-v681">
               <div class="fw-bold mb-1">Chọn lớp và tuần để kiểm tra trước khi ký chốt.</div>
-              <div class="small">Dữ liệu được lấy trực tiếp từ Supabase.</div>
+              <div class="small">Dữ liệu đã được đồng bộ từ hệ thống.</div>
             </div>
 
             <div id="gvcnSummaryContent" class="d-none">
@@ -818,7 +820,7 @@
                   <div class="d-flex justify-content-between align-items-center gap-2 mb-2">
                     <div>
                       <div class="fw-bold">Chữ ký GVCN</div>
-                      <div class="small text-muted">Lưu tại Supabase Storage và tự dùng lại.</div>
+                      <div class="small text-muted">Chữ ký được lưu và tự dùng lại cho các tuần sau.</div>
                     </div>
                     <div class="d-flex gap-1 flex-wrap justify-content-end">
                       <input type="file" id="gvcnFileInput" accept="image/png,image/jpeg,image/webp" class="d-none" onchange="xuLyTaiAnhGVCN(event)">
@@ -1108,13 +1110,31 @@
           <div class="d-flex align-items-center gap-2 flex-wrap">
             <label for="gtSignatureDarknessV704636" class="small fw-semibold mb-0">Độ đậm chữ ký</label>
             <input type="range" class="form-range signature-ink-range-v704636" id="gtSignatureDarknessV704636"
-                   min="100" max="150" step="5" value="115"
+                   min="100" max="150" step="5" value="100"
                    oninput="capNhatDoDamChuKyV704636(this.value)">
-            <span class="badge bg-light text-primary border" id="gtSignatureDarknessValueV704636">115%</span>
+            <span class="badge bg-light text-primary border" id="gtSignatureDarknessValueV704636">100%</span>
             <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2"
-                    onclick="datLaiDoDamChuKyV704636()">Mặc định</button>
+                    onclick="datLaiChuKyV704643()">Về ảnh gốc</button>
           </div>
-          <div class="small text-muted">Chỉ làm đậm khi hiển thị/in; không thay đổi ảnh chữ ký gốc đã lưu.</div>
+          <div class="d-flex align-items-center gap-2 flex-wrap mt-2">
+            <label for="gtSignatureThicknessV704643" class="small fw-semibold mb-0">Độ dày nét chữ ký</label>
+            <input type="range" class="form-range signature-ink-range-v704636" id="gtSignatureThicknessV704643"
+                   min="0" max="100" step="5" value="0" oninput="capNhatDoDayChuKyV704643(this.value)">
+            <span class="badge bg-light text-primary border" id="gtSignatureThicknessValueV704643">0%</span>
+          </div>
+          <div class="form-check form-switch mt-2 mb-0">
+            <input class="form-check-input" type="checkbox" role="switch" id="gtSignatureUniformV704647"
+                   onchange="capNhatCanBangChuKyV704647(this.checked)">
+            <label class="form-check-label small fw-semibold" for="gtSignatureUniformV704647">Cân bằng độ dày giữa các chữ ký</label>
+            <span class="badge bg-light text-success border ms-1">Tự cân bằng</span>
+          </div>
+          <div class="d-flex align-items-center gap-2 flex-wrap mt-2 d-none" id="gtSignatureUniformTargetWrapV704647">
+            <label for="gtSignatureUniformTargetV704647" class="small fw-semibold mb-0">Mức nét đồng đều</label>
+            <input type="range" class="form-range signature-ink-range-v704636" id="gtSignatureUniformTargetV704647"
+                   min="80" max="140" step="5" value="100" oninput="capNhatMucNetDongDeuV704647(this.value)">
+            <span class="badge bg-light text-success border" id="gtSignatureUniformTargetValueV704647">100%</span>
+          </div>
+          <div class="small text-muted mt-1">Đậm 100% · Dày 0%: ảnh gốc. Bật <b>Cân bằng độ dày</b> để các chữ ký trong cùng nhóm có nét gần bằng nhau; thanh Độ dày vẫn tăng/giảm chung sau khi cân bằng. Chỉ thay đổi khi xem/in, không sửa ảnh chữ ký đã lưu.</div>
         </div>
       </div>
       <button type="button" class="btn btn-info btn-sm fw-bold text-white px-4" id="btnGtPrintSearch" onclick="traCuuInSodbGiamThiHandler()">Tải bản in</button>
@@ -1406,7 +1426,7 @@
         <div class="card-body p-3 p-lg-4">
           <div class="module-head-v13 mb-3">
             <div><div class="section-title-v13">V69.5</div><h4 class="mb-0">Điều hành tiết dạy &amp; nhân sự</h4></div>
-            <div class="small text-muted">Nghỉ GV · Dạy thay · Dạy bù · Hoán đổi · Nhân sự ngoài trường · Ký thay có phạm vi</div>
+            <div class="small text-muted">Nghỉ GV · Dạy thay · Dạy bù · Hoán đổi · Nhân sự ngoài trường · Ký thay có phạm vi · Ký hàng loạt</div>
           </div>
           <div class="alert alert-primary border py-2">Sổ đầu bài chỉ ghi <strong>tiết thực tế đã dạy</strong>. Hồ sơ nghỉ/điều hành được quản lý riêng và liên kết vào SĐB khi giáo viên thực hiện.</div>
           <datalist id="teacherAccountsV693"></datalist>
@@ -1425,6 +1445,8 @@
             <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#control-absence-v693" type="button" onclick="taiHoSoNghiV693()">Nghỉ giáo viên</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#control-external-v693" type="button" onclick="taiNhanSuNgoaiV693()">Nhân sự chương trình liên kết</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#control-proxy-v693" type="button" onclick="taiQuyenKyThayV693()">Quyền ký thay</button></li>
+            <li class="nav-item manage-external-slot-v704645"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#control-ext-slot-v704645" type="button" onclick="taiKhungTietLienKetV704645()">Khung tiết liên kết</button></li>
+            <li class="nav-item batch-sign-tab-v704645"><button class="nav-link" id="control-batch-sign-tab-v704645" data-bs-toggle="pill" data-bs-target="#control-batch-sign-v704645" type="button" onclick="moKyThayHangLoatV704645()">Ký thay hàng loạt</button></li>
             <li class="nav-item"><button class="nav-link" id="control-alerts-tab-v695" data-bs-toggle="pill" data-bs-target="#control-alerts-v695" type="button">Cảnh báo <span class="badge text-bg-danger ms-1 d-none" id="controlAlertBadgeV695"></span></button></li>
             <li class="nav-item admin-only-control-v6953"><button class="nav-link" id="control-report-tab-v694" data-bs-toggle="pill" data-bs-target="#control-report-v694" type="button">Báo cáo nâng cao</button></li>
             <li class="nav-item admin-only-control-v6953"><button class="nav-link" id="group-report-tab-v6951" data-bs-toggle="pill" data-bs-target="#group-report-v6951" type="button" onclick="loadGroupReportV6951()">Báo cáo Chuyên đề/GDTC</button></li>
@@ -1513,9 +1535,61 @@
 
             <div class="tab-pane fade" id="control-proxy-v693">
               <div class="card border mb-3"><div class="card-header bg-light fw-bold">Cấp quyền ký thay theo phạm vi</div><div class="card-body"><div class="row g-2 align-items-end">
-                <div class="col-md-2"><label class="form-label small">TK người ký *</label><input id="proxyAccountV693" class="form-control" list="teacherAccountsV693"></div><div class="col-md-3"><label class="form-label small">Nhân sự ngoài trường *</label><select id="proxyExternalV693" class="form-select"><option value="">-- Chọn --</option></select></div><div class="col-md-2"><label class="form-label small">Môn</label><input type="hidden" id="proxySubjectsV693"><div class="dropdown control-scope-picker-v6953"><button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside"><span id="proxySubjectsSummaryV6953">Tất cả môn</span></button><div class="dropdown-menu p-2 control-scope-menu-v6953" id="proxySubjectsMenuV6953"></div></div></div><div class="col-md-2"><label class="form-label small">Lớp</label><input type="hidden" id="proxyClassesV693"><div class="dropdown control-scope-picker-v6953"><button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside"><span id="proxyClassesSummaryV6953">Tất cả lớp</span></button><div class="dropdown-menu p-2 control-scope-menu-v6953" id="proxyClassesMenuV6953"></div></div></div><div class="col-md-1"><label class="form-label small">Từ</label><input type="date" id="proxyFromV693" class="form-control"></div><div class="col-md-1"><label class="form-label small">Đến</label><input type="date" id="proxyToV693" class="form-control"></div><div class="col-md-1"><button class="btn btn-primary w-100" onclick="capQuyenKyThayV693()">Cấp</button></div><div class="col-12"><label class="form-label small">Lý do / quyết định</label><input id="proxyReasonV693" class="form-control"></div>
+                <div class="col-md-2"><label class="form-label small">TK người ký *</label><input id="proxyAccountV693" class="form-control" list="teacherAccountsV693"><div class="form-text">Có thể nhập tài khoản GVBM/TTCM/Giám thị/BGH/Admin; ký hàng loạt chỉ hoạt động khi được cấp đúng quyền.</div></div><div class="col-md-3"><label class="form-label small">Nhân sự ngoài trường *</label><select id="proxyExternalV693" class="form-select"><option value="">-- Chọn --</option></select></div><div class="col-md-2"><label class="form-label small">Môn</label><input type="hidden" id="proxySubjectsV693"><div class="dropdown control-scope-picker-v6953"><button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside"><span id="proxySubjectsSummaryV6953">Tất cả môn</span></button><div class="dropdown-menu p-2 control-scope-menu-v6953" id="proxySubjectsMenuV6953"></div></div></div><div class="col-md-2"><label class="form-label small">Lớp</label><input type="hidden" id="proxyClassesV693"><div class="dropdown control-scope-picker-v6953"><button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside"><span id="proxyClassesSummaryV6953">Tất cả lớp</span></button><div class="dropdown-menu p-2 control-scope-menu-v6953" id="proxyClassesMenuV6953"></div></div></div><div class="col-md-1"><label class="form-label small">Từ</label><input type="date" id="proxyFromV693" class="form-control"></div><div class="col-md-1"><label class="form-label small">Đến</label><input type="date" id="proxyToV693" class="form-control"></div><div class="col-md-1"><button class="btn btn-primary w-100" onclick="capQuyenKyThayV693()">Cấp</button></div><div class="col-12"><label class="form-label small">Lý do / quyết định</label><input id="proxyReasonV693" class="form-control"></div><div class="col-12"><div class="border rounded p-2 bg-light"><div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" id="proxyBatchSignV704645"><label class="form-check-label fw-semibold" for="proxyBatchSignV704645">Cho phép ký hàng loạt</label></div><div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" id="proxyBatchCreateV704645"><label class="form-check-label" for="proxyBatchCreateV704645">Cho phép tạo tiết liên kết chưa có SĐB khi ký hàng loạt</label></div><div class="small text-muted mt-1">Quyền ký hàng loạt vẫn bị giới hạn theo nhân sự, môn, lớp và khoảng hiệu lực đã cấp.</div></div></div>
               </div><div class="small text-muted mt-2">Nếu bỏ trống Môn/Lớp thì quyền không giới hạn theo trường đó, nhưng vẫn bắt buộc gắn đúng nhân sự ngoài trường đã chọn.</div></div></div>
               <div class="table-responsive" style="max-height:450px;overflow:auto"><table class="table table-sm table-bordered align-middle"><thead class="table-dark sticky-top"><tr><th>Tài khoản ký</th><th>Nhân sự</th><th>Môn</th><th>Lớp</th><th>Hiệu lực</th><th>Lý do</th><th></th></tr></thead><tbody id="proxyBodyV693"><tr><td colspan="7" class="text-center text-muted">Chưa tải dữ liệu.</td></tr></tbody></table></div>
+            </div>
+
+
+            <div class="tab-pane fade" id="control-ext-slot-v704645">
+              <div class="alert alert-info border py-2 mb-3"><strong>Khung tiết chương trình liên kết</strong> là lịch nghiệp vụ riêng, khai báo một lần theo khoảng hiệu lực. Hệ thống <strong>không cần import TKB toàn trường</strong> để tạo danh sách ký thay hàng tuần.</div>
+              <div class="card border mb-3"><div class="card-header bg-light fw-bold">Đăng ký khung tiết</div><div class="card-body">
+                <div class="row g-2 align-items-end">
+                  <div class="col-lg-3"><label class="form-label small fw-semibold">Chương trình / môn *</label><select id="extSlotProgramV704645" class="form-select" onchange="doiChuongTrinhKhungTietV704645()"><option value="">-- Chọn chương trình --</option></select></div>
+                  <div class="col-lg-3"><label class="form-label small fw-semibold">Nhân sự ngoài trường *</label><select id="extSlotStaffV704645" class="form-select"><option value="">-- Chọn nhân sự --</option></select></div>
+                  <div class="col-md-2"><label class="form-label small">Học kỳ</label><select id="extSlotSemesterV704645" class="form-select"><option value="HK1">Học kỳ I</option><option value="HK2">Học kỳ II</option><option value="CA_NAM">Cả năm</option></select></div>
+                  <div class="col-md-2"><label class="form-label small">Khối *</label><select id="extSlotGradeV704645" class="form-select" onchange="locLopKhungTietV704645()"><option value="10">Khối 10</option><option value="11">Khối 11</option><option value="12">Khối 12</option></select></div>
+                  <div class="col-md-2 d-grid"><button class="btn btn-outline-primary" type="button" onclick="chonCaKhoiKhungTietV704645()">Chọn cả khối</button></div>
+                  <div class="col-lg-5"><label class="form-label small fw-semibold">Lớp áp dụng *</label><select id="extSlotClassesV704645" class="form-select" multiple size="5"></select><div class="form-text">Giữ Ctrl/⌘ để chọn nhiều lớp. Có thể áp dụng một khung cho cả khối.</div></div>
+                  <div class="col-md-2"><label class="form-label small">Thứ *</label><select id="extSlotWeekdayV704645" class="form-select"><option value="2">Thứ 2</option><option value="3">Thứ 3</option><option value="4">Thứ 4</option><option value="5">Thứ 5</option><option value="6">Thứ 6</option><option value="7">Thứ 7</option></select></div>
+                  <div class="col-md-2"><label class="form-label small">Buổi *</label><select id="extSlotSessionV704645" class="form-select"><option value="Sáng">Sáng</option><option value="Chiều">Chiều</option></select></div>
+                  <div class="col-md-1"><label class="form-label small">Tiết *</label><select id="extSlotPeriodV704645" class="form-select"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+                  <div class="col-md-2"><label class="form-label small">Từ ngày *</label><input type="date" id="extSlotFromV704645" class="form-control"></div>
+                  <div class="col-md-2"><label class="form-label small">Đến ngày</label><input type="date" id="extSlotToV704645" class="form-control"></div>
+                  <div class="col-lg-4"><label class="form-label small">Ghi chú</label><input id="extSlotNoteV704645" class="form-control" placeholder="VD: Lịch học cố định học kỳ I"></div>
+                  <div class="col-lg-2 d-grid"><button class="btn btn-success fw-bold" type="button" onclick="luuKhungTietLienKetV704645()">Lưu khung tiết</button></div>
+                </div>
+              </div></div>
+              <div class="table-responsive" style="max-height:520px;overflow:auto"><table class="table table-sm table-bordered align-middle"><thead class="table-dark sticky-top"><tr><th>Chương trình</th><th>GV ngoài trường</th><th>Khối/Lớp</th><th>Khung</th><th>Hiệu lực</th><th>Trạng thái</th><th></th></tr></thead><tbody id="extSlotBodyV704645"><tr><td colspan="7" class="text-center text-muted">Chưa tải dữ liệu.</td></tr></tbody></table></div>
+            </div>
+
+            <div class="tab-pane fade" id="control-batch-sign-v704645">
+              <div class="alert alert-primary border py-2 mb-3"><strong>Ký thay hàng loạt:</strong> hệ thống tạo danh sách từ <strong>Khung tiết chương trình liên kết</strong> đã đăng ký, không quét TKB. Mỗi tiết vẫn được kiểm tra quyền và ghi Audit riêng.</div>
+              <div class="card border mb-3"><div class="card-header bg-light fw-bold">1. Chọn phạm vi ký</div><div class="card-body">
+                <div class="row g-2 align-items-end">
+                  <div class="col-md-2"><label class="form-label small fw-semibold">Tuần *</label><input type="number" id="batchWeekV704645" class="form-control" min="1" max="60" value="1"></div>
+                  <div class="col-lg-4"><label class="form-label small fw-semibold">Chương trình / môn *</label><select id="batchProgramV704645" class="form-select"><option value="">-- Chọn chương trình --</option></select></div>
+                  <div class="col-lg-4"><label class="form-label small fw-semibold">Khối</label><div class="border rounded px-3 py-2 d-flex gap-3 flex-wrap"><label class="form-check mb-0"><input class="form-check-input batch-grade-v704645" type="checkbox" value="10" checked> Khối 10</label><label class="form-check mb-0"><input class="form-check-input batch-grade-v704645" type="checkbox" value="11" checked> Khối 11</label><label class="form-check mb-0"><input class="form-check-input batch-grade-v704645" type="checkbox" value="12"> Khối 12</label></div></div>
+                  <div class="col-lg-2 d-grid"><button class="btn btn-primary fw-bold" type="button" onclick="xemTruocKyThayHangLoatV704645()">Tạo danh sách</button></div>
+                </div>
+              </div></div>
+
+              <div class="card border mb-3"><div class="card-header bg-light fw-bold">2. Giá trị mặc định cho các tiết chưa có dữ liệu</div><div class="card-body">
+                <div class="row g-2 align-items-end">
+                  <div class="col-lg-5"><label class="form-label small">Nội dung bài mặc định</label><input id="batchLessonDefaultV704645" class="form-control" value="Học theo chương trình đối tác"></div>
+                  <div class="col-md-2"><label class="form-label small">Xếp loại mặc định</label><select id="batchRatingV704645" class="form-select"><option value="TOT" selected>Tốt (10 điểm)</option><option value="KHA">Khá (8 điểm)</option></select></div>
+                  <div class="col-lg-5"><label class="form-label small">Nhận xét mặc định</label><input id="batchCommentV704645" class="form-control" value="Lớp học nghiêm túc"></div>
+                </div>
+                <div class="form-text mt-2">Tiết chưa có SĐB sẽ mặc định <strong>điểm danh đủ</strong>. Nếu lớp có học sinh vắng hoặc tình huống đặc biệt, bỏ chọn dòng đó và xử lý riêng để bảo đảm dữ liệu điểm danh chính xác.</div>
+              </div></div>
+
+              <div id="batchSummaryV704645" class="alert alert-light border d-none"></div>
+              <div class="table-responsive" style="max-height:560px;overflow:auto"><table class="table table-sm table-bordered align-middle"><thead class="table-dark sticky-top"><tr><th class="text-center"><input type="checkbox" id="batchSelectAllV704645" class="form-check-input" checked onchange="chonTatCaBatchV704645(this.checked)"></th><th>Lớp</th><th>Ngày / Tiết</th><th>GV giảng dạy</th><th>Tiết CT</th><th>Nội dung</th><th>Sĩ số / Vắng</th><th>Nhận xét</th><th>Trạng thái</th></tr></thead><tbody id="batchPreviewBodyV704645"><tr><td colspan="9" class="text-center text-muted py-4">Chọn Tuần, Chương trình và Khối rồi bấm “Tạo danh sách”.</td></tr></tbody></table></div>
+              <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap mt-3">
+                <button class="btn btn-outline-secondary" type="button" onclick="doiPinKyThayV704645()">Thiết lập / đổi PIN ký thay</button>
+                <button class="btn btn-success fw-bold px-4" id="btnBatchSignV704645" type="button" onclick="moXacNhanKyThayHangLoatV704645()" disabled>KÝ THAY TẤT CẢ TIẾT ĐÃ CHỌN</button>
+              </div>
+              <div id="batchResultV704645" class="mt-3"></div>
             </div>
 
             <div class="tab-pane fade" id="control-alerts-v695">
@@ -1764,11 +1838,11 @@
                 </div>
               </div>
 
-              <!-- V70.4.6.30: ĐỐI SOÁT KHBD ĐÚNG CHIỀU KHBD LỚP -> SĐB THỰC TẾ -->
+              <!-- V70.4.6.47: KHBD_RECON_V2 — đối soát theo khóa nghiệp vụ, không theo thứ tự nhập -->
 <div class="tab-pane fade" id="gt-pills-khbd" role="tabpanel" aria-labelledby="admin-khbd-compare-tab">
                 <div class="alert alert-info small mx-auto mb-3" style="max-width: 1500px;">
-                  <strong>Đối soát theo KHBD của lớp:</strong> hệ thống lấy các tiết KHBD giáo viên đã chọn cho lớp làm chuẩn, sau đó tìm tiết đã thực hiện trong Sổ đầu bài.
-                  PPCT được sắp <strong>tăng dần tự nhiên</strong>; riêng <strong>GDTC/Cầu lông/Bóng chuyền dùng số PPCT</strong>.
+                  <strong>Đối soát KHBD_RECON_V2:</strong> từng tiết Sổ đầu bài được ghép với KHBD đã duyệt theo <strong>KHBD liên kết (nếu có) → Tiết CT/PPCT → nội dung bài</strong>.
+                  Hệ thống <strong>không dùng thời điểm nhập, created_at hoặc thứ tự bấm Lưu</strong> để kết luận đúng/sai. Khi cần xem trình tự PPCT, hệ thống chỉ sắp theo <strong>ngày dạy → buổi → tiết thực tế</strong> và hiển thị cảnh báo tiến độ riêng.
                 </div>
                 <div class="row g-3 mb-4 p-3 bg-light rounded border align-items-end mx-auto" style="max-width: 1500px;">
                   <div class="col-md-2">
@@ -1812,8 +1886,9 @@
                   <div class="d-flex flex-wrap gap-2 align-items-center mb-3 mx-auto" style="max-width:1800px;">
                     <span class="small fw-bold text-muted me-1">Lọc nhanh:</span>
                     <button type="button" class="btn btn-sm btn-primary gt-compare-filter-v704634" data-khbd-filter="ALL" onclick="locDoiSoatKhbdV704634('ALL',this)">Tất cả</button>
+                    <button type="button" class="btn btn-sm btn-outline-success gt-compare-filter-v704634" data-khbd-filter="DONE" onclick="locDoiSoatKhbdV704634('DONE',this)">Khớp KHBD</button>
                     <button type="button" class="btn btn-sm btn-outline-secondary gt-compare-filter-v704634" data-khbd-filter="NOT_DONE" onclick="locDoiSoatKhbdV704634('NOT_DONE',this)">Chưa thực hiện</button>
-                    <button type="button" class="btn btn-sm btn-outline-danger gt-compare-filter-v704634" data-khbd-filter="WARNING" onclick="locDoiSoatKhbdV704634('WARNING',this)">Chênh lệch</button>
+                    <button type="button" class="btn btn-sm btn-outline-danger gt-compare-filter-v704634" data-khbd-filter="WARNING" onclick="locDoiSoatKhbdV704634('WARNING',this)">Cần kiểm tra</button>
                     <button type="button" class="btn btn-sm btn-outline-warning gt-compare-filter-v704634" data-khbd-filter="DAY_THAY" onclick="locDoiSoatKhbdV704634('DAY_THAY',this)">Dạy thay</button>
                     <span id="gtCompareFilterCountV704634" class="small text-muted ms-2"></span>
                   </div>
@@ -2564,27 +2639,47 @@
   </div>
 </div>
 
+
+<!-- V70.4.6.45: XÁC NHẬN KÝ THAY HÀNG LOẠT -->
+<div class="modal fade" id="modalBatchSignV704645" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold">XÁC NHẬN KÝ THAY HÀNG LOẠT</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button></div>
+      <div class="modal-body">
+        <div id="batchConfirmTextV704645" class="alert alert-warning"></div>
+        <label class="form-label fw-semibold" for="batchPinV704645">PIN ký thay (6 chữ số)</label>
+        <input type="password" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" id="batchPinV704645" class="form-control form-control-lg text-center" autocomplete="off" placeholder="••••••">
+        <div class="form-text">PIN chỉ dùng để xác nhận thao tác ký hàng loạt và không được ghi vào nhật ký.</div>
+        <div class="form-check mt-3"><input class="form-check-input" type="checkbox" id="batchAttendanceConfirmV704645"><label class="form-check-label" for="batchAttendanceConfirmV704645">Tôi xác nhận các tiết chưa có SĐB và vẫn được chọn đang <strong>điểm danh đủ</strong>; các lớp có học sinh vắng đã được bỏ chọn để xử lý riêng.</label></div>
+      </div>
+      <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button><button type="button" class="btn btn-success fw-bold" id="btnConfirmBatchSignV704645" onclick="thucHienKyThayHangLoatV704645()">XÁC NHẬN &amp; KÝ</button></div>
+    </div>
+  </div>
+</div>
+
 <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/sodb-v69-runtime.js?v=70.4.6.18"></script>
-<script src="assets/js/app/sodb-v69-core.js?v=70.4.6.32"></script>
-<script src="assets/js/app/sodb-v69-khbd.js?v=70.4.6.34"></script>
-<script src="assets/js/app/sodb-v69-operations.js?v=70.4.6.32"></script>
-<script src="assets/js/app/sodb-v69-print.js?v=70.4.6.36"></script>
+<script src="assets/js/sodb-v69-runtime.js?v=70.4.6.49"></script>
+<script src="assets/js/app/sodb-v69-core.js?v=70.4.6.45"></script>
+<script src="assets/js/app/sodb-v69-khbd.js?v=70.4.6.47"></script>
+<script src="assets/js/app/sodb-v69-operations.js?v=70.4.6.49"></script>
+<script src="assets/js/app/sodb-v69-print.js?v=70.4.6.43"></script>
 <script src="assets/js/app/sodb-v69-admin.js?v=70.4.6.29"></script>
 <script src="assets/js/app/sodb-v69-admin-students.js?v=70.4.6.26"></script>
 <script src="assets/js/app/sodb-v69-admin-lessons.js?v=70.4.6.18"></script>
 <script src="assets/js/app/sodb-v70-lifecycle.js?v=70.4.6.13"></script>
 <script src="assets/js/app/sodb-v69-bgh.js?v=70.4.6.13"></script>
 <script src="assets/js/app/sodb-v69-masterdata.js?v=70.4.6.13"></script>
-<script src="assets/js/app/sodb-v69-control.js?v=70.4.6.32"></script>
+<script src="assets/js/app/sodb-v69-control.js?v=70.4.6.45"></script>
 <script src="assets/js/app/sodb-v69-v694.js?v=70.4.6.13"></script>
 <script src="assets/js/app/sodb-v69-v695.js?v=70.4.6.13"></script>
 <script src="assets/js/app/sodb-v69-v6951.js?v=70.4.6.29"></script>
-<script src="assets/js/app/sodb-v69-ux.js?v=70.4.6.13"></script>
-<script src="assets/js/sodb-v69-gvcn.js?v=70.4.6.27"></script>
+<script src="assets/js/app/sodb-v69-ux.js?v=70.4.6.41"></script>
+<script src="assets/js/sodb-v69-gvcn.js?v=70.4.6.44"></script>
 <script src="assets/js/sodb-v69-reports.js?v=70.4.6.13"></script>
 <script src="assets/js/app/sodb-v69-my-lessons.js?v=70.4.6.13"></script>
 
 <script src="assets/js/app/sodb-workspace.js?v=70.4.6.29"></script>
+<script src="assets/js/app/sodb-v69-print-ready.js?v=70.4.6.41"></script>
+<script src="assets/js/app/sodb-v69-print-ink.js?v=70.4.6.48"></script>
 </body>
 </html>

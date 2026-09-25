@@ -343,6 +343,8 @@
     return '';
   }
 
+  // V704640: signatures arrive with the authorized book response.
+  function hydrateSignatureFallbackPlaceholdersV704637(){return Promise.resolve([]);}
   function renderSignatureCell(cellData, clickable = true) {
     /* V8.2: ô trống phải thực sự trống; không dùng chữ mặc định "Giáo viên". */
     const entries=getCellEntries(cellData).filter(entry=>{
@@ -369,7 +371,7 @@
       if(sigUrl){
         const altText=name?`Chữ ký ${name}`:'Chữ ký giáo viên';
         const rawSig=entry.signatureUrl||entry.kySo||'';
-        const candidates=buildSignatureUrlCandidatesV682(rawSig);
+        const candidates=buildSignatureUrlCandidatesV682(normalizeSignatureUrlV67_1(rawSig));
         const firstSig=candidates[0]||sigUrl;
         return `<div class="sig-container mixed-entry"${clickAttr}><img src="${escapeHtml(firstSig)}" class="sig-img-preview" loading="eager" decoding="async" alt="${escapeHtml(altText)}" data-sig-candidates='${escapeHtml(JSON.stringify(candidates))}' data-sig-index="0" onerror="handleSignatureImageErrorV682(this)">${nameHtml}</div>`;
       }
@@ -460,6 +462,7 @@
       });
     });
     tbody.innerHTML=out;
+    hydrateSignatureFallbackPlaceholdersV704637(tbody,false);
   }
 
   function getBghSessionV684(){
@@ -639,6 +642,7 @@
         }
       });
       tbody.innerHTML=out;
+      hydrateSignatureFallbackPlaceholdersV704637(tbody,false);
       document.getElementById('sumVangP').innerText=res.summary.vangP;
       document.getElementById('sumVangKP').innerText=res.summary.vangKP;
       document.getElementById('sumDTB').innerText=res.summary.dtbTuan;
@@ -724,6 +728,58 @@ function capNhatTuanVaThu() {
 /* KHÓA CHỐNG TRÙNG LẶP / LƯU 2 LẦN KHI BẤM NÚT LƯU SỔ ĐẦU BÀI */
 let isSodbSubmitting = false; // Biến cờ khóa trạng thái gửi
 
+// V70.4.6.49: one active submission; the same draft keeps its ID after a lost response.
+let sodbSaveAttemptV49 = null;
+let sodbSaveSlowTimerV49 = null;
+async function sodbRequestIdV49(form, account, recordId){
+  const clean={...form};
+  delete clean.clientRequestId;
+  delete clean.trangThaiKySo; // Signed image URLs can expire; server resolves signature evidence.
+  const fingerprint=JSON.stringify([String(account||''),String(recordId||''),clean]);
+  if(sodbSaveAttemptV49?.fingerprint===fingerprint)return sodbSaveAttemptV49.requestId;
+  let digest='';
+  try{
+    if(globalThis.crypto?.subtle){
+      const bytes=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(fingerprint));
+      digest=Array.from(new Uint8Array(bytes),b=>b.toString(16).padStart(2,'0')).join('');
+    }
+  }catch(_e){}
+  let requestId='';
+  if(digest){try{
+    const old=JSON.parse(sessionStorage.getItem('sodb_save_attempt_v49')||'null');
+    if(old?.digest===digest&&typeof old.requestId==='string')requestId=old.requestId;
+  }catch(_e){}}
+  if(!requestId)requestId=newClientRequestIdV54();
+  sodbSaveAttemptV49={fingerprint,requestId};
+  // Persist only a digest and random ID, never the form, credentials or signature image.
+  if(digest){try{sessionStorage.setItem('sodb_save_attempt_v49',JSON.stringify({digest,requestId}));}catch(_e){}}
+  return requestId;
+}
+function sodbSaveStatusV49(message,warning=false){
+  const box=document.getElementById('saveProgressV49');if(!box)return;
+  box.textContent=message;
+  box.className='small mt-2 '+(warning?'text-warning':'text-primary')+(message?'':' d-none');
+}
+function sodbSaveBusyV49(busy){
+  isSodbSubmitting=busy;
+  clearTimeout(sodbSaveSlowTimerV49);
+  const form=document.getElementById('sodbForm'),btn=document.getElementById('btnSubmit');
+  if(form){form.inert=busy;form.setAttribute('aria-busy',String(busy));}
+  if(btn){
+    btn.disabled=busy||inputDeadlineLockedV683;
+    btn.setAttribute('aria-busy',String(busy));
+    btn.innerText=busy?'⏳ Đang lưu, vui lòng chờ…':(editingRecordIdV4?'💾 Lưu chỉnh sửa đã được duyệt':'Lưu vào Sổ Đầu Bài');
+  }
+  if(busy){
+    document.getElementById('saveSuccessV54')?.classList.add('d-none');
+    sodbSaveStatusV49('Đang lưu tiết học. Anh/chị chỉ cần bấm một lần.');
+    sodbSaveSlowTimerV49=setTimeout(()=>{
+      if(isSodbSubmitting)sodbSaveStatusV49('Máy chủ đang xử lý. Vui lòng chờ kết quả, không cần bấm lại.');
+    },8000);
+  }
+}
+
+
 function newClientRequestIdV54(){
   try{return crypto.randomUUID();}catch(e){return 'REQ-'+Date.now()+'-'+Math.random().toString(36).slice(2,10);}
 }
@@ -794,7 +850,7 @@ function resetPeriodFormAfterSaveV54(){
   tinhDiemTB();
 }
 
-document.getElementById('sodbForm').addEventListener('submit', function(e) {
+document.getElementById('sodbForm').addEventListener('submit', async function(e) {
   e.preventDefault();
   e.stopPropagation();
   if (isSodbSubmitting) return false;
@@ -854,9 +910,8 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
   if(inputDeadlineLockedV683){showToastV9('Tiết đang bị khóa theo thời hạn ký. Nếu cần bổ sung, liên hệ Admin mở khóa.','danger');return;}
 
   let btn = document.getElementById('btnSubmit');
-  isSodbSubmitting = true;
-  btn.disabled = true;
-  btn.innerText = "⏳ Đang lưu dữ liệu...";
+  sodbSaveBusyV49(true);
+  try {
   tinhDiemTB();
 
   let formData = {
@@ -896,17 +951,22 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
     proxyExternalStaffId: String(document.getElementById('proxyExternalStaffIdV693')?.value||''),
     operationId: currentInputOperationV693&&currentInputOperationV693.id||'',
     gdtcClasses: getGdtcClassMixV26(),
-    clientRequestId: newClientRequestIdV54()
+    clientRequestId: ""
   };
 
-  let wasEditingV4 = !!editingRecordIdV4;
+  const editingIdV49=editingRecordIdV4;
+  let wasEditingV4 = !!editingIdV49;
+  formData.clientRequestId=await sodbRequestIdV49(formData,gvbmDangNhapInfo?.sdt||gvbmDangNhapInfo?.cccd,editingIdV49);
   let runnerV4 = google.script.run
     .withSuccessHandler(function(res) {
-      isSodbSubmitting = false;
-      btn.disabled = false;
-      btn.innerText = "Lưu vào Sổ Đầu Bài";
-
-      if (res.success) {
+      if (!isSodbSubmitting) return;
+      let savedV49=false;
+      try {
+      if (res?.success) {
+        savedV49=true;
+        sodbSaveStatusV49('');
+        // Clear the selected period before other UI refreshes can fail.
+        document.getElementById('tietDay').value='';
         const signerSuffix=(formData.proxySigning&&formData.proxyTeacherName?` (ký thay: ${formData.proxyTeacherName})`:'')+(formData.isDayThay&&formData.gvDuocThay?` (dạy thay: ${formData.gvDuocThay})`:'');
         const savedText=wasEditingV4
           ? `✓ Đã cập nhật Tiết ${formData.tietDay} – ${formData.monHoc} – ${formData.lop}${signerSuffix}`
@@ -921,9 +981,8 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
           editingRecordIdV4=null;
           document.getElementById('btnCancelEditV4').classList.add('d-none');
           btn.classList.remove('btn-warning'); btn.classList.add('btn-primary');
-        }else{
-          resetPeriodFormAfterSaveV54();
         }
+        resetPeriodFormAfterSaveV54();
         invalidateSodbViewCacheV47(formData.lop,formData.tuanHoc);
         delete lessonPlanCache[[formData.khoi,formData.lop,formData.monHoc,formData.tuanHoc].join('|')];
         document.getElementById('viewLop').value=formData.lop;document.getElementById('viewTuan').value=formData.tuanHoc;
@@ -932,21 +991,36 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
         hideJustUsedLessonV55(formData.tenBaiDay);
         loadDanhSachBaiDay(true);
       } else { 
-        showToastV9("Lỗi: " + (res.message || "Không thể lưu dữ liệu."), "danger"); 
+        const message=res?.message || "Chưa nhận được xác nhận lưu. Vui lòng thử lại cùng nội dung.";
+        sodbSaveStatusV49(message,true);
+        showToastV9(message, "danger");
+      }
+      } catch(uiErrorV49) {
+        console.error('[SODB save UI]',uiErrorV49);
+        sodbSaveStatusV49(savedV49?'Đã lưu thành công. Vui lòng mở Xem sổ để kiểm tra; màn hình chưa làm mới đầy đủ.':'Chưa nhận được xác nhận lưu. Vui lòng thử lại cùng nội dung.',true);
+      } finally {
+        sodbSaveBusyV49(false);
       }
     })
     .withFailureHandler(function(err) {
-      isSodbSubmitting = false;
-      btn.disabled = false;
-      btn.innerText = "Lưu vào Sổ Đầu Bài";
-      showToastV9("Lỗi kết nối máy chủ: " + err, "danger");
+      if (!isSodbSubmitting) return;
+      sodbSaveBusyV49(false);
+      const message='Chưa nhận được xác nhận từ máy chủ. Anh/chị có thể bấm Lưu lại với nguyên nội dung; hệ thống dùng lại mã yêu cầu để tránh ghi trùng.';
+      sodbSaveStatusV49(message,true);
+      showToastV9(message, 'warning');
+      console.warn('[SODB save transport]',err);
     });
   let authV4={token: gvbmDangNhapInfo ? gvbmDangNhapInfo.sessionToken : ""};
   if(wasEditingV4){
-    formData.recordId=editingRecordIdV4;
+    formData.recordId=editingIdV49;
     runnerV4.capNhatSoDauBaiV4(formData,authV4);
   }else{
     runnerV4.luuSoDauBai(formData,authV4);
+  }
+  } catch(errV49) {
+    sodbSaveBusyV49(false);
+    sodbSaveStatusV49('Chưa hoàn tất thao tác lưu. Nội dung nhập vẫn được giữ; vui lòng thử lại.',true);
+    console.error('[SODB save preparation]',errV49);
   }
 });
 

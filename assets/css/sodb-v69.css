@@ -3532,12 +3532,12 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
     font-size:4.65pt!important;line-height:.92!important;white-space:nowrap!important;
     overflow:hidden!important;text-overflow:ellipsis!important;box-sizing:border-box!important;
   }
-  /* V70.4.6.37 - làm nét đứt trong cột Thứ thưa hơn, thoáng hơn và gần mẫu hơn */
+  /* V70.4.6.38 - chỉnh nét đứt trong cột Thứ giống mẫu ảnh hơn: ngắn, dày vừa và đều */
   body.a3-tracuu-v56 #a3PrintRootV56 .a3-sync-line-v704610 + .a3-sync-line-v704610{
     border-top:0!important;
     position:relative!important;
     margin-top:0!important;
-    padding-top:.3mm!important;
+    padding-top:.26mm!important;
   }
   body.a3-tracuu-v56 #a3PrintRootV56 .a3-sync-line-v704610 + .a3-sync-line-v704610::before{
     content:""!important;
@@ -3545,12 +3545,12 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
     left:0!important;
     right:0!important;
     top:0!important;
-    height:.18mm!important;
-    background-image:repeating-linear-gradient(90deg,#95a3b8 0 1.05mm,transparent 1.05mm 3.65mm)!important;
+    height:.16mm!important;
+    background-image:repeating-linear-gradient(90deg,#7f8b9d 0 .62mm,transparent .62mm .98mm)!important;
     background-repeat:repeat-x!important;
     background-position:left top!important;
     background-size:auto 100%!important;
-    opacity:.98!important;
+    opacity:.97!important;
     pointer-events:none!important;
     print-color-adjust:exact!important;
     -webkit-print-color-adjust:exact!important;
@@ -3562,7 +3562,7 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
     border-top:0!important;
     position:relative!important;
     margin-top:.08mm!important;
-    padding-top:.2mm!important;
+    padding-top:.18mm!important;
   }
   body.a3-tracuu-v56 #a3PrintRootV56 .sig-stack-mixed-v14 .mixed-entry + .mixed-entry::before{
     content:""!important;
@@ -3570,8 +3570,8 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
     left:0!important;
     right:0!important;
     top:0!important;
-    height:.16mm!important;
-    background-image:repeating-linear-gradient(90deg,#98a2b3 0 .95mm,transparent .95mm 3.2mm)!important;
+    height:.15mm!important;
+    background-image:repeating-linear-gradient(90deg,#8e99aa 0 .58mm,transparent .58mm .92mm)!important;
     background-repeat:repeat-x!important;
     background-position:left top!important;
     opacity:.95!important;

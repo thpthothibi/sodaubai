@@ -54,12 +54,16 @@
     if(!keys.length){body.innerHTML='<tr><td colspan="5" class="text-center text-muted py-4">Tuần này chưa có dữ liệu sổ đầu bài.</td></tr>';return;}
     body.innerHTML=keys.map(k=>{
       const c=matrix[k]||{},entries=Array.isArray(c.entries)&&c.entries.length?c.entries:[c];
-      const signed=entries.every(e=>gvcnSignedV681(e.kySo||e.signatureUrl||c.kySo||c.signatureUrl));
+      const staleProxy=entries.some(e=>e?.proxySignatureStale===true),proxy=entries.some(e=>String(e?.signatureMode||'').toUpperCase()==='PROXY'||String(e?.proxySignerAccount||'').trim());
+      const signed=entries.every(e=>gvcnSignedV681(e.kySo||e.signatureUrl||c.kySo||c.signatureUrl))&&!staleProxy;
       const mons=entries.map(e=>e.mon||'').filter(Boolean).join(' / ')||c.mon||'';
       const teachers=entries.map(e=>e.tenGV||'').filter(Boolean).join(' / ')||c.tenGV||'';
+      const proxyConfirm=entries.filter(e=>String(e?.proxySignerName||e?.proxySignerAccount||'').trim()).map(e=>`${e.proxySignerName||e.proxySignerAccount}${e.proxySignerTitle?' – '+e.proxySignerTitle:''}`).filter((x,i,a)=>a.indexOf(x)===i).join(' / ');
       const lessons=entries.map(e=>e.tenBai||'').filter(Boolean).join(' / ')||c.tenBai||'';
       const statusBadge=renderPeriodStatusBadgeV683(c);
-      return `<tr class="${signed?'':'gvcn-row-unsigned-v681'}"><td class="fw-semibold text-nowrap">${escapeHtml(gvcnSlotLabelV681(k))}</td><td>${statusBadge}${escapeHtml(mons)}</td><td>${escapeHtml(teachers)}</td><td>${escapeHtml(lessons)}</td><td class="text-nowrap">${signed?'<span class="badge text-bg-success">Đã ký</span>':'<span class="badge text-bg-warning">Chưa ký</span>'}</td></tr>`;
+      const teacherHtml=`${escapeHtml(teachers)}${proxyConfirm?`<div class="small text-primary mt-1">Xác nhận: ${escapeHtml(proxyConfirm)}</div>`:''}`;
+      const signBadge=staleProxy?'<span class="badge text-bg-danger">Cần ký lại</span>':proxy&&signed?'<span class="badge text-bg-primary">Đã ký thay</span>':signed?'<span class="badge text-bg-success">Đã ký</span>':'<span class="badge text-bg-warning">Chưa ký</span>';
+      return `<tr class="${signed?'':'gvcn-row-unsigned-v681'}"><td class="fw-semibold text-nowrap">${escapeHtml(gvcnSlotLabelV681(k))}</td><td>${statusBadge}${escapeHtml(mons)}</td><td>${teacherHtml}</td><td>${escapeHtml(lessons)}</td><td class="text-nowrap">${signBadge}</td></tr>`;
     }).join('');
   }
   const GVCN_ISSUE_TITLES_V704644={
@@ -78,7 +82,12 @@
     SKIPPED_PERIOD:'Tiết đang được ghi nhận bỏ tiết',
     TEACHER_ABSENT_UNRESOLVED:'Giáo viên vắng chưa có xử lý thay thế',
     GROUP_SLOT_AUTO_DETECTED:'Đã tự nhận diện tiết nhóm',
-    EXCUSED_NO_CLASS:'Nghỉ hợp lệ'
+    EXCUSED_NO_CLASS:'Nghỉ hợp lệ',
+    PROXY_SIGNATURE_VALID:'Đã ký thay hợp lệ',
+    PROXY_SIGNATURE_STALE:'Nội dung đã thay đổi – cần ký lại',
+    PROXY_SIGNATURE_INVALID:'Chữ ký thay cần kiểm tra',
+    LINKED_PROGRAM_NO_CLASS:'Chương trình liên kết nghỉ hợp lệ',
+    LINKED_PROGRAM_MOVED:'Chương trình liên kết đã dời tiết'
   };
   function gvcnIssueTitleV704644(x){return GVCN_ISSUE_TITLES_V704644[String(x?.code||'')]||'Cần kiểm tra';}
   function gvcnIssueSlotLabelV704644(x){
@@ -110,8 +119,8 @@
     const dup=Array.isArray(x?.duplicateStudents)&&x.duplicateStudents.length?x.duplicateStudents.map(s=>`${studentName(s)}${s?.count?` ×${s.count}`:''}`).filter(Boolean).join(', '):'';
     const extra=Array.isArray(x?.extraStudents)&&x.extraStudents.length?x.extraStudents.map(studentName).filter(Boolean).join(', '):'';
     const slot=gvcnIssueSlotLabelV704644(x);
-    const canOpen=!!String(x?.date||'').trim()&&Number(x?.period||0)>0;
-    const action=canOpen?`<button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="gvcnOpenIssueSlotV704644('${escapeHtml(String(x.date||''))}','${escapeHtml(String(x.session||''))}',${Number(x.period||0)})">Xem tiết</button>`:'';
+    const actionDate=String(x?.openDate||x?.date||''),actionSession=String(x?.openSession||x?.session||''),actionPeriod=Number(x?.openPeriod||x?.period||0),canOpen=!!actionDate.trim()&&actionPeriod>0;
+    const action=canOpen?`<button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="gvcnOpenIssueSlotV704644('${escapeHtml(actionDate)}','${escapeHtml(actionSession)}',${actionPeriod})">Xem tiết</button>`:'';
     return `<div class="border rounded p-2 ${cls}">
       <div class="d-flex flex-wrap align-items-center justify-content-between gap-2"><div><span class="fw-bold">${icon} ${escapeHtml(gvcnIssueTitleV704644(x))}</span>${slot?`<div class="small fw-semibold mt-1">${escapeHtml(slot)}</div>`:''}</div>${action}</div>
       <div class="small mt-1">${escapeHtml(x?.message||'')}</div>
@@ -121,6 +130,9 @@
       ${missing?row(`Học sinh chưa được phủ${x?.missingCount?` (${x.missingCount})`:''}`,missing,'text-danger-emphasis'):''}
       ${dup?row('Học sinh đang bị trùng nhóm',dup,'text-warning-emphasis'):''}
       ${extra?row(`Học sinh còn sót trong nhóm${x?.extraCount?` (${x.extraCount})`:''}`,extra,'text-warning-emphasis'):''}
+      ${row('GV giảng dạy',x?.teacherName)}
+      ${row('Người xác nhận',x?.proxySignerName?`${x.proxySignerName}${x.proxySignerTitle?' – '+x.proxySignerTitle:''}`:'')}
+      ${row('Đợt ký',x?.batchCode)}
     </div>`;
   }
   function gvcnRenderValidationV7045(v){
@@ -131,7 +143,7 @@
     if(morning)morning.textContent=`${Number(v.morning?.valid||0)}/${Number(v.morning?.expected||0)}`;
     if(afternoon)afternoon.textContent=`${Number(v.afternoon?.valid||0)}/${Number(v.afternoon?.expected||0)}`;
     const pass=String(v.status)==='PASS',fresh=!!v.storedFresh;
-    if(summary){summary.className='alert '+(pass?(fresh?'alert-success':'alert-info'):'alert-warning')+' border py-2 mb-2';summary.innerHTML=pass?(fresh?`<b>ĐẠT</b> · ${v.validSlots}/${v.expectedSlots} ô hợp lệ · Đã kiểm tra ${escapeHtml(v.checkedAt||'')}`:`<b>Dữ liệu hiện tại đạt</b> ${v.validSlots}/${v.expectedSlots}, nhưng GVCN cần bấm <b>Kiểm tra sổ tuần</b> để xác nhận trước khi ký.`):`<b>CHƯA ĐẠT</b> · ${v.validSlots}/${v.expectedSlots} ô hợp lệ · ${v.blockingCount} lỗi chặn${v.warningCount?` · ${v.warningCount} cảnh báo`:''}. <span class="d-block small mt-1">Mỗi lỗi bên dưới ghi rõ nguyên nhân, vị trí cần kiểm tra và cách xử lý.</span>`;}
+    if(summary){const proxyText=Number(v.proxySignedCount||0)?` · ${Number(v.proxySignedCount||0)} tiết ký thay hợp lệ`:'';summary.className='alert '+(pass?(fresh?'alert-success':'alert-info'):'alert-warning')+' border py-2 mb-2';summary.innerHTML=pass?(fresh?`<b>ĐẠT</b> · ${v.validSlots}/${v.expectedSlots} ô hợp lệ${proxyText} · Đã kiểm tra ${escapeHtml(v.checkedAt||'')}`:`<b>Dữ liệu hiện tại đạt</b> ${v.validSlots}/${v.expectedSlots}${proxyText}, nhưng GVCN cần bấm <b>Kiểm tra sổ tuần</b> để xác nhận trước khi ký.`):`<b>CHƯA ĐẠT</b> · ${v.validSlots}/${v.expectedSlots} ô hợp lệ · ${v.blockingCount} lỗi chặn${v.warningCount?` · ${v.warningCount} cảnh báo`:''}${proxyText}. <span class="d-block small mt-1">Mỗi lỗi bên dưới ghi rõ nguyên nhân, vị trí cần kiểm tra và cách xử lý.</span>`;}
     const list=Array.isArray(v.issues)?v.issues:[];
     const blockingList=list.filter(x=>x?.severity==='BLOCKING'),warningList=list.filter(x=>x?.severity==='WARNING'),infoList=list.filter(x=>x?.severity==='INFO');
     const ordered=[...blockingList,...warningList];

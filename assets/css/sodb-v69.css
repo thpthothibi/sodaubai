@@ -3780,3 +3780,16 @@ body { background-color: #e2e8f0; padding: 10px; font-family: 'Times New Roman',
    object-fit:contain!important;
  }
 }
+
+/* ===== V70.4.6.49.3: BGH stamp week selector + draggable position preview ===== */
+.stamp-editor-v493{border:1px solid #d7dee8;border-radius:10px;padding:12px;background:#fbfcfe;}
+.stamp-canvas-v493{width:min(100%,520px);margin:0 auto;border:1px dashed #a8b4c4;border-radius:10px;background:#fff;padding:10px 14px 12px;text-align:center;overflow:visible;}
+.stamp-preview-title-v493{font-weight:700;font-size:.82rem;text-transform:uppercase;margin-bottom:4px;}
+.stamp-anchor-v493{position:relative;height:30px;margin:34px 0;display:flex;align-items:center;justify-content:center;overflow:visible;border-top:1px dotted #d8dee8;border-bottom:1px dotted #d8dee8;touch-action:none;}
+.stamp-bgh-signature-v493{max-height:28px;max-width:240px;object-fit:contain;filter:contrast(125%);mix-blend-mode:multiply;pointer-events:none;user-select:none;}
+.stamp-no-signature-v493{font-size:.75rem;color:#7a8699;font-style:italic;pointer-events:none;}
+.stamp-preview-name-v493{min-height:24px;padding-top:4px;font-weight:700;font-size:.82rem;}
+.stamp-drag-v493{position:absolute;width:86px;height:86px;object-fit:contain;transform:translate(-50%,-50%);cursor:grab;user-select:none;touch-action:none;z-index:5;max-width:none;max-height:none;filter:none;}
+.stamp-drag-v493:active{cursor:grabbing;}
+.stamp-drag-v493:focus-visible{outline:2px solid currentColor;outline-offset:2px;}
+@media (max-width:576px){.stamp-anchor-v493{height:28px;margin:30px 0}.stamp-drag-v493{width:76px;height:76px}.stamp-canvas-v493{padding-left:8px;padding-right:8px}}

@@ -522,7 +522,28 @@
   }
 
   let sodbViewRequestV704 = 0;
-  function traCuuSoDauBaiTuanGop(forceRefreshV6) {
+  let sodbViewPendingV50 = null;
+  let sodbViewWarmV50 = null;
+  // Invalidate before resetting the input form: rendering failures must not retain old data.
+  function sodbViewsAfterSaveV50(form){
+    sodbViewWarmV50=null;
+    sodbViewCacheV6.clear(); // Includes class books projected from GDTC/Chuyên đề groups.
+    ++sodbViewRequestV704; // Older reads may not render or repopulate the cache.
+    const week=Number(form.tuanHoc)||1;
+    const grade=document.getElementById('viewKhoi');
+    if(grade&&String(form.khoi)!==grade.value){grade.value=String(form.khoi);chonKhoiLopView();}
+    const classSelect=document.getElementById('viewLop');
+    if(classSelect&&[...classSelect.options].some(o=>o.value===String(form.lop)))classSelect.value=String(form.lop);
+    document.getElementById('viewTuan').value=String(week);
+    if(typeof capNhatLoaiSoViewV24==='function')capNhatLoaiSoViewV24();
+    window.sodbWorkspace?.clear();
+    window.dispatchEvent(new CustomEvent('sodb:lesson-saved',{detail:{week,lop:String(form.lop||''),mon:String(form.monHoc||'')}}));
+    // Warm the authoritative read immediately; opening the tab joins the same request.
+    if(classSelect?.value===String(form.lop)){
+      Promise.resolve().then(()=>traCuuSoDauBaiTuanGop(true,true)).catch(()=>{});
+    }
+  }
+  function traCuuSoDauBaiTuanGop(forceRefreshV6,afterSaveV50=false) {
     const lop=document.getElementById('viewLop').value;
     const tuan=parseInt(document.getElementById('viewTuan').value)||1;
     const bookMode=document.getElementById('viewBookMode')?.value||'LOP_CHINH';
@@ -531,7 +552,18 @@
       showToastV9('Vui lòng chọn lớp cần xem.','danger');
       return Promise.resolve(null);
     }
+    const authV50=getAnyAuthV6(),authKeyV50=JSON.stringify(authV50);
+    const requestKeyV50=JSON.stringify([lop,tuan,bookMode,authKeyV50]);
+    if(sodbViewPendingV50?.key===requestKeyV50&&sodbViewPendingV50.serial===sodbViewRequestV704)return sodbViewPendingV50.promise;
+    if(sodbViewWarmV50?.key===requestKeyV50&&sodbViewWarmV50.serial===sodbViewRequestV704&&sodbViewWarmV50.until>Date.now()){
+      const payload=sodbViewWarmV50.payload;sodbViewWarmV50=null;return Promise.resolve(payload);
+    }
     const requestIdV704 = ++sodbViewRequestV704;
+    const currentRequestV50=()=>requestIdV704===sodbViewRequestV704
+      &&authKeyV50===JSON.stringify(getAnyAuthV6())
+      &&document.getElementById('viewLop').value===lop
+      &&Number(document.getElementById('viewTuan').value)===tuan
+      &&(document.getElementById('viewBookMode')?.value||'LOP_CHINH')===bookMode;
     window.sodbWorkspace?.loading();
     const titleEl=document.querySelector('#printPageSingle .so-title');
     if(titleEl)titleEl.textContent=tieuDeSoTheoLopV22(lop,bookMode);
@@ -569,7 +601,7 @@
     }
 
     function renderPageV10(payload){
-      if(requestIdV704 !== sodbViewRequestV704) return;
+      if(!currentRequestV50()) return;
       window.sodbWorkspace?.render(payload, {lop,tuan,bookMode,mondayOfWeek});
       const res=payload&&payload.sodb?payload.sodb:payload;
       const table=tbody?.closest('table');
@@ -599,7 +631,7 @@
         applyChotV10(payload&&payload.chot);
         applyBghApprovalV684(payload&&payload.bghDuyet,payload&&payload.chot);
         if(typeof renderReviewV7044==='function')renderReviewV7044(payload?.review||null);
-        sodbViewCacheV6.set(cacheKey,{ts:Date.now(),res:payload});
+        sodbViewCacheV6.set(cacheKey,{ts:Date.now(),res:payload,authKey:authKeyV50});
         const stamp=document.getElementById('sodbLoadedAtV10');
         if(stamp)stamp.textContent=payload&&payload.serverTime?('Cập nhật: '+payload.serverTime):'';
         return;
@@ -651,12 +683,12 @@
       applyChotV10(payload&&payload.chot);
       applyBghApprovalV684(payload&&payload.bghDuyet,payload&&payload.chot);
         if(typeof renderReviewV7044==='function')renderReviewV7044(payload?.review||null);
-      sodbViewCacheV6.set(cacheKey,{ts:Date.now(),res:payload});
+      sodbViewCacheV6.set(cacheKey,{ts:Date.now(),res:payload,authKey:authKeyV50});
       const stamp=document.getElementById('sodbLoadedAtV10');
       if(stamp)stamp.textContent=payload&&payload.serverTime?('Cập nhật: '+payload.serverTime):'';
     }
 
-    if(!forceRefreshV6&&cached&&Date.now()-cached.ts<SODB_VIEW_CACHE_MS_V6){
+    if(!forceRefreshV6&&cached&&cached.authKey===authKeyV50&&Date.now()-cached.ts<SODB_VIEW_CACHE_MS_V6){
       renderPageV10(cached.res);
       return Promise.resolve(cached.res);
     }
@@ -667,22 +699,30 @@
         <span class="text-muted">Đang tải sổ đầu bài...</span>
       </td></tr>`;
     const viewPerfStartedV63=performance.now();
-    return new Promise((resolve,reject)=>{
+    const pendingV50 = new Promise((resolve,reject)=>{
       google.script.run
         .withSuccessHandler(function(payload){
+          if(!currentRequestV50()){resolve(null);return;}
           console.info('[V66 PERF] Xem sổ tổng:',Math.round(performance.now()-viewPerfStartedV63)+'ms','server:',(payload&&payload.serverMs!==undefined?payload.serverMs:'—')+'ms',lop,'Tuần '+tuan,bookMode);
-          renderPageV10(payload);
-          resolve(payload);
+          try {
+            renderPageV10(payload);
+            if(afterSaveV50&&(payload?.sodb||payload)?.success)sodbViewWarmV50={key:requestKeyV50,serial:requestIdV704,until:Date.now()+3000,payload};
+            resolve(payload);
+          } catch(renderErrorV50){reject(renderErrorV50);}
         })
         .withFailureHandler(function(err){
-          if(requestIdV704 !== sodbViewRequestV704){resolve(null);return;}
+          if(!currentRequestV50()){resolve(null);return;}
           window.sodbWorkspace?.error();
           tbody.innerHTML='<tr><td colspan="12" class="text-danger py-3 text-center">Không thể tải dữ liệu. Vui lòng thử lại.</td></tr>';
           showToastV9('Không tải được sổ đầu bài: '+(err&&err.message?err.message:err),'danger');
           reject(err);
         })
-        .layTrangSoDauBaiV24(lop,tuan,bookMode,getAnyAuthV6());
+        .layTrangSoDauBaiV24(lop,tuan,bookMode,authV50);
+    }).finally(()=>{
+      if(sodbViewPendingV50?.serial===requestIdV704)sodbViewPendingV50=null;
     });
+    sodbViewPendingV50={key:requestKeyV50,serial:requestIdV704,promise:pendingV50};
+    return pendingV50;
   }
 
   /* HÀM CẬP NHẬT TUẦN, THỨ VÀ KIỂM TRA CHẶN NHẬP NGÀY TƯƠNG LAI */
@@ -964,6 +1004,7 @@ document.getElementById('sodbForm').addEventListener('submit', async function(e)
       try {
       if (res?.success) {
         savedV49=true;
+        sodbViewsAfterSaveV50(formData);
         sodbSaveStatusV49('');
         // Clear the selected period before other UI refreshes can fail.
         document.getElementById('tietDay').value='';
@@ -985,7 +1026,7 @@ document.getElementById('sodbForm').addEventListener('submit', async function(e)
         resetPeriodFormAfterSaveV54();
         invalidateSodbViewCacheV47(formData.lop,formData.tuanHoc);
         delete lessonPlanCache[[formData.khoi,formData.lop,formData.monHoc,formData.tuanHoc].join('|')];
-        document.getElementById('viewLop').value=formData.lop;document.getElementById('viewTuan').value=formData.tuanHoc;
+        // V50 selected the saved class/week before resetting the input form.
         // V55: ẩn ngay bài vừa dùng, sau đó bắt buộc hỏi lại backend để đồng bộ
         // toàn bộ danh sách còn lại của đúng Lớp + Môn + Tuần.
         hideJustUsedLessonV55(formData.tenBaiDay);

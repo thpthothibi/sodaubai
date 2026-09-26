@@ -9,6 +9,10 @@
   let loading = false;
   let loadedFrom = '';
   let loadedTo = '';
+  let requestSerialV50=0;
+  let pendingV50=null;
+  let loadedTokenV50='';
+  let postSaveReadyUntilV50=0;
   const dayNames=['Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy','Chủ Nhật'];
 
   function currentWeek(){
@@ -107,17 +111,28 @@
     }
     mount.innerHTML=[renderSession('Buổi sáng','SANG',days,slotMap,list),renderSession('Buổi chiều','CHIEU',days,slotMap,list),renderSession('Dạy bù','DAY_BU',days,slotMap,list)].join('');
   }
-  async function load(force=false){
+  function load(force=false,afterSave=false){
     const token=typeof gvbmDangNhapInfo!=='undefined'&&gvbmDangNhapInfo?.sessionToken;
-    if(!token){$('myLessonsStatusV70468').textContent='Tài khoản hiện tại không có phiên Giáo viên bộ môn.';return;}
+    if(!token){
+      ++requestSerialV50;pendingV50=null;loading=false;loadedWeek=0;loadedTokenV50='';rows=[];rowById.clear();renderMetrics([]);
+      $('myLessonsGridV70468').innerHTML='';
+      $('myLessonsStatusV70468').textContent='Tài khoản hiện tại không có phiên Giáo viên bộ môn.';return Promise.resolve();
+    }
     const week=Math.max(1,Math.min(53,Number($('myLessonsWeekV70468')?.value||currentWeek())));
-    if(!force && loading)return;
+    if(pendingV50?.token===token&&pendingV50.week===week&&pendingV50.serial===requestSerialV50)return pendingV50.promise;
+    const serial=++requestSerialV50;
+    const isCurrent=()=>serial===requestSerialV50&&gvbmDangNhapInfo?.sessionToken===token&&Number($('myLessonsWeekV70468')?.value)===week;
+    if(loadedTokenV50!==token){rows=[];rowById.clear();loadedWeek=0;renderMetrics([]);}
     loading=true; $('myLessonsWeekV70468').value=String(week);
     $('myLessonsStatusV70468').textContent='Đang tải ma trận các tiết do chính bạn đã dạy trong tuần...';
     $('myLessonsGridV70468').innerHTML='<div class="text-center text-muted py-5"><span class="spinner-border spinner-border-sm me-2"></span>Đang tải...</div>';
+    const promise=(async()=>{
     try{
       const res=await callSodbEdgeRpcV67('layTietCuaToiTheoTuanV70468',[week,{token}],20000);
+      if(!isCurrent())return;
       if(!res?.success)throw new Error(res?.message||'Không tải được Tiết của tôi.');
+      loadedTokenV50=token;
+      postSaveReadyUntilV50=afterSave?Date.now()+3000:0;
       loadedWeek=week; loadedFrom=String(res.from||''); loadedTo=String(res.to||'');
       rows=Array.isArray(res.data)?res.data:[]; rowById=new Map(rows.map(r=>[String(r.recordId||''),r]));
       fillSelect('myLessonsClassV70468',Array.isArray(res.classes)?res.classes:[], 'Tất cả lớp');
@@ -127,10 +142,24 @@
       $('myLessonsStatusV70468').textContent=rows.length?'Ma trận chỉ hiển thị các tiết của chính giáo viên đang đăng nhập. Bấm vào thẻ tiết để mở Nhập tiết.':'Tuần này chưa có tiết nào của bạn trong Sổ đầu bài.';
       render();
     }catch(e){
+      if(!isCurrent())return;
       rows=[];rowById.clear();renderMetrics([]);
       $('myLessonsGridV70468').innerHTML=`<div class="text-center text-danger py-5">${esc(e?.message||e)}</div>`;
       $('myLessonsStatusV70468').textContent='Không tải được dữ liệu. Vui lòng thử lại.';
-    }finally{loading=false;}
+    }finally{if(serial===requestSerialV50){loading=false;pendingV50=null;}}
+    })();
+    pendingV50={token,week,serial,promise};
+    return promise;
+  }
+  function afterSaveV50(event){
+    ++requestSerialV50;pendingV50=null;loadedWeek=0;postSaveReadyUntilV50=0;
+    const detail=event.detail||{};
+    if(detail.week)$('myLessonsWeekV70468').value=String(detail.week);
+    // A previous class/subject filter must not hide the newly saved lesson.
+    for(const [id,value] of [['myLessonsClassV70468',detail.lop],['myLessonsSubjectV70468',detail.mon]]){
+      const el=$(id);if(el&&el.value!=='ALL'&&el.value!==value)el.value='ALL';
+    }
+    load(true,true);
   }
   function switchWeek(delta){
     const el=$('myLessonsWeekV70468'); if(!el)return;
@@ -162,7 +191,12 @@
   function init(){
     const tab=$('my-lessons-tab-v70468'); if(!tab)return;
     $('myLessonsWeekV70468').value=String(currentWeek());
-    tab.addEventListener('shown.bs.tab',()=>{const w=Number($('myLessonsWeekV70468').value||currentWeek());if(w!==loadedWeek||!rows.length)load(true);});
+    tab.addEventListener('shown.bs.tab',()=>{
+      const sameContext=loadedWeek===Number($('myLessonsWeekV70468').value)&&loadedTokenV50===gvbmDangNhapInfo?.sessionToken;
+      if(sameContext&&postSaveReadyUntilV50>Date.now()){postSaveReadyUntilV50=0;render();return;}
+      load(true);
+    });
+    window.addEventListener('sodb:lesson-saved',afterSaveV50);
     $('myLessonsRefreshV70468')?.addEventListener('click',()=>load(true));
     $('myLessonsWeekV70468')?.addEventListener('change',()=>load(true));
     $('myLessonsClassV70468')?.addEventListener('change',render);

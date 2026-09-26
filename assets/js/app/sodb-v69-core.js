@@ -1172,7 +1172,10 @@ let varDiemTB = 10;
     const inputTab=document.getElementById('input-tab');
     if(inputTab)inputTab.addEventListener('shown.bs.tab',function(){refreshClassCatalogV29();lazyLoadInputLessonV7();});
     const viewTab=document.getElementById('view-tab');
-    if(viewTab)viewTab.addEventListener('shown.bs.tab',refreshClassCatalogV29);
+    if(viewTab)viewTab.addEventListener('shown.bs.tab',function(){
+      refreshClassCatalogV29();
+      if(document.getElementById('viewLop')?.value)traCuuSoDauBaiTuanGop(true).catch(()=>{});
+    });
     const ttcmTab=document.getElementById('ttcm-tab'); if(ttcmTab)ttcmTab.addEventListener('shown.bs.tab',function(){
       lazyLoadAdminSubjectsV7();
       ensureTtcmUploadUiV6852();

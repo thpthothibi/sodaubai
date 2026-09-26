@@ -878,6 +878,20 @@ let varDiemTB = 10;
 
 
   let khbdMyRowsV67=[];
+  function khbdMyCurrentWeekV704650(){
+    try{
+      const bootstrapWeek=Number(currentUnifiedLoginV4?.bootstrap?.currentWeek||currentUnifiedLoginV4?.bootstrap?.schoolYear?.currentWeek||0);
+      if(bootstrapWeek>0)return Math.max(1,Math.min(53,bootstrapWeek));
+      const p=String(START_DATE_WEEK1_STR||'2026-08-17').split('-').map(Number),start=new Date(p[0],p[1]-1,p[2],12),now=new Date();
+      return Math.max(1,Math.min(53,Math.floor((now-start)/604800000)+1));
+    }catch(_e){return 1;}
+  }
+  function napTuanKhbdCaNhanV704650(){
+    const sel=document.getElementById('khbdMyWeekV704650');if(!sel)return;
+    const old=Number(sel.value||0),current=khbdMyCurrentWeekV704650();
+    sel.innerHTML='';for(let w=1;w<=53;w++)sel.add(new Option(`Tuần ${w}`,String(w)));
+    sel.value=String(old>=1&&old<=53?old:current);
+  }
   function configureTeacherKhbdV67(){
     const sessions=currentUnifiedLoginV4&&currentUnifiedLoginV4.sessions||{};
     const hasTeacher=!!sessions.GVBM, hasManage=!!sessions.TTCM||!!sessions.BGH||!!sessions.ADMIN;
@@ -887,6 +901,7 @@ let varDiemTB = 10;
     const gv=sessions.GVBM;
     const monSel=document.getElementById('khbdMyMonV67');
     if(monSel){const old=monSel.value;monSel.innerHTML='';expandGdtcSubjectsV25(teacherSubjectsWithSpecialV70463(gv)).forEach(m=>monSel.add(new Option(m,m)));if([...monSel.options].some(o=>o.value===old))monSel.value=old;}
+    napTuanKhbdCaNhanV704650();
     napLopKhbdCaNhanV691();
     if(!hasManage){
       document.getElementById('khbd-upload-tab-v38')?.parentElement?.classList.add('d-none');
@@ -934,18 +949,18 @@ let varDiemTB = 10;
     if(!khbdIds.length){showToastV9('Hãy tích ít nhất một tiết/bài KHBD trước khi áp dụng nhiều lớp.','warning');return;}
     const classes=lopKhbdHopLeV7067();if(!classes.length){showToastV9('Không có lớp phù hợp trong phân công.','warning');return;}
     const current=String(document.getElementById('khbdMyLopV691')?.value||'').trim(),box=ensureBulkKhbdModalV7067(),wrap=document.getElementById('khbdBulkClassesV7067');
-    document.getElementById('khbdBulkMetaV7067').textContent=`${document.getElementById('khbdMyMonV67')?.value||''} · Khối ${document.getElementById('khbdMyKhoiV67')?.value||''} · ${khbdIds.length}/${checks.length} tiết đang tích`;
+    document.getElementById('khbdBulkMetaV7067').textContent=`${document.getElementById('khbdMyMonV67')?.value||''} · Khối ${document.getElementById('khbdMyKhoiV67')?.value||''} · Tuần ${document.getElementById('khbdMyWeekV704650')?.value||''} · ${khbdIds.length}/${checks.length} tiết đang tích`;
     wrap.innerHTML=classes.map((c,i)=>`<div class="col-md-4 col-sm-6"><label class="form-check border rounded p-2 w-100 h-100"><input class="form-check-input me-2 khbd-bulk-class-v7067" type="checkbox" value="${escapeHtml(c)}" ${c===current?'checked':''}><span class="form-check-label fw-semibold">${escapeHtml(c)}</span></label></div>`).join('');
     bootstrap.Modal.getOrCreateInstance(box).show();
   }
   function chonTatCaLopKhbdV7067(on){document.querySelectorAll('.khbd-bulk-class-v7067').forEach(x=>x.checked=!!on);}
   function apDungKhbdNhieuLopV7067(){
-    const khoi=Number(document.getElementById('khbdMyKhoiV67')?.value||10),mon=canonicalSubjectV6955(document.getElementById('khbdMyMonV67')?.value),khbdIds=[...document.querySelectorAll('.khbd-my-check-v67:checked')].map(x=>String(x.dataset.khbdId||'').trim()).filter(Boolean),classes=[...document.querySelectorAll('.khbd-bulk-class-v7067:checked')].map(x=>String(x.value||'').trim()).filter(Boolean);
+    const khoi=Number(document.getElementById('khbdMyKhoiV67')?.value||10),mon=canonicalSubjectV6955(document.getElementById('khbdMyMonV67')?.value),week=Number(document.getElementById('khbdMyWeekV704650')?.value||khbdMyCurrentWeekV704650()),khbdIds=[...document.querySelectorAll('.khbd-my-check-v67:checked')].map(x=>String(x.dataset.khbdId||'').trim()).filter(Boolean),classes=[...document.querySelectorAll('.khbd-bulk-class-v7067:checked')].map(x=>String(x.value||'').trim()).filter(Boolean);
     if(!classes.length){showToastV9('Chọn ít nhất một lớp.','warning');return;}
     if(!khbdIds.length){showToastV9('Hãy tích ít nhất một tiết/bài KHBD.','warning');return;}
     const btn=document.getElementById('khbdBulkApplyBtnV7067');if(btn)btn.disabled=true;setBusyV13(true,`Đang áp dụng KHBD cho ${classes.length} lớp...`);
     let i=0,ok=0,failed=[];
-    const next=()=>{if(i>=classes.length){setBusyV13(false);if(btn)btn.disabled=false;lessonPlanCache={};bootstrap.Modal.getInstance(document.getElementById('khbdBulkModalV7067'))?.hide();showToastV9(`Đã áp dụng cho ${ok}/${classes.length} lớp${failed.length?'. Lỗi: '+failed.join(', '):''}`,failed.length?'warning':'success');taiKhbdCaNhanV67();return;}const lop=classes[i++];google.script.run.withSuccessHandler(res=>{if(res?.success)ok++;else failed.push(lop);next();}).withFailureHandler(()=>{failed.push(lop);next();}).chonKhbdCaNhanV67({mode:'SYNC_LESSONS',khoi,mon,lop,khbdIds},getKhbdMyAuthV67());};
+    const next=()=>{if(i>=classes.length){setBusyV13(false);if(btn)btn.disabled=false;lessonPlanCache={};bootstrap.Modal.getInstance(document.getElementById('khbdBulkModalV7067'))?.hide();showToastV9(`Đã áp dụng cho ${ok}/${classes.length} lớp${failed.length?'. Lỗi: '+failed.join(', '):''}`,failed.length?'warning':'success');taiKhbdCaNhanV67();return;}const lop=classes[i++];google.script.run.withSuccessHandler(res=>{if(res?.success)ok++;else failed.push(lop);next();}).withFailureHandler(()=>{failed.push(lop);next();}).chonKhbdCaNhanV67({mode:'SYNC_LESSONS',khoi,mon,lop,khbdIds,syncWeeks:[week]},getKhbdMyAuthV67());};
     next();
   }
 
@@ -960,13 +975,17 @@ let varDiemTB = 10;
   }
   function taiKhbdCaNhanV67(){
     if(!gvbmDangNhapInfo||!gvbmDangNhapInfo.sessionToken)return;
-    const khoi=Number(document.getElementById('khbdMyKhoiV67')?.value||10),mon=canonicalSubjectV6955(document.getElementById('khbdMyMonV67')?.value),lop=String(document.getElementById('khbdMyLopV691')?.value||'').trim();
-    const body=document.getElementById('khbdMyBodyV67'),status=document.getElementById('khbdMyStatusV67');if(!body||!status||!mon)return;
-    if(!lop){body.innerHTML='<tr><td colspan="8" class="text-center text-muted py-4">Chọn lớp để tích từng tiết/bài KHBD riêng cho lớp đó.</td></tr>';status.textContent='Ví dụ Tuần 4 có 4 tiết: lớp 10A1 có thể chọn 4/4, lớp 10A2 chọn 3/4.';document.getElementById('khbdMyCountV67').textContent='0 tiết đã chọn';const sum=document.getElementById('khbdMySelectionSummaryV692');if(sum)sum.textContent='';return;}
-    body.innerHTML='<tr><td colspan="8" class="text-center py-4"><span class="spinner-border spinner-border-sm me-2"></span>Đang tải các tiết KHBD đã duyệt...</td></tr>';
+    napTuanKhbdCaNhanV704650();
+    const khoi=Number(document.getElementById('khbdMyKhoiV67')?.value||10),mon=canonicalSubjectV6955(document.getElementById('khbdMyMonV67')?.value),lop=String(document.getElementById('khbdMyLopV691')?.value||'').trim(),tuan=Number(document.getElementById('khbdMyWeekV704650')?.value||khbdMyCurrentWeekV704650());
+    const body=document.getElementById('khbdMyBodyV67'),status=document.getElementById('khbdMyStatusV67'),carry=document.getElementById('khbdMyCarryoverV704650');if(!body||!status||!mon)return;
+    if(carry)carry.innerHTML='';
+    if(!lop){body.innerHTML='<tr><td colspan="8" class="text-center text-muted py-4">Chọn lớp để tích từng tiết/bài KHBD riêng cho lớp đó.</td></tr>';status.textContent=`Chọn Tuần ${tuan}; việc lưu chỉ tác động tuần đang chọn, không làm mất tuần trước.`;document.getElementById('khbdMyCountV67').textContent='0 tiết đã chọn';const sum=document.getElementById('khbdMySelectionSummaryV692');if(sum)sum.textContent='';return;}
+    body.innerHTML='<tr><td colspan="8" class="text-center py-4"><span class="spinner-border spinner-border-sm me-2"></span>Đang tải KHBD của tuần...</td></tr>';
     google.script.run.withSuccessHandler(function(res){
       if(!res||!res.success){body.innerHTML='<tr><td colspan="8" class="text-center text-danger py-4">Không tải được KHBD.</td></tr>';status.textContent=res&&res.message||'Không tải được dữ liệu.';return;}
       khbdMyRowsV67=res.data||[];status.textContent=res.message||'';
+      const carryRows=Array.isArray(res.carryover)?res.carryover:[];
+      if(carry){carry.innerHTML=carryRows.length?`<div class="alert alert-warning border py-2 mb-0 small"><strong>KHBD còn tồn:</strong> ${carryRows.map(x=>`<span class="badge text-bg-warning me-1">Tuần ${escapeHtml(x.plannedWeek||x.tuan)} · PPCT ${escapeHtml(x.tietPPCT||'—')} · ${escapeHtml(x.tenBai||'')}</span>`).join('')}<div class="mt-1">Các bài này tự động xuất hiện ở Nhập tiết cho đến khi được dạy bù/thực hiện xong.</div></div>`:'';}
       body.innerHTML=khbdMyRowsV67.length?khbdMyRowsV67.map(x=>`<tr>
         <td class="text-center"><input class="form-check-input khbd-my-check-v67" type="checkbox" data-khbd-id="${escapeHtml(x.khbdId||'')}" data-week="${escapeHtml(x.tuan)}" ${x.selected?'checked':''}></td>
         <td class="text-center fw-bold">${escapeHtml(x.tuan)}</td>
@@ -975,19 +994,21 @@ let varDiemTB = 10;
         <td class="fw-semibold">${escapeHtml(x.mon)}</td>
         <td class="text-start">${escapeHtml(x.noiDung||'')}</td>
         <td class="text-start small text-muted">${escapeHtml(x.yeuCauCanDat||'')}</td>
-        <td>${escapeHtml(x.selectedAt||'—')}</td>
-      </tr>`).join(''):'<tr><td colspan="8" class="text-center text-muted py-4">Chưa có KHBD đã duyệt phù hợp.</td></tr>';
+        <td>${escapeHtml(x.selectedAt||'—')}${String(x.selectionSource||'').startsWith('BACKFILL')?'<div class="small text-success">Phục hồi từ SĐB</div>':''}</td>
+      </tr>`).join(''):'<tr><td colspan="8" class="text-center text-muted py-4">Tuần này chưa có KHBD đã duyệt phù hợp.</td></tr>';
       body.querySelectorAll('.khbd-my-check-v67').forEach(x=>x.addEventListener('change',capNhatThongKeKhbdTietV692));
       capNhatThongKeKhbdTietV692();
-    }).withFailureHandler(function(err){body.innerHTML='<tr><td colspan="8" class="text-center text-danger py-4">Lỗi Supabase.</td></tr>';status.textContent=String(err&&err.message||err);}).layKhbdCaNhanV67({khoi,mon,lop},getKhbdMyAuthV67());
+    }).withFailureHandler(function(err){body.innerHTML='<tr><td colspan="8" class="text-center text-danger py-4">Lỗi Supabase.</td></tr>';status.textContent=String(err&&err.message||err);}).layKhbdCaNhanV67({khoi,mon,lop,tuan},getKhbdMyAuthV67());
   }
+
   function luuKhbdDaTichV67(){
-    const khoi=Number(document.getElementById('khbdMyKhoiV67')?.value||10),mon=canonicalSubjectV6955(document.getElementById('khbdMyMonV67')?.value),lop=String(document.getElementById('khbdMyLopV691')?.value||'').trim(),khbdIds=[...document.querySelectorAll('.khbd-my-check-v67:checked')].map(x=>String(x.dataset.khbdId||'').trim()).filter(Boolean);
+    const khoi=Number(document.getElementById('khbdMyKhoiV67')?.value||10),mon=canonicalSubjectV6955(document.getElementById('khbdMyMonV67')?.value),lop=String(document.getElementById('khbdMyLopV691')?.value||'').trim(),week=Number(document.getElementById('khbdMyWeekV704650')?.value||khbdMyCurrentWeekV704650()),khbdIds=[...document.querySelectorAll('.khbd-my-check-v67:checked')].map(x=>String(x.dataset.khbdId||'').trim()).filter(Boolean);
     if(!lop){showToastV9('Vui lòng chọn lớp trước khi lưu KHBD.','danger');return;}
-    setBusyV13(true,'Đang lưu từng tiết KHBD cho lớp...');google.script.run.withSuccessHandler(function(res){setBusyV13(false);if(!res||!res.success){alertV13('❌ '+(res&&res.message||'Không lưu được'));return;}lessonPlanCache={};showToastV9(res.message||'Đã lưu.','success');taiKhbdCaNhanV67();}).withFailureHandler(function(err){setBusyV13(false);alertV13('❌ '+String(err&&err.message||err));}).chonKhbdCaNhanV67({mode:'SYNC_LESSONS',khoi,mon,lop,khbdIds},getKhbdMyAuthV67());
+    setBusyV13(true,`Đang lưu KHBD Tuần ${week} cho lớp...`);google.script.run.withSuccessHandler(function(res){setBusyV13(false);if(!res||!res.success){alertV13('❌ '+(res&&res.message||'Không lưu được'));return;}lessonPlanCache={};showToastV9(res.message||'Đã lưu.','success');taiKhbdCaNhanV67();}).withFailureHandler(function(err){setBusyV13(false);alertV13('❌ '+String(err&&err.message||err));}).chonKhbdCaNhanV67({mode:'SYNC_LESSONS',khoi,mon,lop,khbdIds,syncWeeks:[week]},getKhbdMyAuthV67());
   }
-  function chonToanBoKhbdV67(){const khoi=Number(document.getElementById('khbdMyKhoiV67')?.value||10),mon=canonicalSubjectV6955(document.getElementById('khbdMyMonV67')?.value),lop=String(document.getElementById('khbdMyLopV691')?.value||'').trim();if(!lop){showToastV9('Vui lòng chọn lớp.','danger');return;}google.script.run.withSuccessHandler(function(res){if(res?.success){showToastV9(res.message,'success');lessonPlanCache={};taiKhbdCaNhanV67();}else alertV13('❌ '+(res?.message||''));}).chonKhbdCaNhanV67({mode:'SELECT_ALL',khoi,mon,lop},getKhbdMyAuthV67());}
-  function boChonKhbdV67(){const khoi=Number(document.getElementById('khbdMyKhoiV67')?.value||10),mon=canonicalSubjectV6955(document.getElementById('khbdMyMonV67')?.value),lop=String(document.getElementById('khbdMyLopV691')?.value||'').trim();if(!lop){showToastV9('Vui lòng chọn lớp.','danger');return;}google.script.run.withSuccessHandler(function(res){if(res?.success){showToastV9(res.message,'success');lessonPlanCache={};taiKhbdCaNhanV67();}}).chonKhbdCaNhanV67({mode:'CLEAR_SCOPE',khoi,mon,lop},getKhbdMyAuthV67());}
+  function chonToanBoKhbdV67(){const khoi=Number(document.getElementById('khbdMyKhoiV67')?.value||10),mon=canonicalSubjectV6955(document.getElementById('khbdMyMonV67')?.value),lop=String(document.getElementById('khbdMyLopV691')?.value||'').trim(),week=Number(document.getElementById('khbdMyWeekV704650')?.value||khbdMyCurrentWeekV704650());if(!lop){showToastV9('Vui lòng chọn lớp.','danger');return;}google.script.run.withSuccessHandler(function(res){if(res?.success){showToastV9(res.message,'success');lessonPlanCache={};taiKhbdCaNhanV67();}else alertV13('❌ '+(res?.message||''));}).chonKhbdCaNhanV67({mode:'SELECT_ALL',khoi,mon,lop,syncWeeks:[week]},getKhbdMyAuthV67());}
+  function boChonKhbdV67(){const khoi=Number(document.getElementById('khbdMyKhoiV67')?.value||10),mon=canonicalSubjectV6955(document.getElementById('khbdMyMonV67')?.value),lop=String(document.getElementById('khbdMyLopV691')?.value||'').trim(),week=Number(document.getElementById('khbdMyWeekV704650')?.value||khbdMyCurrentWeekV704650());if(!lop){showToastV9('Vui lòng chọn lớp.','danger');return;}google.script.run.withSuccessHandler(function(res){if(res?.success){showToastV9(res.message,'success');lessonPlanCache={};taiKhbdCaNhanV67();}}).chonKhbdCaNhanV67({mode:'CLEAR_SCOPE',khoi,mon,lop,syncWeeks:[week]},getKhbdMyAuthV67());}
+
 
 
   function defaultMainTabIdV701(res){

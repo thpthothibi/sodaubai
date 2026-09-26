@@ -1025,13 +1025,12 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
       setTimeout(()=>{try{dongBoTenBaiDay();}catch(_e){}},0);
       return;
     }
-    selectElement.innerHTML = '<option value="">-- Chọn bài dạy đúng tuần --</option>';
+    selectElement.innerHTML = '<option value="">-- Chọn KHBD tuần này hoặc bài còn tồn --</option>';
     plans.forEach((plan, index) => {
       const gdtc=isGdtcLessonContextV704620();
       const special=gdtc?'':specialLessonPeriodCodeV70612(plan);
-      // GDTC luôn hiển thị PPCT để GV đối chiếu đúng tiến độ bộ môn.
-      // Với Tên bài BH/CĐ ở môn khác, không lặp thành "BH — BH" hoặc "CĐ — CĐ".
       let prefix = special ? "" : (plan.tietPPCT ? `PPCT ${plan.tietPPCT} — ` : "");
+      if(plan.carryover)prefix=`↪ Tồn Tuần ${plan.plannedWeek||plan.tuan} · `+prefix;
       selectElement.add(new Option(prefix + plan.tenBai, `PLAN_${index}`));
     });
     if(!(policy&&mode==='REQUIRED'))selectElement.add(new Option("➕ Nhập tên bài dạy khác...", "KHAC"));
@@ -1089,9 +1088,10 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
     if (!forceRefresh && lessonPlanCache[cacheKey]) {
       danhSachBaiDay1 = lessonPlanCache[cacheKey];
       fillLessonSelect(selectBai, danhSachBaiDay1);
+      const carryCount=danhSachBaiDay1.filter(x=>x&&x.carryover).length;
       document.getElementById('khbdWeekNotice').innerText = danhSachBaiDay1.length
-        ? `Đã nạp ${danhSachBaiDay1.length} bài: Khối ${khoi} — ${mon} — Tuần ${tuan}.`
-        : `Không có KHBD khả dụng cho Khối ${khoi} — ${mon} — Tuần ${tuan}. Có thể KHBD chưa được duyệt, giáo viên chưa tích nhận tuần này, hoặc bài đã dùng hết. Vào Kế hoạch bài dạy → KHBD của tôi để tích nhận.`;
+        ? `Đã nạp ${danhSachBaiDay1.length} bài cho Tuần ${tuan}${carryCount?` · có ${carryCount} KHBD còn tồn từ tuần trước`:''}.`
+        : `Không có KHBD khả dụng cho Khối ${khoi} — ${mon} — Tuần ${tuan}. Có thể KHBD chưa được duyệt, giáo viên chưa tích nhận tuần này, hoặc bài đã dùng hết.`;
       return;
     }
 
@@ -1113,8 +1113,9 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
         if(currentKey!==cacheKey)return;
         danhSachBaiDay1 = rows;
         fillLessonSelect(selectBai, danhSachBaiDay1);
+        const carryCount=danhSachBaiDay1.filter(x=>x&&x.carryover).length;
         document.getElementById('khbdWeekNotice').innerText = danhSachBaiDay1.length
-          ? `Còn ${danhSachBaiDay1.length} bài chưa dùng: Khối ${khoi} — ${mon} — Tuần ${tuan}.`
+          ? `Còn ${danhSachBaiDay1.length} bài khả dụng cho Tuần ${tuan}${carryCount?` · ${carryCount} bài tồn được ưu tiên ở đầu danh sách`:''}.`
           : `Không còn KHBD khả dụng cho Khối ${khoi} — ${mon} — Tuần ${tuan}. Kiểm tra Kế hoạch bài dạy → KHBD của tôi hoặc bài đã dùng hết.`;
       })
       .withFailureHandler(function(err) {

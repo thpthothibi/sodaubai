@@ -1349,8 +1349,9 @@
                   </div>
                   <div class="row g-3 align-items-end mb-3 p-3 bg-light border rounded">
                     <div class="col-md-2"><label class="form-label fw-bold">Khối</label><select id="khbdMyKhoiV67" class="form-select" onchange="napLopKhbdCaNhanV691();taiKhbdCaNhanV67()"><option value="10">Khối 10</option><option value="11">Khối 11</option><option value="12">Khối 12</option></select></div>
-                    <div class="col-md-4"><label class="form-label fw-bold">Môn</label><select id="khbdMyMonV67" class="form-select" onchange="napLopKhbdCaNhanV691();taiKhbdCaNhanV67()"></select></div>
-                    <div class="col-md-4"><label class="form-label fw-bold">Lớp áp dụng</label><select id="khbdMyLopV691" class="form-select" onchange="taiKhbdCaNhanV67()"><option value="">-- Chọn lớp --</option></select></div>
+                    <div class="col-md-3"><label class="form-label fw-bold">Môn</label><select id="khbdMyMonV67" class="form-select" onchange="napLopKhbdCaNhanV691();taiKhbdCaNhanV67()"></select></div>
+                    <div class="col-md-3"><label class="form-label fw-bold">Lớp áp dụng</label><select id="khbdMyLopV691" class="form-select" onchange="taiKhbdCaNhanV67()"><option value="">-- Chọn lớp --</option></select></div>
+                    <div class="col-md-2"><label class="form-label fw-bold">Tuần đang chỉnh</label><select id="khbdMyWeekV704650" class="form-select" onchange="taiKhbdCaNhanV67()"></select></div>
                     <div class="col-md-2 d-grid"><button class="btn btn-outline-primary fw-bold" type="button" onclick="taiKhbdCaNhanV67(true)">Làm mới</button></div>
                   </div>
                   <div class="d-flex flex-wrap gap-2 mb-3">
@@ -1359,7 +1360,7 @@
                     <button class="btn btn-primary fw-bold" type="button" onclick="chonToanBoKhbdV67()">✓ Tích toàn bộ cho lớp đang chọn</button>
                     <button class="btn btn-outline-secondary" type="button" onclick="boChonKhbdV67()">Bỏ chọn tất cả</button>
                   </div>
-                  <div id="khbdMyStatusV67" class="small text-muted mb-1">Chưa tải danh sách.</div><div id="khbdMySelectionSummaryV692" class="small fw-semibold text-primary mb-2"></div>
+                  <div id="khbdMyStatusV67" class="small text-muted mb-1">Chưa tải danh sách.</div><div id="khbdMyCarryoverV704650" class="mb-2"></div><div id="khbdMySelectionSummaryV692" class="small fw-semibold text-primary mb-2"></div>
                   <div class="table-responsive border rounded">
                     <table class="table table-sm table-hover align-middle mb-0">
                       <thead class="table-light sticky-top"><tr><th class="text-center" style="width:70px">Chọn</th><th class="text-center">Tuần</th><th class="text-center">Tiết PPCT</th><th>Lớp</th><th>Môn</th><th>Nội dung bài dạy</th><th>Yêu cầu cần đạt</th><th>Đã chọn lúc</th></tr></thead>
@@ -2715,10 +2716,10 @@
 
 <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="assets/js/sodb-v69-runtime.js?v=70.4.6.49.2"></script>
-<script src="assets/js/app/sodb-v69-core.js?v=70.4.6.49.2"></script>
-<script src="assets/js/app/sodb-v69-khbd.js?v=70.4.6.49.2"></script>
+<script src="assets/js/app/sodb-v69-core.js?v=70.4.6.49.6"></script>
+<script src="assets/js/app/sodb-v69-khbd.js?v=70.4.6.49.6"></script>
 <script src="assets/js/app/sodb-teaching-v704649.js?v=70.4.6.49.5"></script>
-<script src="assets/js/app/sodb-v69-operations.js?v=70.4.6.49.5"></script>
+<script src="assets/js/app/sodb-v69-operations.js?v=70.4.6.49.6"></script>
 <script src="assets/js/app/sodb-v69-print.js?v=70.4.6.49.5"></script>
 <script src="assets/js/app/sodb-v69-admin.js?v=70.4.6.49.2"></script>
 <script src="assets/js/app/sodb-v69-admin-students.js?v=70.4.6.49.2"></script>

@@ -1,7 +1,13 @@
-/* V70.4.6.49: teaching mode, inspection exports and approval-bound stamps. */
+/* V70.4.6.49.2: teaching mode, weekend defaults, legacy backfill display and approval-bound stamps. */
 'use strict';
+function teachingModeFromDateV704649(value){
+  const raw=String(value||'').slice(0,10);if(!/^\d{4}-\d{2}-\d{2}$/.test(raw))return '';
+  const day=new Date(raw+'T12:00:00').getDay();
+  return day===0||day===6?'Trực tuyến':'Trực tiếp';
+}
 function teachingPublicClientV704649(r={}) {
-  return {hinhThucDay:r.hinhThucDay||'',nenTangDay:r.nenTangDay||'',linkPhongHoc:r.linkPhongHoc||'',hinhThucSuyDien:!!r.hinhThucSuyDien};
+  const inferred=!r.hinhThucDay,mode=r.hinhThucDay||teachingModeFromDateV704649(r.ngayDay||r.ngay||r.ngay_day)||'';
+  return {hinhThucDay:mode,nenTangDay:mode==='Trực tuyến'?(r.nenTangDay||''):'',linkPhongHoc:mode==='Trực tuyến'?(r.linkPhongHoc||''):'',hinhThucSuyDien:!!r.hinhThucSuyDien||inferred};
 }
 function teachingFieldV704649(r={},field) {
   let text=String(r[field]||'');
@@ -21,23 +27,26 @@ function teachingToggleV704649(){
 }
 function teachingLoadV704649(r,fromSuggestion=false){
   if(!fromSuggestion)++teachingSuggestRequestV49;
-  const mode=r.hinhThucDay||'Trực tiếp';
+  const mode=r.hinhThucDay||teachingModeFromDateV704649(r.ngayDay||r.ngay||r.ngay_day||document.getElementById('ngayDay')?.value)||'Trực tiếp';
   document.querySelectorAll('input[name="hinhThucDayV49"]').forEach(e=>e.checked=e.value===mode);
   document.getElementById('onlinePlatformV49').value=r.nenTangDay||'';
   document.getElementById('onlineLinkV49').value=r.linkPhongHoc||'';
   document.getElementById('teachingHintV49').textContent=r.hinhThucSuyDien?'Tiết cũ: hình thức được hiển thị theo quy tắc ngày dạy.':'';
   teachingToggleV704649();
 }
-let teachingSuggestRequestV49=0;
-async function teachingSuggestV704649(){
+let teachingSuggestRequestV49=0,teachingModeManualV49=false,teachingLastDateV49='';
+async function teachingSuggestV704649(forceDateDefault=false){
   const ticket=++teachingSuggestRequestV49;
   if(typeof editingRecordIdV4!=='undefined'&&editingRecordIdV4)return;
-  const $=id=>document.getElementById(id),day=new Date(($('ngayDay')?.value||'')+'T12:00:00').getDay();
-  const subject=String($('monHoc')?.value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-  const online=day===6;
-  teachingLoadV704649({hinhThucDay:online?'Trực tuyến':'Trực tiếp'},true);
+  const $=id=>document.getElementById(id),date=String($('ngayDay')?.value||''),day=new Date(date+'T12:00:00').getDay();
+  const dateChanged=date!==teachingLastDateV49;
+  if(forceDateDefault||dateChanged)teachingModeManualV49=false;
+  teachingLastDateV49=date;
+  const automaticOnline=day===0||day===6;
+  if(!teachingModeManualV49)teachingLoadV704649({hinhThucDay:automaticOnline?'Trực tuyến':'Trực tiếp'},true);
+  const online=teachingFormV704649().hinhThucDay==='Trực tuyến';
   if(!online)return;
-  $('teachingHintV49').textContent='Gợi ý tất cả các môn ngày Thứ 7: trực tuyến. Có thể đổi theo thực tế.';
+  $('teachingHintV49').textContent=automaticOnline?'Gợi ý ngày Thứ 7/Chủ Nhật: trực tuyến. Giáo viên vẫn có thể đổi theo thực tế.':'Đã chọn trực tuyến. Giáo viên có thể đổi lại Trực tiếp theo thực tế.';
   try{
     const token=typeof gvbmDangNhapInfo!=='undefined'?gvbmDangNhapInfo?.sessionToken:'';
     if(!token)return;
@@ -105,11 +114,12 @@ async function saveOnlineDefaultV704649(btn){
   btn.disabled=true;try{const r=await callSodbEdgeRpcV67('teachingDefaultV704649',[{save:true,lop:f.lop,nenTangDay:document.getElementById('onlineDefaultPlatformV49').value,linkPhongHoc:document.getElementById('onlineDefaultLinkV49').value.trim()},getAdminAuthV700()],15000);if(!r?.success)throw new Error(r?.message||'Không lưu được.');showToastV9('Đã lưu gợi ý phòng học cho '+f.lop+'.','success');}catch(e){showToastV9(e.message,'danger');}finally{btn.disabled=false;}
 }
 document.addEventListener('DOMContentLoaded',()=>{
-  document.getElementById('input-tab')?.addEventListener('shown.bs.tab',teachingSuggestV704649);
-  for(const id of ['ngayDay','buoiDay','monHoc','lop'])document.getElementById(id)?.addEventListener('change',teachingSuggestV704649);
-  document.querySelectorAll('input[name="hinhThucDayV49"]').forEach(e=>e.addEventListener('change',()=>{++teachingSuggestRequestV49;teachingToggleV704649();}));
+  document.getElementById('input-tab')?.addEventListener('shown.bs.tab',()=>teachingSuggestV704649(false));
+  document.getElementById('ngayDay')?.addEventListener('change',()=>teachingSuggestV704649(true));
+  for(const id of ['buoiDay','monHoc','lop'])document.getElementById(id)?.addEventListener('change',()=>teachingSuggestV704649(false));
+  document.querySelectorAll('input[name="hinhThucDayV49"]').forEach(e=>e.addEventListener('change',()=>{teachingModeManualV49=true;++teachingSuggestRequestV49;teachingToggleV704649();}));
   for(const id of ['onlinePlatformV49','onlineLinkV49'])document.getElementById(id)?.addEventListener('input',()=>++teachingSuggestRequestV49);
-  document.getElementById('sodbForm')?.addEventListener('reset',()=>setTimeout(teachingSuggestV704649,0));
+  document.getElementById('sodbForm')?.addEventListener('reset',()=>{teachingModeManualV49=false;teachingLastDateV49='';setTimeout(()=>teachingSuggestV704649(true),0);});
   document.getElementById('stampFileV49')?.addEventListener('change',e=>{const p=document.getElementById('stampPreviewV49'),f=e.target.files[0];if(p.dataset.url)URL.revokeObjectURL(p.dataset.url);p.hidden=true;if(f?.type==='image/png'&&f.size<=1048576){p.src=URL.createObjectURL(f);p.dataset.url=p.src;p.hidden=false;}});
   teachingToggleV704649();
 });

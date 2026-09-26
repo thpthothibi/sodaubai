@@ -75,7 +75,7 @@
     return `<article class="workspace-lesson my-lesson-card-v704611" data-my-lesson-open="${esc(r.recordId)}" tabindex="0" role="button" aria-label="Mở nhập tiết ${esc(title)}">
       <button type="button" class="workspace-lesson-more" data-my-lesson-open="${esc(r.recordId)}" aria-label="Mở Nhập tiết" title="Mở Nhập tiết">⋯</button>
       <div class="workspace-lesson-entry"><strong>${esc(title)}</strong>${meta.length?`<span>${esc(meta.join(' · '))}</span>`:''}</div>
-      <div class="workspace-lesson-badges"><span class="badge text-bg-light">${esc(r.hinhThucDay||'')}</span>${statusLabel(r)}${r.signed?'<span class="badge text-bg-success">Đã ký</span>':'<span class="badge text-bg-danger">Chưa ký</span>'}${absent}</div>
+      <div class="workspace-lesson-badges"><span class="badge text-bg-light">${esc(r.hinhThucDay||(typeof teachingModeFromDateV704649==='function'?teachingModeFromDateV704649(r.ngay||r.ngayDay||r.ngay_day):''))}</span>${statusLabel(r)}${r.signed?'<span class="badge text-bg-success">Đã ký</span>':'<span class="badge text-bg-danger">Chưa ký</span>'}${absent}</div>
     </article>`;
   }
   function renderSession(label,key,days,slotMap,list){

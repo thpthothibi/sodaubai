@@ -367,7 +367,7 @@ function layHtmlOnePageA3GiamThi(lop, tuan, bookMode) {
           const bghSigRaw=String(bghResData.chuKyBGH||bghResData.kySo||bghResData.signatureRef||'');
           const bghSigUrl=normalizeSignatureUrlV67_1(bghSigRaw);
           bghSigSpaceHtml=bghSigUrl
-            ? `<img src="${escapeHtml(bghSigUrl)}" class="sig-bgh-print" alt="Chữ ký Hiệu trưởng">`
+            ? `<img src="${escapeHtml(bghSigUrl)}" class="sig-bgh-print" alt="Chữ ký BGH">`
             : '<span class="badge bg-primary" style="font-size:0.55rem;">✓ Đã duyệt</span>';
         }
 
@@ -404,7 +404,7 @@ function layHtmlOnePageA3GiamThi(lop, tuan, bookMode) {
             <div><strong>${isSpecial?'Ý kiến GV phụ trách nhóm:':'Ý kiến GVCN:'}</strong> <span class="fst-italic text-secondary">${escapeHtml(ykienText)}</span></div>
             <div class="signature-footer">
               <div class="signature-box"><div class="signature-title">${isSpecial?'GIÁO VIÊN PHỤ TRÁCH NHÓM':'GIÁO VIÊN CHỦ NHIỆM'}</div><div class="signature-space">${sigSpaceHtml}</div><div class="fw-bold" style="font-size:8pt;">${escapeHtml(gvcnNameText)}</div></div>
-              <div class="signature-box"><div class="signature-title">HIỆU TRƯỞNG</div><div class="signature-space" style="position:relative">${bghSigSpaceHtml}${stampHtmlV704649(bghResData)}</div><div class="fw-bold" style="font-size:8pt;">${escapeHtml(bghNameText)}</div></div>
+              <div class="signature-box"><div class="signature-title">${bghSignatureTitleHtmlV7046495(bghResData)}</div><div class="signature-space" style="position:relative">${bghSigSpaceHtml}${stampHtmlV704649(bghResData)}</div><div class="fw-bold" style="font-size:8pt;">${escapeHtml(bghNameText)}</div></div>
             </div>
           </div>
         </div>`;

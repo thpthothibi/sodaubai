@@ -470,12 +470,13 @@
     return currentUnifiedLoginV4&&currentUnifiedLoginV4.sessions?currentUnifiedLoginV4.sessions.BGH:null;
   }
   function applyBghApprovalV684(approval,chot){
-    const space=document.getElementById('printBGHSigSpace'),name=document.getElementById('printBGHName'),panel=document.getElementById('bghWeekApprovalV684'),state=document.getElementById('bghApprovalStateV684'),note=document.getElementById('bghApprovalNoteV684'),meta=document.getElementById('bghApprovalMetaV684'),hint=document.getElementById('bghApprovalHintV684'),btn=document.getElementById('bghApproveBtnV684');
+    const space=document.getElementById('printBGHSigSpace'),name=document.getElementById('printBGHName'),title=document.getElementById('printBGHTitle'),panel=document.getElementById('bghWeekApprovalV684'),state=document.getElementById('bghApprovalStateV684'),note=document.getElementById('bghApprovalNoteV684'),meta=document.getElementById('bghApprovalMetaV684'),hint=document.getElementById('bghApprovalHintV684'),btn=document.getElementById('bghApproveBtnV684');
     const priorApproval=!!(approval&&approval.success),stale=priorApproval&&!!approval.dataChanged,hasApproval=priorApproval&&!stale;
+    if(title)title.innerHTML=(approval&&approval.success)?bghSignatureTitleHtmlV7046495(approval):'HIỆU TRƯỞNG';
     if(space&&name){
       if(hasApproval){
         const sigRaw=String(approval.chuKyBGH||approval.kySo||approval.signatureRef||''),sigUrl=normalizeSignatureUrlV67_1(sigRaw);
-        if(sigUrl)space.innerHTML=`<img src="${escapeHtml(sigUrl)}" class="sig-bgh-print" alt="Chữ ký Hiệu trưởng" onerror="handleSignatureImageErrorV682(this)">`;
+        if(sigUrl)space.innerHTML=`<img src="${escapeHtml(sigUrl)}" class="sig-bgh-print" alt="Chữ ký BGH" onerror="handleSignatureImageErrorV682(this)">`;
         else space.innerHTML='<span class="badge bg-primary" style="font-size:.55rem;">✓ Đã duyệt</span>';
         space.style.position='relative';space.innerHTML+=stampHtmlV704649(approval);
         name.textContent=approval.tenBGH||'';

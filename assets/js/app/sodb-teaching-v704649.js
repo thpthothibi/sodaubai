@@ -1,4 +1,4 @@
-/* V70.4.6.49.3: teaching mode + explicit week selector and draggable BGH stamp positioner. */
+/* V70.4.6.49.5: teaching mode + draggable BGH stamp + selected/all classes over week range + BGH title formatting. */
 'use strict';
 function teachingModeFromDateV704649(value){
   const raw=String(value||'').slice(0,10);if(!/^\d{4}-\d{2}-\d{2}$/.test(raw))return '';
@@ -63,7 +63,40 @@ function stampHtmlV704649(approval){
   const x=stampPositionNumberV493(approval.stampX,40),y=stampPositionNumberV493(approval.stampY,100);
   return `<img src="${escapeHtml(approval.stampUrl)}" alt="Dấu nhà trường" class="school-stamp-v49" style="position:absolute;width:12mm;height:12mm;object-fit:contain;left:${x}%;top:${y}%;transform:translate(-50%,-50%);max-width:none;max-height:none;filter:none;pointer-events:none">`;
 }
+function bghTitleKeyV7046495(value){return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase().replace(/\s+/g,' ').trim();}
+function bghSignatureTitleLinesV7046495(approval){
+  if(!approval)return ['HIỆU TRƯỞNG'];
+  const key=bghTitleKeyV7046495(approval?.chucVu||approval?.chuc_vu||'');
+  if(key.includes('pho hieu truong')||key.includes('p. hieu truong')||key==='pht'||key.includes('pho ht'))return ['KT. HIỆU TRƯỞNG','PHÓ HIỆU TRƯỞNG'];
+  if(key.includes('hieu truong'))return ['HIỆU TRƯỞNG'];
+  return ['BAN GIÁM HIỆU'];
+}
+function bghSignatureTitleHtmlV7046495(approval){return bghSignatureTitleLinesV7046495(approval).map(x=>escapeHtml(x)).join('<br>');}
 let stampApprovalStateV493=null,stampPositionStateV493={x:40,y:100},stampObjectUrlV493='';
+let stampBulkSelectedV494=new Set();
+function stampBulkSelectedClassesV494(){return [...stampBulkSelectedV494].filter(Boolean).sort((a,b)=>a.localeCompare(b,'vi',{numeric:true}));}
+function stampBulkUpdateCountV494(){
+  const n=stampBulkSelectedV494.size,label=document.getElementById('stampBulkCountV494'),btn=document.getElementById('stampBulkApplyBtnV494'),allBtn=document.getElementById('stampAllApplyBtnV495');
+  if(label)label.textContent=`Đã chọn ${n} lớp/nhóm`;
+  const a=stampApprovalStateV493?.approval,seal=stampCurrentSealSrcV493(),valid=!!a?.success&&!a?.dataChanged&&['ĐÃ DUYỆT','DA_DUYET'].includes(String(a?.trangThai||'').toUpperCase());
+  if(btn){btn.textContent=n?`Đóng dấu ${n} lớp/nhóm đã chọn`:'Đóng dấu các lớp đã chọn';btn.disabled=!n||!valid||!seal;}
+  if(allBtn)allBtn.disabled=!valid||!seal;
+}
+function stampBulkRenderClassesV494(){
+  const box=document.getElementById('stampBulkClassListV494');if(!box)return;
+  const q=String(document.getElementById('stampBulkSearchV494')?.value||'').trim().toLocaleLowerCase('vi');
+  const values=stampClassChoicesV493().filter(v=>!q||v.toLocaleLowerCase('vi').includes(q));
+  box.innerHTML=values.length?values.map(v=>{const enc=encodeURIComponent(v),checked=stampBulkSelectedV494.has(v)?'checked':'';return `<label class="stamp-bulk-class-v494"><input class="form-check-input mt-0 stamp-bulk-check-v494" type="checkbox" data-class="${enc}" ${checked} onchange="stampBulkClassChangedV494(this)"><span>${escapeHtml(v)}</span></label>`;}).join(''):'<div class="small text-muted py-2">Không có lớp/nhóm phù hợp.</div>';
+  stampBulkUpdateCountV494();
+}
+function stampBulkClassChangedV494(cb){
+  const name=decodeURIComponent(String(cb?.dataset?.class||''));if(!name)return;
+  if(cb.checked)stampBulkSelectedV494.add(name);else stampBulkSelectedV494.delete(name);stampBulkUpdateCountV494();
+}
+function stampBulkSelectVisibleV494(checked){
+  document.querySelectorAll('.stamp-bulk-check-v494').forEach(cb=>{const name=decodeURIComponent(String(cb.dataset.class||''));cb.checked=!!checked;if(name){if(checked)stampBulkSelectedV494.add(name);else stampBulkSelectedV494.delete(name);}});stampBulkUpdateCountV494();
+}
+function stampBulkClearV494(){stampBulkSelectedV494.clear();document.querySelectorAll('.stamp-bulk-check-v494').forEach(cb=>cb.checked=false);stampBulkUpdateCountV494();const r=document.getElementById('stampBulkResultV494');if(r)r.innerHTML='';}
 function stampSelectedTargetV493(){
   return {lop:String(document.getElementById('stampClassV493')?.value||'').trim(),tuan:Number(document.getElementById('stampWeekV493')?.value||0)};
 }
@@ -83,12 +116,17 @@ function stampRefreshClassOptionsV493(){
   const sel=document.getElementById('stampClassV493');if(!sel)return;
   const current=sel.value||document.getElementById('viewLop')?.value||document.getElementById('complianceClassV49')?.value||'';
   const values=stampClassChoicesV493();sel.innerHTML='<option value="">-- Chọn lớp / nhóm --</option>'+values.map(v=>`<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
-  if(current&&values.includes(current))sel.value=current;
+  if(current&&values.includes(current)){sel.value=current;if(!stampBulkSelectedV494.size)stampBulkSelectedV494.add(current);}
+  stampBulkRenderClassesV494();
 }
 function stampFillWeeksV493(){
-  const sel=document.getElementById('stampWeekV493');if(!sel||sel.options.length>1)return;
-  for(let i=1;i<=53;i++)sel.add(new Option('Tuần '+i,String(i)));
-  const current=String(document.getElementById('viewTuan')?.value||'');if(current&&Number(current)>=1&&Number(current)<=53)sel.value=current;
+  const preview=document.getElementById('stampWeekV493'),from=document.getElementById('stampFromWeekV495'),to=document.getElementById('stampToWeekV495');
+  for(const sel of [preview,from,to]){if(!sel||sel.options.length>1)continue;for(let i=1;i<=53;i++)sel.add(new Option('Tuần '+i,String(i)));}
+  const current=Number(document.getElementById('viewTuan')?.value||0);if(current>=1&&current<=53){if(preview)preview.value=String(current);if(from&&!from.value)from.value=String(current);if(to&&!to.value)to.value=String(current);}
+}
+function stampWeekRangeV495(){
+  const from=Number(document.getElementById('stampFromWeekV495')?.value||0),to=Number(document.getElementById('stampToWeekV495')?.value||0);
+  return {from,to,valid:Number.isInteger(from)&&Number.isInteger(to)&&from>=1&&to<=53&&to>=from};
 }
 function stampSetPositionV493(x,y){
   stampPositionStateV493={x:stampPositionNumberV493(x,40),y:stampPositionNumberV493(y,100)};
@@ -101,19 +139,21 @@ function stampCurrentSealSrcV493(){
   return stampApprovalStateV493?.approval?.stampUrl||'';
 }
 function stampRenderEditorV493(){
-  const box=document.getElementById('stampEditorV493'),sig=document.getElementById('stampBghSignatureV493'),none=document.getElementById('stampNoSignatureV493'),name=document.getElementById('stampBghNameV493'),seal=document.getElementById('stampDragV493'),apply=document.getElementById('stampApplyBtnV493');
+  const box=document.getElementById('stampEditorV493'),sig=document.getElementById('stampBghSignatureV493'),none=document.getElementById('stampNoSignatureV493'),name=document.getElementById('stampBghNameV493'),title=document.getElementById('stampBghTitleV495'),seal=document.getElementById('stampDragV493'),apply=document.getElementById('stampApplyBtnV493');
   const a=stampApprovalStateV493?.approval;if(!box||!sig||!none||!name||!seal||!apply)return;
-  if(!a){box.classList.add('d-none');apply.disabled=true;return;}
+  if(!a){box.classList.add('d-none');apply.disabled=true;stampBulkUpdateCountV494();return;}
   box.classList.remove('d-none');const sigUrl=stampSignatureUrlV493(a.chuKyBGH||a.kySo||a.signatureRef||'');
   if(sigUrl){sig.src=sigUrl;sig.hidden=false;none.hidden=true;}else{sig.removeAttribute('src');sig.hidden=true;none.hidden=false;}
-  name.textContent=a.tenBGH||'';
+  if(title)title.innerHTML=bghSignatureTitleHtmlV7046495(a);name.textContent=a.tenBGH||'';
   const sealSrc=stampCurrentSealSrcV493();if(sealSrc){seal.src=sealSrc;seal.hidden=false;}else{seal.removeAttribute('src');seal.hidden=true;}
   const valid=!!a.success&&!a.dataChanged&&['ĐÃ DUYỆT','DA_DUYET'].includes(String(a.trangThai||'').toUpperCase());
-  apply.disabled=!valid||!sealSrc;stampSetPositionV493(stampPositionStateV493.x,stampPositionStateV493.y);
+  apply.disabled=!valid||!sealSrc;stampSetPositionV493(stampPositionStateV493.x,stampPositionStateV493.y);stampBulkUpdateCountV494();
 }
 function stampTargetChangedV493(){
+  const t=stampSelectedTargetV493();if(t.lop&&!stampBulkSelectedV494.size){stampBulkSelectedV494.add(t.lop);stampBulkRenderClassesV494();}
+  if(t.tuan>=1&&t.tuan<=53){const from=document.getElementById('stampFromWeekV495'),to=document.getElementById('stampToWeekV495');if(from&&!from.value)from.value=String(t.tuan);if(to&&!to.value)to.value=String(t.tuan);}
   stampApprovalStateV493=null;stampSetPositionV493(40,100);stampRenderEditorV493();
-  const status=document.getElementById('stampStatusV49');if(status)status.textContent='Chọn lớp/nhóm, tuần rồi bấm “Tải chữ ký BGH để đặt dấu”.';
+  const status=document.getElementById('stampStatusV49');if(status)status.textContent='Chọn lớp/nhóm xem trước, tuần rồi bấm “Tải chữ ký BGH để đặt dấu”.';
 }
 async function stampLoadApprovalV493(btn){
   const t=stampSelectedTargetV493(),status=document.getElementById('stampStatusV49');
@@ -196,6 +236,46 @@ async function stampApplyV704649(btn){
     status.textContent='Đã đóng dấu đúng vị trí đã chọn. Xem sổ và bản in A3 sẽ dùng cùng vị trí này.';
   }catch(e){status.textContent=e.message||'Không đóng dấu được.';}finally{btn.disabled=false;stampRenderEditorV493();}
 }
+async function stampRangeApplyV7046495(btn,scope){
+  const t=stampSelectedTargetV493(),range=stampWeekRangeV495(),selected=stampBulkSelectedClassesV494(),file=document.getElementById('stampFileV49')?.files?.[0],status=document.getElementById('stampStatusV49'),result=document.getElementById('stampBulkResultV494'),a=stampApprovalStateV493?.approval,allEligible=scope==='ALL';
+  if(!allEligible&&!selected.length){status.textContent='Chọn ít nhất một lớp/nhóm cần đóng dấu.';return;}
+  if(!range.valid){status.textContent='Chọn khoảng tuần hợp lệ: Từ tuần phải nhỏ hơn hoặc bằng Đến tuần.';return;}
+  if(!t.lop||!Number.isInteger(t.tuan)||t.tuan<1||t.tuan>53){status.textContent='Chọn lớp/nhóm và tuần xem trước để căn vị trí con dấu.';return;}
+  if(!stampApprovalStateV493||stampApprovalStateV493.lop!==t.lop||stampApprovalStateV493.tuan!==t.tuan){status.textContent='Tải chữ ký BGH của một lớp để xem trước và đặt vị trí dấu trước.';return;}
+  if(!a?.success||a.dataChanged||!['ĐÃ DUYỆT','DA_DUYET'].includes(String(a.trangThai||'').toUpperCase())){status.textContent='Lần duyệt BGH dùng để xem trước không còn hiệu lực. Cần tải lại hoặc duyệt lại tuần.';return;}
+  if(file&&(file.type!=='image/png'||file.size>1048576)){status.textContent='Ảnh dấu phải là PNG tối đa 1 MB.';return;}
+  if(!file&&!a.stampUrl){status.textContent='Chọn ảnh dấu PNG hoặc tải một lần duyệt đã có con dấu để dùng lại.';return;}
+  const weekCount=range.to-range.from+1,scopeText=allEligible?'TOÀN BỘ lớp/nhóm đủ điều kiện':`${selected.length} lớp/nhóm đã chọn`,skipStamped=document.getElementById('stampSkipStampedV495')?.checked!==false;
+  if(!window.confirm(`Đóng cùng con dấu tại vị trí X ${stampPositionStateV493.x.toFixed(1)}% · Y ${stampPositionStateV493.y.toFixed(1)}% cho ${scopeText}, từ Tuần ${range.from} đến Tuần ${range.to} (${weekCount} tuần)?${skipStamped?'\nCác lớp/tuần đã có dấu sẽ được bỏ qua.':''}`))return;
+  btn.disabled=true;if(result)result.innerHTML='';let dataUrl='';
+  try{
+    if(file)dataUrl=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result||''));reader.onerror=reject;reader.readAsDataURL(file);});
+    let stampPath='',successCount=0,skippedCount=0,failedCount=0,total=0;const details=[];
+    const weeks=[];for(let w=range.from;w<=range.to;w++)weeks.push(w);
+    // Process the preview week first when it belongs to the range so an existing seal source is guaranteed usable.
+    if(weeks.includes(t.tuan)){weeks.splice(weeks.indexOf(t.tuan),1);weeks.unshift(t.tuan);}
+    for(let i=0;i<weeks.length;i++){
+      const week=weeks[i];status.textContent=`Đang đóng dấu Tuần ${week} (${i+1}/${weeks.length})...`;
+      const r=await callSodbEdgeRpcV67('stampApprovalsBulkV7046495',[{classes:allEligible?[]:selected,allEligible,tuan:week,dataUrl:i===0?dataUrl:'',reuseStampPath:stampPath,sourceLop:t.lop,sourceWeek:t.tuan,stampX:stampPositionStateV493.x,stampY:stampPositionStateV493.y,skipStamped},getAdminAuthV700()],120000);
+      if(!r?.success)throw new Error(r?.message||`Không đóng dấu được Tuần ${week}.`);
+      if(r.stampPath)stampPath=r.stampPath;
+      successCount+=Number(r.successCount||0);skippedCount+=Number(r.skippedCount||0);failedCount+=Number(r.failedCount||0);total+=Number(r.total||0);
+      (r.items||[]).filter(x=>x.status!=='SUCCESS').forEach(x=>details.push({...x,tuan:week}));
+      (r.items||[]).filter(x=>x.status==='SUCCESS').forEach(x=>{if(typeof invalidateSodbViewCacheV47==='function')invalidateSodbViewCacheV47(x.lop,week);});
+    }
+    status.textContent=`Hoàn tất Tuần ${range.from}–${range.to}: đóng dấu ${successCount}/${total} hồ sơ`+(skippedCount?`, bỏ qua ${skippedCount}`:'')+(failedCount?`, lỗi ${failedCount}`:'')+'.';
+    if(result){
+      const errors=details.filter(x=>x.status==='FAILED'),skips=details.filter(x=>x.status!=='FAILED');
+      result.innerHTML=(errors.length||skips.length)?`<div class="alert ${errors.length?'alert-warning':'alert-info'} py-2 px-3 mb-0"><div class="fw-semibold mb-1">Chi tiết chưa đóng mới (${details.length})</div><div class="stamp-bulk-result-list-v494">${details.slice(0,250).map(x=>`<div><b>Tuần ${x.tuan} · ${escapeHtml(x.lop||'')}</b>: ${escapeHtml(x.message||'Không thực hiện.')}</div>`).join('')}${details.length>250?`<div>... và ${details.length-250} dòng khác.</div>`:''}</div></div>`:`<div class="alert alert-success py-2 px-3 mb-0">Đã đóng dấu thành công toàn bộ hồ sơ đủ điều kiện trong phạm vi đã chọn.</div>`;
+    }
+    if(successCount>0){document.getElementById('stampFileV49').value='';if(stampObjectUrlV493){URL.revokeObjectURL(stampObjectUrlV493);stampObjectUrlV493='';}}
+    await stampLoadApprovalV493(null);
+    status.textContent=`Hoàn tất Tuần ${range.from}–${range.to}: đóng dấu ${successCount}/${total} hồ sơ`+(skippedCount?`, bỏ qua ${skippedCount}`:'')+(failedCount?`, lỗi ${failedCount}`:'')+'.';
+  }catch(e){status.textContent=e.message||'Không đóng dấu hàng loạt được.';}finally{btn.disabled=false;stampRenderEditorV493();}
+}
+async function stampBulkApplyV7046494(btn){return stampRangeApplyV7046495(btn,'SELECTED');}
+async function stampAllApplyV7046495(btn){return stampRangeApplyV7046495(btn,'ALL');}
+
 async function saveOnlineDefaultV704649(btn){
   const f=complianceFilterV704649();if(!f.lop){showToastV9('Nhập lớp để lưu gợi ý phòng học.','warning');return;}
   btn.disabled=true;try{const r=await callSodbEdgeRpcV67('teachingDefaultV704649',[{save:true,lop:f.lop,nenTangDay:document.getElementById('onlineDefaultPlatformV49').value,linkPhongHoc:document.getElementById('onlineDefaultLinkV49').value.trim()},getAdminAuthV700()],15000);if(!r?.success)throw new Error(r?.message||'Không lưu được.');showToastV9('Đã lưu gợi ý phòng học cho '+f.lop+'.','success');}catch(e){showToastV9(e.message,'danger');}finally{btn.disabled=false;}
@@ -208,9 +288,13 @@ document.addEventListener('DOMContentLoaded',()=>{
   for(const id of ['onlinePlatformV49','onlineLinkV49'])document.getElementById(id)?.addEventListener('input',()=>++teachingSuggestRequestV49);
   document.getElementById('sodbForm')?.addEventListener('reset',()=>{teachingModeManualV49=false;teachingLastDateV49='';setTimeout(()=>teachingSuggestV704649(true),0);});
   stampFillWeeksV493();stampRefreshClassOptionsV493();stampInstallDragV493();
+  document.getElementById('stampBulkSearchV494')?.addEventListener('input',stampBulkRenderClassesV494);
+  document.getElementById('stampBulkSearchV494')?.addEventListener('focus',stampBulkRenderClassesV494);
   document.getElementById('stampClassV493')?.addEventListener('focus',stampRefreshClassOptionsV493);
   document.getElementById('stampClassV493')?.addEventListener('change',stampTargetChangedV493);
   document.getElementById('stampWeekV493')?.addEventListener('change',stampTargetChangedV493);
+  document.getElementById('stampFromWeekV495')?.addEventListener('change',stampBulkUpdateCountV494);
+  document.getElementById('stampToWeekV495')?.addEventListener('change',stampBulkUpdateCountV494);
   document.getElementById('stampFileV49')?.addEventListener('change',e=>{
     const f=e.target.files?.[0],status=document.getElementById('stampStatusV49');if(stampObjectUrlV493){URL.revokeObjectURL(stampObjectUrlV493);stampObjectUrlV493='';}
     if(f&&(f.type!=='image/png'||f.size>1048576)){e.target.value='';status.textContent='Ảnh dấu phải là PNG tối đa 1 MB.';stampRenderEditorV493();return;}

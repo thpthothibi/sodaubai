@@ -218,7 +218,7 @@ function renderA3MixedStackV704610(cellData,fieldName,prefixHtml=''){
       ? '<span class="badge sodb-status-badge sodb-status-badge-mixed mixed-badge me-1">TRỘN</span> '
       : '';
     const prefix=index===0?String(prefixHtml||''):'';
-    return `<div class="a3-sync-line-v704610 a3-sync-${String(fieldName||'').toLowerCase()}-v704610">${prefix}${mixedBadge}${escapeHtml(entry?.[fieldName]||'')}</div>`;
+    return `<div class="a3-sync-line-v704610 a3-sync-${String(fieldName||'').toLowerCase()}-v704610">${prefix}${mixedBadge}${escapeHtml(teachingFieldV704649(entry,fieldName))}</div>`;
   }).join('')}</div>`;
 }
 function renderA3FieldV704610(cellData,fieldName,prefixHtml=''){
@@ -404,7 +404,7 @@ function layHtmlOnePageA3GiamThi(lop, tuan, bookMode) {
             <div><strong>${isSpecial?'Ý kiến GV phụ trách nhóm:':'Ý kiến GVCN:'}</strong> <span class="fst-italic text-secondary">${escapeHtml(ykienText)}</span></div>
             <div class="signature-footer">
               <div class="signature-box"><div class="signature-title">${isSpecial?'GIÁO VIÊN PHỤ TRÁCH NHÓM':'GIÁO VIÊN CHỦ NHIỆM'}</div><div class="signature-space">${sigSpaceHtml}</div><div class="fw-bold" style="font-size:8pt;">${escapeHtml(gvcnNameText)}</div></div>
-              <div class="signature-box"><div class="signature-title">HIỆU TRƯỞNG</div><div class="signature-space">${bghSigSpaceHtml}</div><div class="fw-bold" style="font-size:8pt;">${escapeHtml(bghNameText)}</div></div>
+              <div class="signature-box"><div class="signature-title">HIỆU TRƯỞNG</div><div class="signature-space" style="position:relative">${bghSigSpaceHtml}${stampHtmlV704649(bghResData)}</div><div class="fw-bold" style="font-size:8pt;">${escapeHtml(bghNameText)}</div></div>
             </div>
           </div>
         </div>`;

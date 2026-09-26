@@ -29,7 +29,6 @@
 
 
 
-  <meta name="sodb-release" content="70.4.6.50">
 </head>
 <!-- MODAL THÔNG TIN XÁC NHẬN ĐIỆN TỬ -->
 <div class="modal fade" id="modalChuKySoDetail" tabindex="-1" aria-hidden="true">
@@ -501,6 +500,14 @@
           <div id="gvbmMainContent" class="d-none">
 
             <form id="sodbForm">
+              <fieldset class="border rounded p-3 mb-3"><legend class="float-none w-auto fs-6 px-2">Hình thức dạy</legend>
+                <label class="me-3"><input type="radio" name="hinhThucDayV49" value="Trực tiếp" checked> Trực tiếp</label>
+                <label><input type="radio" name="hinhThucDayV49" value="Trực tuyến"> Trực tuyến</label>
+                <div id="onlineDetailsV49" class="row g-2 mt-1" hidden>
+                  <div class="col-md-4"><label for="onlinePlatformV49" class="form-label">Nền tảng dạy</label><select id="onlinePlatformV49" class="form-select"><option value="">Chưa khai báo</option><option>Google Meet</option><option>LMS</option><option>OLM</option><option>K12Online</option><option>Microsoft Teams</option><option>Zoom</option><option>Khác</option></select></div>
+                  <div class="col-md-8"><label for="onlineLinkV49" class="form-label">Link phòng học (nếu có)</label><input id="onlineLinkV49" type="url" class="form-control" placeholder="https://..."></div>
+                </div><div id="teachingHintV49" class="form-text"></div>
+              </fieldset>
               <div class="row g-3 mb-3">
                 <div class="col-md-3">
                   <label class="form-label fw-semibold">Khối</label>
@@ -702,7 +709,6 @@
                 </div>
                 <div id="proxySignHintV682" class="small text-muted"></div>
               </div>
-              <div id="saveProgressV49" class="small mt-2 d-none" role="status" aria-live="polite" aria-atomic="true"></div>
               <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" id="btnSubmit">Lưu vào Sổ Đầu Bài</button>
               <div id="saveSuccessV54" class="alert alert-success py-2 px-3 mt-2 mb-0 d-none fw-semibold" role="status" aria-live="polite"></div>
                 <button type="button" id="btnRequestEditV4" class="btn btn-outline-warning w-100 mt-2 fw-bold d-none" onclick="guiYeuCauSuaBanGhiV4()">Yêu cầu chỉnh sửa bản ghi vừa lưu</button>
@@ -2376,6 +2382,16 @@
               </div>
 
               <div class="tab-pane fade" id="pills-governance-v699" role="tabpanel" aria-labelledby="admin-governance-tab-v699">
+                <section id="complianceV49" class="card p-3 mb-3">
+                  <h5>Dữ liệu &amp; Báo cáo thanh kiểm tra</h5>
+                  <div class="row g-2"><div class="col-md-3"><label>Năm học<input id="complianceYearV49" class="form-control" placeholder="Để trống: năm hiện tại"></label></div><div class="col-md-3"><label>Lớp / nhóm<input id="complianceClassV49" class="form-control" placeholder="Tất cả lớp"></label></div><div class="col-md-2"><label>Từ tuần<input id="complianceFromV49" type="number" min="1" max="53" value="1" class="form-control"></label></div><div class="col-md-2"><label>Đến tuần<input id="complianceToV49" type="number" min="1" max="53" value="53" class="form-control"></label></div><div class="col-md-2"><label>Hình thức<select id="complianceModeV49" class="form-select"><option value="">Tất cả</option><option>Trực tiếp</option><option>Trực tuyến</option></select></label></div></div>
+                  <div class="d-flex gap-2 my-2"><button type="button" class="btn btn-primary" onclick="complianceRunV704649(this,false)">Thống kê</button><button type="button" class="btn btn-success" onclick="complianceRunV704649(this,true)">Xuất Excel</button><button type="button" class="btn btn-outline-secondary" onclick="compliancePrintV704649()">In báo cáo</button></div>
+                  <div id="complianceSummaryV49" class="small" aria-live="polite"></div>
+                  <hr><h6>Đóng dấu sau khi BGH duyệt</h6><div class="small mb-2">Chọn một lớp/nhóm và một tuần ở trên. Dấu chỉ xuất hiện trên lần duyệt còn hiệu lực.</div>
+                  <label>Ảnh dấu PNG nền trong suốt (tối đa 1 MB)<input id="stampFileV49" type="file" accept="image/png" class="form-control"></label><img id="stampPreviewV49" alt="Xem trước con dấu" hidden style="max-width:120px;max-height:120px;margin:8px">
+                  <button type="button" class="btn btn-outline-danger mt-2" onclick="stampApplyV704649(this)">Đóng dấu vào chữ ký BGH</button><div id="stampStatusV49" class="small mt-2" aria-live="polite"></div>
+                  <hr><h6>Gợi ý phòng học ngày Thứ 7 (tất cả các môn)</h6><div class="small">Nhập lớp ở trên để lưu nền tảng và link riêng cho lớp đó.</div><div class="row g-2"><div class="col-md-4"><select id="onlineDefaultPlatformV49" class="form-select"><option value="">Chưa khai báo</option><option>Google Meet</option><option>LMS</option><option>OLM</option><option>K12Online</option><option>Microsoft Teams</option><option>Zoom</option><option>Khác</option></select></div><div class="col-md-6"><input id="onlineDefaultLinkV49" type="url" class="form-control" placeholder="https://..."></div><div class="col-md-2"><button type="button" class="btn btn-outline-primary" onclick="saveOnlineDefaultV704649(this)">Lưu gợi ý</button></div></div>
+                </section>
                 <div class="governance-admin-v699">
                   <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
                     <div><h5 class="fw-bold text-primary mb-1">Trung tâm quản trị dữ liệu V69.9</h5><div class="small text-muted">Phát hiện dữ liệu gốc thiếu/trùng/sai liên kết và tra lịch sử thay đổi từ Audit Log. Không tự sửa dữ liệu để tránh thay đổi ngoài ý muốn.</div></div>
@@ -2629,6 +2645,9 @@
           <div class="col-md-2"><label class="form-label fw-semibold">Số HS vắng</label><input id="adminEditSoVangV704618" type="number" min="0" class="form-control"></div>
           <div class="col-md-4"><label class="form-label fw-semibold">Tên HS vắng</label><input id="adminEditTenVangV704618" class="form-control"></div>
           <div id="adminEditGroupNoteV704618" class="col-12 d-none"><div class="alert alert-warning small py-2 mb-0">Đây là tiết nhóm GDTC/Chuyên đề có điểm danh theo <code>sodb_group_absences</code>; danh sách vắng được khóa tại cửa sổ này để tránh lệch dữ liệu nhóm.</div></div>
+          <div class="col-md-4"><label class="form-label">Hình thức dạy</label><select id="adminEditModeV49" class="form-select"><option>Trực tiếp</option><option>Trực tuyến</option></select></div>
+          <div class="col-md-4"><label class="form-label">Nền tảng dạy</label><select id="adminEditPlatformV49" class="form-select"><option value="">Chưa khai báo</option><option>Google Meet</option><option>LMS</option><option>OLM</option><option>K12Online</option><option>Microsoft Teams</option><option>Zoom</option><option>Khác</option></select></div>
+          <div class="col-md-4"><label class="form-label">Link phòng học</label><input id="adminEditLinkV49" type="url" class="form-control"></div>
           <div class="col-12"><label class="form-label fw-semibold">Nhận xét</label><textarea id="adminEditNhanXetV704618" class="form-control" rows="2"></textarea></div>
           <div class="col-lg-8"><label class="form-label fw-semibold">Lý do chỉnh sửa *</label><input id="adminEditReasonV704618" class="form-control" placeholder="Bắt buộc, ít nhất 5 ký tự"></div>
           <div class="col-lg-4"><label class="form-label fw-semibold">Chữ ký giáo viên gốc</label><div id="adminEditSignatureV704618" class="border rounded p-2 text-center bg-light"></div></div>
@@ -2658,28 +2677,29 @@
 </div>
 
 <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/sodb-v69-runtime.js?v=70.4.6.49"></script>
-<script src="assets/js/app/sodb-v69-core.js?v=70.4.6.50"></script>
-<script src="assets/js/app/sodb-v69-khbd.js?v=70.4.6.47"></script>
-<script src="assets/js/app/sodb-v69-operations.js?v=70.4.6.50"></script>
-<script src="assets/js/app/sodb-v69-print.js?v=70.4.6.43"></script>
-<script src="assets/js/app/sodb-v69-admin.js?v=70.4.6.29"></script>
-<script src="assets/js/app/sodb-v69-admin-students.js?v=70.4.6.26"></script>
-<script src="assets/js/app/sodb-v69-admin-lessons.js?v=70.4.6.18"></script>
-<script src="assets/js/app/sodb-v70-lifecycle.js?v=70.4.6.13"></script>
-<script src="assets/js/app/sodb-v69-bgh.js?v=70.4.6.13"></script>
-<script src="assets/js/app/sodb-v69-masterdata.js?v=70.4.6.13"></script>
-<script src="assets/js/app/sodb-v69-control.js?v=70.4.6.45"></script>
-<script src="assets/js/app/sodb-v69-v694.js?v=70.4.6.13"></script>
-<script src="assets/js/app/sodb-v69-v695.js?v=70.4.6.13"></script>
-<script src="assets/js/app/sodb-v69-v6951.js?v=70.4.6.29"></script>
-<script src="assets/js/app/sodb-v69-ux.js?v=70.4.6.41"></script>
-<script src="assets/js/sodb-v69-gvcn.js?v=70.4.6.44"></script>
-<script src="assets/js/sodb-v69-reports.js?v=70.4.6.13"></script>
-<script src="assets/js/app/sodb-v69-my-lessons.js?v=70.4.6.50"></script>
+<script src="assets/js/sodb-v69-runtime.js?v=70.4.6.49.1"></script>
+<script src="assets/js/app/sodb-v69-core.js?v=70.4.6.49.1"></script>
+<script src="assets/js/app/sodb-v69-khbd.js?v=70.4.6.49.1"></script>
+<script src="assets/js/app/sodb-teaching-v704649.js?v=70.4.6.49.1"></script>
+<script src="assets/js/app/sodb-v69-operations.js?v=70.4.6.49.1"></script>
+<script src="assets/js/app/sodb-v69-print.js?v=70.4.6.49.1"></script>
+<script src="assets/js/app/sodb-v69-admin.js?v=70.4.6.49.1"></script>
+<script src="assets/js/app/sodb-v69-admin-students.js?v=70.4.6.49.1"></script>
+<script src="assets/js/app/sodb-v69-admin-lessons.js?v=70.4.6.49.1"></script>
+<script src="assets/js/app/sodb-v70-lifecycle.js?v=70.4.6.49.1"></script>
+<script src="assets/js/app/sodb-v69-bgh.js?v=70.4.6.49.1"></script>
+<script src="assets/js/app/sodb-v69-masterdata.js?v=70.4.6.49.1"></script>
+<script src="assets/js/app/sodb-v69-control.js?v=70.4.6.49.1"></script>
+<script src="assets/js/app/sodb-v69-v694.js?v=70.4.6.49.1"></script>
+<script src="assets/js/app/sodb-v69-v695.js?v=70.4.6.49.1"></script>
+<script src="assets/js/app/sodb-v69-v6951.js?v=70.4.6.49.1"></script>
+<script src="assets/js/app/sodb-v69-ux.js?v=70.4.6.49.1"></script>
+<script src="assets/js/sodb-v69-gvcn.js?v=70.4.6.49.1"></script>
+<script src="assets/js/sodb-v69-reports.js?v=70.4.6.49.1"></script>
+<script src="assets/js/app/sodb-v69-my-lessons.js?v=70.4.6.49.1"></script>
 
-<script src="assets/js/app/sodb-workspace.js?v=70.4.6.29"></script>
-<script src="assets/js/app/sodb-v69-print-ready.js?v=70.4.6.41"></script>
-<script src="assets/js/app/sodb-v69-print-ink.js?v=70.4.6.48"></script>
+<script src="assets/js/app/sodb-workspace.js?v=70.4.6.49.1"></script>
+<script src="assets/js/app/sodb-v69-print-ready.js?v=70.4.6.49.1"></script>
+<script src="assets/js/app/sodb-v69-print-ink.js?v=70.4.6.49.1"></script>
 </body>
 </html>

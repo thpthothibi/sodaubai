@@ -234,12 +234,11 @@
               ? callSodbEdgeRpcV67(method,args,sodbEdgeRpcTimeoutV70463(method))
               : callAppsScriptRpcV59(method,args);
             rpcPromise
-              .then(function(result){ if(successHandler) return successHandler(result); },function(error){
-                if(failureHandler) return failureHandler(error);
-                console.error('[SODB API]',prop,error);
-              })
-              // A rendering error after a successful write is not a network/save failure.
-              .catch(function(error){console.error('[SODB callback]',prop,error);});
+              .then(function(result){ if(successHandler) successHandler(result); })
+              .catch(function(error){
+                if(failureHandler) failureHandler(error);
+                else console.error('[SODB API]',prop,error);
+              });
           };
         }
       });

@@ -505,7 +505,7 @@ let varDiemTB = 10;
       btn.disabled=false;txt.textContent='Đăng nhập';
       const detail=(edgeErr&&edgeErr.message)?String(edgeErr.message):String(edgeErr||'Không rõ lỗi kết nối.');
       console.error('[V69 LOGIN] Supabase Edge không sẵn sàng:',edgeErr);
-      setCentralLoginStatusV4('Không thể xác thực an toàn qua Supabase Edge: '+detail+' Hệ thống không dùng đăng nhập fallback qua Google Sheet để tránh lệch nguồn dữ liệu.','danger');
+      setCentralLoginStatusV4('Kết nối chậm. Vui lòng thử lại.','danger');
     }
   }
 
@@ -1172,10 +1172,7 @@ let varDiemTB = 10;
     const inputTab=document.getElementById('input-tab');
     if(inputTab)inputTab.addEventListener('shown.bs.tab',function(){refreshClassCatalogV29();lazyLoadInputLessonV7();});
     const viewTab=document.getElementById('view-tab');
-    if(viewTab)viewTab.addEventListener('shown.bs.tab',function(){
-      refreshClassCatalogV29();
-      if(document.getElementById('viewLop')?.value)traCuuSoDauBaiTuanGop(true).catch(()=>{});
-    });
+    if(viewTab)viewTab.addEventListener('shown.bs.tab',refreshClassCatalogV29);
     const ttcmTab=document.getElementById('ttcm-tab'); if(ttcmTab)ttcmTab.addEventListener('shown.bs.tab',function(){
       lazyLoadAdminSubjectsV7();
       ensureTtcmUploadUiV6852();

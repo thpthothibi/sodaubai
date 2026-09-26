@@ -26,7 +26,7 @@
     });
   }
   async function readyImage(img){
-    const signature=img.matches('.sig-img-preview,.sig-gvcn-print,.sig-bgh-print');
+    const signature=img.matches('.sig-img-preview,.sig-gvcn-print,.sig-bgh-print,.school-stamp-v49');
     if(!img.getAttribute('src'))return !signature;
     // Print clone only: the old handler hides images permanently after one error.
     const handler=img.getAttribute('onerror');
@@ -51,7 +51,7 @@
     const missing=images.filter((_,i)=>!results[i]);
     if(missing.length){
       const names=[...new Set(missing.map(img=>img.closest('.sig-container')?.querySelector('.sig-name')?.textContent?.trim()||img.alt||'Chữ ký'))];
-      throw new Error('Chưa tải được ảnh chữ ký: '+names.slice(0,8).join(', ')+(names.length>8?'…':'')+'. Vui lòng tải lại dữ liệu tuần rồi in lại.');
+      throw new Error('Chưa tải được chữ ký/con dấu: '+names.slice(0,8).join(', ')+(names.length>8?'…':'')+'. Vui lòng tải lại dữ liệu tuần rồi in lại.');
     }
     if(document.fonts){
       let timer;

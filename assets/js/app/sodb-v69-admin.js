@@ -469,6 +469,7 @@
       document.getElementById('tenHSVang').value=x.tenHSVang||'';
       if(typeof refreshGroupAttendanceV6951==='function')Promise.resolve().then(()=>refreshGroupAttendanceV6951(Array.isArray(x.groupAbsentStudentIds)?x.groupAbsentStudentIds:[]));
       document.getElementById('nhanXet').value=x.nhanXet||'';
+      teachingLoadV704649(x);
       document.getElementById('isTietTron').checked=!!x.isTietTron;
       if(Array.isArray(x.gdtcClasses)&&x.gdtcClasses.length){
         populateGdtcClassOptionsV26();
@@ -487,6 +488,7 @@
 
   function huyCheDoSuaV4(){
     editingRecordIdV4=null;
+    teachingSuggestV704649();
     let btn=document.getElementById('btnSubmit');btn.innerText='Lưu vào Sổ Đầu Bài';btn.classList.remove('btn-warning');btn.classList.add('btn-primary');
     document.getElementById('btnCancelEditV4').classList.add('d-none');
     loadDanhSachBaiDay();

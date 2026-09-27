@@ -364,12 +364,30 @@ function capNhatBatchSummaryV704645(){
   const sum=document.getElementById('batchSummaryV704645');if(sum&&!sum.classList.contains('d-none'))sum.innerHTML=`Đang chọn <strong>${n}</strong> tiết${create?` · <strong>${create}</strong> tiết chưa có SĐB sẽ được tạo và ký`:''}${resign?` · <strong>${resign}</strong> tiết đã thay đổi sẽ được ký lại`:''}.`;
 }
 function chonTatCaBatchV704645(v){document.querySelectorAll('.batch-row-check-v704645:not(:disabled)').forEach(x=>x.checked=!!v);capNhatBatchSummaryV704645();}
+let batchPreviewRequestV704634=0,batchPreviewBusyV704634=false;
 function xemTruocKyThayHangLoatV704645(){
+  if(batchPreviewBusyV704634)return;
   const payload={tuan:Number(document.getElementById('batchWeekV704645')?.value||0),programId:document.getElementById('batchProgramV704645')?.value||'',grades:batchGradesV704645()};
   if(!payload.tuan||!payload.programId||!payload.grades.length){showToastV9('Vui lòng chọn tuần, chương trình và ít nhất một khối.','warning');return;}
-  const body=document.getElementById('batchPreviewBodyV704645');if(body)body.innerHTML='<tr><td colspan="9" class="text-center py-4"><span class="spinner-border spinner-border-sm me-2"></span>Đang kiểm tra từng tiết...</td></tr>';
-  google.script.run.withSuccessHandler(res=>{if(!res?.success){batchPreviewV704645=[];renderBatchPreviewV704645();showToastV9(res?.message||'Không tạo được danh sách ký.','danger');return;}batchPreviewV704645=res.data||[];batchCatalogV704645.canBatchCreate=!!res.canBatchCreate;renderBatchPreviewV704645();}).xemTruocKyThayHangLoatV704645(payload,batchAuthV704645());
+  const request=++batchPreviewRequestV704634;
+  batchPreviewBusyV704634=true;batchPreviewV704645=[];
+  const body=document.getElementById('batchPreviewBodyV704645'),sign=document.getElementById('btnBatchSignV704645'),summary=document.getElementById('batchSummaryV704645');
+  if(sign)sign.disabled=true;if(summary)summary.classList.add('d-none');
+  const buttons=[...document.querySelectorAll('button[onclick="xemTruocKyThayHangLoatV704645()"]')];buttons.forEach(b=>b.disabled=true);
+  if(body)body.innerHTML='<tr><td colspan="9" class="text-center py-4"><span class="spinner-border spinner-border-sm me-2"></span>Đang tải danh sách tiết…</td></tr>';
+  let done=false;
+  function finish(){if(done||request!==batchPreviewRequestV704634)return false;done=true;clearTimeout(timer);batchPreviewBusyV704634=false;buttons.forEach(b=>b.disabled=false);return true;}
+  function fail(message){if(!finish())return;batchPreviewV704645=[];if(sign)sign.disabled=true;if(body)body.innerHTML='<tr><td colspan="9" class="text-center text-danger py-4">'+escV693(message)+'</td></tr>';showToastV9(message,'warning');}
+  const timer=setTimeout(()=>fail('Tải danh sách quá lâu. Vui lòng thử lại hoặc chọn ít khối hơn.'),60000);
+  try{google.script.run.withSuccessHandler(res=>{
+    if(!res?.success){fail(res?.message||'Không tải được danh sách. Vui lòng thử lại.');return;}
+    const current={tuan:Number(document.getElementById('batchWeekV704645')?.value||0),programId:document.getElementById('batchProgramV704645')?.value||'',grades:batchGradesV704645()};
+    if(JSON.stringify(current)!==JSON.stringify(payload)){fail('Lựa chọn đã thay đổi. Vui lòng tạo lại danh sách.');return;}
+    if(!finish())return;batchPreviewV704645=res.data||[];batchCatalogV704645.canBatchCreate=!!res.canBatchCreate;renderBatchPreviewV704645();
+  }).withFailureHandler(()=>fail('Không tải được danh sách. Vui lòng thử lại.')).xemTruocKyThayHangLoatV704645(payload,batchAuthV704645());}
+  catch(_err){fail('Không tải được danh sách. Vui lòng thử lại.');}
 }
+
 function selectedBatchItemsV704645(){
   const out=[];document.querySelectorAll('#batchPreviewBodyV704645 tr[data-batch-index]').forEach(tr=>{const cb=tr.querySelector('.batch-row-check-v704645');if(!cb?.checked||cb.disabled)return;const i=Number(tr.dataset.batchIndex||-1),r=batchPreviewV704645[i];if(!r)return;out.push({slotId:r.slotId,status:r.status,recordId:r.recordId||'',tietCT:tr.querySelector('.batch-tietct-v704645')?.value||'',lesson:tr.querySelector('.batch-lesson-v704645')?.value||'',comment:tr.querySelector('.batch-comment-v704645')?.value||''});});return out;
 }

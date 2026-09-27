@@ -1352,14 +1352,15 @@
                     <div class="col-md-2"><label class="form-label fw-bold">Khối</label><select id="khbdMyKhoiV67" class="form-select" onchange="napLopKhbdCaNhanV691();taiKhbdCaNhanV67()"><option value="10">Khối 10</option><option value="11">Khối 11</option><option value="12">Khối 12</option></select></div>
                     <div class="col-md-3"><label class="form-label fw-bold">Môn</label><select id="khbdMyMonV67" class="form-select" onchange="napLopKhbdCaNhanV691();taiKhbdCaNhanV67()"></select></div>
                     <div class="col-md-3"><label class="form-label fw-bold">Lớp áp dụng</label><select id="khbdMyLopV691" class="form-select" onchange="taiKhbdCaNhanV67()"><option value="">-- Chọn lớp --</option></select></div>
-                    <div class="col-md-2"><label class="form-label fw-bold">Tuần đang chỉnh</label><select id="khbdMyWeekV704650" class="form-select" onchange="taiKhbdCaNhanV67()"></select></div>
+                    <div class="col-md-2"><label class="form-label fw-bold">Từ tuần</label><select id="khbdMyWeekV704650" class="form-select" onchange="taiKhbdCaNhanV67()"></select></div>
+                    <div class="col-md-2"><label class="form-label fw-bold" for="khbdMyWeekToV704635">Đến tuần</label><select id="khbdMyWeekToV704635" class="form-select" onchange="taiKhbdCaNhanV67()"></select></div>
                     <div class="col-md-2 d-grid"><button class="btn btn-outline-primary fw-bold" type="button" onclick="taiKhbdCaNhanV67(true)">Làm mới</button></div>
                   </div>
                   <div class="d-flex flex-wrap gap-2 mb-3">
                     <button class="btn btn-success fw-bold" type="button" onclick="luuKhbdDaTichV67()">✓ Lưu các tiết đã chọn</button>
                     <button class="btn btn-success fw-bold" type="button" onclick="moApDungKhbdNhieuLopV7067()">⇉ Áp dụng cho nhiều lớp</button>
-                    <button class="btn btn-primary fw-bold" type="button" onclick="chonToanBoKhbdV67()">✓ Tích toàn bộ cho lớp đang chọn</button>
-                    <button class="btn btn-outline-secondary" type="button" onclick="boChonKhbdV67()">Bỏ chọn tất cả</button>
+                    <button class="btn btn-primary fw-bold" type="button" onclick="chonToanBoKhbdV67()">✓ Tích toàn bộ trong khoảng tuần</button>
+                    <button class="btn btn-outline-secondary" type="button" onclick="boChonKhbdV67()">Bỏ chọn trong khoảng tuần</button>
                   </div>
                   <div id="khbdMyStatusV67" class="small text-muted mb-1">Chưa tải danh sách.</div><div id="khbdMyCarryoverV704650" class="mb-2"></div><div id="khbdMySelectionSummaryV692" class="small fw-semibold text-primary mb-2"></div>
                   <div class="table-responsive border rounded">
@@ -2729,7 +2730,7 @@
 
 <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="assets/js/sodb-v69-runtime.js?v=70.4.6.49.2"></script>
-<script src="assets/js/app/sodb-v69-core.js?v=70.4.6.49.6"></script>
+<script src="assets/js/app/sodb-v69-core.js?v=70.4.6.49.6.3.5"></script>
 <script src="assets/js/app/sodb-v69-khbd.js?v=70.4.6.49.6"></script>
 <script src="assets/js/app/sodb-teaching-v704649.js?v=70.4.6.49.5"></script>
 <script src="assets/js/app/sodb-v69-operations.js?v=70.4.6.49.6"></script>
@@ -2740,7 +2741,7 @@
 <script src="assets/js/app/sodb-v70-lifecycle.js?v=70.4.6.49.5"></script>
 <script src="assets/js/app/sodb-v69-bgh.js?v=70.4.6.49.2"></script>
 <script src="assets/js/app/sodb-v69-masterdata.js?v=70.4.6.49.2"></script>
-<script src="assets/js/app/sodb-v69-control.js?v=70.4.6.49.2"></script>
+<script src="assets/js/app/sodb-v69-control.js?v=70.4.6.49.6.3.4"></script>
 <script src="assets/js/app/sodb-v69-v694.js?v=70.4.6.49.2"></script>
 <script src="assets/js/app/sodb-v69-v695.js?v=70.4.6.49.2"></script>
 <script src="assets/js/app/sodb-v69-v6951.js?v=70.4.6.49.2"></script>

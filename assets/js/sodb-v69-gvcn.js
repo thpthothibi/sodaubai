@@ -25,6 +25,11 @@
     el.textContent=text||'Chưa tải dữ liệu';
     el.className='gvcn-week-state-v681 state-'+(state||'idle');
   }
+  function gvcnRenderSignatureNameV704653(name){
+    const el=document.getElementById('gvcnSigNameV704653');if(!el)return;
+    const fallback=gvcnDangNhapInfo?.tenGVCN||gvcnDangNhapInfo?.tenGV||'';
+    el.textContent=String(name||fallback||'').trim();
+  }
   function gvcnWeekLabelV681(lockRes,chot,staleClose){
     if(chot&&chot.success)return ['Đã ký chốt','closed'];
     const state=String(lockRes&&lockRes.state||'').toUpperCase();
@@ -210,6 +215,7 @@
       if(yk)yk.value=chot.ykien||'';
       if(meta)meta.textContent=`Đã ký chốt bởi ${chot.tenGVCN||'GVCN'}${chot.time?' · '+chot.time:''}`;
     }else if(meta)meta.textContent='';
+    gvcnRenderSignatureNameV704653(chot?.tenGVCN||gvcnLastStaleCloseV704652?.tenGVCN||gvcnDangNhapInfo?.tenGVCN||gvcnDangNhapInfo?.tenGV||'');
     const state=gvcnWeekLabelV681(lockRes,chot,gvcnLastStaleCloseV704652);gvcnSetStateV681(state[0],state[1]);
     gvcnRenderValidationV7045(validation);
     gvcnApplyValidatorCloseStateV7045();
@@ -224,6 +230,7 @@
     const ds=(res.dsLop||[res.lop]).filter(Boolean).filter((x,i,a)=>a.indexOf(x)===i);
     if(!gvcnDangNhapInfo.lop&&ds.length)gvcnDangNhapInfo.lop=ds[0];
     const welcome=document.getElementById('gvcnWelcomeMsg');if(welcome)welcome.textContent=`${name?name+' · ':''}Theo dõi lớp chủ nhiệm`;
+    gvcnRenderSignatureNameV704653(name);
     const sel=document.getElementById('gvcnAuthorizedClassV4');
     if(sel){sel.innerHTML='';ds.forEach(l=>sel.add(new Option(l,l)));if(gvcnDangNhapInfo.lop)sel.value=gvcnDangNhapInfo.lop;sel.onchange=function(){gvcnDangNhapInfo.lop=this.value;document.getElementById('gvcnSummaryContent').classList.add('d-none');document.getElementById('gvcnPlaceholderMsg').classList.remove('d-none');taiThongTinChotTuan();};}
     const week=document.getElementById('gvcnTuan');if(week&&!Number(week.value))week.value=gvcnCurrentWeekV681();else if(week)week.value=gvcnCurrentWeekV681();

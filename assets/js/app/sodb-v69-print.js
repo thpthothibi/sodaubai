@@ -350,7 +350,7 @@ function layHtmlOnePageA3GiamThi(lop, tuan, bookMode) {
         const chotResData=payload.chot&&payload.chot.success?payload.chot:null;
         if (chotResData) {
           ykienText = chotResData.ykien || 'Không có ý kiến.';
-          gvcnNameText = chotResData.tenGVCN || '';
+          gvcnNameText = chotResData.tenGVCN || chotResData.tenGVPhuTrach || chotResData.hoTenNguoiKy || ''; // V70.4.6.49.6.3.1: không để mất tên khi bản chốt cũ thiếu tenGVCN
           const gvcnSigRaw=String(chotResData.chuKyGVCN||chotResData.kySo||chotResData.signatureRef||'');
           const gvcnSigUrl=normalizeSignatureUrlV67_1(gvcnSigRaw);
           if (gvcnSigUrl) {
@@ -403,7 +403,7 @@ function layHtmlOnePageA3GiamThi(lop, tuan, bookMode) {
             </div>
             <div><strong>${isSpecial?'Ý kiến GV phụ trách nhóm:':'Ý kiến GVCN:'}</strong> <span class="fst-italic text-secondary">${escapeHtml(ykienText)}</span></div>
             <div class="signature-footer">
-              <div class="signature-box"><div class="signature-title">${isSpecial?'GIÁO VIÊN PHỤ TRÁCH NHÓM':'GIÁO VIÊN CHỦ NHIỆM'}</div><div class="signature-space">${sigSpaceHtml}</div><div class="fw-bold" style="font-size:8pt;">${escapeHtml(gvcnNameText)}</div></div>
+              <div class="signature-box"><div class="signature-title">${isSpecial?'GIÁO VIÊN PHỤ TRÁCH NHÓM':'GIÁO VIÊN CHỦ NHIỆM'}</div><div class="signature-space">${sigSpaceHtml}</div><div class="fw-bold signature-signer-name-v7046531" style="font-size:8pt;">${escapeHtml(gvcnNameText)}</div></div>
               <div class="signature-box"><div class="signature-title">${bghSignatureTitleHtmlV7046495(bghResData)}</div><div class="signature-space" style="position:relative">${bghSigSpaceHtml}${stampHtmlV704649(bghResData)}</div><div class="fw-bold" style="font-size:8pt;">${escapeHtml(bghNameText)}</div></div>
             </div>
           </div>

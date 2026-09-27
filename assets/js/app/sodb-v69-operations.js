@@ -556,7 +556,7 @@
       if(!space||!nameElem||!ykienElem)return;
       if(chotRes&&chotRes.success){
         ykienElem.innerText=chotRes.ykien||'Không có ý kiến.';
-        nameElem.innerText=chotRes.tenGVCN||'';
+        nameElem.innerText=chotRes.tenGVCN||chotRes.tenGVPhuTrach||chotRes.hoTenNguoiKy||'';
         const gvcnSigRaw=String(chotRes.chuKyGVCN||chotRes.kySo||chotRes.signatureRef||'');
         const gvcnSigUrl=normalizeSignatureUrlV67_1(gvcnSigRaw);
         if(gvcnSigUrl){

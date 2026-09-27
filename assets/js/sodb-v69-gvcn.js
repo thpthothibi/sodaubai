@@ -3,6 +3,7 @@
   let gvcnLastCloseV681=null;
   let gvcnLastLockV681=null;
   let gvcnLastValidationV7045=null;
+  let gvcnLastStaleCloseV704652=null;
 
   function gvcnCurrentWeekV681(){
     try{
@@ -24,10 +25,16 @@
     el.textContent=text||'Chưa tải dữ liệu';
     el.className='gvcn-week-state-v681 state-'+(state||'idle');
   }
-  function gvcnWeekLabelV681(lockRes,chot){
+  function gvcnWeekLabelV681(lockRes,chot,staleClose){
     if(chot&&chot.success)return ['Đã ký chốt','closed'];
     const state=String(lockRes&&lockRes.state||'').toUpperCase();
-    if(state==='TEMP_UNLOCK')return ['Đang mở tạm','warning'];
+    const unlocked=state==='TEMP_UNLOCK'||state==='BULK_WEEK_UNLOCK';
+    if(staleClose){
+      if(unlocked)return ['Đã mở khóa · cần ký lại','warning'];
+      return ['Cần Admin mở khóa','danger'];
+    }
+    if(state==='TEMP_UNLOCK'||state==='BULK_WEEK_UNLOCK')return ['Đang mở tạm','warning'];
+    if(state==='STALE_CLOSED')return ['Cần Admin mở khóa','danger'];
     if(state==='OVERDUE')return ['Tuần đã qua','warning'];
     if(lockRes&&lockRes.locked)return ['Đang khóa','danger'];
     return ['Đang mở','open'];
@@ -156,16 +163,35 @@
     try{const v=await callSodbEdgeRpcV67('kiemTraSoTuanGVCNV7045',[lop,tuan,!!persist,{token:gvcnDangNhapInfo.sessionToken}]);if(!v?.success)throw new Error(v?.message||'Không kiểm tra được sổ tuần.');gvcnRenderValidationV7045(v);gvcnApplyValidatorCloseStateV7045();if(persist)showToastV9(v.status==='PASS'?'Sổ tuần đã đạt điều kiện kiểm tra.':`Còn ${v.blockingCount} lỗi chặn cần xử lý.`,v.status==='PASS'?'success':'warning');return v;}catch(e){showToastV9(e.message||String(e),'danger');return null;}finally{if(btn){btn.disabled=false;btn.textContent=old;}}
   }
   function gvcnApplyValidatorCloseStateV7045(){
-    const btn=document.getElementById('gvcnCloseBtnV681'),hint=document.getElementById('gvcnCloseHintV681'),v=gvcnLastValidationV7045,chot=gvcnLastCloseV681;
-    const canClose=!chot&&v&&v.status==='PASS'&&v.storedFresh===true;
-    if(btn){btn.disabled=!canClose;btn.textContent=chot?'Đã ký chốt':canClose?'Ký chốt tuần':'Chưa đủ điều kiện';}
-    if(hint){if(chot)hint.textContent='Tuần đã được GVCN ký chốt và khóa.';else if(!v)hint.textContent='Hãy tải dữ liệu và kiểm tra sổ tuần trước khi ký.';else if(v.configurationRequired)hint.textContent='Admin chưa cấu hình khung tiết Sáng/Chiều cho lớp này.';else if(v.status!=='PASS'){const first=(Array.isArray(v.issues)?v.issues:[]).find(x=>x?.severity==='BLOCKING');hint.textContent=first?`Bị chặn: ${gvcnIssueTitleV704644(first)}. ${first.message||''} Xem chi tiết ngay phía trên để biết nơi xử lý.`:`Còn ${v.blockingCount} lỗi chặn; xử lý xong rồi kiểm tra lại.`;}else if(!v.storedFresh)hint.textContent='Dữ liệu đạt nhưng cần bấm “Kiểm tra sổ tuần” để xác nhận kết quả hiện tại.';else hint.textContent='Kết quả kiểm tra PASS còn hiệu lực. Có thể ký chốt tuần.';}
+    const btn=document.getElementById('gvcnCloseBtnV681'),hint=document.getElementById('gvcnCloseHintV681'),v=gvcnLastValidationV7045,chot=gvcnLastCloseV681,stale=gvcnLastStaleCloseV704652;
+    const lockState=String(gvcnLastLockV681?.state||'').toUpperCase(),unlocked=lockState==='TEMP_UNLOCK'||lockState==='BULK_WEEK_UNLOCK';
+    const staleNeedsUnlock=!!stale&&!unlocked;
+    const canClose=!chot&&!staleNeedsUnlock&&v&&v.status==='PASS'&&v.storedFresh===true;
+    if(btn){
+      btn.disabled=!canClose;
+      btn.textContent=chot?'Đã ký chốt':staleNeedsUnlock?'Chờ Admin mở khóa':(stale&&canClose?'Ký lại tuần':canClose?'Ký chốt tuần':'Chưa đủ điều kiện');
+    }
+    if(hint){
+      if(chot)hint.textContent='Tuần đã được GVCN ký chốt và khóa.';
+      else if(staleNeedsUnlock&&v&&v.status==='PASS'&&v.storedFresh===true)hint.textContent='Kết quả kiểm tra PASS còn hiệu lực, nhưng tuần đã ký trước đó và đang ở trạng thái cần ký lại. Admin cần mở khóa tạm trước khi GVCN ký lại.';
+      else if(staleNeedsUnlock)hint.textContent='Tuần đã từng được GVCN ký chốt nhưng dữ liệu sau đó thay đổi. Admin cần mở khóa tạm; sau đó GVCN kiểm tra lại và ký lại.';
+      else if(!v)hint.textContent='Hãy tải dữ liệu và kiểm tra sổ tuần trước khi ký.';
+      else if(v.configurationRequired)hint.textContent='Admin chưa cấu hình khung tiết Sáng/Chiều cho lớp này.';
+      else if(v.status!=='PASS'){const first=(Array.isArray(v.issues)?v.issues:[]).find(x=>x?.severity==='BLOCKING');hint.textContent=first?`Bị chặn: ${gvcnIssueTitleV704644(first)}. ${first.message||''} Xem chi tiết ngay phía trên để biết nơi xử lý.`:`Còn ${v.blockingCount} lỗi chặn; xử lý xong rồi kiểm tra lại.`;}
+      else if(!v.storedFresh)hint.textContent='Dữ liệu đạt nhưng cần bấm “Kiểm tra sổ tuần” để xác nhận kết quả hiện tại.';
+      else if(stale&&unlocked)hint.textContent='Admin đã mở khóa tạm. Kết quả kiểm tra PASS còn hiệu lực; có thể ký lại tuần.';
+      else hint.textContent='Kết quả kiểm tra PASS còn hiệu lực. Có thể ký chốt tuần.';
+    }
   }
 
   function gvcnApplySummaryV681(payload,lockRes,validation){
     const res=payload&&payload.sodb?payload.sodb:payload;
     if(!res||!res.success)throw new Error((res&&res.message)||'Không tải được dữ liệu tuần.');
-    gvcnLastBookV681=res;gvcnLastCloseV681=payload&&payload.chot&&payload.chot.success?payload.chot:null;gvcnLastLockV681=lockRes||null;
+    gvcnLastBookV681=res;
+    const rawClose=payload&&payload.chot?payload.chot:null;
+    gvcnLastCloseV681=rawClose&&rawClose.success?rawClose:null;
+    gvcnLastStaleCloseV704652=rawClose&&rawClose.stale?rawClose:null;
+    gvcnLastLockV681=lockRes||null;
     const s=res.summary||{},total=Number(res.foundCount||0),unsigned=Number(s.soTietChuaKy||0),signed=Math.max(0,total-unsigned),pct=total?Math.round(signed*100/total):0;
     document.getElementById('gvcnTongTietV681').textContent=validation&&validation.success?`${Number(validation.accountedSlots||0)}/${Number(validation.expectedSlots||0)}`:String(total);
     document.getElementById('gvcnVangP').textContent=String(s.vangP??0);
@@ -184,7 +210,7 @@
       if(yk)yk.value=chot.ykien||'';
       if(meta)meta.textContent=`Đã ký chốt bởi ${chot.tenGVCN||'GVCN'}${chot.time?' · '+chot.time:''}`;
     }else if(meta)meta.textContent='';
-    const state=gvcnWeekLabelV681(lockRes,chot);gvcnSetStateV681(state[0],state[1]);
+    const state=gvcnWeekLabelV681(lockRes,chot,gvcnLastStaleCloseV704652);gvcnSetStateV681(state[0],state[1]);
     gvcnRenderValidationV7045(validation);
     gvcnApplyValidatorCloseStateV7045();
     document.getElementById('gvcnPlaceholderMsg').classList.add('d-none');
@@ -275,7 +301,10 @@
     if(!v||v.status!=='PASS'){showToastV9('Sổ tuần chưa đạt kiểm tra. Hãy xử lý các lỗi chặn trước.','danger');return;}
     if(!v.storedFresh){showToastV9('Hãy bấm “Kiểm tra sổ tuần” ngay trước khi ký chốt.','warning');return;}
     if(gvcnLastCloseV681){showToastV9('Tuần này đã được ký chốt.','warning');return;}
-    const ok=await confirmV13(`Xác nhận ký chốt lớp ${gvcnDangNhapInfo.lop} - Tuần ${document.getElementById('gvcnTuan').value}? Sau khi chốt, dữ liệu tuần sẽ bị khóa.`,{title:'Ký chốt tuần',confirmText:'Ký chốt',danger:false});if(!ok)return;
+    const stale=gvcnLastStaleCloseV704652,lockState=String(gvcnLastLockV681?.state||'').toUpperCase(),unlocked=lockState==='TEMP_UNLOCK'||lockState==='BULK_WEEK_UNLOCK';
+    if(stale&&!unlocked){showToastV9('Tuần này đã ký trước đó và đang cần ký lại. Admin cần mở khóa tạm trước khi GVCN ký lại.','warning');gvcnApplyValidatorCloseStateV7045();return;}
+    const isResign=!!stale;
+    const ok=await confirmV13(`${isResign?'Xác nhận KÝ LẠI':'Xác nhận ký chốt'} lớp ${gvcnDangNhapInfo.lop} - Tuần ${document.getElementById('gvcnTuan').value}? Sau khi ký, dữ liệu tuần sẽ bị khóa.`,{title:isResign?'Ký lại tuần':'Ký chốt tuần',confirmText:isResign?'Ký lại':'Ký chốt',danger:false});if(!ok)return;
     const btn=document.getElementById('gvcnCloseBtnV681'),old=btn?.textContent||'Ký chốt tuần';if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner-border spinner-border-sm me-1"></span>Đang ký chốt...';}
     const payload={lop:gvcnDangNhapInfo.lop,tuan:Number(document.getElementById('gvcnTuan').value),ykien:document.getElementById('gvcnYKien').value,tenGVCN:gvcnDangNhapInfo.tenGVCN||''};
     google.script.run.withSuccessHandler(async function(r){

@@ -1551,23 +1551,34 @@
 
             <div class="tab-pane fade" id="control-ext-slot-v704645">
               <div class="alert alert-info border py-2 mb-3"><strong>Khung tiết chương trình liên kết</strong> là lịch nghiệp vụ riêng, khai báo một lần theo khoảng hiệu lực. Hệ thống <strong>không cần import TKB toàn trường</strong> để tạo danh sách ký thay hàng tuần.</div>
-              <div class="card border mb-3"><div class="card-header bg-light fw-bold">Đăng ký khung tiết</div><div class="card-body">
-                <div class="row g-2 align-items-end">
-                  <div class="col-lg-3"><label class="form-label small fw-semibold">Chương trình / môn *</label><select id="extSlotProgramV704645" class="form-select" onchange="doiChuongTrinhKhungTietV704645()"><option value="">-- Chọn chương trình --</option></select></div>
-                  <div class="col-lg-3"><label class="form-label small fw-semibold">Nhân sự ngoài trường *</label><select id="extSlotStaffV704645" class="form-select"><option value="">-- Chọn nhân sự --</option></select></div>
+              <style>
+                #extSlotMatrixWrapV704633{max-height:520px;overflow:auto;border:1px solid #dbe7f5;border-radius:10px;background:#fff}
+                #extSlotMatrixV704633{min-width:1660px;margin-bottom:0}
+                #extSlotMatrixV704633 th,#extSlotMatrixV704633 td{vertical-align:middle;text-align:center;white-space:nowrap}
+                #extSlotMatrixV704633 .slot-class-col{position:sticky;left:0;z-index:3;background:#fff;min-width:110px;text-align:left;font-weight:700;box-shadow:2px 0 0 #e8eef6}
+                #extSlotMatrixV704633 thead .slot-class-col{z-index:5;background:#153d72;color:#fff}
+                #extSlotMatrixV704633 thead th{position:sticky;top:0;z-index:4;background:#153d72;color:#fff}
+                #extSlotMatrixV704633 .slot-cell{min-width:118px;padding:5px 6px}
+                #extSlotMatrixV704633 .slot-cell-box{display:flex;align-items:center;gap:5px;justify-content:center}
+                #extSlotMatrixV704633 .slot-cell-box select{min-width:82px;font-size:12px;padding-top:3px;padding-bottom:3px}
+                #extSlotMatrixV704633 .slot-existing{font-size:10px;line-height:1.15;color:#65758b;white-space:normal;margin-top:3px}
+                #extSlotMatrixV704633 tr:hover .slot-class-col,#extSlotMatrixV704633 tbody tr:hover td{background:#f7fbff}
+              </style>
+              <div class="card border mb-3"><div class="card-header bg-light fw-bold">Đăng ký khung tiết dạng ma trận</div><div class="card-body">
+                <div class="row g-2 align-items-end mb-3">
+                  <div class="col-lg-3"><label class="form-label small fw-semibold">Chương trình / môn *</label><select id="extSlotProgramV704645" class="form-select" onchange="doiChuongTrinhKhungTietV704645();renderMaTranKhungTietV704633()"><option value="">-- Chọn chương trình --</option></select></div>
+                  <div class="col-lg-3"><label class="form-label small fw-semibold">Nhân sự ngoài trường *</label><select id="extSlotStaffV704645" class="form-select" onchange="renderMaTranKhungTietV704633()"><option value="">-- Chọn nhân sự --</option></select></div>
                   <div class="col-md-2"><label class="form-label small">Học kỳ</label><select id="extSlotSemesterV704645" class="form-select"><option value="HK1">Học kỳ I</option><option value="HK2">Học kỳ II</option><option value="CA_NAM">Cả năm</option></select></div>
                   <div class="col-md-2"><label class="form-label small">Khối *</label><select id="extSlotGradeV704645" class="form-select" onchange="locLopKhungTietV704645()"><option value="10">Khối 10</option><option value="11">Khối 11</option><option value="12">Khối 12</option></select></div>
-                  <div class="col-md-2 d-grid"><button class="btn btn-outline-primary" type="button" onclick="chonCaKhoiKhungTietV704645()">Chọn cả khối</button></div>
-                  <div class="col-lg-5"><label class="form-label small fw-semibold">Lớp áp dụng *</label><select id="extSlotClassesV704645" class="form-select" multiple size="5"></select><div class="form-text">Giữ Ctrl/⌘ để chọn nhiều lớp. Có thể áp dụng một khung cho cả khối.</div></div>
-                  <div class="col-md-2"><label class="form-label small">Thứ *</label><select id="extSlotWeekdayV704645" class="form-select"><option value="2">Thứ 2</option><option value="3">Thứ 3</option><option value="4">Thứ 4</option><option value="5">Thứ 5</option><option value="6">Thứ 6</option><option value="7">Thứ 7</option></select></div>
-                  <div class="col-md-2"><label class="form-label small">Buổi *</label><select id="extSlotSessionV704645" class="form-select"><option value="Sáng">Sáng</option><option value="Chiều">Chiều</option></select></div>
-                  <div class="col-md-1"><label class="form-label small">Tiết bắt đầu *</label><select id="extSlotPeriodV704645" class="form-select"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-                  <div class="col-md-2"><label class="form-label small">Số tiết *</label><select id="extSlotCountV704653" class="form-select" onchange="capNhatLuaChonSoTietV704653()"><option value="1">1 tiết</option><option value="2">2 tiết liên tiếp</option></select><div class="form-text">2 tiết: từ tiết bắt đầu sang tiết kế tiếp.</div></div>
+                  <div class="col-md-2"><label class="form-label small">Mặc định khi tích</label><select id="extSlotMatrixDefaultV704633" class="form-select"><option value="1:1">Tiết 1 · 1 tiết</option><option value="2:1" selected>Tiết 2 · 1 tiết</option><option value="3:1">Tiết 3 · 1 tiết</option><option value="4:1">Tiết 4 · 1 tiết</option><option value="1:2">Tiết 1–2 · 2 tiết</option><option value="2:2">Tiết 2–3 · 2 tiết</option><option value="3:2">Tiết 3–4 · 2 tiết</option></select></div>
                   <div class="col-md-2"><label class="form-label small">Từ ngày *</label><input type="date" id="extSlotFromV704645" class="form-control"></div>
                   <div class="col-md-2"><label class="form-label small">Đến ngày</label><input type="date" id="extSlotToV704645" class="form-control"></div>
-                  <div class="col-lg-4"><label class="form-label small">Ghi chú</label><input id="extSlotNoteV704645" class="form-control" placeholder="VD: Lịch học cố định học kỳ I"></div>
-                  <div class="col-lg-2 d-grid"><button class="btn btn-success fw-bold" type="button" onclick="luuKhungTietLienKetV704645()">Lưu khung tiết</button></div>
+                  <div class="col-lg-5"><label class="form-label small">Ghi chú</label><input id="extSlotNoteV704645" class="form-control" placeholder="VD: Lịch học cố định học kỳ I"></div>
+                  <div class="col-md-3 d-flex gap-2"><button class="btn btn-outline-secondary flex-fill" type="button" onclick="boChonMaTranKhungTietV704633()">Bỏ chọn</button><button class="btn btn-success fw-bold flex-fill" type="button" onclick="luuKhungTietLienKetV704645()">Lưu ma trận</button></div>
                 </div>
+                <div class="alert alert-light border py-2 small mb-2"><strong>Cách chọn:</strong> tích ô Lớp × Thứ/Buổi. Mỗi ô có thể chọn riêng <strong>1 tiết</strong> hoặc <strong>2 tiết liên tiếp</strong>. Có thể tích ở đầu hàng để chọn cả lớp, hoặc đầu cột để chọn nhiều lớp cùng Thứ/Buổi.</div>
+                <div id="extSlotMatrixWrapV704633"><table id="extSlotMatrixV704633" class="table table-sm table-bordered align-middle"><thead><tr id="extSlotMatrixHeadV704633"><th class="slot-class-col">Lớp</th></tr></thead><tbody id="extSlotMatrixBodyV704633"><tr><td class="text-muted p-3">Đang tải danh sách lớp...</td></tr></tbody></table></div>
+                <div id="extSlotMatrixSummaryV704633" class="small text-muted mt-2">Chưa chọn ô nào.</div>
               </div></div>
               <div class="table-responsive" style="max-height:520px;overflow:auto"><table class="table table-sm table-bordered align-middle"><thead class="table-dark sticky-top"><tr><th>Chương trình</th><th>GV ngoài trường</th><th>Khối/Lớp</th><th>Khung</th><th>Hiệu lực</th><th>Trạng thái</th><th></th></tr></thead><tbody id="extSlotBodyV704645"><tr><td colspan="7" class="text-center text-muted">Chưa tải dữ liệu.</td></tr></tbody></table></div>
             </div>

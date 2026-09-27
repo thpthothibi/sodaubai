@@ -58,16 +58,16 @@ function populateControlCatalogSelectorsV6953(){
 }
 function taiDanhMucLopMonDieuHanhV6953(force=false){
   const now=Date.now();
-  if(!force&&controlCatalogLoadedV6953&&(now-controlCatalogLoadedAtV6954)<600000){populateControlCatalogSelectorsV6953();return;}
+  if(!force&&controlCatalogLoadedV6953&&(now-controlCatalogLoadedAtV6954)<600000){populateControlCatalogSelectorsV6953();if(typeof renderMaTranKhungTietV704633==='function')renderMaTranKhungTietV704633();return;}
   const fromBootstrap=[];
   try{['10','11','12'].forEach(k=>(dsLopTheoKhoi?.[k]||[]).forEach(x=>fromBootstrap.push(x)));}catch(_e){}
   if(fromBootstrap.length){
     operationalClassesV6953=uniqTextV6953(fromBootstrap).sort((a,b)=>a.localeCompare(b,'vi',{numeric:true}));
     controlCatalogLoadedV6953=true;controlCatalogLoadedAtV6954=now;
-    updateOperationalSubjectsV6953([]);populateControlCatalogSelectorsV6953();
+    updateOperationalSubjectsV6953([]);populateControlCatalogSelectorsV6953();if(typeof renderMaTranKhungTietV704633==='function')renderMaTranKhungTietV704633();
     return;
   }
-  google.script.run.withSuccessHandler(res=>{if(res&&res.success){const all=[];Object.values(res.classes||{}).forEach(a=>(a||[]).forEach(x=>all.push(x)));operationalClassesV6953=uniqTextV6953(all).sort((a,b)=>a.localeCompare(b,'vi',{numeric:true}));if(res.classMeta)classMetaV26=Object.assign({},classMetaV26||{},typeof normalizeClassMetaV29==='function'?normalizeClassMetaV29(res.classMeta):res.classMeta);controlCatalogLoadedV6953=true;controlCatalogLoadedAtV6954=Date.now();updateOperationalSubjectsV6953([]);populateControlCatalogSelectorsV6953();}}).getDanhSachLopMoiV29(false);
+  google.script.run.withSuccessHandler(res=>{if(res&&res.success){const all=[];Object.values(res.classes||{}).forEach(a=>(a||[]).forEach(x=>all.push(x)));operationalClassesV6953=uniqTextV6953(all).sort((a,b)=>a.localeCompare(b,'vi',{numeric:true}));if(res.classMeta)classMetaV26=Object.assign({},classMetaV26||{},typeof normalizeClassMetaV29==='function'?normalizeClassMetaV29(res.classMeta):res.classMeta);controlCatalogLoadedV6953=true;controlCatalogLoadedAtV6954=Date.now();updateOperationalSubjectsV6953([]);populateControlCatalogSelectorsV6953();if(typeof renderMaTranKhungTietV704633==='function')renderMaTranKhungTietV704633();}}).getDanhSachLopMoiV29(false);
 }
 function taiDanhMucGiaoVienV693(force=false){
   const auth=controlAuthV693();if(!auth.token)return;
@@ -268,18 +268,45 @@ function initBatchDatesV704645(){
   if(from&&!from.value)from.value=today;if(to&&!to.value)to.value=addDaysClientV693(today,120);
   const wk=document.getElementById('batchWeekV704645');const cur=Number(currentUnifiedLoginV4?.bootstrap?.currentWeek||currentUnifiedLoginV4?.bootstrap?.schoolYear?.currentWeek||0);if(wk&&(!wk.value||Number(wk.value)===1)&&cur>0)wk.value=String(cur);
 }
-function locLopKhungTietV704645(){
-  const grade=String(document.getElementById('extSlotGradeV704645')?.value||'10');const el=document.getElementById('extSlotClassesV704645');if(!el)return;
-  const values=(operationalClassesV6953||[]).filter(c=>String(c).startsWith(grade)).sort((a,b)=>String(a).localeCompare(String(b),'vi',{numeric:true}));
-  el.innerHTML=values.map(c=>`<option value="${escV693(c)}">${escV693(c)}</option>`).join('');
+function cauHinhOThuV704633(){
+  const out=[];for(let thu=2;thu<=7;thu++)for(const buoi of ['Sáng','Chiều'])out.push({thu,buoi,key:`${thu}|${buoi}`});return out;
 }
-function chonCaKhoiKhungTietV704645(){const el=document.getElementById('extSlotClassesV704645');if(el)[...el.options].forEach(o=>o.selected=true);}
-function capNhatLuaChonSoTietV704653(){
-  const count=Math.max(1,Math.min(2,Number(document.getElementById('extSlotCountV704653')?.value||1)));
-  const period=document.getElementById('extSlotPeriodV704645');if(!period)return;
-  const opt4=[...period.options].find(o=>String(o.value)==='4');if(opt4)opt4.disabled=count===2;
-  if(count===2&&Number(period.value)===4)period.value='3';
+function tuyChonTietMaTranV704633(selected='2:1'){
+  const opts=[['1:1','T1'],['2:1','T2'],['3:1','T3'],['4:1','T4'],['1:2','T1–2'],['2:2','T2–3'],['3:2','T3–4']];
+  return opts.map(([v,t])=>`<option value="${v}" ${v===selected?'selected':''}>${t}</option>`).join('');
 }
+function cacLopKhoiMaTranV704633(){
+  const grade=String(document.getElementById('extSlotGradeV704645')?.value||'10');
+  return (operationalClassesV6953||[]).filter(c=>String(c).startsWith(grade)).sort((a,b)=>String(a).localeCompare(String(b),'vi',{numeric:true}));
+}
+function khungDangCoTrongOV704633(lop,thu,buoi){
+  const pid=String(document.getElementById('extSlotProgramV704645')?.value||'');
+  if(!pid)return '';
+  const rows=(extSlotsV704645||[]).filter(r=>r.kichHoat&&String(r.programId||'')===pid&&String(r.lop||'')===String(lop)&&Number(r.thu||0)===Number(thu)&&String(r.buoi||'')===String(buoi));
+  if(!rows.length)return '';
+  const periods=[...new Set(rows.map(r=>Number(r.tiet||0)).filter(Boolean))].sort((a,b)=>a-b);
+  return periods.length?`<div class="slot-existing" title="Khung đang có">Đang có: ${periods.map(x=>'T'+x).join(', ')}</div>`:'';
+}
+function renderMaTranKhungTietV704633(){
+  const head=document.getElementById('extSlotMatrixHeadV704633'),body=document.getElementById('extSlotMatrixBodyV704633');if(!head||!body)return;
+  const cols=cauHinhOThuV704633(),classes=cacLopKhoiMaTranV704633(),def=document.getElementById('extSlotMatrixDefaultV704633')?.value||'2:1';
+  head.innerHTML='<th class="slot-class-col">Lớp</th>'+cols.map(c=>`<th><div>Thứ ${c.thu} · ${escV693(c.buoi)}</div><label class="small fw-normal mt-1"><input class="form-check-input me-1 ext-slot-matrix-col-v704633" type="checkbox" data-thu="${c.thu}" data-buoi="${escV693(c.buoi)}" onchange="chonCotMaTranKhungTietV704633(${c.thu},'${c.buoi}',this.checked)"> chọn cột</label></th>`).join('');
+  if(!classes.length){body.innerHTML='<tr><td colspan="13" class="text-center text-muted py-4">Chưa tải được danh sách lớp của khối. Hãy đợi vài giây hoặc chọn lại Khối.</td></tr>';setTimeout(()=>{if(cacLopKhoiMaTranV704633().length)renderMaTranKhungTietV704633();},900);return;}
+  body.innerHTML=classes.map(lop=>`<tr data-lop="${escV693(lop)}"><td class="slot-class-col"><label class="d-flex align-items-center gap-2 mb-0"><input class="form-check-input ext-slot-matrix-row-v704633" type="checkbox" onchange="chonDongMaTranKhungTietV704633('${escV693(lop)}',this.checked)"><span>${escV693(lop)}</span></label></td>${cols.map(c=>`<td class="slot-cell"><div class="slot-cell-box"><input class="form-check-input ext-slot-matrix-check-v704633" type="checkbox" data-lop="${escV693(lop)}" data-thu="${c.thu}" data-buoi="${escV693(c.buoi)}" onchange="doiTrangThaiOMaTranV704633(this)"><select class="form-select form-select-sm ext-slot-matrix-config-v704633" disabled onchange="capNhatTomTatMaTranV704633()">${tuyChonTietMaTranV704633(def)}</select></div>${khungDangCoTrongOV704633(lop,c.thu,c.buoi)}</td>`).join('')}</tr>`).join('');
+  capNhatTomTatMaTranV704633();
+}
+function locLopKhungTietV704645(){renderMaTranKhungTietV704633();}
+function datMacDinhChoOV704633(cb){const sel=cb?.closest('.slot-cell')?.querySelector('.ext-slot-matrix-config-v704633');if(!sel)return;sel.value=document.getElementById('extSlotMatrixDefaultV704633')?.value||'2:1';}
+function doiTrangThaiOMaTranV704633(cb){const sel=cb?.closest('.slot-cell')?.querySelector('.ext-slot-matrix-config-v704633');if(sel){sel.disabled=!cb.checked;if(cb.checked)datMacDinhChoOV704633(cb);}capNhatTomTatMaTranV704633();}
+function chonDongMaTranKhungTietV704633(lop,checked){[...document.querySelectorAll('.ext-slot-matrix-check-v704633')].filter(cb=>String(cb.dataset.lop||'')===String(lop)).forEach(cb=>{cb.checked=!!checked;const sel=cb.closest('.slot-cell')?.querySelector('.ext-slot-matrix-config-v704633');if(sel){sel.disabled=!checked;if(checked)datMacDinhChoOV704633(cb);}});capNhatTomTatMaTranV704633();}
+function chonCotMaTranKhungTietV704633(thu,buoi,checked){[...document.querySelectorAll('.ext-slot-matrix-check-v704633')].filter(cb=>Number(cb.dataset.thu||0)===Number(thu)&&String(cb.dataset.buoi||'')===String(buoi)).forEach(cb=>{cb.checked=!!checked;const sel=cb.closest('.slot-cell')?.querySelector('.ext-slot-matrix-config-v704633');if(sel){sel.disabled=!checked;if(checked)datMacDinhChoOV704633(cb);}});capNhatTomTatMaTranV704633();}
+function chonCaKhoiKhungTietV704645(){document.querySelectorAll('.ext-slot-matrix-check-v704633').forEach(cb=>{cb.checked=true;const sel=cb.closest('.slot-cell')?.querySelector('.ext-slot-matrix-config-v704633');if(sel){sel.disabled=false;datMacDinhChoOV704633(cb);}});capNhatTomTatMaTranV704633();}
+function boChonMaTranKhungTietV704633(){document.querySelectorAll('.ext-slot-matrix-check-v704633,.ext-slot-matrix-row-v704633,.ext-slot-matrix-col-v704633').forEach(x=>x.checked=false);document.querySelectorAll('.ext-slot-matrix-config-v704633').forEach(x=>x.disabled=true);capNhatTomTatMaTranV704633();}
+function capNhatTomTatMaTranV704633(){
+  const selected=[...document.querySelectorAll('.ext-slot-matrix-check-v704633:checked')];let totalPeriods=0;const classes=new Set();selected.forEach(cb=>{classes.add(cb.dataset.lop||'');const sel=cb.closest('.slot-cell')?.querySelector('.ext-slot-matrix-config-v704633');const [,count='1']=String(sel?.value||'1:1').split(':');totalPeriods+=Number(count)||1;});
+  const box=document.getElementById('extSlotMatrixSummaryV704633');if(box)box.innerHTML=selected.length?`Đã chọn <strong>${selected.length}</strong> ô · <strong>${classes.size}</strong> lớp · tổng <strong>${totalPeriods}</strong> tiết/chu kỳ tuần.`:'Chưa chọn ô nào.';
+}
+function capNhatLuaChonSoTietV704653(){capNhatTomTatMaTranV704633();}
 function populateBatchCatalogV704645(){
   const pOpts=['<option value="">-- Chọn chương trình --</option>'].concat((batchCatalogV704645.programs||[]).map(p=>`<option value="${escV693(p.id)}">${escV693(p.tenChuongTrinh)} · ${escV693(p.tenMon)}</option>`)).join('');
   ['extSlotProgramV704645','batchProgramV704645'].forEach(id=>{const e=document.getElementById(id);if(!e)return;const old=e.value;e.innerHTML=pOpts;if([...e.options].some(o=>o.value===old))e.value=old;});
@@ -298,17 +325,28 @@ function moKyThayHangLoatV704645(){initBatchDatesV704645();taiDanhMucLopMonDieuH
 function taiKhungTietLienKetV704645(){
   if(!canManageSlotsV704645())return;initBatchDatesV704645();taiDanhMucLopMonDieuHanhV6953(false);
   taiDanhMucBatchV704645(()=>{
-    capNhatLuaChonSoTietV704653();
+    renderMaTranKhungTietV704633();
     const body=document.getElementById('extSlotBodyV704645');if(body)body.innerHTML='<tr><td colspan="7" class="text-center text-muted">Đang tải...</td></tr>';
-    google.script.run.withSuccessHandler(res=>{if(!res?.success){if(body)body.innerHTML=`<tr><td colspan="7" class="text-center text-danger">${escV693(res?.message||'Lỗi')}</td></tr>`;return;}extSlotsV704645=res.data||[];if(body)body.innerHTML=extSlotsV704645.length?extSlotsV704645.map(r=>`<tr><td><strong>${escV693(r.programName)}</strong><br><small>${escV693(r.subject)}</small></td><td>${escV693(r.staffName)}</td><td><strong>${escV693(r.lop)}</strong><br><small>Khối ${escV693(r.khoi)}</small></td><td>Thứ ${escV693(r.thu)} · ${escV693(r.buoi)} · Tiết ${escV693(r.tiet)}</td><td>${escV693(r.tuNgay)} → ${escV693(r.denNgay||'Không giới hạn')}</td><td>${r.kichHoat?'<span class="badge text-bg-success">Đang dùng</span>':'<span class="badge text-bg-secondary">Đã ngừng</span>'}</td><td>${r.kichHoat?`<button class="btn btn-sm btn-outline-danger" onclick="ngungKhungTietLienKetV704645('${escV693(r.id)}')">Ngừng</button>`:'—'}</td></tr>`).join(''):'<tr><td colspan="7" class="text-center text-muted">Chưa có khung tiết.</td></tr>';}).layKhungTietLienKetV704645({},batchAuthV704645());
+    google.script.run.withSuccessHandler(res=>{if(!res?.success){if(body)body.innerHTML=`<tr><td colspan="7" class="text-center text-danger">${escV693(res?.message||'Lỗi')}</td></tr>`;return;}extSlotsV704645=res.data||[];renderMaTranKhungTietV704633();if(body)body.innerHTML=extSlotsV704645.length?extSlotsV704645.map(r=>`<tr><td><strong>${escV693(r.programName)}</strong><br><small>${escV693(r.subject)}</small></td><td>${escV693(r.staffName)}</td><td><strong>${escV693(r.lop)}</strong><br><small>Khối ${escV693(r.khoi)}</small></td><td>Thứ ${escV693(r.thu)} · ${escV693(r.buoi)} · Tiết ${escV693(r.tiet)}</td><td>${escV693(r.tuNgay)} → ${escV693(r.denNgay||'Không giới hạn')}</td><td>${r.kichHoat?'<span class="badge text-bg-success">Đang dùng</span>':'<span class="badge text-bg-secondary">Đã ngừng</span>'}</td><td>${r.kichHoat?`<button class="btn btn-sm btn-outline-danger" onclick="ngungKhungTietLienKetV704645('${escV693(r.id)}')">Ngừng</button>`:'—'}</td></tr>`).join(''):'<tr><td colspan="7" class="text-center text-muted">Chưa có khung tiết.</td></tr>';}).layKhungTietLienKetV704645({},batchAuthV704645());
   });
 }
-function luuKhungTietLienKetV704645(){
-  const classes=[...(document.getElementById('extSlotClassesV704645')?.selectedOptions||[])].map(o=>o.value).filter(Boolean);
-  const payload={programId:document.getElementById('extSlotProgramV704645')?.value||'',externalStaffId:document.getElementById('extSlotStaffV704645')?.value||'',hocKy:document.getElementById('extSlotSemesterV704645')?.value||'HK1',khoi:Number(document.getElementById('extSlotGradeV704645')?.value||0),classes,thu:Number(document.getElementById('extSlotWeekdayV704645')?.value||0),buoi:document.getElementById('extSlotSessionV704645')?.value||'Sáng',tiet:Number(document.getElementById('extSlotPeriodV704645')?.value||0),soTiet:Number(document.getElementById('extSlotCountV704653')?.value||1),tuNgay:document.getElementById('extSlotFromV704645')?.value||'',denNgay:document.getElementById('extSlotToV704645')?.value||'',ghiChu:document.getElementById('extSlotNoteV704645')?.value||''};
-  if(!payload.programId||!payload.externalStaffId||!classes.length||!payload.tuNgay){showToastV9('Cần chọn chương trình, nhân sự, ít nhất một lớp và ngày bắt đầu.','warning');return;}
-  if(payload.soTiet===2&&payload.tiet>=4){showToastV9('Khung 2 tiết liên tiếp chỉ có thể bắt đầu từ tiết 1, 2 hoặc 3.','warning');return;}
-  google.script.run.withSuccessHandler(res=>{if(!res?.success){showToastV9(res?.message||'Không lưu được khung tiết.','danger');return;}showToastV9(res.message||'Đã lưu khung tiết.','success');taiKhungTietLienKetV704645();}).luuKhungTietLienKetV704645(payload,batchAuthV704645());
+function goLuuNhomMaTranV704633(payload){return new Promise((resolve,reject)=>{google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).luuKhungTietLienKetV704645(payload,batchAuthV704645());});}
+async function luuKhungTietLienKetV704645(){
+  const programId=document.getElementById('extSlotProgramV704645')?.value||'',externalStaffId=document.getElementById('extSlotStaffV704645')?.value||'',hocKy=document.getElementById('extSlotSemesterV704645')?.value||'HK1',khoi=Number(document.getElementById('extSlotGradeV704645')?.value||0),tuNgay=document.getElementById('extSlotFromV704645')?.value||'',denNgay=document.getElementById('extSlotToV704645')?.value||'',ghiChu=document.getElementById('extSlotNoteV704645')?.value||'';
+  const selected=[...document.querySelectorAll('.ext-slot-matrix-check-v704633:checked')];
+  if(!programId||!externalStaffId||!selected.length||!tuNgay){showToastV9('Cần chọn chương trình, nhân sự, ít nhất một ô trong ma trận và ngày bắt đầu.','warning');return;}
+  const groups=new Map();
+  selected.forEach(cb=>{const sel=cb.closest('.slot-cell')?.querySelector('.ext-slot-matrix-config-v704633');const [tietRaw,countRaw]=String(sel?.value||'2:1').split(':'),tiet=Number(tietRaw||0),soTiet=Number(countRaw||1),thu=Number(cb.dataset.thu||0),buoi=String(cb.dataset.buoi||''),lop=String(cb.dataset.lop||'');const key=[thu,buoi,tiet,soTiet].join('|');if(!groups.has(key))groups.set(key,{thu,buoi,tiet,soTiet,classes:[]});groups.get(key).classes.push(lop);});
+  const totalPeriods=[...groups.values()].reduce((n,g)=>n+g.classes.length*g.soTiet,0);if(!confirm(`Lưu ${selected.length} ô ma trận, tương ứng ${totalPeriods} tiết/chu kỳ tuần?`))return;
+  const btn=[...document.querySelectorAll('button')].find(b=>b.getAttribute('onclick')==='luuKhungTietLienKetV704645()'&&b.textContent.includes('Lưu ma trận'));if(btn){btn.disabled=true;btn.dataset.oldText=btn.textContent;btn.textContent='Đang lưu...';}
+  let ok=0,fail=0;const errors=[];
+  for(const g of groups.values()){
+    const payload={programId,externalStaffId,hocKy,khoi,classes:[...new Set(g.classes)],thu:g.thu,buoi:g.buoi,tiet:g.tiet,soTiet:g.soTiet,tuNgay,denNgay,ghiChu};
+    try{const res=await goLuuNhomMaTranV704633(payload);if(res?.success){ok+=Number(res.rows||0);}else{fail++;errors.push(`Thứ ${g.thu} ${g.buoi} ${g.tiet}/${g.soTiet} tiết: ${res?.message||'Không lưu được'}`);}}catch(err){fail++;errors.push(`Thứ ${g.thu} ${g.buoi}: ${err?.message||String(err)}`);}
+  }
+  if(btn){btn.disabled=false;btn.textContent=btn.dataset.oldText||'Lưu ma trận';}
+  if(fail){showToastV9(`Đã lưu một phần (${ok} dòng). Có ${fail} nhóm chưa lưu; xem chi tiết bên dưới.`, 'warning');const box=document.getElementById('extSlotMatrixSummaryV704633');if(box)box.innerHTML=`<span class="text-warning"><strong>Đã lưu một phần.</strong> ${errors.map(escV693).join(' · ')}</span>`;}else{showToastV9(`Đã lưu ma trận thành công (${ok} dòng khung tiết).`,'success');boChonMaTranKhungTietV704633();}
+  taiKhungTietLienKetV704645();
 }
 function ngungKhungTietLienKetV704645(id){const reason=prompt('Lý do ngừng khung tiết:','Thay đổi lịch chương trình liên kết');if(reason===null)return;google.script.run.withSuccessHandler(res=>{if(res?.success){showToastV9(res.message||'Đã ngừng khung tiết.','success');taiKhungTietLienKetV704645();}else showToastV9(res?.message||'Không ngừng được khung tiết.','danger');}).ngungKhungTietLienKetV704645(id,reason,batchAuthV704645());}
 function batchGradesV704645(){return [...document.querySelectorAll('.batch-grade-v704645:checked')].map(x=>Number(x.value)).filter(x=>[10,11,12].includes(x));}
@@ -354,4 +392,4 @@ function thucHienKyThayHangLoatV704645(){
   google.script.run.withSuccessHandler(res=>{if(btn){btn.disabled=false;btn.textContent='XÁC NHẬN & KÝ';}if(!res?.success){showToastV9(res?.message||'Ký hàng loạt thất bại.','danger');return;}try{bootstrap.Modal.getInstance(document.getElementById('modalBatchSignV704645'))?.hide();}catch(_e){}const box=document.getElementById('batchResultV704645');if(box){box.innerHTML=`<div class="alert ${res.failedCount?'alert-warning':'alert-success'}"><strong>Đợt ${escV693(res.batchCode||'')}</strong>: ${escV693(res.successCount||0)} tiết thành công${res.failedCount?` · ${escV693(res.failedCount)} tiết chưa hoàn tất`:''}.</div>`+(res.items||[]).filter(x=>x.status==='FAILED').map(x=>`<div class="small text-danger">${escV693(x.lop)} · ${escV693(x.ngayDay)} · Tiết ${escV693(x.tiet)}: ${escV693(x.message)}</div>`).join('');}showToastV9(res.failedCount?'Đã ký một phần; xem các dòng chưa hoàn tất.':'Đã ký thay hàng loạt thành công.',res.failedCount?'warning':'success');xemTruocKyThayHangLoatV704645();}).withFailureHandler(err=>{if(btn){btn.disabled=false;btn.textContent='XÁC NHẬN & KÝ';}showToastV9(err?.message||String(err),'danger');}).kyThayHangLoatV704645(payload,batchAuthV704645());
 }
 
-document.addEventListener('DOMContentLoaded',()=>{initBatchDatesV704645();const g=document.getElementById('extSlotGradeV704645');if(g)g.addEventListener('change',locLopKhungTietV704645);});
+document.addEventListener('DOMContentLoaded',()=>{initBatchDatesV704645();const g=document.getElementById('extSlotGradeV704645');if(g)g.addEventListener('change',locLopKhungTietV704645);setTimeout(renderMaTranKhungTietV704633,250);});

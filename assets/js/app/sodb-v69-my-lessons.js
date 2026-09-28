@@ -1,4 +1,4 @@
-/* V70.4.6.49.6.3.16: Tiết của tôi giữ TKB lớp chính + liên kết an toàn sang sổ GDTC/Chuyên đề riêng. */
+/* V70.4.6.49.6.3.18: Tiết của tôi giữ TKB lớp chính + chỉ liên kết sổ GDTC/CĐ khi đúng Thứ/Buổi/Tiết. */
 (() => {
   'use strict';
   const $ = id => document.getElementById(id);

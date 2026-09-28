@@ -549,11 +549,25 @@
     const cacheKey=String(lop)+'|'+String(tuan)+'|'+String(bookMode);
     const cached=sodbViewCacheV6.get(cacheKey);
 
+    function specialResponsibleTeacherCardsV7046517(responsibleTeachers){
+      const auto=(Array.isArray(responsibleTeachers)?responsibleTeachers:[]).filter(x=>String(x?.tenGV||'').trim());
+      if(!auto.length)return '';
+      return `<div class="special-responsible-teachers-v7046517">${auto.map((x,i)=>{const name=String(x.tenGV||'').trim(),u=normalizeSignatureUrlV67_1(x.signatureUrl||x.signatureRef||'');return `<div class="special-responsible-teacher-v7046517"><div class="special-responsible-sign-slot-v7046517">${u?`<img src="${escapeHtml(u)}" class="sig-gvcn-print special-responsible-signature-v704652" alt="Chữ ký ${escapeHtml(name)}" onerror="handleSignatureImageErrorV682(this)">`:'<span class="badge bg-success special-responsible-signed-v7046517">✓ Đã ký tiết</span>'}</div><div class="special-responsible-name-v7046517">${escapeHtml(name)}</div></div>`;}).join('')}</div>`;
+    }
     function applyChotV10(chotRes,responsibleTeachers=[],isSpecialBook=false){
       const space=document.getElementById('printGVCNSigSpace');
       const nameElem=document.getElementById('printGVCNName');
       const ykienElem=document.getElementById('printGVCNYKien');
       if(!space||!nameElem||!ykienElem)return;
+      const auto=(Array.isArray(responsibleTeachers)?responsibleTeachers:[]).filter(x=>String(x?.tenGV||'').trim());
+      // V70.4.6.49.6.3.17: sổ GDTC/CĐ luôn ưu tiên danh sách GV đã ký tiết.
+      // Ký chốt tuần chỉ bổ sung ý kiến/trạng thái, không làm mất tên các GV thực dạy.
+      if(isSpecialBook&&auto.length){
+        ykienElem.innerText=(chotRes&&chotRes.success)?(chotRes.ykien||'Không có ý kiến.'):'Chưa có ý kiến...';
+        nameElem.innerText='';
+        space.innerHTML=specialResponsibleTeacherCardsV7046517(auto);
+        return;
+      }
       if(chotRes&&chotRes.success){
         ykienElem.innerText=chotRes.ykien||'Không có ý kiến.';
         nameElem.innerText=chotRes.tenGVCN||chotRes.tenGVPhuTrach||chotRes.hoTenNguoiKy||'';
@@ -564,16 +578,6 @@
         }else{
           space.innerHTML='<span class="badge bg-success" style="font-size:.55rem;">✓ Đã ký chốt</span>';
         }
-        return;
-      }
-      const auto=(Array.isArray(responsibleTeachers)?responsibleTeachers:[]).filter(x=>String(x?.tenGV||'').trim());
-      if(isSpecialBook&&auto.length){
-        ykienElem.innerText='Chưa có ý kiến...';
-        nameElem.innerText=auto.map(x=>String(x.tenGV||'').trim()).filter(Boolean).join(' / ');
-        const imgs=auto.map(x=>normalizeSignatureUrlV67_1(x.signatureUrl||x.signatureRef||'')).filter(Boolean);
-        space.innerHTML=imgs.length
-          ? `<div class="special-responsible-signatures-v704652">${imgs.map((u,i)=>`<img src="${escapeHtml(u)}" class="sig-gvcn-print special-responsible-signature-v704652" alt="Chữ ký giáo viên phụ trách ${i+1}" onerror="handleSignatureImageErrorV682(this)">`).join('')}</div>`
-          : '<span class="badge bg-success" style="font-size:.55rem;">✓ Đã ký tiết</span>';
         return;
       }
       ykienElem.innerText='Chưa có ý kiến...';
@@ -1079,9 +1083,17 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
     let khoi = document.getElementById('khoi').value;
     let tuan = document.getElementById('tuanHoc').value;
     let selectBai = document.getElementById('tenBaiDaySelect');
+    const khbdContextV7046517=[khoi,document.getElementById('lop')?.value||'',mon,tuan].join('|');
+    if(selectBai&&selectBai.dataset.khbdContextV7046517!==khbdContextV7046517){
+      // Đổi tuần/lớp/môn phải xóa hoàn toàn lựa chọn hiển thị của ngữ cảnh cũ.
+      // Tránh giữ chữ “Tồn Tuần ...” trong lúc dữ liệu tuần mới đang nạp.
+      selectBai.value='';
+      selectBai.innerHTML='<option value="">-- Đang tải KHBD của tuần đã chọn... --</option>';
+      selectBai.dataset.khbdContextV7046517=khbdContextV7046517;
+    }
     danhSachBaiDay1 = [];
-    document.getElementById('tenBaiDayCustom').classList.add('d-none');
-    document.getElementById('tenBaiDayCustom').required = false;
+    const khbdCustomV7046517=document.getElementById('tenBaiDayCustom');
+    if(khbdCustomV7046517){khbdCustomV7046517.value='';khbdCustomV7046517.classList.add('d-none');khbdCustomV7046517.required=false;}
     document.getElementById('tietCT').value = "";
     if (!mon) {
       if(gvbmHasGdtcV25() && isGdtcBaseSubjectV25(document.getElementById('monHoc').value)){

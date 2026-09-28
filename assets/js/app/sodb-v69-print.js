@@ -348,7 +348,12 @@ function layHtmlOnePageA3GiamThi(lop, tuan, bookMode) {
         let gvcnNameText = '';
         let sigSpaceHtml = '<span class="text-muted" style="font-size: 0.55rem;">Chưa chốt ký</span>';
         const chotResData=payload.chot&&payload.chot.success?payload.chot:null;
-        if (chotResData) {
+        const autoResponsibleV7046517=isSpecial&&Array.isArray(res.responsibleTeachers)?res.responsibleTeachers.filter(x=>String(x?.tenGV||'').trim()):[];
+        if (autoResponsibleV7046517.length) {
+          ykienText = chotResData?(chotResData.ykien||'Không có ý kiến.'):'Chưa có ý kiến...';
+          gvcnNameText = '';
+          sigSpaceHtml=`<div class="special-responsible-teachers-v7046517">${autoResponsibleV7046517.map((x,i)=>{const name=String(x.tenGV||'').trim(),u=normalizeSignatureUrlV67_1(x.signatureUrl||x.signatureRef||'');return `<div class="special-responsible-teacher-v7046517"><div class="special-responsible-sign-slot-v7046517">${u?`<img src="${escapeHtml(u)}" class="sig-gvcn-print special-responsible-signature-v704652" alt="Chữ ký ${escapeHtml(name)}">`:'<span class="badge bg-success special-responsible-signed-v7046517">✓ Đã ký tiết</span>'}</div><div class="special-responsible-name-v7046517">${escapeHtml(name)}</div></div>`;}).join('')}</div>`;
+        } else if (chotResData) {
           ykienText = chotResData.ykien || 'Không có ý kiến.';
           gvcnNameText = chotResData.tenGVCN || chotResData.tenGVPhuTrach || chotResData.hoTenNguoiKy || '';
           const gvcnSigRaw=String(chotResData.chuKyGVCN||chotResData.kySo||chotResData.signatureRef||'');
@@ -358,13 +363,6 @@ function layHtmlOnePageA3GiamThi(lop, tuan, bookMode) {
           } else {
             sigSpaceHtml = '<span class="badge bg-success" style="font-size: 0.55rem;">✓ Đã ký chốt</span>';
           }
-        } else if (isSpecial && Array.isArray(res.responsibleTeachers) && res.responsibleTeachers.length) {
-          const auto=res.responsibleTeachers.filter(x=>String(x?.tenGV||'').trim());
-          gvcnNameText=auto.map(x=>String(x.tenGV||'').trim()).filter(Boolean).join(' / ');
-          const autoSigs=auto.map(x=>normalizeSignatureUrlV67_1(x.signatureUrl||x.signatureRef||'')).filter(Boolean);
-          sigSpaceHtml=autoSigs.length
-            ? `<div class="special-responsible-signatures-v704652">${autoSigs.map((u,i)=>`<img src="${escapeHtml(u)}" class="sig-gvcn-print special-responsible-signature-v704652" alt="Chữ ký giáo viên phụ trách ${i+1}">`).join('')}</div>`
-            : '<span class="badge bg-success" style="font-size: 0.55rem;">✓ Đã ký tiết</span>';
         }
         let bghNameText='';
         let bghSigSpaceHtml='<span class="text-muted" style="font-size:0.55rem;">Chưa duyệt</span>';

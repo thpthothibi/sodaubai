@@ -3838,3 +3838,23 @@ body.a3-tracuu-v56 #a3PrintRootV56 .signature-footer .signature-signer-name-v704
   #gtPrintPagesContainer .special-responsible-signature-v704652,
   body.a3-tracuu-v56 #a3PrintRootV56 .special-responsible-signature-v704652{max-width:32mm!important;}
 }
+
+/* V70.4.6.49.6.3.17 - GV phụ trách GDTC/CĐ: chữ ký + tên theo từng GV, dàn đều. */
+.special-responsible-teachers-v7046517{width:100%;display:grid;grid-template-columns:repeat(auto-fit,minmax(86px,1fr));align-items:end;justify-items:stretch;gap:6px 10px;}
+.special-responsible-teacher-v7046517{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;text-align:center;}
+.special-responsible-sign-slot-v7046517{width:100%;min-height:30px;display:flex;align-items:flex-end;justify-content:center;}
+.special-responsible-name-v7046517{width:100%;margin-top:2px;font-weight:700;font-size:.76rem;line-height:1.12;text-align:center;overflow-wrap:break-word;}
+.special-responsible-signed-v7046517{font-size:.52rem;}
+.signature-footer .signature-box:first-child .signature-space:has(.special-responsible-teachers-v7046517){height:auto!important;min-height:42px!important;}
+@media print{
+  #gtPrintPagesContainer .special-responsible-teachers-v7046517,
+  body.a3-tracuu-v56 #a3PrintRootV56 .special-responsible-teachers-v7046517{grid-template-columns:repeat(auto-fit,minmax(24mm,1fr));gap:1.5mm 3mm!important;}
+  #gtPrintPagesContainer .special-responsible-name-v7046517,
+  body.a3-tracuu-v56 #a3PrintRootV56 .special-responsible-name-v7046517{font-family:"Times New Roman",serif!important;font-size:8.5pt!important;line-height:1.05!important;margin-top:.4mm!important;}
+  #gtPrintPagesContainer .special-responsible-sign-slot-v7046517,
+  body.a3-tracuu-v56 #a3PrintRootV56 .special-responsible-sign-slot-v7046517{min-height:6mm!important;}
+  #gtPrintPagesContainer .signature-footer .signature-box:first-child .signature-space:has(.special-responsible-teachers-v7046517),
+  body.a3-tracuu-v56 #a3PrintRootV56 .signature-footer .signature-box:first-child .signature-space:has(.special-responsible-teachers-v7046517){height:auto!important;min-height:10mm!important;}
+}
+#printGVCNName:empty{min-height:0!important;margin-top:0!important;}
+.signature-signer-name-v7046531:empty{display:none!important;min-height:0!important;margin-top:0!important;}

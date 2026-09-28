@@ -354,8 +354,9 @@ function batchStatusBadgeV704645(r){const m={READY:['success','Sẵn sàng ký']
 function renderBatchPreviewV704645(){
   const body=document.getElementById('batchPreviewBodyV704645'),summary=document.getElementById('batchSummaryV704645'),btn=document.getElementById('btnBatchSignV704645');if(!body)return;
   if(!batchPreviewV704645.length){body.innerHTML='<tr><td colspan="9" class="text-center text-muted py-4">Không có tiết phù hợp.</td></tr>';if(btn)btn.disabled=true;return;}
-  body.innerHTML=batchPreviewV704645.map((r,i)=>{const selectable=['READY','READY_CREATE','READY_RESIGN'].includes(r.status);return `<tr data-batch-index="${i}"><td class="text-center"><input class="form-check-input batch-row-check-v704645" type="checkbox" ${selectable?'checked':'disabled'} onchange="capNhatBatchSummaryV704645()"></td><td><strong>${escV693(r.lop)}</strong><br><small>Khối ${escV693(r.khoi)}</small></td><td>${escV693(r.ngayDay)}<br><small>Thứ ${escV693(r.thu)} · ${escV693(r.buoi)} · Tiết ${escV693(r.tiet)}</small></td><td>${escV693(r.staffName)}<br><small>${escV693(r.staffTitle||'Nhân sự liên kết')}</small></td><td><input class="form-control form-control-sm batch-tietct-v704645" value="${escV693(r.tietCT||'')}" ${selectable?'':'disabled'}></td><td><input class="form-control form-control-sm batch-lesson-v704645" value="${escV693(r.lesson||document.getElementById('batchLessonDefaultV704645')?.value||'')}" ${selectable?'':'disabled'}></td><td><strong>${escV693(r.rosterCount??'—')} / ${escV693(r.absentCount??0)}</strong>${r.exists?'<div class="small text-muted">Theo SĐB hiện có</div>':'<div class="small text-success">Mặc định điểm danh đủ</div>'}</td><td><input class="form-control form-control-sm batch-comment-v704645" value="${escV693(r.comment||document.getElementById('batchCommentV704645')?.value||'')}" ${selectable?'':'disabled'}></td><td>${batchStatusBadgeV704645(r)}</td></tr>`;}).join('');
+  body.innerHTML=batchPreviewV704645.map((r,i)=>{const selectable=['READY','READY_CREATE','READY_RESIGN'].includes(r.status);return `<tr data-batch-index="${i}"><td class="text-center"><input class="form-check-input batch-row-check-v704645" type="checkbox" ${selectable?'checked':'disabled'} onchange="capNhatBatchSummaryV704645()"></td><td><strong>${escV693(r.lop)}</strong><br><small>Khối ${escV693(r.khoi)}</small></td><td>${escV693(r.ngayDay)}<br><small>Thứ ${escV693(r.thu)} · ${escV693(r.buoi)} · Tiết ${escV693(r.tiet)}</small></td><td>${escV693(r.staffName)}<br><small>${escV693(r.staffTitle||'Nhân sự liên kết')}</small></td><td><input class="form-control form-control-sm batch-tietct-v704645" value="${escV693(r.tietCT||'')}" ${selectable?'':'disabled'}></td><td>${selectable?partnerPlanSelectV704636(r):''}<input class="form-control form-control-sm batch-lesson-v704645" value="${escV693(r.lesson||document.getElementById('batchLessonDefaultV704645')?.value||'')}" ${selectable?'':'disabled'}></td><td><strong>${escV693(r.rosterCount??'—')} / ${escV693(r.absentCount??0)}</strong>${r.exists?'<div class="small text-muted">Theo SĐB hiện có</div>':'<div class="small text-success">Mặc định điểm danh đủ</div>'}</td><td><input class="form-control form-control-sm batch-comment-v704645" value="${escV693(r.comment||document.getElementById('batchCommentV704645')?.value||'')}" ${selectable?'':'disabled'}></td><td>${batchStatusBadgeV704645(r)}</td></tr>`;}).join('');
   if(summary){summary.classList.remove('d-none');summary.innerHTML=`Tìm thấy <strong>${batchPreviewV704645.length}</strong> tiết theo khung đã đăng ký.`;}
+  body.querySelectorAll('.batch-partner-plan-v704636').forEach(sel=>{if(sel.value){const tr=sel.closest('tr');tr.querySelector('.batch-tietct-v704645').readOnly=true;tr.querySelector('.batch-lesson-v704645').readOnly=true;}});
   capNhatBatchSummaryV704645();
 }
 function capNhatBatchSummaryV704645(){
@@ -389,10 +390,10 @@ function xemTruocKyThayHangLoatV704645(){
 }
 
 function selectedBatchItemsV704645(){
-  const out=[];document.querySelectorAll('#batchPreviewBodyV704645 tr[data-batch-index]').forEach(tr=>{const cb=tr.querySelector('.batch-row-check-v704645');if(!cb?.checked||cb.disabled)return;const i=Number(tr.dataset.batchIndex||-1),r=batchPreviewV704645[i];if(!r)return;out.push({slotId:r.slotId,status:r.status,recordId:r.recordId||'',tietCT:tr.querySelector('.batch-tietct-v704645')?.value||'',lesson:tr.querySelector('.batch-lesson-v704645')?.value||'',comment:tr.querySelector('.batch-comment-v704645')?.value||''});});return out;
+  const out=[];document.querySelectorAll('#batchPreviewBodyV704645 tr[data-batch-index]').forEach(tr=>{const cb=tr.querySelector('.batch-row-check-v704645');if(!cb?.checked||cb.disabled)return;const i=Number(tr.dataset.batchIndex||-1),r=batchPreviewV704645[i];if(!r)return;out.push({partnerPlanId:tr.querySelector('.batch-partner-plan-v704636')?.value||'',slotId:r.slotId,status:r.status,recordId:r.recordId||'',tietCT:tr.querySelector('.batch-tietct-v704645')?.value||'',lesson:tr.querySelector('.batch-lesson-v704645')?.value||'',comment:tr.querySelector('.batch-comment-v704645')?.value||''});});return out;
 }
 function moXacNhanKyThayHangLoatV704645(){
-  const items=selectedBatchItemsV704645();if(!items.length)return;const week=Number(document.getElementById('batchWeekV704645')?.value||0),p=batchCatalogV704645.programs.find(x=>x.id===document.getElementById('batchProgramV704645')?.value),create=items.filter(x=>x.status==='READY_CREATE').length,resign=items.filter(x=>x.status==='READY_RESIGN').length;
+  const items=selectedBatchItemsV704645();if(!items.length)return;if(items.some(x=>batchPreviewV704645.find(r=>r.slotId===x.slotId)?.partnerPlanRequired&&!x.partnerPlanId)){showToastV9('Chọn KHBD đối tác cho các tiết bắt buộc trước khi ký.','warning');return;}const week=Number(document.getElementById('batchWeekV704645')?.value||0),p=batchCatalogV704645.programs.find(x=>x.id===document.getElementById('batchProgramV704645')?.value),create=items.filter(x=>x.status==='READY_CREATE').length,resign=items.filter(x=>x.status==='READY_RESIGN').length;
   const box=document.getElementById('batchConfirmTextV704645');if(box)box.innerHTML=`Xác nhận ký thay cho <strong>${items.length} tiết</strong> · ${escV693(p?.tenChuongTrinh||'Chương trình liên kết')} · Tuần <strong>${week}</strong> · Khối ${batchGradesV704645().join(', ')}.${create?`<br><strong>${create} tiết</strong> chưa có SĐB sẽ được tạo với điểm danh đủ.`:''}${resign?`<br><strong>${resign} tiết</strong> đã thay đổi sau lần ký trước và sẽ được ký xác nhận lại.`:''}`;
   const att=document.getElementById('batchAttendanceConfirmV704645');if(att){att.checked=create===0;att.disabled=create===0;}
   const pin=document.getElementById('batchPinV704645');if(pin)pin.value='';
@@ -411,3 +412,79 @@ function thucHienKyThayHangLoatV704645(){
 }
 
 document.addEventListener('DOMContentLoaded',()=>{initBatchDatesV704645();const g=document.getElementById('extSlotGradeV704645');if(g)g.addEventListener('change',locLopKhungTietV704645);setTimeout(renderMaTranKhungTietV704633,250);});
+
+// KHBD đối tác: nhập bằng bảng Excel (các cột cách nhau bằng Tab).
+async function quanLyKhbdDoiTacV704636(action='LIST',id=''){
+ const programId=document.getElementById('extSlotProgramV704645')?.value||'',box=document.getElementById('partnerPlanListV704636');
+ if(!programId){showToastV9('Chọn chương trình ở Khung tiết liên kết trước.','warning');return;}
+ if(action==='DISABLE'&&!confirm('Ngừng bài này để không chọn cho các lần ký mới? Sổ đã ghi vẫn giữ nguyên.'))return;
+ const payload={action,programId,id};
+ if(action==='SAVE'){
+  if(partnerUploadV704637){if(partnerUploadV704637.programId!==programId){showToastV9('Chương trình đã thay đổi. Hãy tải lại file cho chương trình đang chọn.','warning');return;}payload.rows=partnerUploadV704637.rows;}else{
+  const lines=(document.getElementById('partnerPlanPasteV704636')?.value||'').trim().split(/\r?\n/).filter(x=>x.trim());
+  if(!lines.length){showToastV9('Dán các dòng KHBD từ Excel trước.','warning');return;}
+  payload.rows=[];
+  for(let i=0;i<lines.length;i++){const c=lines[i].split('\t');if(c.length<5||c.length>6){showToastV9(`Dòng ${i+1}: cần 5 hoặc 6 cột, phân cách bằng Tab.`,'warning');return;}payload.rows.push({tuan:c[0],khoi:c[1],lop:c[2],tietCT:c[3],tenBai:c[4],yeuCau:c[5]||''});}
+ }
+ }
+ const buttons=[...document.querySelectorAll('#partnerPlanManagerV704636 button')];buttons.forEach(x=>x.disabled=true);
+ try{
+  const res=await callSodbEdgeRpcV67('quanLyKhbdDoiTacV704636',[payload,batchAuthV704645()]);if(!res?.success)throw new Error(res?.message||'Không xử lý được KHBD đối tác.');
+  if(action!=='LIST'){showToastV9(res.message,'success');if(action==='SAVE'){document.getElementById('partnerPlanPasteV704636').value='';clearPartnerUploadV704637();}await quanLyKhbdDoiTacV704636();return;}
+  if(document.getElementById('extSlotProgramV704645')?.value!==programId)return;
+  box.innerHTML=(res.data||[]).length?'<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Tuần</th><th>Khối / Lớp</th><th>Tiết CT</th><th>Tên bài</th><th></th></tr></thead><tbody>'+(res.data||[]).map(x=>`<tr><td>${escV693(x.tuan)}</td><td>${escV693(x.khoi)} / ${escV693(x.lop)}</td><td>${escV693(x.tiet_ct)}</td><td>${escV693(x.ten_bai)}</td><td><button class="btn btn-sm btn-outline-secondary" onclick="quanLyKhbdDoiTacV704636('DISABLE','${escV693(x.id)}')">Ngừng</button></td></tr>`).join('')+'</tbody></table></div>':'Chưa có KHBD đối tác cho chương trình này.';
+ }catch(e){showToastV9(e?.message||'Không tải được KHBD đối tác.','warning');}
+ finally{buttons.forEach(x=>x.disabled=false);}
+}
+function partnerPlanSelectV704636(r){
+ if(!r.partnerPlanEnabled)return '';
+ return `<select class="form-select form-select-sm mb-1 batch-partner-plan-v704636" onchange="chonBaiDoiTacV704636(this)"><option value="">${r.partnerPlanRequired?'— Chọn KHBD đối tác (bắt buộc) —':'— Nhập tay / không gắn KHBD đối tác —'}</option>`+(r.partnerPlans||[]).map(x=>`<option value="${escV693(x.id)}" ${r.externalKhbdId===x.id?'selected':''}>CT ${escV693(x.tiet_ct)} · ${escV693(x.ten_bai)}</option>`).join('')+'</select>';
+}
+function chonBaiDoiTacV704636(sel){const tr=sel.closest('tr'),r=batchPreviewV704645[Number(tr.dataset.batchIndex)],p=(r.partnerPlans||[]).find(x=>x.id===sel.value),ct=tr.querySelector('.batch-tietct-v704645'),lesson=tr.querySelector('.batch-lesson-v704645');if(p){ct.value=p.tiet_ct;lesson.value=p.ten_bai;}ct.readOnly=!!p;lesson.readOnly=!!p;}
+
+let partnerUploadV704637=null,partnerUploadRequestV704637=0;
+function clearPartnerUploadV704637(){partnerUploadRequestV704637++;partnerUploadV704637=null;const preview=document.getElementById('partnerUploadPreviewV704637');if(preview)preview.innerHTML='';const file=document.getElementById('partnerUploadFileV704637');if(file)file.value='';}
+function normalizePartnerUploadV704637(matrix){
+ const headers=['Tuần','Khối','Lớp','Tiết CT','Tên bài','Yêu cầu cần đạt'];
+ const clean=v=>String(v??'').trim();
+ if(!matrix.length||headers.some((h,i)=>clean(matrix[0]?.[i]).normalize('NFC')!==h))throw new Error('Tiêu đề không đúng mẫu. Hãy tải file mẫu và giữ nguyên 6 cột.');
+ const rows=[],seen=new Set();
+ for(let i=1;i<matrix.length;i++){
+  const c=matrix[i]||[];if(!c.some(v=>clean(v)))continue;
+  if(c.slice(6).some(v=>clean(v)))throw new Error(`Dòng ${i+1}: có dữ liệu ngoài 6 cột của mẫu.`);
+  const row={tuan:Number(c[0]),khoi:Number(c[1]),lop:clean(c[2]),tietCT:clean(c[3]),tenBai:clean(c[4]),yeuCau:clean(c[5])};
+  if(!Number.isInteger(row.tuan)||row.tuan<1||row.tuan>53)throw new Error(`Dòng ${i+1}: tuần phải là số nguyên 1–53.`);
+  if(![10,11,12].includes(row.khoi))throw new Error(`Dòng ${i+1}: khối phải là 10, 11 hoặc 12.`);
+  if(!row.lop||!row.tietCT||!row.tenBai)throw new Error(`Dòng ${i+1}: thiếu lớp, tiết CT hoặc tên bài. Dùng * nếu áp dụng chung cho khối.`);
+  if(row.tietCT.length>100||row.tenBai.length>2000||row.yeuCau.length>4000)throw new Error(`Dòng ${i+1}: nội dung vượt giới hạn cho phép.`);
+  const key=JSON.stringify([row.tuan,row.khoi,row.lop,row.tietCT]);if(seen.has(key))throw new Error(`Dòng ${i+1}: trùng tuần/khối/lớp/tiết CT.`);seen.add(key);rows.push(row);
+ }
+ if(!rows.length)throw new Error('Trang KHBD_DOI_TAC chưa có bài. Nhập dữ liệu từ dòng 2 rồi tải lại.');
+ if(rows.length>300)throw new Error('Mỗi lần tải tối đa 300 bài. Hãy chia file thành nhiều đợt.');
+ return rows;
+}
+async function docFileKhbdDoiTacV704637(event){
+ const file=event?.target?.files?.[0],box=document.getElementById('partnerUploadPreviewV704637'),programId=document.getElementById('extSlotProgramV704645')?.value||'';
+ const request=++partnerUploadRequestV704637;partnerUploadV704637=null;if(box)box.innerHTML='';
+ // Clear older pasted data so a failed file cannot accidentally submit the previous source.
+ const paste=document.getElementById('partnerPlanPasteV704636');if(paste)paste.value='';
+ if(!file)return;
+ try{
+  if(!programId)throw new Error('Chọn chương trình ở phía trên trước khi tải file.');
+  if(!/\.xlsx$/i.test(file.name))throw new Error('Vui lòng dùng file Excel .xlsx theo mẫu.');
+  if(file.size>5*1024*1024)throw new Error('File vượt quá 5 MB. Hãy chia nhỏ file.');
+  if(box)box.textContent='Đang đọc file…';
+  if(!window.XLSX)await ensureXlsxV7();
+  const bytes=await file.arrayBuffer();if(request!==partnerUploadRequestV704637)return;
+  const wb=XLSX.read(new Uint8Array(bytes),{type:'array',cellFormula:true}),ws=wb.Sheets['KHBD_DOI_TAC'];
+  if(!ws)throw new Error('Thiếu trang KHBD_DOI_TAC. Hãy dùng đúng file mẫu.');
+  const range=XLSX.utils.decode_range(ws['!ref']||'A1');
+  if(range.e.r>2000||range.e.c>30)throw new Error('Trang dữ liệu quá lớn. Hãy chuyển tối đa 300 bài sang file mẫu mới.');
+  if(Object.keys(ws).some(k=>!k.startsWith('!')&&ws[k]?.f))throw new Error('File có công thức. Hãy dán thành giá trị trước khi tải.');
+  const rows=normalizePartnerUploadV704637(XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:true,blankrows:true}));
+  if(request!==partnerUploadRequestV704637)return;
+  if(programId!==document.getElementById('extSlotProgramV704645')?.value)throw new Error('Chương trình đã thay đổi. Hãy chọn lại file.');
+  partnerUploadV704637={rows,programId};
+  if(box)box.innerHTML=`<div class="alert alert-info py-2">Đã đọc <strong>${rows.length} bài</strong> từ ${escV693(file.name)}. Kiểm tra bên dưới rồi bấm <strong>Lưu danh sách bài</strong>. Chưa ghi vào hệ thống.</div><div class="table-responsive" style="max-height:320px;overflow:auto"><table class="table table-sm"><thead><tr><th>Tuần</th><th>Khối</th><th>Lớp</th><th>Tiết CT</th><th>Tên bài</th><th>Yêu cầu cần đạt</th></tr></thead><tbody>`+rows.map(x=>`<tr><td>${x.tuan}</td><td>${x.khoi}</td><td>${escV693(x.lop)}</td><td>${escV693(x.tietCT)}</td><td>${escV693(x.tenBai)}</td><td>${escV693(x.yeuCau)}</td></tr>`).join('')+'</tbody></table></div>';
+ }catch(e){if(request!==partnerUploadRequestV704637)return;partnerUploadV704637=null;if(box)box.textContent=e?.message||'Không đọc được file.';showToastV9(e?.message||'Không đọc được file.','warning');}
+}

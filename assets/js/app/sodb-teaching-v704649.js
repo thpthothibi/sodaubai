@@ -29,7 +29,7 @@ function teachingLoadV704649(r,fromSuggestion=false){
   if(!fromSuggestion)++teachingSuggestRequestV49;
   const mode=r.hinhThucDay||teachingModeFromDateV704649(r.ngayDay||r.ngay||r.ngay_day||document.getElementById('ngayDay')?.value)||'Trực tiếp';
   document.querySelectorAll('input[name="hinhThucDayV49"]').forEach(e=>e.checked=e.value===mode);
-  document.getElementById('onlinePlatformV49').value=r.nenTangDay||'';
+  setPlatformValueV704638('onlinePlatformV49',r.nenTangDay||'');
   document.getElementById('onlineLinkV49').value=r.linkPhongHoc||'';
   document.getElementById('teachingHintV49').textContent=r.hinhThucSuyDien?'Tiết cũ: hình thức được hiển thị theo quy tắc ngày dạy.':'';
   teachingToggleV704649();
@@ -52,7 +52,7 @@ async function teachingSuggestV704649(forceDateDefault=false){
     if(!token)return;
     const r=await callSodbEdgeRpcV67('teachingDefaultV704649',[{lop:$('lop').value},{token}],12000);
     if(ticket!==teachingSuggestRequestV49||teachingFormV704649().hinhThucDay!=='Trực tuyến')return;
-    if(r?.success&&r.data){$('onlinePlatformV49').value=r.data.nen_tang_day||'';$('onlineLinkV49').value=r.data.link_phong_hoc||'';}
+    if(r?.success&&r.data){setPlatformValueV704638('onlinePlatformV49',r.data.nen_tang_day||'');$('onlineLinkV49').value=r.data.link_phong_hoc||'';}
   }catch(_e){/* Missing optional suggestion never blocks entry. */}
 }
 function stampPositionNumberV493(value,fallback){
@@ -303,3 +303,14 @@ document.addEventListener('DOMContentLoaded',()=>{
   });
   teachingToggleV704649();
 });
+// V704638: shared admin-managed platform catalog, with Vietschool first.
+let platformNamesV704638=['Vietschool'],platformLoadingV704638=null;
+function setPlatformValueV704638(id,value){const el=document.getElementById(id);if(!el)return;const name=String(value||'');if(name&&![...el.options].some(o=>o.value===name))el.add(new Option(name+' (đã lưu)',name));el.value=name;}
+function renderPlatformsV704638(){for(const id of ['onlinePlatformV49','onlineDefaultPlatformV49','adminEditPlatformV49']){const el=document.getElementById(id);if(!el)continue;const value=el.value;el.replaceChildren();for(const name of platformNamesV704638)el.add(new Option(name,name));el.add(new Option('Chưa khai báo',''));setPlatformValueV704638(id,value);}}
+async function loadPlatformsV704638(){
+ if(platformLoadingV704638)return platformLoadingV704638;
+ const token=(typeof batchAuthV704645==='function'?batchAuthV704645()?.token:'')||(typeof gvbmDangNhapInfo!=='undefined'?gvbmDangNhapInfo?.sessionToken:'');if(!token)return;
+ platformLoadingV704638=(async()=>{try{const r=await callSodbEdgeRpcV67('teachingDefaultV704649',[{platformCatalog:true},{token}],12000);if(r?.success){platformNamesV704638=r.platforms||['Vietschool'];renderPlatformsV704638();}}catch(_e){}finally{platformLoadingV704638=null;}})();return platformLoadingV704638;
+}
+async function addPlatformV704638(btn){const el=document.getElementById('newOnlinePlatformV704638'),name=String(el?.value||'').trim();if(!name){showToastV9('Nhập tên nền tảng cần thêm.','warning');return;}btn.disabled=true;try{const r=await callSodbEdgeRpcV67('teachingDefaultV704649',[{platformCatalog:true,addPlatform:name},getAdminAuthV700()],15000);if(!r?.success)throw new Error(r?.message||'Không thêm được nền tảng.');platformNamesV704638=r.platforms||['Vietschool'];renderPlatformsV704638();const saved=platformNamesV704638.find(x=>x.toLocaleLowerCase('vi')===name.toLocaleLowerCase('vi'));setPlatformValueV704638('onlineDefaultPlatformV49',saved||'Vietschool');el.value='';showToastV9('Đã thêm nền tảng dùng chung.','success');}catch(e){showToastV9(e.message||'Không thêm được nền tảng.','warning');}finally{btn.disabled=false;}}
+document.addEventListener('DOMContentLoaded',()=>{for(const id of ['onlinePlatformV49','onlineDefaultPlatformV49','adminEditPlatformV49'])document.getElementById(id)?.addEventListener('focus',loadPlatformsV704638);});

@@ -504,7 +504,7 @@
                 <label class="me-3"><input type="radio" name="hinhThucDayV49" value="Trực tiếp" checked> Trực tiếp</label>
                 <label><input type="radio" name="hinhThucDayV49" value="Trực tuyến"> Trực tuyến</label>
                 <div id="onlineDetailsV49" class="row g-2 mt-1" hidden>
-                  <div class="col-md-4"><label for="onlinePlatformV49" class="form-label">Nền tảng dạy</label><select id="onlinePlatformV49" class="form-select"><option value="">Chưa khai báo</option><option>Google Meet</option><option>LMS</option><option>OLM</option><option>K12Online</option><option>Microsoft Teams</option><option>Zoom</option><option>Khác</option></select></div>
+                  <div class="col-md-4"><label for="onlinePlatformV49" class="form-label">Nền tảng dạy</label><select id="onlinePlatformV49" class="form-select"><option value="Vietschool">Vietschool</option><option value="" selected>Chưa khai báo</option></select></div>
                   <div class="col-md-8"><label for="onlineLinkV49" class="form-label">Link phòng học (nếu có)</label><input id="onlineLinkV49" type="url" class="form-control" placeholder="https://..."></div>
                 </div><div id="teachingHintV49" class="form-text"></div>
               </fieldset>
@@ -1567,7 +1567,7 @@
               </style>
               <div class="card border mb-3"><div class="card-header bg-light fw-bold">Đăng ký khung tiết dạng ma trận</div><div class="card-body">
                 <div class="row g-2 align-items-end mb-3">
-                  <div class="col-lg-3"><label class="form-label small fw-semibold">Chương trình / môn *</label><select id="extSlotProgramV704645" class="form-select" onchange="doiChuongTrinhKhungTietV704645();renderMaTranKhungTietV704633()"><option value="">-- Chọn chương trình --</option></select></div>
+                  <div class="col-lg-3"><label class="form-label small fw-semibold">Chương trình / môn *</label><select id="extSlotProgramV704645" class="form-select" onchange="doiChuongTrinhKhungTietV704645();renderMaTranKhungTietV704633();document.getElementById('partnerPlanListV704636').textContent='Bấm Xem KHBD để tải chương trình vừa chọn.'"><option value="">-- Chọn chương trình --</option></select></div>
                   <div class="col-lg-3"><label class="form-label small fw-semibold">Nhân sự ngoài trường *</label><select id="extSlotStaffV704645" class="form-select" onchange="renderMaTranKhungTietV704633()"><option value="">-- Chọn nhân sự --</option></select></div>
                   <div class="col-md-2"><label class="form-label small">Học kỳ</label><select id="extSlotSemesterV704645" class="form-select"><option value="HK1">Học kỳ I</option><option value="HK2">Học kỳ II</option><option value="CA_NAM">Cả năm</option></select></div>
                   <div class="col-md-2"><label class="form-label small">Khối *</label><select id="extSlotGradeV704645" class="form-select" onchange="locLopKhungTietV704645()"><option value="10">Khối 10</option><option value="11">Khối 11</option><option value="12">Khối 12</option></select></div>
@@ -1581,6 +1581,14 @@
                 <div id="extSlotMatrixWrapV704633"><table id="extSlotMatrixV704633" class="table table-sm table-bordered align-middle"><thead><tr id="extSlotMatrixHeadV704633"><th class="slot-class-col">Lớp</th></tr></thead><tbody id="extSlotMatrixBodyV704633"><tr><td class="text-muted p-3">Đang tải danh sách lớp...</td></tr></tbody></table></div>
                 <div id="extSlotMatrixSummaryV704633" class="small text-muted mt-2">Chưa chọn ô nào.</div>
               </div></div>
+<details id="partnerPlanManagerV704636" class="card p-3 mb-3 manage-external-slot-v704645"><summary class="fw-bold text-primary">KHBD đối tác — nhập và quản lý bài dạy</summary>
+<p class="small mt-2">Chọn chương trình ở phía trên. Admin/BGH nhập KHBD đối tác đã được nhà trường chấp thuận. Khi ký thay, chọn bài trên từng dòng để tự điền tiết CT và nội dung.</p>
+<p class="small">Dán từ Excel, không kèm tiêu đề, theo 6 cột: <strong>Tuần | Khối | Lớp | Tiết CT | Tên bài | Yêu cầu cần đạt</strong>. Cột cuối có thể bỏ trống. Lớp ghi <strong>*</strong> nếu dùng chung trong khối. Ví dụ: tuần 7, khối 10, lớp *, tiết CT 13, Unit 3 – Speaking.</p>
+<div class="border rounded p-3 mb-3 bg-light"><a class="btn btn-outline-success mb-2" href="assets/templates/MAU_KHBD_DOI_TAC.xlsx" download="MAU_KHBD_DOI_TAC.xlsx">Tải file Excel mẫu</a>
+<label class="form-label d-block fw-semibold" for="partnerUploadFileV704637">Chọn file Excel đã điền</label><input type="file" id="partnerUploadFileV704637" accept=".xlsx" class="form-control" onchange="docFileKhbdDoiTacV704637(event)">
+<div class="form-text">Điền trang KHBD_DOI_TAC, giữ nguyên tiêu đề. Tối đa 300 bài, 5 MB. Chọn file chỉ đọc và xem trước; bấm Lưu danh sách bài để ghi vào hệ thống.</div><div id="partnerUploadPreviewV704637" class="mt-2"></div></div><div class="small mb-1">Hoặc dán dữ liệu từ Excel:</div>
+<textarea id="partnerPlanPasteV704636" oninput="clearPartnerUploadV704637()" class="form-control mb-2" rows="5" placeholder="Dán các ô đã sao chép từ Excel (tối đa 300 dòng)"></textarea>
+<div class="d-flex gap-2"><button class="btn btn-success" onclick="quanLyKhbdDoiTacV704636('SAVE')">Lưu danh sách bài</button><button class="btn btn-outline-primary" onclick="quanLyKhbdDoiTacV704636()">Xem KHBD chương trình đang chọn</button></div><div id="partnerPlanListV704636" class="mt-2 small"></div></details>
               <div class="table-responsive" style="max-height:520px;overflow:auto"><table class="table table-sm table-bordered align-middle"><thead class="table-dark sticky-top"><tr><th>Chương trình</th><th>GV ngoài trường</th><th>Khối/Lớp</th><th>Khung</th><th>Hiệu lực</th><th>Trạng thái</th><th></th></tr></thead><tbody id="extSlotBodyV704645"><tr><td colspan="7" class="text-center text-muted">Chưa tải dữ liệu.</td></tr></tbody></table></div>
             </div>
 
@@ -2442,7 +2450,7 @@
                     <button id="stampBulkApplyBtnV494" type="button" class="btn btn-danger" onclick="stampBulkApplyV7046494(this)" disabled>Đóng dấu các lớp đã chọn</button>
                     <button id="stampAllApplyBtnV495" type="button" class="btn btn-danger fw-bold" onclick="stampAllApplyV7046495(this)" disabled>ĐÓNG DẤU TOÀN BỘ LỚP ĐỦ ĐIỀU KIỆN</button>
                   </div><div id="stampStatusV49" class="small mt-2" aria-live="polite"></div><div id="stampBulkResultV494" class="mt-2" aria-live="polite"></div>
-                  <hr><h6>Gợi ý phòng học cuối tuần (Thứ 7 / Chủ Nhật)</h6><div class="small">Nhập lớp ở trên để lưu nền tảng và link riêng cho lớp đó.</div><div class="row g-2"><div class="col-md-4"><select id="onlineDefaultPlatformV49" class="form-select"><option value="">Chưa khai báo</option><option>Google Meet</option><option>LMS</option><option>OLM</option><option>K12Online</option><option>Microsoft Teams</option><option>Zoom</option><option>Khác</option></select></div><div class="col-md-6"><input id="onlineDefaultLinkV49" type="url" class="form-control" placeholder="https://..."></div><div class="col-md-2"><button type="button" class="btn btn-outline-primary" onclick="saveOnlineDefaultV704649(this)">Lưu gợi ý</button></div></div>
+                  <hr><h6>Gợi ý phòng học cuối tuần (Thứ 7 / Chủ Nhật)</h6><div class="small">Nhập lớp ở trên để lưu nền tảng và link riêng cho lớp đó.</div><div class="row g-2"><div class="col-md-4"><select id="onlineDefaultPlatformV49" class="form-select"><option value="Vietschool">Vietschool</option><option value="" selected>Chưa khai báo</option></select></div><div class="col-md-6"><input id="onlineDefaultLinkV49" type="url" class="form-control" placeholder="https://..."></div><div class="col-md-2"><button type="button" class="btn btn-outline-primary" onclick="saveOnlineDefaultV704649(this)">Lưu gợi ý</button></div></div><div class="row g-2 mt-2 align-items-end"><div class="col-md-6"><label for="newOnlinePlatformV704638" class="form-label">Admin thêm nền tảng khi cần</label><input id="newOnlinePlatformV704638" class="form-control" maxlength="80" placeholder="Tên nền tảng"></div><div class="col-md-3"><button type="button" class="btn btn-outline-success" onclick="addPlatformV704638(this)">Thêm nền tảng</button></div><div class="col-12 small text-muted">Vietschool luôn ở đầu. Nền tảng được thêm sẽ dùng chung cho toàn trường.</div></div>
                 </section>
                 <div class="governance-admin-v699">
                   <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
@@ -2698,7 +2706,7 @@
           <div class="col-md-4"><label class="form-label fw-semibold">Tên HS vắng</label><input id="adminEditTenVangV704618" class="form-control"></div>
           <div id="adminEditGroupNoteV704618" class="col-12 d-none"><div class="alert alert-warning small py-2 mb-0">Đây là tiết nhóm GDTC/Chuyên đề có điểm danh theo <code>sodb_group_absences</code>; danh sách vắng được khóa tại cửa sổ này để tránh lệch dữ liệu nhóm.</div></div>
           <div class="col-md-4"><label class="form-label">Hình thức dạy</label><select id="adminEditModeV49" class="form-select"><option>Trực tiếp</option><option>Trực tuyến</option></select></div>
-          <div class="col-md-4"><label class="form-label">Nền tảng dạy</label><select id="adminEditPlatformV49" class="form-select"><option value="">Chưa khai báo</option><option>Google Meet</option><option>LMS</option><option>OLM</option><option>K12Online</option><option>Microsoft Teams</option><option>Zoom</option><option>Khác</option></select></div>
+          <div class="col-md-4"><label class="form-label">Nền tảng dạy</label><select id="adminEditPlatformV49" class="form-select"><option value="Vietschool">Vietschool</option><option value="" selected>Chưa khai báo</option></select></div>
           <div class="col-md-4"><label class="form-label">Link phòng học</label><input id="adminEditLinkV49" type="url" class="form-control"></div>
           <div class="col-12"><label class="form-label fw-semibold">Nhận xét</label><textarea id="adminEditNhanXetV704618" class="form-control" rows="2"></textarea></div>
           <div class="col-lg-8"><label class="form-label fw-semibold">Lý do chỉnh sửa *</label><input id="adminEditReasonV704618" class="form-control" placeholder="Bắt buộc, ít nhất 5 ký tự"></div>
@@ -2732,16 +2740,16 @@
 <script src="assets/js/sodb-v69-runtime.js?v=70.4.6.49.2"></script>
 <script src="assets/js/app/sodb-v69-core.js?v=70.4.6.49.6.3.5"></script>
 <script src="assets/js/app/sodb-v69-khbd.js?v=70.4.6.49.6"></script>
-<script src="assets/js/app/sodb-teaching-v704649.js?v=70.4.6.49.5"></script>
+<script src="assets/js/app/sodb-teaching-v704649.js?v=70.4.6.49.6.3.8"></script>
 <script src="assets/js/app/sodb-v69-operations.js?v=70.4.6.49.6"></script>
 <script src="assets/js/app/sodb-v69-print.js?v=70.4.6.49.5"></script>
 <script src="assets/js/app/sodb-v69-admin.js?v=70.4.6.49.2"></script>
 <script src="assets/js/app/sodb-v69-admin-students.js?v=70.4.6.49.2"></script>
-<script src="assets/js/app/sodb-v69-admin-lessons.js?v=70.4.6.49.2"></script>
+<script src="assets/js/app/sodb-v69-admin-lessons.js?v=70.4.6.49.6.3.8"></script>
 <script src="assets/js/app/sodb-v70-lifecycle.js?v=70.4.6.49.5"></script>
 <script src="assets/js/app/sodb-v69-bgh.js?v=70.4.6.49.2"></script>
 <script src="assets/js/app/sodb-v69-masterdata.js?v=70.4.6.49.2"></script>
-<script src="assets/js/app/sodb-v69-control.js?v=70.4.6.49.6.3.4"></script>
+<script src="assets/js/app/sodb-v69-control.js?v=70.4.6.49.6.3.7"></script>
 <script src="assets/js/app/sodb-v69-v694.js?v=70.4.6.49.2"></script>
 <script src="assets/js/app/sodb-v69-v695.js?v=70.4.6.49.2"></script>
 <script src="assets/js/app/sodb-v69-v6951.js?v=70.4.6.49.2"></script>

@@ -1,4 +1,4 @@
-/* V70.4.6.11: "Tiết của tôi" - ma trận tuần giống Xem sổ đầu bài. */
+/* V70.4.6.49.6.3.13: Tiết của tôi mặc định cho GVBM/BGH; BGH thuần chỉ xem. */
 (() => {
   'use strict';
   const $ = id => document.getElementById(id);
@@ -10,6 +10,10 @@
   let loadedFrom = '';
   let loadedTo = '';
   const dayNames=['Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy','Chủ Nhật'];
+  function teacherSessionToken(){return typeof gvbmDangNhapInfo!=='undefined'&&gvbmDangNhapInfo?.sessionToken?gvbmDangNhapInfo.sessionToken:'';}
+  function bghSessionToken(){return (typeof currentUnifiedLoginV4!=='undefined'&&currentUnifiedLoginV4?.sessions?.BGH?.sessionToken)||'';}
+  function myLessonsToken(){return teacherSessionToken()||bghSessionToken();}
+  function canWriteLessons(){return !!teacherSessionToken();}
 
   function currentWeek(){
     try{
@@ -49,11 +53,12 @@
     if([...el.options].some(o=>o.value===keep))el.value=keep;
   }
   function renderMetrics(list){
+    const actual=list.filter(x=>!x.isTimetable), pending=list.filter(x=>x.isTimetable);
     const classes=new Set(list.map(x=>x.lop).filter(Boolean));
     const subjects=new Set(list.map(x=>x.mon).filter(Boolean));
-    const substitute=list.filter(x=>x.dayThay).length;
-    const signed=list.filter(x=>x.signed).length;
-    const data=[[list.length,'Tiết đã dạy'],[classes.size,'Lớp đã dạy'],[subjects.size,'Môn'],[signed,'Tiết đã ký']];
+    const substitute=actual.filter(x=>x.dayThay).length;
+    const signed=actual.filter(x=>x.signed).length;
+    const data=[[actual.length,'Đã ghi'],[pending.length,'Chưa ghi'],[classes.size,'Lớp'],[signed,'Đã ký']];
     const mount=$('myLessonsMetricsV70468');if(!mount)return;
     mount.innerHTML=data.map(([v,l],i)=>`<div class="my-lessons-metric-v70468"><strong>${v}</strong><span>${l}</span>${i===0&&substitute?`<small>${substitute} tiết dạy thay</small>`:''}</div>`).join('');
   }
@@ -69,13 +74,17 @@
     return map;
   }
   function lessonCard(r){
-    const title=[r.lop,r.mon].filter(Boolean).join(' · ')||'Tiết đã dạy';
-    const meta=[];if(r.tietCT)meta.push(`Tiết CT ${r.tietCT}`);if(r.tenBai)meta.push(r.tenBai);
-    const absent=Number(r.soHsVang||0)>0?`<span class="my-lesson-absence-v704611">Vắng ${Number(r.soHsVang)}</span>`:'';
-    return `<article class="workspace-lesson my-lesson-card-v704611" data-my-lesson-open="${esc(r.recordId)}" tabindex="0" role="button" aria-label="Mở nhập tiết ${esc(title)}">
+    const pending=!!r.isTimetable;
+    const title=[r.lop,r.mon].filter(Boolean).join(' · ')||(pending?'Tiết theo TKB':'Tiết đã ghi');
+    const meta=[];if(!pending&&r.tietCT)meta.push(`Tiết CT ${r.tietCT}`);if(!pending&&r.tenBai)meta.push(r.tenBai);
+    const absent=!pending&&Number(r.soHsVang||0)>0?`<span class="my-lesson-absence-v704611">Vắng ${Number(r.soHsVang)}</span>`:'';
+    const badges=pending
+      ? '<span class="badge text-bg-warning">Chưa ghi</span>'
+      : `<span class="badge text-bg-light">${esc(r.hinhThucDay||(typeof teachingModeFromDateV704649==='function'?teachingModeFromDateV704649(r.ngay||r.ngayDay||r.ngay_day):''))}</span>${statusLabel(r)}${r.signed?'<span class="badge text-bg-success">Đã ký</span>':'<span class="badge text-bg-danger">Chưa ký</span>'}${absent}`;
+    return `<article class="workspace-lesson my-lesson-card-v704611${pending?' my-lesson-tkb-pending-v704650':''}" data-my-lesson-open="${esc(r.recordId)}" tabindex="0" role="button" aria-label="${pending?'Nhập':'Mở'} tiết ${esc(title)}">
       <button type="button" class="workspace-lesson-more" data-my-lesson-open="${esc(r.recordId)}" aria-label="Mở Nhập tiết" title="Mở Nhập tiết">⋯</button>
       <div class="workspace-lesson-entry"><strong>${esc(title)}</strong>${meta.length?`<span>${esc(meta.join(' · '))}</span>`:''}</div>
-      <div class="workspace-lesson-badges"><span class="badge text-bg-light">${esc(r.hinhThucDay||(typeof teachingModeFromDateV704649==='function'?teachingModeFromDateV704649(r.ngay||r.ngayDay||r.ngay_day):''))}</span>${statusLabel(r)}${r.signed?'<span class="badge text-bg-success">Đã ký</span>':'<span class="badge text-bg-danger">Chưa ký</span>'}${absent}</div>
+      <div class="workspace-lesson-badges">${badges}</div>
     </article>`;
   }
   function renderSession(label,key,days,slotMap,list){
@@ -108,12 +117,12 @@
     mount.innerHTML=[renderSession('Buổi sáng','SANG',days,slotMap,list),renderSession('Buổi chiều','CHIEU',days,slotMap,list),renderSession('Dạy bù','DAY_BU',days,slotMap,list)].join('');
   }
   async function load(force=false){
-    const token=typeof gvbmDangNhapInfo!=='undefined'&&gvbmDangNhapInfo?.sessionToken;
-    if(!token){$('myLessonsStatusV70468').textContent='Tài khoản hiện tại không có phiên Giáo viên bộ môn.';return;}
+    const token=myLessonsToken();
+    if(!token){$('myLessonsStatusV70468').textContent='Tài khoản hiện tại không có phiên Giáo viên/BGH phù hợp.';return;}
     const week=Math.max(1,Math.min(53,Number($('myLessonsWeekV70468')?.value||currentWeek())));
     if(!force && loading)return;
     loading=true; $('myLessonsWeekV70468').value=String(week);
-    $('myLessonsStatusV70468').textContent='Đang tải ma trận các tiết do chính bạn đã dạy trong tuần...';
+    $('myLessonsStatusV70468').textContent='Đang tải các tiết đã ghi và các tiết còn chờ theo TKB...';
     $('myLessonsGridV70468').innerHTML='<div class="text-center text-muted py-5"><span class="spinner-border spinner-border-sm me-2"></span>Đang tải...</div>';
     try{
       const res=await callSodbEdgeRpcV67('layTietCuaToiTheoTuanV70468',[week,{token}],20000);
@@ -122,9 +131,11 @@
       rows=Array.isArray(res.data)?res.data:[]; rowById=new Map(rows.map(r=>[String(r.recordId||''),r]));
       fillSelect('myLessonsClassV70468',Array.isArray(res.classes)?res.classes:[], 'Tất cả lớp');
       fillSelect('myLessonsSubjectV70468',Array.isArray(res.subjects)?res.subjects:[], 'Tất cả môn');
-      $('myLessonsRangeV70468').textContent=`Tuần ${week} · ${viDate(res.from)} – ${viDate(res.to)} · ${rows.length} tiết thực dạy`;
+      const actualCount=rows.filter(r=>!r.isTimetable).length,pendingCount=rows.filter(r=>r.isTimetable).length;
+      $('myLessonsRangeV70468').textContent=`Tuần ${week} · ${viDate(res.from)} – ${viDate(res.to)} · ${actualCount} đã ghi${pendingCount?` · ${pendingCount} chưa ghi`:''}`;
       $('myLessonsUpdatedV70468').textContent='Cập nhật '+new Intl.DateTimeFormat('vi-VN',{hour:'2-digit',minute:'2-digit'}).format(new Date());
-      $('myLessonsStatusV70468').textContent=rows.length?'Ma trận chỉ hiển thị các tiết của chính giáo viên đang đăng nhập. Bấm vào thẻ tiết để mở Nhập tiết.':'Tuần này chưa có tiết nào của bạn trong Sổ đầu bài.';
+      const writeHint=canWriteLessons()?'Bấm ô “Chưa ghi” để mở Nhập tiết theo TKB; ô đã ghi mở lại dữ liệu Sổ đầu bài. Ô trống vẫn cho nhập thủ công.':'BGH đang xem lịch cá nhân ở chế độ chỉ xem; để nhập/sửa tiết cần có quyền GVBM.';
+      $('myLessonsStatusV70468').textContent=rows.length?writeHint:'Tuần này chưa có tiết đã ghi hoặc TKB chính khóa của bạn.';
       render();
     }catch(e){
       rows=[];rowById.clear();renderMetrics([]);
@@ -139,6 +150,7 @@
   }
   function openInput(recordId){
     const r=typeof recordId==='object'?recordId:rowById.get(String(recordId||'')); if(!r)return;
+    if(!canWriteLessons()){if(typeof showToastV9==='function')showToastV9('BGH đang xem “Tiết của tôi”. Tài khoản cần có thêm quyền GVBM mới được nhập/sửa tiết.','info');return;}
     if(typeof editingRecordIdV4!=='undefined'&&editingRecordIdV4){if(!confirm('Đang chỉnh sửa một tiết. Chuyển sang vị trí vừa chọn?'))return;huyCheDoSuaV4();}
     const tab=$('input-tab'); if(!tab)return;
     try{bootstrap.Tab.getOrCreateInstance(tab).show();}catch(_e){tab.click();}
@@ -147,7 +159,14 @@
       if(khoi){khoi.value=String(grade);try{chonKhoiLopInput();}catch(_e){}}
       setTimeout(()=>{
         if(lop){const opt=[...lop.options].find(o=>String(o.value).trim()===String(r.lop||'').trim());if(opt)lop.value=opt.value;else lop.value='';try{onInputClassChangedV26();}catch(_e){}}
-        if(r.mon){const mon=$('monHoc');if(mon&&[...mon.options].some(o=>o.value===r.mon))mon.value=r.mon;}
+        if(r.mon){
+          const mon=$('monHoc'),target=typeof canonicalSubjectV6955==='function'?canonicalSubjectV6955(r.mon):r.mon;
+          if(mon){
+            let opt=[...mon.options].find(o=>typeof subjectKeyV6955==='function'?subjectKeyV6955(o.value)===subjectKeyV6955(target):String(o.value)===String(target));
+            if(opt)mon.value=opt.value;
+            else if(typeof ensureTeacherSubjectOptionV26==='function')ensureTeacherSubjectOptionV26(target);
+          }
+        }
         if($('ngayDay'))$('ngayDay').value=String(r.ngay||'');
         if($('buoiDay'))$('buoiDay').value=String(r.buoi||'Sáng');
         if($('tietDay'))$('tietDay').value=String(r.tiet||1);teachingLoadV704649(r);
@@ -156,7 +175,7 @@
         try{if(typeof refreshGroupAttendanceV6951==='function')refreshGroupAttendanceV6951();}catch(_e){}
         try{loadDanhSachBaiDay();}catch(_e){}
         $('sodbForm')?.scrollIntoView({behavior:'smooth',block:'start'});
-        if(typeof showToastV9==='function')showToastV9(`Đã mở vị trí ${r.lop} · ${viDate(r.ngay)} · ${r.buoi} · Tiết ${r.tiet}. ${r.isEmpty?'Chọn lớp/môn và nhập nội dung trước khi lưu.':'Bản ghi đã tồn tại; quyền sửa vẫn do hệ thống kiểm soát.'}`,'info');
+        if(typeof showToastV9==='function')showToastV9(`Đã mở ${r.lop||'vị trí trống'} · ${viDate(r.ngay)} · ${r.buoi} · Tiết ${r.tiet}. ${r.isTimetable?'Theo TKB và chưa ghi; hãy chọn KHBD rồi lưu.':(r.isEmpty?'Chọn lớp/môn và nhập nội dung trước khi lưu.':'Bản ghi đã tồn tại; quyền sửa vẫn do hệ thống kiểm soát.')}`,'info');
       },100);
     };
     setTimeout(doSet,60);

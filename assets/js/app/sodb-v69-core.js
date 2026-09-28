@@ -1022,8 +1022,9 @@ let varDiemTB = 10;
   function defaultMainTabIdV701(res){
     const sessions=res?.sessions||{},roles=Array.isArray(res?.roles)?res.roles:[];
     if(roles.includes('ADMIN'))return 'admin-tab';
-    if(sessions.BGH||roles.includes('BGH'))return 'bgh-workflow-tab-v698';
-    if(sessions.GVBM||roles.includes('GVBM'))return 'input-tab';
+    // V70.4.6.49.6.3.13: Giáo viên và BGH vào thẳng "Tiết của tôi" sau đăng nhập.
+    // BGH thuần chỉ xem; quyền nhập/sửa vẫn cần phiên GVBM.
+    if(sessions.GVBM||sessions.BGH||roles.includes('GVBM')||roles.includes('BGH'))return 'my-lessons-tab-v70468';
     if(sessions.GIAM_THI||roles.includes('GIAM_THI'))return 'control-tab-v693';
     if(sessions.GVCN||roles.includes('GVCN'))return 'gvcn-tab';
     if(sessions.TTCM||roles.includes('TTCM'))return 'ttcm-tab';
@@ -1050,7 +1051,7 @@ let varDiemTB = 10;
     // V54: chỉ hiện đúng mô-đun thuộc vai trò đang có; tài khoản nhiều vai trò dùng hợp quyền.
     setTopTabVisibleV4('dashboard-tab-v9',true);
     setTopTabVisibleV4('view-tab',!!sessions.GVBM||!!sessions.GVCN||!!sessions.BGH);
-    setTopTabVisibleV4('my-lessons-tab-v70468',!!sessions.GVBM);
+    setTopTabVisibleV4('my-lessons-tab-v70468',!!sessions.GVBM||!!sessions.BGH);
     setTopTabVisibleV4('input-tab',!!sessions.GVBM);
     setTopTabVisibleV4('gvcn-tab',!!sessions.GVCN);
     setTopTabVisibleV4('giamthi-tab',!!sessions.GIAM_THI);

@@ -1,4 +1,4 @@
-/* V70.4.6.49.6.3.13: Tiết của tôi + TKB VietSchool; bảo toàn SĐB riêng GDTC/Chuyên đề. */
+/* V70.4.6.49.6.3.14: Tiết của tôi mặc định cho GVBM/BGH; BGH thuần chỉ xem. */
 (() => {
   'use strict';
   const $ = id => document.getElementById(id);
@@ -10,6 +10,10 @@
   let loadedFrom = '';
   let loadedTo = '';
   const dayNames=['Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy','Chủ Nhật'];
+  function teacherSessionToken(){return typeof gvbmDangNhapInfo!=='undefined'&&gvbmDangNhapInfo?.sessionToken?gvbmDangNhapInfo.sessionToken:'';}
+  function bghSessionToken(){return (typeof currentUnifiedLoginV4!=='undefined'&&currentUnifiedLoginV4?.sessions?.BGH?.sessionToken)||'';}
+  function myLessonsToken(){return teacherSessionToken()||bghSessionToken();}
+  function canWriteLessons(){return !!teacherSessionToken();}
 
   function currentWeek(){
     try{
@@ -113,8 +117,8 @@
     mount.innerHTML=[renderSession('Buổi sáng','SANG',days,slotMap,list),renderSession('Buổi chiều','CHIEU',days,slotMap,list),renderSession('Dạy bù','DAY_BU',days,slotMap,list)].join('');
   }
   async function load(force=false){
-    const token=typeof gvbmDangNhapInfo!=='undefined'&&gvbmDangNhapInfo?.sessionToken;
-    if(!token){$('myLessonsStatusV70468').textContent='Tài khoản hiện tại không có phiên Giáo viên bộ môn.';return;}
+    const token=myLessonsToken();
+    if(!token){$('myLessonsStatusV70468').textContent='Tài khoản hiện tại không có phiên Giáo viên/BGH phù hợp.';return;}
     const week=Math.max(1,Math.min(53,Number($('myLessonsWeekV70468')?.value||currentWeek())));
     if(!force && loading)return;
     loading=true; $('myLessonsWeekV70468').value=String(week);
@@ -130,7 +134,8 @@
       const actualCount=rows.filter(r=>!r.isTimetable).length,pendingCount=rows.filter(r=>r.isTimetable).length;
       $('myLessonsRangeV70468').textContent=`Tuần ${week} · ${viDate(res.from)} – ${viDate(res.to)} · ${actualCount} đã ghi${pendingCount?` · ${pendingCount} chưa ghi`:''}`;
       $('myLessonsUpdatedV70468').textContent='Cập nhật '+new Intl.DateTimeFormat('vi-VN',{hour:'2-digit',minute:'2-digit'}).format(new Date());
-      $('myLessonsStatusV70468').textContent=rows.length?'Bấm ô “Chưa ghi” để mở Nhập tiết theo TKB. GDTC/Chuyên đề có sổ riêng không bị tạo ô lớp chính; tiếp tục nhập đúng sổ nhóm như trước.':'Tuần này chưa có tiết đã ghi hoặc TKB chính khóa của bạn.';
+      const writeHint=canWriteLessons()?'Bấm ô “Chưa ghi” để mở Nhập tiết theo TKB; ô đã ghi mở lại dữ liệu Sổ đầu bài. Ô trống vẫn cho nhập thủ công.':'BGH đang xem lịch cá nhân ở chế độ chỉ xem; để nhập/sửa tiết cần có quyền GVBM.';
+      $('myLessonsStatusV70468').textContent=rows.length?writeHint:'Tuần này chưa có tiết đã ghi hoặc TKB chính khóa của bạn.';
       render();
     }catch(e){
       rows=[];rowById.clear();renderMetrics([]);
@@ -145,6 +150,7 @@
   }
   function openInput(recordId){
     const r=typeof recordId==='object'?recordId:rowById.get(String(recordId||'')); if(!r)return;
+    if(!canWriteLessons()){if(typeof showToastV9==='function')showToastV9('BGH đang xem “Tiết của tôi”. Tài khoản cần có thêm quyền GVBM mới được nhập/sửa tiết.','info');return;}
     if(typeof editingRecordIdV4!=='undefined'&&editingRecordIdV4){if(!confirm('Đang chỉnh sửa một tiết. Chuyển sang vị trí vừa chọn?'))return;huyCheDoSuaV4();}
     const tab=$('input-tab'); if(!tab)return;
     try{bootstrap.Tab.getOrCreateInstance(tab).show();}catch(_e){tab.click();}

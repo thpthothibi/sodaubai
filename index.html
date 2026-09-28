@@ -2492,10 +2492,11 @@
                   <div class="card border-success-subtle shadow-sm mb-4">
                     <div class="card-header bg-success-subtle d-flex flex-wrap justify-content-between align-items-center gap-2"><strong>Thời khóa biểu VietSchool</strong><button id="tkbRefreshV704650" type="button" class="btn btn-outline-success btn-sm">Làm mới</button></div>
                     <div class="card-body">
-                      <div class="small text-muted mb-3">Import TKB chính khóa từ mẫu <b>Import CSDL</b>. Hệ thống chỉ lấy Tiết 1–4, tự bỏ <b>STEM, AVBN, KNS, THQT/Tin học quốc tế, TANC</b>. TKB mới có hiệu lực từ <b>ngày hôm sau</b>; mọi tiết Sổ đầu bài đã nhập được giữ nguyên.</div>
+                      <div class="small text-muted mb-3">Import TKB từ mẫu <b>Import CSDL</b>, gồm cả <b>lớp chính và sổ riêng BC/CL/Chuyên đề</b>. File danh mục lớp/khối dùng để xác định khối của các mã nhóm như BC2, CL10, CĐNV3, TA4... Có thể để danh mục ở sheet <b>DanhMucLop</b> trong cùng file TKB hoặc chọn file Book1 riêng. Hệ thống chỉ lấy Tiết 1–4, tự bỏ <b>STEM, AVBN, KNS, THQT/Tin học quốc tế, TANC</b>. TKB mới có hiệu lực từ <b>ngày hôm sau</b>; mọi tiết Sổ đầu bài đã nhập được giữ nguyên.</div>
                       <div class="row g-2 align-items-end mb-3">
-                        <div class="col-lg-8"><label class="form-label small fw-bold" for="tkbFileV704650">Chọn file TKB (.xls / .xlsx)</label><input id="tkbFileV704650" type="file" class="form-control" accept=".xls,.xlsx"></div>
-                        <div class="col-lg-4 d-grid"><button id="tkbImportBtnV704650" type="button" class="btn btn-success fw-bold" disabled>Xác nhận import</button></div>
+                        <div class="col-lg-5"><label class="form-label small fw-bold" for="tkbFileV704650">1. File TKB / Import CSDL (.xls / .xlsx)</label><input id="tkbFileV704650" type="file" class="form-control" accept=".xls,.xlsx"></div>
+                        <div class="col-lg-4"><label class="form-label small fw-bold" for="tkbClassMapFileV704650">2. Danh mục Lớp - Khối (nếu chưa có sheet DanhMucLop)</label><input id="tkbClassMapFileV704650" type="file" class="form-control" accept=".xls,.xlsx"><div class="form-text">Dùng Book1: cột Lớp, Khối, Loại lớp.</div></div>
+                        <div class="col-lg-3 d-grid"><button id="tkbImportBtnV704650" type="button" class="btn btn-success fw-bold" disabled>Xác nhận import</button></div>
                       </div>
                       <div id="tkbPreviewV704650" class="border rounded p-3 mb-3 bg-light"><div class="text-muted small">Chưa chọn file TKB.</div></div>
                       <div id="tkbStatusV704650"><div class="text-muted small">Mở mục này để tải trạng thái TKB.</div></div>
@@ -2752,14 +2753,14 @@
 
 <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="assets/js/sodb-v69-runtime.js?v=70.4.6.49.6.3.13"></script>
-<script src="assets/js/app/sodb-v69-core.js?v=70.4.6.49.6.3.5"></script>
+<script src="assets/js/app/sodb-v69-core.js?v=70.4.6.49.6.3.14"></script>
 <script src="assets/js/app/sodb-v69-khbd.js?v=70.4.6.49.6"></script>
 <script src="assets/js/app/sodb-teaching-v704649.js?v=70.4.6.49.6.3.8"></script>
 <script src="assets/js/app/sodb-v69-operations.js?v=70.4.6.49.6"></script>
 <script src="assets/js/app/sodb-v69-print.js?v=70.4.6.49.6.3.10"></script>
 <script src="assets/js/app/sodb-v69-admin.js?v=70.4.6.49.2"></script>
 <script src="assets/js/app/sodb-v69-admin-students.js?v=70.4.6.49.2"></script>
-<script src="assets/js/app/sodb-v69-admin-lessons.js?v=70.4.6.49.6.3.13"></script>
+<script src="assets/js/app/sodb-v69-admin-lessons.js?v=70.4.6.49.6.3.14"></script>
 <script src="assets/js/app/sodb-v70-lifecycle.js?v=70.4.6.49.5"></script>
 <script src="assets/js/app/sodb-v69-bgh.js?v=70.4.6.49.2"></script>
 <script src="assets/js/app/sodb-v69-masterdata.js?v=70.4.6.49.2"></script>
@@ -2770,8 +2771,8 @@
 <script src="assets/js/app/sodb-v69-ux.js?v=70.4.6.49.6.3.9"></script>
 <script src="assets/js/sodb-v69-gvcn.js?v=70.4.6.49.6.2"></script>
 <script src="assets/js/sodb-v69-reports.js?v=70.4.6.49.2"></script>
-<script src="assets/js/app/sodb-v70-timetable.js?v=70.4.6.49.6.3.13"></script>
-<script src="assets/js/app/sodb-v69-my-lessons.js?v=70.4.6.49.6.3.13"></script>
+<script src="assets/js/app/sodb-v70-timetable.js?v=70.4.6.49.6.3.15"></script>
+<script src="assets/js/app/sodb-v69-my-lessons.js?v=70.4.6.49.6.3.14"></script>
 
 <script src="assets/js/app/sodb-workspace.js?v=70.4.6.49.2"></script>
 <script src="assets/js/app/sodb-v69-print-ready.js?v=70.4.6.49.2"></script>

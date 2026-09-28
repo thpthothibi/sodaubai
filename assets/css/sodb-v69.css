@@ -3810,3 +3810,15 @@ body.a3-tracuu-v56 #a3PrintRootV56 .signature-signer-name-v7046531{
   font-family:"Times New Roman",serif!important;font-size:6pt!important;line-height:1!important;
   color:#000!important;text-align:center!important;white-space:nowrap!important;overflow:visible!important;
 }
+
+/* V70.4.6.49.6.3.10: widen GVCN/BGH footer signatures together. */
+#gtPrintPagesContainer .signature-footer .signature-box,
+body.a3-tracuu-v56 #a3PrintRootV56 .signature-footer .signature-box {width:40%!important;min-width:0!important;text-align:center;}
+#gtPrintPagesContainer .signature-footer .signature-space,
+body.a3-tracuu-v56 #a3PrintRootV56 .signature-footer .signature-space {height:6mm!important;min-height:6mm!important;display:flex;align-items:center;justify-content:center;}
+#gtPrintPagesContainer .signature-footer .sig-gvcn-print,
+#gtPrintPagesContainer .signature-footer .sig-bgh-print,
+body.a3-tracuu-v56 #a3PrintRootV56 .signature-footer .sig-gvcn-print,
+body.a3-tracuu-v56 #a3PrintRootV56 .signature-footer .sig-bgh-print {width:auto!important;height:5.8mm!important;max-height:5.8mm!important;max-width:42mm!important;object-fit:contain!important;}
+#gtPrintPagesContainer .signature-footer .signature-signer-name-v7046531,
+body.a3-tracuu-v56 #a3PrintRootV56 .signature-footer .signature-signer-name-v7046531 {font-family:"Times New Roman",serif!important;font-size:9pt!important;line-height:1.15!important;margin-top:.6mm!important;white-space:normal!important;overflow-wrap:normal!important;}

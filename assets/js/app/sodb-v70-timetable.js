@@ -1,4 +1,4 @@
-/* V70.4.6.49.6.3.15 - Import TKB VietSchool: lớp chính + BC/CL/Chuyên đề trong cùng TKB. */
+/* V70.4.6.49.6.3.16 - Import TKB VietSchool: lớp chính + BC/CL/Chuyên đề; lớp chính vẫn hiện lịch GDTC. */
 (() => {
   'use strict';
   const $=id=>document.getElementById(id);
@@ -95,7 +95,7 @@
       <div class="small mb-2"><b>Danh mục:</b> ${stats.catalogTotal} lớp, trong đó ${stats.catalogSpecial} lớp/sổ riêng. Đã tìm thấy lịch cho <b>${stats.scheduledSpecialClasses}/${stats.catalogSpecial}</b> lớp/sổ riêng.</div>
       ${(stats.missingSpecialSchedule||[]).length?`<div class="small mb-2"><b>Có trong danh mục nhưng file TKB chưa có lịch:</b><div class="mt-1">${missing}</div><span class="text-muted">Không tự đoán Thứ/Buổi/Tiết; khi file TKB có dòng của các lớp này hệ thống sẽ import bình thường.</span></div>`:''}
       <div class="small mb-2"><b>Không import:</b><div class="mt-1">${ex||'<span class="text-muted">Không có môn ngoài nhà trường.</span>'}${stats.duplicateExact?`<span class="badge text-bg-light border me-1 mb-1">Trùng hoàn toàn tự bỏ: ${stats.duplicateExact}</span>`:''}</div></div>
-      ${errs?`<div class="alert alert-warning py-2 small mb-0"><b>Cần sửa trước khi import:</b><ul class="mb-0 mt-1">${errs}</ul>${stats.errors.length>10?`<div>… còn ${stats.errors.length-10} lỗi.</div>`:''}</div>`:'<div class="alert alert-success py-2 small mb-0">File hợp lệ. TKB sẽ lưu đồng thời lớp chính và sổ riêng BC/CL/Chuyên đề. Các tiết Sổ đầu bài đã ghi vẫn được ưu tiên; GDTC lớp chính đã tách nhóm không tạo thẻ trùng với BC/CL.</div>'}`;
+      ${errs?`<div class="alert alert-warning py-2 small mb-0"><b>Cần sửa trước khi import:</b><ul class="mb-0 mt-1">${errs}</ul>${stats.errors.length>10?`<div>… còn ${stats.errors.length-10} lỗi.</div>`:''}</div>`:'<div class="alert alert-success py-2 small mb-0">File hợp lệ. TKB lưu đồng thời lớp chính và sổ riêng BC/CL/Chuyên đề. TKB lớp chính vẫn hiển thị GDTC/BC/CL để xem lịch; khi ghi tiết hệ thống liên kết về đúng sổ nhóm riêng và không ghi nhầm vào lớp chính.</div>'}`;
     const btn=$('tkbImportBtnV704650');if(btn)btn.disabled=!parsed.length||stats.errors.length>0;
   }
 

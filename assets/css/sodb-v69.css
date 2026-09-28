@@ -3822,3 +3822,19 @@ body.a3-tracuu-v56 #a3PrintRootV56 .signature-footer .sig-gvcn-print,
 body.a3-tracuu-v56 #a3PrintRootV56 .signature-footer .sig-bgh-print {width:auto!important;height:5.8mm!important;max-height:5.8mm!important;max-width:42mm!important;object-fit:contain!important;}
 #gtPrintPagesContainer .signature-footer .signature-signer-name-v7046531,
 body.a3-tracuu-v56 #a3PrintRootV56 .signature-footer .signature-signer-name-v7046531 {font-family:"Times New Roman",serif!important;font-size:9pt!important;line-height:1.15!important;margin-top:.6mm!important;white-space:normal!important;overflow-wrap:normal!important;}
+\n\n/* V70.4.6.49.6.3.16 - GV phụ trách GDTC/Chuyên đề tự lấy từ các tiết đã ký. */
+.special-responsible-signatures-v704652{width:100%;min-width:0;display:flex;align-items:center;justify-content:center;gap:8px;}
+.special-responsible-signature-v704652{flex:0 1 auto;object-fit:contain;}
+.signature-footer{align-items:flex-start;}
+.signature-footer .signature-box{min-width:0;padding-left:4px;padding-right:4px;}
+#printGVCNName,#printBGHName{min-height:1.15em;margin-top:2px;line-height:1.15;text-align:center;}
+@media print{
+  #gtPrintPagesContainer .signature-footer,
+  body.a3-tracuu-v56 #a3PrintRootV56 .signature-footer{justify-content:space-evenly!important;gap:4%!important;}
+  #gtPrintPagesContainer .signature-footer .signature-box,
+  body.a3-tracuu-v56 #a3PrintRootV56 .signature-footer .signature-box{width:44%!important;}
+  #gtPrintPagesContainer .special-responsible-signatures-v704652,
+  body.a3-tracuu-v56 #a3PrintRootV56 .special-responsible-signatures-v704652{gap:3mm!important;}
+  #gtPrintPagesContainer .special-responsible-signature-v704652,
+  body.a3-tracuu-v56 #a3PrintRootV56 .special-responsible-signature-v704652{max-width:32mm!important;}
+}

@@ -549,7 +549,7 @@
     const cacheKey=String(lop)+'|'+String(tuan)+'|'+String(bookMode);
     const cached=sodbViewCacheV6.get(cacheKey);
 
-    function applyChotV10(chotRes){
+    function applyChotV10(chotRes,responsibleTeachers=[],isSpecialBook=false){
       const space=document.getElementById('printGVCNSigSpace');
       const nameElem=document.getElementById('printGVCNName');
       const ykienElem=document.getElementById('printGVCNYKien');
@@ -560,15 +560,25 @@
         const gvcnSigRaw=String(chotRes.chuKyGVCN||chotRes.kySo||chotRes.signatureRef||'');
         const gvcnSigUrl=normalizeSignatureUrlV67_1(gvcnSigRaw);
         if(gvcnSigUrl){
-          space.innerHTML=`<img src="${escapeHtml(gvcnSigUrl)}" class="sig-gvcn-print" alt="Chữ ký GVCN" onerror="handleSignatureImageErrorV682(this)">`;
+          space.innerHTML=`<img src="${escapeHtml(gvcnSigUrl)}" class="sig-gvcn-print" alt="Chữ ký giáo viên phụ trách" onerror="handleSignatureImageErrorV682(this)">`;
         }else{
           space.innerHTML='<span class="badge bg-success" style="font-size:.55rem;">✓ Đã ký chốt</span>';
         }
-      }else{
-        ykienElem.innerText='Chưa có ý kiến...';
-        nameElem.innerText='';
-        space.innerHTML='<span class="text-muted" style="font-size:.58rem;">Chưa chốt ký</span>';
+        return;
       }
+      const auto=(Array.isArray(responsibleTeachers)?responsibleTeachers:[]).filter(x=>String(x?.tenGV||'').trim());
+      if(isSpecialBook&&auto.length){
+        ykienElem.innerText='Chưa có ý kiến...';
+        nameElem.innerText=auto.map(x=>String(x.tenGV||'').trim()).filter(Boolean).join(' / ');
+        const imgs=auto.map(x=>normalizeSignatureUrlV67_1(x.signatureUrl||x.signatureRef||'')).filter(Boolean);
+        space.innerHTML=imgs.length
+          ? `<div class="special-responsible-signatures-v704652">${imgs.map((u,i)=>`<img src="${escapeHtml(u)}" class="sig-gvcn-print special-responsible-signature-v704652" alt="Chữ ký giáo viên phụ trách ${i+1}" onerror="handleSignatureImageErrorV682(this)">`).join('')}</div>`
+          : '<span class="badge bg-success" style="font-size:.55rem;">✓ Đã ký tiết</span>';
+        return;
+      }
+      ykienElem.innerText='Chưa có ý kiến...';
+      nameElem.innerText='';
+      space.innerHTML='<span class="text-muted" style="font-size:.58rem;">Chưa chốt ký</span>';
     }
 
     function renderPageV10(payload){
@@ -586,7 +596,7 @@
       }
       if(res.foundCount===0){
         tbody.innerHTML=`<tr><td colspan="12" class="text-warning py-3 text-center">Chưa có dữ liệu lớp ${escapeHtml(lop)} - Tuần ${tuan}</td></tr>`;
-        applyChotV10(payload&&payload.chot);
+        applyChotV10(payload&&payload.chot,res?.responsibleTeachers||[],!!(res?.compactBook||res?.bookType==='GDTC'||res?.bookType==='CHUYEN_DE'));
         applyBghApprovalV684(payload&&payload.bghDuyet,payload&&payload.chot);
         if(typeof renderReviewV7044==='function')renderReviewV7044(payload?.review||null);
         return;
@@ -599,7 +609,7 @@
         document.getElementById('sumDTB').innerText=res.summary.dtbTuan;
         document.getElementById('sumXepLoai').innerText=Number(res.summary.dtbTuan)>=8?'Loại A':(Number(res.summary.dtbTuan)>=6.5?'Loại B':'Loại C');
         document.getElementById('sumTietChuaKy').innerText=res.summary.soTietChuaKy;
-        applyChotV10(payload&&payload.chot);
+        applyChotV10(payload&&payload.chot,res?.responsibleTeachers||[],!!(res?.compactBook||res?.bookType==='GDTC'||res?.bookType==='CHUYEN_DE'));
         applyBghApprovalV684(payload&&payload.bghDuyet,payload&&payload.chot);
         if(typeof renderReviewV7044==='function')renderReviewV7044(payload?.review||null);
         sodbViewCacheV6.set(cacheKey,{ts:Date.now(),res:payload});
@@ -651,7 +661,7 @@
       document.getElementById('sumDTB').innerText=res.summary.dtbTuan;
       document.getElementById('sumXepLoai').innerText=Number(res.summary.dtbTuan)>=8?'Loại A':(Number(res.summary.dtbTuan)>=6.5?'Loại B':'Loại C');
       document.getElementById('sumTietChuaKy').innerText=res.summary.soTietChuaKy;
-      applyChotV10(payload&&payload.chot);
+      applyChotV10(payload&&payload.chot,res?.responsibleTeachers||[],!!(res?.compactBook||res?.bookType==='GDTC'||res?.bookType==='CHUYEN_DE'));
       applyBghApprovalV684(payload&&payload.bghDuyet,payload&&payload.chot);
         if(typeof renderReviewV7044==='function')renderReviewV7044(payload?.review||null);
       sodbViewCacheV6.set(cacheKey,{ts:Date.now(),res:payload});

@@ -350,14 +350,21 @@ function layHtmlOnePageA3GiamThi(lop, tuan, bookMode) {
         const chotResData=payload.chot&&payload.chot.success?payload.chot:null;
         if (chotResData) {
           ykienText = chotResData.ykien || 'Không có ý kiến.';
-          gvcnNameText = chotResData.tenGVCN || chotResData.tenGVPhuTrach || chotResData.hoTenNguoiKy || ''; // V70.4.6.49.6.3.1: không để mất tên khi bản chốt cũ thiếu tenGVCN
+          gvcnNameText = chotResData.tenGVCN || chotResData.tenGVPhuTrach || chotResData.hoTenNguoiKy || '';
           const gvcnSigRaw=String(chotResData.chuKyGVCN||chotResData.kySo||chotResData.signatureRef||'');
           const gvcnSigUrl=normalizeSignatureUrlV67_1(gvcnSigRaw);
           if (gvcnSigUrl) {
-            sigSpaceHtml = `<img src="${escapeHtml(gvcnSigUrl)}" class="sig-gvcn-print" alt="Chữ ký GVCN">`;
+            sigSpaceHtml = `<img src="${escapeHtml(gvcnSigUrl)}" class="sig-gvcn-print" alt="Chữ ký giáo viên phụ trách">`;
           } else {
             sigSpaceHtml = '<span class="badge bg-success" style="font-size: 0.55rem;">✓ Đã ký chốt</span>';
           }
+        } else if (isSpecial && Array.isArray(res.responsibleTeachers) && res.responsibleTeachers.length) {
+          const auto=res.responsibleTeachers.filter(x=>String(x?.tenGV||'').trim());
+          gvcnNameText=auto.map(x=>String(x.tenGV||'').trim()).filter(Boolean).join(' / ');
+          const autoSigs=auto.map(x=>normalizeSignatureUrlV67_1(x.signatureUrl||x.signatureRef||'')).filter(Boolean);
+          sigSpaceHtml=autoSigs.length
+            ? `<div class="special-responsible-signatures-v704652">${autoSigs.map((u,i)=>`<img src="${escapeHtml(u)}" class="sig-gvcn-print special-responsible-signature-v704652" alt="Chữ ký giáo viên phụ trách ${i+1}">`).join('')}</div>`
+            : '<span class="badge bg-success" style="font-size: 0.55rem;">✓ Đã ký tiết</span>';
         }
         let bghNameText='';
         let bghSigSpaceHtml='<span class="text-muted" style="font-size:0.55rem;">Chưa duyệt</span>';

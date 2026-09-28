@@ -1,4 +1,4 @@
-/* V70.4.6.49.6.3.14: Tiết của tôi mặc định cho GVBM/BGH; BGH thuần chỉ xem. */
+/* V70.4.6.49.6.3.16: Tiết của tôi giữ TKB lớp chính + liên kết an toàn sang sổ GDTC/Chuyên đề riêng. */
 (() => {
   'use strict';
   const $ = id => document.getElementById(id);
@@ -78,8 +78,11 @@
     const title=[r.lop,r.mon].filter(Boolean).join(' · ')||(pending?'Tiết theo TKB':'Tiết đã ghi');
     const meta=[];if(!pending&&r.tietCT)meta.push(`Tiết CT ${r.tietCT}`);if(!pending&&r.tenBai)meta.push(r.tenBai);
     const absent=!pending&&Number(r.soHsVang||0)>0?`<span class="my-lesson-absence-v704611">Vắng ${Number(r.soHsVang)}</span>`:'';
+    const linkedGroupBadge=pending&&r.linkedSeparateBook
+      ? `<span class="badge text-bg-info">${esc((Array.isArray(r.linkedGroups)&&r.linkedGroups.length)?('Sổ '+r.linkedGroups.join(' / ')):'Sổ GDTC/CĐ riêng')}</span>`
+      : '';
     const badges=pending
-      ? '<span class="badge text-bg-warning">Chưa ghi</span>'
+      ? `<span class="badge text-bg-warning">Chưa ghi</span>${linkedGroupBadge}`
       : `<span class="badge text-bg-light">${esc(r.hinhThucDay||(typeof teachingModeFromDateV704649==='function'?teachingModeFromDateV704649(r.ngay||r.ngayDay||r.ngay_day):''))}</span>${statusLabel(r)}${r.signed?'<span class="badge text-bg-success">Đã ký</span>':'<span class="badge text-bg-danger">Chưa ký</span>'}${absent}`;
     return `<article class="workspace-lesson my-lesson-card-v704611${pending?' my-lesson-tkb-pending-v704650':''}" data-my-lesson-open="${esc(r.recordId)}" tabindex="0" role="button" aria-label="${pending?'Nhập':'Mở'} tiết ${esc(title)}">
       <button type="button" class="workspace-lesson-more" data-my-lesson-open="${esc(r.recordId)}" aria-label="Mở Nhập tiết" title="Mở Nhập tiết">⋯</button>
@@ -151,20 +154,33 @@
   function openInput(recordId){
     const r=typeof recordId==='object'?recordId:rowById.get(String(recordId||'')); if(!r)return;
     if(!canWriteLessons()){if(typeof showToastV9==='function')showToastV9('BGH đang xem “Tiết của tôi”. Tài khoản cần có thêm quyền GVBM mới được nhập/sửa tiết.','info');return;}
+    if(r.linkedSeparateBook&&r.writeBlockedBySeparateBook&&!r.targetLop){
+      const groups=Array.isArray(r.linkedGroups)?r.linkedGroups.filter(Boolean):[];
+      if(typeof showToastV9==='function')showToastV9(groups.length?`Tiết ${r.lop} thuộc sổ riêng ${groups.join(' / ')}. Hãy mở đúng thẻ sổ nhóm để ghi tiết.`:'Tiết này thuộc sổ GDTC/Chuyên đề riêng nhưng chưa xác định được một sổ nhóm duy nhất. Không ghi trực tiếp vào lớp chính.','warning');
+      return;
+    }
+    const writeLop=String(r.targetLop||r.lop||'').trim(),writeMon=String(r.targetMon||r.mon||'').trim();
     if(typeof editingRecordIdV4!=='undefined'&&editingRecordIdV4){if(!confirm('Đang chỉnh sửa một tiết. Chuyển sang vị trí vừa chọn?'))return;huyCheDoSuaV4();}
     const tab=$('input-tab'); if(!tab)return;
     try{bootstrap.Tab.getOrCreateInstance(tab).show();}catch(_e){tab.click();}
     const doSet=()=>{
-      const grade=Number(r.khoi||String(r.lop||'').match(/^(10|11|12)/)?.[1]||10),khoi=$('khoi'),lop=$('lop');
+      const grade=Number(r.khoi||String(writeLop||'').match(/^(10|11|12)/)?.[1]||10),khoi=$('khoi'),lop=$('lop');
       if(khoi){khoi.value=String(grade);try{chonKhoiLopInput();}catch(_e){}}
       setTimeout(()=>{
-        if(lop){const opt=[...lop.options].find(o=>String(o.value).trim()===String(r.lop||'').trim());if(opt)lop.value=opt.value;else lop.value='';try{onInputClassChangedV26();}catch(_e){}}
-        if(r.mon){
-          const mon=$('monHoc'),target=typeof canonicalSubjectV6955==='function'?canonicalSubjectV6955(r.mon):r.mon;
+        if(lop){let opt=[...lop.options].find(o=>String(o.value).trim()===writeLop);if(!opt&&writeLop){opt=new Option(writeLop,writeLop);opt.dataset.tkbLinkedGroupV704652='1';lop.add(opt);}lop.value=opt?opt.value:'';try{onInputClassChangedV26();}catch(_e){}}
+        if(writeMon){
+          const mon=$('monHoc'),target=typeof canonicalSubjectV6955==='function'?canonicalSubjectV6955(writeMon):writeMon;
           if(mon){
-            let opt=[...mon.options].find(o=>typeof subjectKeyV6955==='function'?subjectKeyV6955(o.value)===subjectKeyV6955(target):String(o.value)===String(target));
-            if(opt)mon.value=opt.value;
-            else if(typeof ensureTeacherSubjectOptionV26==='function')ensureTeacherSubjectOptionV26(target);
+            if(typeof isGdtcDetailSubjectV25==='function'&&isGdtcDetailSubjectV25(target)&&typeof gvbmHasGdtcV25==='function'&&gvbmHasGdtcV25()){
+              let baseOpt=[...mon.options].find(o=>typeof isGdtcBaseSubjectV25==='function'&&isGdtcBaseSubjectV25(o.value));
+              if(!baseOpt){baseOpt=new Option('GDTC','GDTC');baseOpt.dataset.tkbLinkedGroupV704652='1';mon.add(baseOpt);}
+              mon.value=baseOpt.value;try{if(typeof configureGdtcInputV25==='function')configureGdtcInputV25();}catch(_e){}
+              const detail=$('gdtcTeachingSubjectV25');if(detail)detail.value=target;
+            }else{
+              let opt=[...mon.options].find(o=>typeof subjectKeyV6955==='function'?subjectKeyV6955(o.value)===subjectKeyV6955(target):String(o.value)===String(target));
+              if(opt)mon.value=opt.value;
+              else if(typeof ensureTeacherSubjectOptionV26==='function')ensureTeacherSubjectOptionV26(target);
+            }
           }
         }
         if($('ngayDay'))$('ngayDay').value=String(r.ngay||'');
@@ -175,7 +191,7 @@
         try{if(typeof refreshGroupAttendanceV6951==='function')refreshGroupAttendanceV6951();}catch(_e){}
         try{loadDanhSachBaiDay();}catch(_e){}
         $('sodbForm')?.scrollIntoView({behavior:'smooth',block:'start'});
-        if(typeof showToastV9==='function')showToastV9(`Đã mở ${r.lop||'vị trí trống'} · ${viDate(r.ngay)} · ${r.buoi} · Tiết ${r.tiet}. ${r.isTimetable?'Theo TKB và chưa ghi; hãy chọn KHBD rồi lưu.':(r.isEmpty?'Chọn lớp/môn và nhập nội dung trước khi lưu.':'Bản ghi đã tồn tại; quyền sửa vẫn do hệ thống kiểm soát.')}`,'info');
+        if(typeof showToastV9==='function')showToastV9(`Đã mở ${writeLop||'vị trí trống'} · ${viDate(r.ngay)} · ${r.buoi} · Tiết ${r.tiet}.${r.targetLop&&r.targetLop!==r.lop?` TKB lớp chính ${r.lop} được liên kết sang sổ ${r.targetLop}.`:''} ${r.isTimetable?'Theo TKB và chưa ghi; hãy chọn KHBD rồi lưu.':(r.isEmpty?'Chọn lớp/môn và nhập nội dung trước khi lưu.':'Bản ghi đã tồn tại; quyền sửa vẫn do hệ thống kiểm soát.')}`,'info');
       },100);
     };
     setTimeout(doSet,60);

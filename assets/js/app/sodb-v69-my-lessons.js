@@ -83,16 +83,16 @@
     if(key==='DAY_BU'&&!hasRows)return '';
     const icon=key==='SANG'?'☀':'☾';
     const header=days.map((d,i)=>`<th scope="col">${dayNames[i]}<small>${viDate(isoDate(d))}</small></th>`).join('');
-    const trs=Array.from({length:5},(_,idx)=>{
+    const trs=Array.from({length:4},(_,idx)=>{
       const period=idx+1;
       const cells=days.map(d=>{
         const date=isoDate(d),slot=slotMap.get(`${date}|${key}|${period}`)||[];
-        if(!slot.length)return '<td class="workspace-empty"><span aria-label="Không có tiết">—</span></td>';
-        return `<td><div class="my-lesson-slot-v704611">${slot.map(lessonCard).join('')}</div></td>`;
+        if(!slot.length)return `<td class="workspace-empty workspace-input-cell" data-my-empty-date="${esc(date)}" data-my-empty-session="${esc(key)}" data-my-empty-period="${period}" tabindex="0" role="button" title="Nhập tiết ${period}" aria-label="Nhập tiết ${period}, ${esc(viDate(date))}, ${esc(label)}"><span>+ Nhập tiết</span></td>`;
+        return `<td ${slot.length===1?`data-my-lesson-open="${esc(slot[0].recordId)}"`:""}><div class="my-lesson-slot-v704611">${slot.map(lessonCard).join('')}</div></td>`;
       }).join('');
       return `<tr><th scope="row"><strong>Tiết ${period}</strong></th>${cells}</tr>`;
     }).join('');
-    return `<section class="workspace-session my-lessons-session-v704611"><h3><span class="my-lessons-session-icon-v704611" aria-hidden="true">${icon}</span> ${label} <small>Tiết 1 – 5</small></h3><div class="workspace-grid-scroll" tabindex="0" role="region" aria-label="${esc(label)}"><table class="workspace-grid my-lessons-week-table-v704611"><caption class="visually-hidden">Tiết của tôi · Tuần ${Number($('myLessonsWeekV70468')?.value||1)} · ${esc(label)}</caption><thead><tr><th scope="col">Tiết</th>${header}</tr></thead><tbody>${trs}</tbody></table></div></section>`;
+    return `<section class="workspace-session my-lessons-session-v704611"><h3><span class="my-lessons-session-icon-v704611" aria-hidden="true">${icon}</span> ${label} <small>Tiết 1 – 4</small></h3><div class="workspace-grid-scroll" tabindex="0" role="region" aria-label="${esc(label)}"><table class="workspace-grid my-lessons-week-table-v704611"><caption class="visually-hidden">Tiết của tôi · Tuần ${Number($('myLessonsWeekV70468')?.value||1)} · ${esc(label)}</caption><thead><tr><th scope="col">Tiết</th>${header}</tr></thead><tbody>${trs}</tbody></table></div></section>`;
   }
   function render(){
     const list=filtered(), mount=$('myLessonsGridV70468'); if(!mount)return;
@@ -138,14 +138,16 @@
     el.value=String(next); load(true);
   }
   function openInput(recordId){
-    const r=rowById.get(String(recordId||'')); if(!r)return;
+    const r=typeof recordId==='object'?recordId:rowById.get(String(recordId||'')); if(!r)return;
+    if(typeof editingRecordIdV4!=='undefined'&&editingRecordIdV4){if(!confirm('Đang chỉnh sửa một tiết. Chuyển sang vị trí vừa chọn?'))return;huyCheDoSuaV4();}
     const tab=$('input-tab'); if(!tab)return;
     try{bootstrap.Tab.getOrCreateInstance(tab).show();}catch(_e){tab.click();}
     const doSet=()=>{
       const grade=Number(r.khoi||String(r.lop||'').match(/^(10|11|12)/)?.[1]||10),khoi=$('khoi'),lop=$('lop');
       if(khoi){khoi.value=String(grade);try{chonKhoiLopInput();}catch(_e){}}
       setTimeout(()=>{
-        if(lop){const opt=[...lop.options].find(o=>String(o.value).trim()===String(r.lop||'').trim());if(opt)lop.value=opt.value;try{onInputClassChangedV26();}catch(_e){}}
+        if(lop){const opt=[...lop.options].find(o=>String(o.value).trim()===String(r.lop||'').trim());if(opt)lop.value=opt.value;else lop.value='';try{onInputClassChangedV26();}catch(_e){}}
+        if(r.mon){const mon=$('monHoc');if(mon&&[...mon.options].some(o=>o.value===r.mon))mon.value=r.mon;}
         if($('ngayDay'))$('ngayDay').value=String(r.ngay||'');
         if($('buoiDay'))$('buoiDay').value=String(r.buoi||'Sáng');
         if($('tietDay'))$('tietDay').value=String(r.tiet||1);teachingLoadV704649(r);
@@ -154,10 +156,14 @@
         try{if(typeof refreshGroupAttendanceV6951==='function')refreshGroupAttendanceV6951();}catch(_e){}
         try{loadDanhSachBaiDay();}catch(_e){}
         $('sodbForm')?.scrollIntoView({behavior:'smooth',block:'start'});
-        if(typeof showToastV9==='function')showToastV9(`Đã mở vị trí ${r.lop} · ${viDate(r.ngay)} · ${r.buoi} · Tiết ${r.tiet}. Bản ghi đã tồn tại; quyền sửa vẫn do hệ thống kiểm soát.`,'info');
+        if(typeof showToastV9==='function')showToastV9(`Đã mở vị trí ${r.lop} · ${viDate(r.ngay)} · ${r.buoi} · Tiết ${r.tiet}. ${r.isEmpty?'Chọn lớp/môn và nhập nội dung trước khi lưu.':'Bản ghi đã tồn tại; quyền sửa vẫn do hệ thống kiểm soát.'}`,'info');
       },100);
     };
     setTimeout(doSet,60);
+  }
+  function openEmpty(cell){
+    if(loading)return;const lop=$('myLessonsClassV70468')?.value||'ALL',mon=$('myLessonsSubjectV70468')?.value||'ALL';
+    openInput({isEmpty:true,lop:lop==='ALL'?'':lop,mon:mon==='ALL'?'':mon,ngay:cell.dataset.myEmptyDate,buoi:({SANG:'Sáng',CHIEU:'Chiều',DAY_BU:'Dạy bù'})[cell.dataset.myEmptySession]||'Sáng',tiet:Number(cell.dataset.myEmptyPeriod)});
   }
   function init(){
     const tab=$('my-lessons-tab-v70468'); if(!tab)return;
@@ -170,8 +176,8 @@
     $('myLessonsPrevV70468')?.addEventListener('click',()=>switchWeek(-1));
     $('myLessonsCurrentV70468')?.addEventListener('click',()=>switchWeek('today'));
     $('myLessonsNextV70468')?.addEventListener('click',()=>switchWeek(1));
-    $('myLessonsGridV70468')?.addEventListener('click',e=>{const b=e.target.closest('[data-my-lesson-open]');if(b)openInput(b.dataset.myLessonOpen);});
-    $('myLessonsGridV70468')?.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('[data-my-lesson-open]')){e.preventDefault();openInput(e.target.dataset.myLessonOpen);}});
+    $('myLessonsGridV70468')?.addEventListener('click',e=>{const b=e.target.closest('[data-my-lesson-open]');if(b){openInput(b.dataset.myLessonOpen);return;}const empty=e.target.closest('[data-my-empty-date]');if(empty)openEmpty(empty);});
+    $('myLessonsGridV70468')?.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('[data-my-lesson-open], [data-my-empty-date]')){e.preventDefault();if(e.target.matches('[data-my-empty-date]'))openEmpty(e.target);else openInput(e.target.dataset.myLessonOpen);}});
   }
   window.taiTietCuaToiV70468=load;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();

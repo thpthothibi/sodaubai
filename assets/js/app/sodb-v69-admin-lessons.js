@@ -1,4 +1,4 @@
-/* V70.4.6.49.6.3.12 - Admin xem tiết GV: ghép SĐB đã ghi + TKB còn chờ. */
+/* V70.4.6.49.6.3.13 - Admin xem tiết GV: ghép SĐB + TKB, không làm mất sổ nhóm riêng. */
 (() => {
   'use strict';
   const $ = id => document.getElementById(id);

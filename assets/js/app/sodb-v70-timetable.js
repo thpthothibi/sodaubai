@@ -1,4 +1,4 @@
-/* V70.4.6.49.6.3.12 - Import TKB VietSchool chính khóa. */
+/* V70.4.6.49.6.3.13 - Import TKB VietSchool chính khóa; không thay khóa SĐB nhóm. */
 (() => {
   'use strict';
   const $=id=>document.getElementById(id);
@@ -69,7 +69,7 @@
       </div>
       <div class="d-flex flex-wrap gap-3 small mb-2"><span>Tổng ô môn: <b>${stats.total.toLocaleString('vi-VN')}</b></span><span>Tự loại ngoài nhà trường: <b>${stats.excluded.toLocaleString('vi-VN')}</b></span><span>Lỗi/cảnh báo: <b>${stats.errors.length}</b></span></div>
       <div class="small mb-2"><b>Không import:</b><div class="mt-1">${ex||'<span class="text-muted">Không có.</span>'}</div></div>
-      ${errs?`<div class="alert alert-warning py-2 small mb-0"><b>Cần kiểm tra:</b><ul class="mb-0 mt-1">${errs}</ul>${stats.errors.length>8?`<div>… còn ${stats.errors.length-8} cảnh báo.</div>`:''}</div>`:'<div class="alert alert-success py-2 small mb-0">File hợp lệ. TKB mới chỉ có hiệu lực từ ngày mai; Sổ đầu bài đã nhập không bị sửa.</div>'}`;
+      ${errs?`<div class="alert alert-warning py-2 small mb-0"><b>Cần kiểm tra:</b><ul class="mb-0 mt-1">${errs}</ul>${stats.errors.length>8?`<div>… còn ${stats.errors.length-8} cảnh báo.</div>`:''}</div>`:'<div class="alert alert-success py-2 small mb-0">File hợp lệ. TKB mới chỉ có hiệu lực từ ngày mai; Sổ đầu bài đã nhập không bị sửa. GDTC/Chuyên đề có sổ riêng vẫn giữ nguyên sổ nhóm.</div>'}`;
     const btn=$('tkbImportBtnV704650');if(btn)btn.disabled=!parsed.length||stats.errors.length>0;
   }
 

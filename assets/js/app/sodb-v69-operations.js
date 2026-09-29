@@ -757,6 +757,24 @@ function showSaveSuccessV54(message){
   showSaveSuccessV54._t=setTimeout(()=>box.classList.add('d-none'),6500);
 }
 let inputDeadlineLockedV683=false;
+// V70.4.6.49.6.3.20: chống race khi kiểm tra hạn nhập tiết.
+// Chỉ request mới nhất, đúng với Lớp/Ngày/Buổi/Tiết hiện đang hiển thị, mới được phép khóa/mở nút Lưu.
+let inputDeadlineCheckSeqV70465320=0;
+function inputDeadlineContextV70465320(){
+  return [
+    String(document.getElementById('lop')?.value||'').trim(),
+    String(document.getElementById('ngayDay')?.value||'').slice(0,10),
+    String(document.getElementById('buoiDay')?.value||'Sáng').trim(),
+    String(Number(document.getElementById('tietDay')?.value||0))
+  ].join('|');
+}
+function invalidateInputDeadlineCheckV70465320(){
+  inputDeadlineCheckSeqV70465320++;
+  inputDeadlineLockedV683=false;
+  const btn=document.getElementById('btnSubmit');
+  if(btn&&!isSodbSubmitting)btn.disabled=false;
+}
+window.invalidateInputDeadlineCheckV70465320=invalidateInputDeadlineCheckV70465320;
 function onDayThayToggleV683(){
   const checked=!!document.getElementById('isDayThayV683')?.checked;
   document.getElementById('dayThayBoxV683')?.classList.toggle('d-none',!checked);
@@ -774,17 +792,40 @@ function onDayThayToggleV683(){
 async function capNhatHanNhapTietV683(){
   const box=document.getElementById('inputDeadlineStatusV683'),btn=document.getElementById('btnSubmit');
   if(!box||!gvbmDangNhapInfo?.sessionToken)return;
-  const lop=String(document.getElementById('lop')?.value||''),date=String(document.getElementById('ngayDay')?.value||''),buoi=String(document.getElementById('buoiDay')?.value||'Sáng'),tiet=Number(document.getElementById('tietDay')?.value||0);
-  if(!lop||!date||!tiet)return;
+  const lop=String(document.getElementById('lop')?.value||'').trim(),date=String(document.getElementById('ngayDay')?.value||'').slice(0,10),buoi=String(document.getElementById('buoiDay')?.value||'Sáng').trim(),tiet=Number(document.getElementById('tietDay')?.value||0);
+  const context=[lop,date,buoi,String(tiet)].join('|');
+  const seq=++inputDeadlineCheckSeqV70465320;
+
+  // Khi đang chuyển từ “Tiết của tôi” sang form, các trường được gán lần lượt.
+  // Không giữ trạng thái khóa của ô cũ trong giai đoạn dữ liệu chưa đủ.
+  if(!lop||!date||!tiet){
+    inputDeadlineLockedV683=false;
+    if(btn&&!isSodbSubmitting)btn.disabled=false;
+    box.className='alert alert-light border py-2 px-3 mb-3 small';
+    box.textContent='Chọn đủ lớp, ngày, buổi và tiết để kiểm tra thời hạn ký.';
+    return;
+  }
+
+  // Mở khóa tạm ở client trong lúc chờ. Server vẫn kiểm tra lại khi bấm Lưu.
+  // Điều này ngăn response cũ của tiết Sáng/tiết trước làm nút Lưu bị kẹt.
+  inputDeadlineLockedV683=false;
+  if(btn&&!isSodbSubmitting)btn.disabled=false;
+  box.className='alert alert-light border py-2 px-3 mb-3 small';
+  box.textContent='Đang kiểm tra thời hạn nhập tiết...';
+
   try{
     const r=await callSodbEdgeRpcV67('kiemTraHanNhapTietV683',[lop,date,buoi,tiet,{token:gvbmDangNhapInfo.sessionToken}]);
+    // Bỏ qua mọi response đã cũ hoặc không còn khớp vị trí người dùng đang xem.
+    if(seq!==inputDeadlineCheckSeqV70465320||context!==inputDeadlineContextV70465320())return;
     inputDeadlineLockedV683=!!r?.locked;
     const deadlineState=String(r?.state||''),approvedLate=deadlineState==='APPROVED_DAY_THAY_LATE';
     box.className='alert border py-2 px-3 mb-3 small '+(r?.locked?'alert-danger':(approvedLate?'alert-success':(['ADMIN_UNLOCK','BULK_WEEK_UNLOCK'].includes(deadlineState)?'alert-warning':'alert-info')));
     box.innerHTML=`<strong>${r?.locked?'Đã khóa':(approvedLate?'Dạy thay đã duyệt':'Thời hạn ký')}:</strong> ${escapeHtml(r?.message||'')}`;
     if(btn&&!isSodbSubmitting)btn.disabled=inputDeadlineLockedV683;
   }catch(err){
+    if(seq!==inputDeadlineCheckSeqV70465320||context!==inputDeadlineContextV70465320())return;
     inputDeadlineLockedV683=false;
+    if(btn&&!isSodbSubmitting)btn.disabled=false;
     box.className='alert alert-warning border py-2 px-3 mb-3 small';
     box.textContent='Chưa kiểm tra được thời hạn nhập tiết. Máy chủ vẫn sẽ kiểm tra khi bấm Lưu.';
   }

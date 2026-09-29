@@ -106,7 +106,7 @@
   const SODB_EDGE_RPC_METHODS_V67 = new Set([
     'getBootstrapClientV6','getDanhSachLopMoiV29','dangXuatHeThongV701','capNhatDanhSachLopV701','capNhatDanhSachHocSinhV701','layDanhSachHocSinhLopV701','layPhanCongDayCuaGVV39','xacThucPhienHeThongV4',
     'getDanhSachBaiDayTheoMon','layDanhSachKHBDTheoKhoiV36','capNhatKeHoachBaiDay',
-    'layDanhSachDuyetKHBDV50','layKhbdDaTaiCuaTTCMV659','xuLyDuyetKHBDV50','layKhbdCaNhanV67','chonKhbdCaNhanV67','resetKhbdAdminV69552',
+    'layDanhSachDuyetKHBDV50','layKhbdDaTaiCuaTTCMV659','xuLyDuyetKHBDV50','layKhbdCaNhanV67','chonKhbdCaNhanV67','resetKhbdAdminV69552','xemTruocDonKhbdDuV7046519','donKhbdDuV7046519',
     'layTrangSoDauBaiV24','layDuLieuSoDauBaiTuanGop','luuSoDauBai','luuChotTuanGVCN','duyetTuanBGHV684','layTrungTamDuyetTuanBGHV698','layMaTranDuyetTuanBGHV698',
     'kiemTraTrangThaiKhoaTuan','adminMoKhoaTuan','adminMoKhoaTuanHangLoatV685','layMoKhoaTuanHangLoatV685','dongMoKhoaTuanHangLoatV685','kiemTraMoKhoaTuanHangLoatV685','layNhatKyV4',
     'getDanhSachMonAdminV7','getDanhSachMonKHBD','getDanhSachGVTheoMon','luuCauHinhV4',

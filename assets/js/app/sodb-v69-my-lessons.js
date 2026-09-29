@@ -1,4 +1,4 @@
-/* V70.4.6.49.6.3.18: Tiết của tôi giữ TKB lớp chính + chỉ liên kết sổ GDTC/CĐ khi đúng Thứ/Buổi/Tiết. */
+/* V70.4.6.49.6.3.20: Tiết của tôi + chống kẹt khóa do response kiểm tra hạn nhập cũ. */
 (() => {
   'use strict';
   const $ = id => document.getElementById(id);
@@ -153,6 +153,7 @@
   }
   function openInput(recordId){
     const r=typeof recordId==='object'?recordId:rowById.get(String(recordId||'')); if(!r)return;
+    try{if(typeof invalidateInputDeadlineCheckV70465320==='function')invalidateInputDeadlineCheckV70465320();}catch(_e){}
     if(!canWriteLessons()){if(typeof showToastV9==='function')showToastV9('BGH đang xem “Tiết của tôi”. Tài khoản cần có thêm quyền GVBM mới được nhập/sửa tiết.','info');return;}
     if(r.linkedSeparateBook&&r.writeBlockedBySeparateBook&&!r.targetLop){
       const groups=Array.isArray(r.linkedGroups)?r.linkedGroups.filter(Boolean):[];

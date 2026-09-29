@@ -872,14 +872,16 @@ document.getElementById('overviewScopeV20').textContent='Đang tải tổng quan
       let data=Array.isArray(res)?res:(res&&Array.isArray(res.data)?res.data:[]);
       data=canonicalSubjectListV6955(data).sort((a,b)=>a.localeCompare(b,'vi'));
       sel.innerHTML='<option value="">-- Chọn môn --</option>';data.forEach(m=>sel.add(new Option(m,m)));
-    }).withFailureHandler(function(){sel.innerHTML='<option value="">-- Không tải được môn --</option>';}).getDanhSachMonAdminV7(getAdminAuthV69552());
+      const cleanSel=document.getElementById('cleanupKhbdSubjectV7046519');
+      if(cleanSel){cleanSel.innerHTML='<option value="">Tất cả môn</option>';data.forEach(m=>cleanSel.add(new Option(m,m)));}
+    }).withFailureHandler(function(){sel.innerHTML='<option value="">-- Không tải được môn --</option>';const cleanSel=document.getElementById('cleanupKhbdSubjectV7046519');if(cleanSel)cleanSel.innerHTML='<option value="">Tất cả môn</option>';}).getDanhSachMonAdminV7(getAdminAuthV69552());
   }
   function syncResetKhbdClassV69552(){
     const grade=String(document.getElementById('resetKhbdGradeV69552')?.value||''),scope=String(document.getElementById('resetKhbdScopeV69552')?.value||'SUBJECT'),sel=document.getElementById('resetKhbdClassV69552');if(!sel)return;
     sel.disabled=scope!=='CLASS';sel.innerHTML='<option value="">-- Chọn lớp --</option>';
     if(scope==='CLASS'){(dsLopTheoKhoi[grade]||[]).forEach(l=>sel.add(new Option(l,l)));}
   }
-  function initResetKhbdAdminV69552(){loadResetKhbdSubjectsV69552();syncResetKhbdClassV69552();}
+  function initResetKhbdAdminV69552(){loadResetKhbdSubjectsV69552();syncResetKhbdClassV69552();initKhbdCleanupV7046519();}
   function resetKhbdAdminV69552(){
     const khoi=Number(document.getElementById('resetKhbdGradeV69552')?.value||0),mon=canonicalSubjectV6955(document.getElementById('resetKhbdSubjectV69552')?.value),scope=String(document.getElementById('resetKhbdScopeV69552')?.value||'SUBJECT'),lop=String(document.getElementById('resetKhbdClassV69552')?.value||'').trim(),reason=String(document.getElementById('resetKhbdReasonV69552')?.value||'').trim();
     if(!khoi||!mon){showToastV9('Vui lòng chọn Khối và Môn.','danger');return;}if(scope==='CLASS'&&!lop){showToastV9('Vui lòng chọn lớp cần reset.','danger');return;}
@@ -896,6 +898,58 @@ document.getElementById('overviewScopeV20').textContent='Đang tải tổng quan
       loadResetKhbdSubjectsV69552();
     }).withFailureHandler(function(err){if(btn){btn.disabled=false;btn.textContent='Reset KHBD';}alertV13('❌ '+String(err&&err.message||err));})
       .resetKhbdAdminV69552({khoi,mon,scope,lop,reason},getAdminAuthV69552());
+  }
+
+
+  /* V70.4.6.49.6.3.19: DỌN KHBD DƯ TUẦN 1-6 — ADMIN, CÓ PREVIEW */
+  function initKhbdCleanupV7046519(){
+    const f=document.getElementById('cleanupKhbdFromWeekV7046519'),t=document.getElementById('cleanupKhbdToWeekV7046519');
+    if(f&&!f.value)f.value='1';if(t&&!t.value)t.value='6';
+    const st=document.getElementById('cleanupKhbdStatusV7046519');if(st&&!st.textContent.trim())st.textContent='Bấm Rà soát KHBD dư để xem trước; chưa có dữ liệu nào bị xóa.';
+  }
+  function khbdCleanupFiltersV7046519(){
+    return {
+      fromWeek:Number(document.getElementById('cleanupKhbdFromWeekV7046519')?.value||1),
+      toWeek:Number(document.getElementById('cleanupKhbdToWeekV7046519')?.value||6),
+      khoi:Number(document.getElementById('cleanupKhbdGradeV7046519')?.value||0),
+      mon:canonicalSubjectV6955(document.getElementById('cleanupKhbdSubjectV7046519')?.value||''),
+      lop:String(document.getElementById('cleanupKhbdClassV7046519')?.value||'').trim(),
+      teacher:String(document.getElementById('cleanupKhbdTeacherV7046519')?.value||'').trim()
+    };
+  }
+  function khbdCleanupStatusTextV7046519(x){
+    if(x.status==='USED_LOCKED')return '<span class="badge text-bg-success">Đã dùng · Giữ</span>';
+    if(x.status==='KEEP_CARRYOVER')return '<span class="badge text-bg-warning">Nghỉ/Bỏ tiết · Giữ tồn</span>';
+    if(x.status==='ORPHAN_CANDIDATE')return '<span class="badge text-bg-danger">KHBD gốc đã mất · Có thể dọn</span>';
+    return '<span class="badge text-bg-primary">Chưa dùng · Có thể dọn</span>';
+  }
+  function renderKhbdCleanupV7046519(res){
+    window.__KHBD_CLEANUP_V7046519__=res||{rows:[]};
+    const stats=res?.stats||{},metric=document.getElementById('cleanupKhbdMetricsV7046519');
+    if(metric)metric.innerHTML=`<div class="row g-2"><div class="col-6 col-lg-3"><div class="border rounded p-2 bg-light"><div class="small text-muted">Tổng đã rà</div><div class="fs-5 fw-bold">${Number(stats.total||0)}</div></div></div><div class="col-6 col-lg-3"><div class="border rounded p-2 bg-light"><div class="small text-muted">Có thể dọn</div><div class="fs-5 fw-bold text-primary">${Number(stats.candidate||0)}</div></div></div><div class="col-6 col-lg-3"><div class="border rounded p-2 bg-light"><div class="small text-muted">Đã dùng</div><div class="fs-5 fw-bold text-success">${Number(stats.used||0)}</div></div></div><div class="col-6 col-lg-3"><div class="border rounded p-2 bg-light"><div class="small text-muted">Cần giữ tồn</div><div class="fs-5 fw-bold text-warning">${Number(stats.carryover||0)}</div></div></div></div>`;
+    const rows=Array.isArray(res?.rows)?res.rows:[],tbody=document.getElementById('cleanupKhbdBodyV7046519');
+    if(!tbody)return;
+    if(!rows.length){tbody.innerHTML='<tr><td colspan="10" class="text-center text-muted py-4">Không có dữ liệu phù hợp bộ lọc.</td></tr>';return;}
+    tbody.innerHTML=rows.map((x,i)=>`<tr class="${x.canDelete?'':'table-light'}"><td class="text-center"><input class="form-check-input cleanup-khbd-check-v7046519" type="checkbox" data-index="${i}" ${x.canDelete?'checked':'disabled'}></td><td>${escapeHtml(String(x.tuan||''))}</td><td>${escapeHtml(x.lop||'')}</td><td>${escapeHtml(x.mon||'')}</td><td>${escapeHtml(x.tietPPCT||'')}</td><td style="min-width:260px">${escapeHtml(x.noiDung||'')}</td><td>${escapeHtml(x.tenGv||x.taiKhoan||'')}<div class="small text-muted">${escapeHtml(x.taiKhoan||'')}</div></td><td>${khbdCleanupStatusTextV7046519(x)}</td><td><span class="small">${escapeHtml(x.nguon||'')}</span></td><td><span class="small text-muted">${escapeHtml(x.selectedAt||'')}</span></td></tr>`).join('');
+    const all=document.getElementById('cleanupKhbdCheckAllV7046519');if(all)all.checked=rows.some(x=>x.canDelete);
+  }
+  function toggleKhbdCleanupAllV7046519(checked){document.querySelectorAll('.cleanup-khbd-check-v7046519:not(:disabled)').forEach(el=>{el.checked=!!checked;});}
+  function xemTruocDonKhbdDuV7046519(){
+    const f=khbdCleanupFiltersV7046519();
+    if(f.fromWeek<1||f.toWeek>6||f.fromWeek>f.toWeek){showToastV9('Chức năng này chỉ dọn lịch sử Tuần 1–6.','warning');return;}
+    const btn=document.getElementById('btnPreviewKhbdCleanupV7046519'),tbody=document.getElementById('cleanupKhbdBodyV7046519');
+    if(btn){btn.disabled=true;btn.textContent='Đang rà soát...';}if(tbody)tbody.innerHTML='<tr><td colspan="10" class="text-center py-4">⏳ Đang đối chiếu KHBD với Sổ đầu bài...</td></tr>';
+    google.script.run.withSuccessHandler(function(res){if(btn){btn.disabled=false;btn.textContent='Rà soát KHBD dư';}if(!res||!res.success){showToastV9(res?.message||'Không rà soát được KHBD.','danger');return;}renderKhbdCleanupV7046519(res);const st=document.getElementById('cleanupKhbdStatusV7046519');if(st)st.textContent=res.message||'';}).withFailureHandler(function(err){if(btn){btn.disabled=false;btn.textContent='Rà soát KHBD dư';}showToastV9(err?.message||String(err),'danger');}).xemTruocDonKhbdDuV7046519(f,getAdminAuthV69552());
+  }
+  function thucHienDonKhbdDuV7046519(){
+    const state=window.__KHBD_CLEANUP_V7046519__,rows=Array.isArray(state?.rows)?state.rows:[];
+    const selected=[...document.querySelectorAll('.cleanup-khbd-check-v7046519:checked')].map(el=>rows[Number(el.dataset.index)]).filter(x=>x&&x.canDelete);
+    if(!selected.length){showToastV9('Chưa chọn KHBD dư cần xóa.','warning');return;}
+    const reason=String(document.getElementById('cleanupKhbdReasonV7046519')?.value||'').trim();if(reason.length<5){showToastV9('Cần nhập lý do dọn KHBD ít nhất 5 ký tự.','warning');return;}
+    if(!confirm(`Xóa ${selected.length} lựa chọn KHBD chưa dùng? KHBD gốc, tiết đã ghi và các bài cần dạy bù sẽ được giữ nguyên.`))return;
+    const btn=document.getElementById('btnExecuteKhbdCleanupV7046519');if(btn){btn.disabled=true;btn.textContent='Đang dọn...';}
+    const payload={...khbdCleanupFiltersV7046519(),reason,items:selected.map(x=>({taiKhoan:x.taiKhoan,lop:x.lop,khbdId:x.khbdId}))};
+    google.script.run.withSuccessHandler(function(res){if(btn){btn.disabled=false;btn.textContent='Xóa KHBD dư đã chọn';}if(!res||!res.success){showToastV9(res?.message||'Không dọn được KHBD.','danger');return;}showToastV9(res.message||'Đã dọn KHBD dư.','success');lessonPlanCache={};try{sessionStorage.removeItem(bootstrapCacheKeyV62());}catch(_e){}xemTruocDonKhbdDuV7046519();}).withFailureHandler(function(err){if(btn){btn.disabled=false;btn.textContent='Xóa KHBD dư đã chọn';}showToastV9(err?.message||String(err),'danger');}).donKhbdDuV7046519(payload,getAdminAuthV69552());
   }
 
 

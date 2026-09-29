@@ -1846,7 +1846,7 @@
 
               <!-- V69.5.5.2: RESET KHBD AN TOÀN - CHỈ ADMIN -->
               <div class="tab-pane fade" id="pills-khbd-reset-v69552" role="tabpanel" aria-labelledby="admin-khbd-reset-tab">
-                <div class="mx-auto" style="max-width:1100px;">
+                <div class="mx-auto" style="max-width:1500px;">
                   <div class="card border-danger-subtle shadow-sm">
                     <div class="card-header bg-danger-subtle d-flex justify-content-between align-items-center">
                       <strong>Reset KHBD môn/lớp</strong><span class="badge text-bg-danger">Admin</span>
@@ -1862,6 +1862,39 @@
                         <div class="col-12"><label class="form-label fw-bold">Lý do</label><input id="resetKhbdReasonV69552" class="form-control" placeholder="VD: KHBD đã xóa nhưng trạng thái duyệt/lựa chọn GV còn tồn tại"></div>
                       </div>
                       <div id="resetKhbdResultV69552" class="d-none"></div>
+                    </div>
+                  </div>
+
+                  <div class="card border-primary-subtle shadow-sm mt-3">
+                    <div class="card-header bg-primary-subtle d-flex justify-content-between align-items-center gap-2 flex-wrap">
+                      <div><strong>Dọn KHBD dư Tuần 1–6</strong><div class="small text-muted">Chỉ xóa lựa chọn của giáo viên chưa dùng; không xóa KHBD gốc hoặc tiết Sổ đầu bài.</div></div>
+                      <span class="badge text-bg-primary">V70.4.6.49.6.3.19</span>
+                    </div>
+                    <div class="card-body">
+                      <div class="alert alert-info small py-2">Hệ thống đối chiếu từng KHBD đã nhận với Sổ đầu bài. <strong>Đã dùng</strong> được khóa giữ; tiết <strong>Nghỉ/Bỏ tiết/GV vắng</strong> được giữ để dạy bù; chỉ dòng <strong>Chưa dùng</strong> mới cho phép chọn xóa. Admin luôn được xem trước trước khi xóa.</div>
+                      <div class="row g-2 align-items-end">
+                        <div class="col-6 col-md-1"><label class="form-label small fw-bold">Từ tuần</label><input id="cleanupKhbdFromWeekV7046519" type="number" min="1" max="6" value="1" class="form-control"></div>
+                        <div class="col-6 col-md-1"><label class="form-label small fw-bold">Đến tuần</label><input id="cleanupKhbdToWeekV7046519" type="number" min="1" max="6" value="6" class="form-control"></div>
+                        <div class="col-6 col-md-2"><label class="form-label small fw-bold">Khối</label><select id="cleanupKhbdGradeV7046519" class="form-select"><option value="0">Tất cả khối</option><option value="10">Khối 10</option><option value="11">Khối 11</option><option value="12">Khối 12</option></select></div>
+                        <div class="col-6 col-md-2"><label class="form-label small fw-bold">Môn</label><select id="cleanupKhbdSubjectV7046519" class="form-select"><option value="">Tất cả môn</option></select></div>
+                        <div class="col-6 col-md-2"><label class="form-label small fw-bold">Lớp</label><input id="cleanupKhbdClassV7046519" class="form-control" placeholder="Để trống = tất cả"></div>
+                        <div class="col-6 col-md-2"><label class="form-label small fw-bold">Giáo viên</label><input id="cleanupKhbdTeacherV7046519" class="form-control" placeholder="Tên hoặc tài khoản"></div>
+                        <div class="col-md-2"><button id="btnPreviewKhbdCleanupV7046519" type="button" class="btn btn-outline-primary w-100 fw-bold" onclick="xemTruocDonKhbdDuV7046519()">Rà soát KHBD dư</button></div>
+                      </div>
+                      <div id="cleanupKhbdMetricsV7046519" class="mt-3"></div>
+                      <div id="cleanupKhbdStatusV7046519" class="small text-muted mt-2"></div>
+                      <div id="cleanupKhbdPreviewV7046519" class="mt-2">
+                        <div class="table-responsive border rounded" style="max-height:460px">
+                          <table class="table table-sm table-hover align-middle mb-0" style="font-size:.86rem">
+                            <thead class="table-light sticky-top"><tr><th class="text-center"><input id="cleanupKhbdCheckAllV7046519" class="form-check-input" type="checkbox" onchange="toggleKhbdCleanupAllV7046519(this.checked)"></th><th>Tuần</th><th>Lớp</th><th>Môn</th><th>PPCT</th><th>Nội dung KHBD</th><th>Giáo viên</th><th>Trạng thái</th><th>Nguồn</th><th>Ngày chọn</th></tr></thead>
+                            <tbody id="cleanupKhbdBodyV7046519"><tr><td colspan="10" class="text-center text-muted py-4">Bấm Rà soát KHBD dư để xem trước.</td></tr></tbody>
+                          </table>
+                        </div>
+                      </div>
+                      <div class="row g-2 align-items-end mt-2">
+                        <div class="col-lg-9"><label class="form-label small fw-bold">Lý do dọn dữ liệu *</label><input id="cleanupKhbdReasonV7046519" class="form-control" placeholder="VD: Giáo viên tích dư KHBD Tuần 1–6, chưa sử dụng trong Sổ đầu bài"></div>
+                        <div class="col-lg-3"><button id="btnExecuteKhbdCleanupV7046519" type="button" class="btn btn-primary w-100 fw-bold" onclick="thucHienDonKhbdDuV7046519()">Xóa KHBD dư đã chọn</button></div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -2752,13 +2785,13 @@
 </div>
 
 <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/sodb-v69-runtime.js?v=70.4.6.49.6.3.13"></script>
+<script src="assets/js/sodb-v69-runtime.js?v=70.4.6.49.6.3.19"></script>
 <script src="assets/js/app/sodb-v69-core.js?v=70.4.6.49.6.3.14"></script>
 <script src="assets/js/app/sodb-v69-khbd.js?v=70.4.6.49.6"></script>
 <script src="assets/js/app/sodb-teaching-v704649.js?v=70.4.6.49.6.3.8"></script>
-<script src="assets/js/app/sodb-v69-operations.js?v=70.4.6.49.6.3.17"></script>
+<script src="assets/js/app/sodb-v69-operations.js?v=70.4.6.49.6.3.20"></script>
 <script src="assets/js/app/sodb-v69-print.js?v=70.4.6.49.6.3.17"></script>
-<script src="assets/js/app/sodb-v69-admin.js?v=70.4.6.49.2"></script>
+<script src="assets/js/app/sodb-v69-admin.js?v=70.4.6.49.6.3.19"></script>
 <script src="assets/js/app/sodb-v69-admin-students.js?v=70.4.6.49.2"></script>
 <script src="assets/js/app/sodb-v69-admin-lessons.js?v=70.4.6.49.6.3.14"></script>
 <script src="assets/js/app/sodb-v70-lifecycle.js?v=70.4.6.49.5"></script>
@@ -2772,7 +2805,7 @@
 <script src="assets/js/sodb-v69-gvcn.js?v=70.4.6.49.6.2"></script>
 <script src="assets/js/sodb-v69-reports.js?v=70.4.6.49.2"></script>
 <script src="assets/js/app/sodb-v70-timetable.js?v=70.4.6.49.6.3.17"></script>
-<script src="assets/js/app/sodb-v69-my-lessons.js?v=70.4.6.49.6.3.17"></script>
+<script src="assets/js/app/sodb-v69-my-lessons.js?v=70.4.6.49.6.3.20"></script>
 
 <script src="assets/js/app/sodb-workspace.js?v=70.4.6.49.2"></script>
 <script src="assets/js/app/sodb-v69-print-ready.js?v=70.4.6.49.2"></script>

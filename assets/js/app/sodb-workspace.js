@@ -95,6 +95,7 @@
     const tab=document.getElementById('input-tab');try{if(tab&&window.bootstrap)bootstrap.Tab.getOrCreateInstance(tab).show();else tab?.click();}catch(_e){tab?.click();}
     const set=()=>{
       const khoi=document.getElementById('khoi'),lopSel=document.getElementById('lop');if(khoi){khoi.value=String(grade);try{chonKhoiLopInput();}catch(_e){}}
+      try{if(typeof invalidateInputDeadlineCheckV70465320==='function')invalidateInputDeadlineCheckV70465320();}catch(_e){}
       setTimeout(()=>{if(lopSel){const opt=[...lopSel.options].find(o=>String(o.value).trim()===lop);if(opt)lopSel.value=lop;try{onInputClassChangedV26();}catch(_e){}}const n=document.getElementById('ngayDay'),b=document.getElementById('buoiDay'),t=document.getElementById('tietDay');if(n)n.value=iso;if(b)b.value=session;if(t)t.value=String(period);teachingSuggestV704649();try{capNhatTuanVaThu();}catch(_e){}try{capNhatHanNhapTietV683();}catch(_e){}try{if(typeof refreshGroupAttendanceV6951==='function')refreshGroupAttendanceV6951();}catch(_e){}try{loadDanhSachBaiDay();}catch(_e){}document.getElementById('sodbForm')?.scrollIntoView({behavior:'smooth',block:'start'});if(typeof showToastV9==='function')showToastV9(`Đã mở Nhập tiết: ${lop} · ${iso} · ${session} · Tiết ${period}`,'info');},80);
     };setTimeout(set,50);
   }

@@ -107,12 +107,18 @@ function toggleGroupAbsentV6951(encodedId,checked){
 function validateAttendanceBeforeSaveV7013(){
   const lop=String(document.getElementById('lop')?.value||'').trim();
   if(!lop)return true;
-  if(attendanceRosterReadyV7013&&groupRosterV6951.length>0)return true;
+  const expectedKey=`${groupRosterModeV701}|${lop}|${groupRosterModeV701==='GROUP'?(document.getElementById('ngayDay')?.value||''):''}`;
+  if(attendanceRosterReadyV7013&&groupRosterV6951.length>0&&groupRosterKeyV6951===expectedKey)return true;
   showToastV9(attendanceRosterMessageV7013||attendanceMissingRosterTextV7013(),'danger');
   return false;
 }
+function attendanceContextV70465321(){
+  return JSON.stringify([document.getElementById('lop')?.value||'',document.getElementById('ngayDay')?.value||'',document.getElementById('buoiDay')?.value||'',document.getElementById('tietDay')?.value||'',typeof getEffectiveMonHocV25==='function'?getEffectiveMonHocV25():'',gvbmDangNhapInfo?.sessionToken||'']);
+}
 async function refreshGroupAttendanceV6951(preserveIds){
   const requestSeq=++groupRosterRequestSeqV6951;
+  const context=attendanceContextV70465321();
+  const isCurrent=()=>requestSeq===groupRosterRequestSeqV6951&&context===attendanceContextV70465321();
   const panel=document.getElementById('groupAttendancePanelV6951'),metaEl=document.getElementById('groupAttendanceMetaV6951'),listEl=document.getElementById('groupAttendanceListV6951');
   const countEl=document.getElementById('hsVang'),nameEl=document.getElementById('tenHSVang'),completeEl=document.getElementById('attendanceCompleteV701');
   const lop=String(document.getElementById('lop')?.value||'').trim(),date=String(document.getElementById('ngayDay')?.value||'').trim();
@@ -138,7 +144,7 @@ async function refreshGroupAttendanceV6951(preserveIds){
       operationId:String((typeof currentInputOperationV693!=='undefined'&&currentInputOperationV693?.id)||'')
     };
     const r=await callSodbEdgeRpcV67('layDanhSachHocSinhLopV701',[lop,date,attendanceCtxV704628,{token:gvbmDangNhapInfo.sessionToken}]);
-    if(requestSeq!==groupRosterRequestSeqV6951)return;
+    if(!isCurrent())return;
     if(!r?.success)throw new Error(r?.message||'Không tải được danh sách học sinh.');
     const type=String(r.loaiNhom||'LOP_CHINH').toUpperCase();
     const isGroup=type==='CHUYEN_DE'||type==='GDTC';
@@ -164,7 +170,7 @@ async function refreshGroupAttendanceV6951(preserveIds){
     }
     renderGroupAttendanceV6951();
   }catch(e){
-    if(requestSeq!==groupRosterRequestSeqV6951)return;
+    if(!isCurrent())return;
     groupRosterV6951=[];groupAbsentIdsV6951.clear();groupRosterKeyV6951='';attendanceRosterReadyV7013=false;
     attendanceRosterMessageV7013=e?.message||String(e);if(metaEl)metaEl.textContent=attendanceRosterMessageV7013;renderGroupAttendanceV6951();
   }

@@ -303,8 +303,9 @@
     const week=Number(document.getElementById('tuanHoc')?.value||0);if(!week)return;
     if(!force&&Number(bulkWeekUnlockStateV685.week||0)===week&&bulkWeekUnlockStateV685.checkedAt&&Date.now()-bulkWeekUnlockStateV685.checkedAt<12000)return;
     const serial=++bulkWeekUnlockRequestV685;
+    const token=gvbmDangNhapInfo.sessionToken;
     try{
-      const r=await callSodbEdgeRpcV67('kiemTraMoKhoaTuanHangLoatV685',[week,{token:gvbmDangNhapInfo.sessionToken}]);if(serial!==bulkWeekUnlockRequestV685)return;
+      const r=await callSodbEdgeRpcV67('kiemTraMoKhoaTuanHangLoatV685',[week,{token}]);if(serial!==bulkWeekUnlockRequestV685||week!==Number(document.getElementById('tuanHoc')?.value||0)||token!==gvbmDangNhapInfo?.sessionToken)return;
       const oldAll=!!bulkWeekUnlockStateV685.allowAllClasses;
       bulkWeekUnlockStateV685={week,active:!!r?.active,allowAllClasses:!!r?.allowAllClasses,fromWeek:Number(r?.fromWeek||0),toWeek:Number(r?.toWeek||0),reason:String(r?.reason||''),expiresLabel:String(r?.expiresLabel||''),checkedAt:Date.now()};
       const notice=document.getElementById('bulkWeekUnlockNoticeV685');

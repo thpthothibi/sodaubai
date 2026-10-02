@@ -282,12 +282,16 @@ let varDiemTB = 10;
     const allowed=getAssignedClassesForSubjectV39(subject);
     renderAssignmentNoteV39(subject,allowed);
     const oldKhoi=preserve?String(khoiSel.value||''):'',oldLop=preserve?String(lopSel.value||''):'';
-    const grades=[];allowed.forEach(l=>{const k=getClassGradeV39(l);if(k&&!grades.includes(k))grades.push(k);});grades.sort();
+    const linkedOption=[...lopSel.options].find(o=>o.value===oldLop&&o.dataset.tkbLinkedGroupV704652==='1');
+    const grades=[];allowed.forEach(l=>{const k=getClassGradeV39(l);if(k&&!grades.includes(k))grades.push(k);});
+    if(linkedOption&&oldKhoi&&!grades.includes(oldKhoi))grades.push(oldKhoi);
+    grades.sort();
     khoiSel.innerHTML='';
     if(!grades.length){khoiSel.add(new Option('-- Chưa phân công --',''));lopSel.innerHTML='<option value="">-- Chưa có lớp được phân công --</option>';onInputClassChangedV26();return;}
     grades.forEach(k=>khoiSel.add(new Option('Khối '+k,k)));
     khoiSel.value=grades.includes(oldKhoi)?oldKhoi:grades[0];
     napLopPhanCongV39(lopSel,khoiSel.value,subject);
+    if(linkedOption&&![...lopSel.options].some(o=>o.value===oldLop))lopSel.add(linkedOption);
     if(oldLop&&[...lopSel.options].some(o=>o.value===oldLop))lopSel.value=oldLop;
     onInputClassChangedV26();
   }
@@ -300,7 +304,7 @@ let varDiemTB = 10;
         Object.assign(currentUnifiedLoginV4.sessions.GVBM,res);
         try{sessionStorage.setItem('SODB_V4_UNIFIED_LOGIN',JSON.stringify(currentUnifiedLoginV4));}catch(e){}
       }
-      capNhatKhoiVaLopPhanCongV39(false);
+      capNhatKhoiVaLopPhanCongV39(true);
     }).layPhanCongDayCuaGVV39({token:gvbmDangNhapInfo.sessionToken});
   }
 

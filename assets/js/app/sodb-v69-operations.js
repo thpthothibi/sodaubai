@@ -1026,6 +1026,9 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
       };
     }
     if (selectValue.indexOf("PLAN_") === 0) {
+      if(document.getElementById('tenBaiDaySelect').dataset.loadedContextV70465321!==lessonPlanCacheKeyV54()){
+        showToastV9('Dữ liệu bài dạy chưa khớp lớp đã chọn. Vui lòng chọn lại bài dạy.','warning');return null;
+      }
       let plan = danhSachBaiDay1[Number(selectValue.replace("PLAN_", ""))];
       if (!plan) return null;
       return {
@@ -1151,6 +1154,7 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
     if (!forceRefresh && lessonPlanCache[cacheKey]) {
       danhSachBaiDay1 = lessonPlanCache[cacheKey];
       fillLessonSelect(selectBai, danhSachBaiDay1);
+      selectBai.dataset.loadedContextV70465321=cacheKey;
       const carryCount=danhSachBaiDay1.filter(x=>x&&x.carryover).length;
       document.getElementById('khbdWeekNotice').innerText = danhSachBaiDay1.length
         ? `Đã nạp ${danhSachBaiDay1.length} bài cho Tuần ${tuan}${carryCount?` · có ${carryCount} KHBD còn tồn từ tuần trước`:''}.`
@@ -1176,6 +1180,7 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
         if(currentKey!==cacheKey)return;
         danhSachBaiDay1 = rows;
         fillLessonSelect(selectBai, danhSachBaiDay1);
+        selectBai.dataset.loadedContextV70465321=cacheKey;
         const carryCount=danhSachBaiDay1.filter(x=>x&&x.carryover).length;
         document.getElementById('khbdWeekNotice').innerText = danhSachBaiDay1.length
           ? `Còn ${danhSachBaiDay1.length} bài khả dụng cho Tuần ${tuan}${carryCount?` · ${carryCount} bài tồn được ưu tiên ở đầu danh sách`:''}.`

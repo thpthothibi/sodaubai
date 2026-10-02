@@ -418,8 +418,6 @@ function xuatExcelNhapTreGiamThi() {
     if(force!==true && Date.now()-classCatalogLoadedAtV47<CLASS_CATALOG_REFRESH_MS_V47)return;
     if(classCatalogRefreshingV29)return;
     classCatalogRefreshingV29=true;
-    const oldViewLop=document.getElementById('viewLop')?.value||'';
-    const oldInputLop=document.getElementById('lop')?.value||'';
     google.script.run
       .withSuccessHandler(function(res){
         classCatalogRefreshingV29=false;
@@ -427,12 +425,6 @@ function xuatExcelNhapTreGiamThi() {
         classCatalogLoadedAtV47=Date.now();
         applyClassCatalogV23(res);
 
-        const restore=(id,value)=>{
-          const el=document.getElementById(id);
-          if(el&&value&&[...el.options].some(o=>o.value===value))el.value=value;
-        };
-        restore('viewLop',oldViewLop);
-        restore('lop',oldInputLop);
         capNhatLoaiSoViewV24();
         onInputClassChangedV26();
       })
@@ -446,9 +438,11 @@ function xuatExcelNhapTreGiamThi() {
     capNhatLoaiSoViewV24();
   }
 
-  function chonKhoiLopInput() {
+  function chonKhoiLopInput(deferContext=false) {
     const khoi=document.getElementById('khoi').value;
     const lopSel=document.getElementById('lop');
+    const liveLop=lopSel?.value||'';
+    const linkedOption=[...(lopSel?.options||[])].find(o=>o.value===liveLop&&o.dataset.tkbLinkedGroupV704652==='1');
     const isSub=!!document.getElementById('isDayThayV683')?.checked;
     const bulkAll=!!(bulkWeekUnlockStateV685.active&&bulkWeekUnlockStateV685.allowAllClasses&&Number(document.getElementById('tuanHoc')?.value||0)===Number(bulkWeekUnlockStateV685.week||0));
     if(isSub){
@@ -462,7 +456,11 @@ function xuatExcelNhapTreGiamThi() {
       napLopPhanCongV39(lopSel,khoi,subject);
       renderAssignmentNoteV39(subject,getAssignedClassesForSubjectV39(subject));
     }else napLopVaoSelectV22(lopSel,khoi,true);
-    onInputClassChangedV26();capNhatHanNhapTietV683();
+    if(liveLop&&[...lopSel.options].some(o=>o.value===liveLop))lopSel.value=liveLop;
+    else if(linkedOption&&typeof getClassGradeV39==='function'&&String(getClassGradeV39(liveLop)||linkedOption.dataset.tkbLinkedGradeV70465321||'')===String(khoi)){
+      lopSel.add(linkedOption);lopSel.value=liveLop;
+    }
+    if(!deferContext){onInputClassChangedV26();capNhatHanNhapTietV683();}
   }
 
 

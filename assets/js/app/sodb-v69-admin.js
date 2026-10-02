@@ -303,7 +303,12 @@
       dsLopDacBietTheoKhoiV22[k]=specialCls[k]||[];
       dsLopTheoKhoi[k]=cls[k]||[...(dsLopChinhTheoKhoiV22[k]||[]),...(dsLopDacBietTheoKhoiV22[k]||[])];
     });
-    chonKhoiLopView();chonKhoiLopInput();chonKhoiLopAdmin();khoiTaoDanhSachLopGiamThi();
+    // V70.4.6.49.6.3.21: snapshot at response time, never at request time.
+    const liveViewLop=document.getElementById('viewLop')?.value||'';
+    chonKhoiLopView();
+    const liveViewSelect=document.getElementById('viewLop');
+    if(liveViewSelect&&[...liveViewSelect.options].some(o=>o.value===liveViewLop))liveViewSelect.value=liveViewLop;
+    chonKhoiLopInput();chonKhoiLopAdmin();khoiTaoDanhSachLopGiamThi();
     try{refreshClassDirectEditorV70466();}catch(_e){}
     try{sessionStorage.removeItem('SODB_V6_BOOTSTRAP');sessionStorage.removeItem(bootstrapCacheKeyV62());}catch(e){}
   }

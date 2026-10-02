@@ -1,4 +1,4 @@
-/* V70.4.6.49.6.3.20: Tiết của tôi + chống kẹt khóa do response kiểm tra hạn nhập cũ. */
+/* V70.4.6.49.6.3.21: giữ lớp đang chọn; bỏ race mở tiết và response tuần cũ. */
 (() => {
   'use strict';
   const $ = id => document.getElementById(id);
@@ -7,6 +7,7 @@
   let rows = [];
   let rowById = new Map();
   let loading = false;
+  let loadSerial = 0;
   let loadedFrom = '';
   let loadedTo = '';
   const dayNames=['Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy','Chủ Nhật'];
@@ -107,6 +108,7 @@
     return `<section class="workspace-session my-lessons-session-v704611"><h3><span class="my-lessons-session-icon-v704611" aria-hidden="true">${icon}</span> ${label} <small>Tiết 1 – 4</small></h3><div class="workspace-grid-scroll" tabindex="0" role="region" aria-label="${esc(label)}"><table class="workspace-grid my-lessons-week-table-v704611"><caption class="visually-hidden">Tiết của tôi · Tuần ${Number($('myLessonsWeekV70468')?.value||1)} · ${esc(label)}</caption><thead><tr><th scope="col">Tiết</th>${header}</tr></thead><tbody>${trs}</tbody></table></div></section>`;
   }
   function render(){
+    if(loading)return;
     const list=filtered(), mount=$('myLessonsGridV70468'); if(!mount)return;
     renderMetrics(list);
     const week=Number($('myLessonsWeekV70468')?.value||loadedWeek||currentWeek()),start=parseIso(loadedFrom)||weekStart(week);
@@ -124,11 +126,15 @@
     if(!token){$('myLessonsStatusV70468').textContent='Tài khoản hiện tại không có phiên Giáo viên/BGH phù hợp.';return;}
     const week=Math.max(1,Math.min(53,Number($('myLessonsWeekV70468')?.value||currentWeek())));
     if(!force && loading)return;
-    loading=true; $('myLessonsWeekV70468').value=String(week);
+    const request=++loadSerial;
+    const isCurrent=()=>request===loadSerial&&token===myLessonsToken()&&week===Number($('myLessonsWeekV70468')?.value);
+    loading=true; rows=[];rowById.clear();
+    $('myLessonsWeekV70468').value=String(week);
     $('myLessonsStatusV70468').textContent='Đang tải các tiết đã ghi và các tiết còn chờ theo TKB...';
     $('myLessonsGridV70468').innerHTML='<div class="text-center text-muted py-5"><span class="spinner-border spinner-border-sm me-2"></span>Đang tải...</div>';
     try{
       const res=await callSodbEdgeRpcV67('layTietCuaToiTheoTuanV70468',[week,{token}],20000);
+      if(!isCurrent())return;
       if(!res?.success)throw new Error(res?.message||'Không tải được Tiết của tôi.');
       loadedWeek=week; loadedFrom=String(res.from||''); loadedTo=String(res.to||'');
       rows=Array.isArray(res.data)?res.data:[]; rowById=new Map(rows.map(r=>[String(r.recordId||''),r]));
@@ -139,12 +145,13 @@
       $('myLessonsUpdatedV70468').textContent='Cập nhật '+new Intl.DateTimeFormat('vi-VN',{hour:'2-digit',minute:'2-digit'}).format(new Date());
       const writeHint=canWriteLessons()?'Bấm ô “Chưa ghi” để mở Nhập tiết theo TKB; ô đã ghi mở lại dữ liệu Sổ đầu bài. Ô trống vẫn cho nhập thủ công.':'BGH đang xem lịch cá nhân ở chế độ chỉ xem; để nhập/sửa tiết cần có quyền GVBM.';
       $('myLessonsStatusV70468').textContent=rows.length?writeHint:'Tuần này chưa có tiết đã ghi hoặc TKB chính khóa của bạn.';
-      render();
+      loading=false;render();
     }catch(e){
+      if(!isCurrent())return;
       rows=[];rowById.clear();renderMetrics([]);
       $('myLessonsGridV70468').innerHTML=`<div class="text-center text-danger py-5">${esc(e?.message||e)}</div>`;
       $('myLessonsStatusV70468').textContent='Không tải được dữ liệu. Vui lòng thử lại.';
-    }finally{loading=false;}
+    }finally{if(request===loadSerial)loading=false;}
   }
   function switchWeek(delta){
     const el=$('myLessonsWeekV70468'); if(!el)return;
@@ -152,7 +159,12 @@
     el.value=String(next); load(true);
   }
   function openInput(recordId){
+    if(loading)return;
     const r=typeof recordId==='object'?recordId:rowById.get(String(recordId||'')); if(!r)return;
+    if(typeof isSodbSubmitting!=='undefined'&&isSodbSubmitting){
+      if(typeof showToastV9==='function')showToastV9('Đang lưu tiết. Vui lòng chờ lưu xong trước khi chuyển lớp.','warning');
+      return;
+    }
     try{if(typeof invalidateInputDeadlineCheckV70465320==='function')invalidateInputDeadlineCheckV70465320();}catch(_e){}
     if(!canWriteLessons()){if(typeof showToastV9==='function')showToastV9('BGH đang xem “Tiết của tôi”. Tài khoản cần có thêm quyền GVBM mới được nhập/sửa tiết.','info');return;}
     if(r.linkedSeparateBook&&r.writeBlockedBySeparateBook&&!r.targetLop){
@@ -163,40 +175,48 @@
     const writeLop=String(r.targetLop||r.lop||'').trim(),writeMon=String(r.targetMon||r.mon||'').trim();
     if(typeof editingRecordIdV4!=='undefined'&&editingRecordIdV4){if(!confirm('Đang chỉnh sửa một tiết. Chuyển sang vị trí vừa chọn?'))return;huyCheDoSuaV4();}
     const tab=$('input-tab'); if(!tab)return;
-    try{bootstrap.Tab.getOrCreateInstance(tab).show();}catch(_e){tab.click();}
-    const doSet=()=>{
-      const grade=Number(r.khoi||String(writeLop||'').match(/^(10|11|12)/)?.[1]||10),khoi=$('khoi'),lop=$('lop');
-      if(khoi){khoi.value=String(grade);try{chonKhoiLopInput();}catch(_e){}}
-      setTimeout(()=>{
-        if(lop){let opt=[...lop.options].find(o=>String(o.value).trim()===writeLop);if(!opt&&writeLop){opt=new Option(writeLop,writeLop);opt.dataset.tkbLinkedGroupV704652='1';lop.add(opt);}lop.value=opt?opt.value:'';try{onInputClassChangedV26();}catch(_e){}}
-        if(writeMon){
-          const mon=$('monHoc'),target=typeof canonicalSubjectV6955==='function'?canonicalSubjectV6955(writeMon):writeMon;
-          if(mon){
-            if(typeof isGdtcDetailSubjectV25==='function'&&isGdtcDetailSubjectV25(target)&&typeof gvbmHasGdtcV25==='function'&&gvbmHasGdtcV25()){
-              let baseOpt=[...mon.options].find(o=>typeof isGdtcBaseSubjectV25==='function'&&isGdtcBaseSubjectV25(o.value));
-              if(!baseOpt){baseOpt=new Option('GDTC','GDTC');baseOpt.dataset.tkbLinkedGroupV704652='1';mon.add(baseOpt);}
-              mon.value=baseOpt.value;try{if(typeof configureGdtcInputV25==='function')configureGdtcInputV25();}catch(_e){}
-              const detail=$('gdtcTeachingSubjectV25');if(detail)detail.value=target;
-            }else{
-              let opt=[...mon.options].find(o=>typeof subjectKeyV6955==='function'?subjectKeyV6955(o.value)===subjectKeyV6955(target):String(o.value)===String(target));
-              if(opt)mon.value=opt.value;
-              else if(typeof ensureTeacherSubjectOptionV26==='function')ensureTeacherSubjectOptionV26(target);
-            }
-          }
+    if(typeof clearInputTeachingOperationV7042==='function')clearInputTeachingOperationV7042();
+    if(writeMon){
+      const mon=$('monHoc'),target=typeof canonicalSubjectV6955==='function'?canonicalSubjectV6955(writeMon):writeMon;
+      if(mon){
+        if(typeof isGdtcDetailSubjectV25==='function'&&isGdtcDetailSubjectV25(target)&&typeof gvbmHasGdtcV25==='function'&&gvbmHasGdtcV25()){
+          let baseOpt=[...mon.options].find(o=>typeof isGdtcBaseSubjectV25==='function'&&isGdtcBaseSubjectV25(o.value));
+          if(!baseOpt){baseOpt=new Option('GDTC','GDTC');baseOpt.dataset.tkbLinkedGroupV704652='1';mon.add(baseOpt);}
+          mon.value=baseOpt.value;try{if(typeof configureGdtcInputV25==='function')configureGdtcInputV25();}catch(_e){}
+          const detail=$('gdtcTeachingSubjectV25');if(detail)detail.value=target;
+        }else{
+          let opt=[...mon.options].find(o=>typeof subjectKeyV6955==='function'?subjectKeyV6955(o.value)===subjectKeyV6955(target):String(o.value)===String(target));
+          if(opt)mon.value=opt.value;
+          else if(typeof ensureTeacherSubjectOptionV26==='function')ensureTeacherSubjectOptionV26(target);
         }
-        if($('ngayDay'))$('ngayDay').value=String(r.ngay||'');
-        if($('buoiDay'))$('buoiDay').value=String(r.buoi||'Sáng');
-        if($('tietDay'))$('tietDay').value=String(r.tiet||1);teachingLoadV704649(r);
-        try{capNhatTuanVaThu();}catch(_e){}
-        try{capNhatHanNhapTietV683();}catch(_e){}
-        try{if(typeof refreshGroupAttendanceV6951==='function')refreshGroupAttendanceV6951();}catch(_e){}
-        try{loadDanhSachBaiDay();}catch(_e){}
-        $('sodbForm')?.scrollIntoView({behavior:'smooth',block:'start'});
-        if(typeof showToastV9==='function')showToastV9(`Đã mở ${writeLop||'vị trí trống'} · ${viDate(r.ngay)} · ${r.buoi} · Tiết ${r.tiet}.${r.targetLop&&r.targetLop!==r.lop?` TKB lớp chính ${r.lop} được liên kết sang sổ ${r.targetLop}.`:''} ${r.isTimetable?'Theo TKB và chưa ghi; hãy chọn KHBD rồi lưu.':(r.isEmpty?'Chọn lớp/môn và nhập nội dung trước khi lưu.':'Bản ghi đã tồn tại; quyền sửa vẫn do hệ thống kiểm soát.')}`,'info');
-      },100);
-    };
-    setTimeout(doSet,60);
+      }
+    }
+    const grade=Number(r.khoi||String(writeLop||'').match(/^(10|11|12)/)?.[1]||$('khoi')?.value||10),khoi=$('khoi'),lop=$('lop');
+    if(khoi){
+      if(![...khoi.options].some(o=>o.value===String(grade)))khoi.add(new Option('Khối '+grade,String(grade)));
+      khoi.value=String(grade);
+    }
+    // The class builder is synchronous; set the target immediately, without timers.
+    try{chonKhoiLopInput(true);}catch(_e){}
+    if(lop){
+      let opt=[...lop.options].find(o=>String(o.value).trim()===writeLop);
+      if(!opt&&writeLop){opt=new Option(writeLop,writeLop);opt.dataset.tkbLinkedGroupV704652='1';opt.dataset.tkbLinkedGradeV70465321=String(grade);lop.add(opt);}
+      lop.value=opt?opt.value:'';
+    }
+    if($('ngayDay'))$('ngayDay').value=String(r.ngay||'');
+    if($('buoiDay'))$('buoiDay').value=String(r.buoi||'Sáng');
+    if($('tietDay'))$('tietDay').value=String(r.tiet||1);
+    teachingLoadV704649(r);
+    try{capNhatTuanVaThu();}catch(_e){}
+    try{onInputClassChangedV26();}catch(_e){}
+    try{capNhatHanNhapTietV683();}catch(_e){}
+    try{if(typeof scheduleTeachingOperationRefreshV70469==='function')scheduleTeachingOperationRefreshV70469(0);}catch(_e){}
+    // Tab listeners now see the selected class/date/subject, never the previous slot.
+    try{bootstrap.Tab.getOrCreateInstance(tab).show();}catch(_e){tab.click();}
+    $('sodbForm')?.scrollIntoView({behavior:'smooth',block:'start'});
+    if(typeof showToastV9==='function')showToastV9(`Đã mở ${writeLop||'vị trí trống'} · ${viDate(r.ngay)} · ${r.buoi} · Tiết ${r.tiet}.${r.targetLop&&r.targetLop!==r.lop?` TKB lớp chính ${r.lop} được liên kết sang sổ ${r.targetLop}.`:''} ${r.isTimetable?'Theo TKB và chưa ghi; hãy chọn KHBD rồi lưu.':(r.isEmpty?'Chọn lớp/môn và nhập nội dung trước khi lưu.':'Bản ghi đã tồn tại; quyền sửa vẫn do hệ thống kiểm soát.')}`,'info');
   }
+
   function openEmpty(cell){
     if(loading)return;const lop=$('myLessonsClassV70468')?.value||'ALL',mon=$('myLessonsSubjectV70468')?.value||'ALL';
     openInput({isEmpty:true,lop:lop==='ALL'?'':lop,mon:mon==='ALL'?'':mon,ngay:cell.dataset.myEmptyDate,buoi:({SANG:'Sáng',CHIEU:'Chiều',DAY_BU:'Dạy bù'})[cell.dataset.myEmptySession]||'Sáng',tiet:Number(cell.dataset.myEmptyPeriod)});

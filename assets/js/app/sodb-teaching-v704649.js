@@ -334,5 +334,24 @@ function teachingPrintFieldV27(r={},field) {
 }
 function teachingDisplayFieldV27(r={},field) {
   if(!['mon','nhanXet'].includes(field))return escapeHtml(teachingFieldV704649(r,field));
-  return `<span class="sodb-screen-field-v27">${escapeHtml(teachingFieldV704649(r,field))}</span><span class="sodb-print-field-v27">${teachingPrintFieldV27(r,field)}</span>`;
+  const screen=field==='mon'&&teachingPublicClientV704649(r).hinhThucDay==='Trực tuyến'
+    ? escapeHtml(String(r.mon||'').replace(/^Online\s*[-–:]\s*/i,'').replace(/\s*\(Dạy trực tuyến\)\s*$/i,''))+' '+teachingViewModeV28(r)
+    : escapeHtml(teachingFieldV704649(r,field));
+  return `<span class="sodb-screen-field-v27">${screen}</span><span class="sodb-print-field-v27">${teachingPrintFieldV27(r,field)}</span>`;
+}
+
+// V70.4.6.49.6.3.28: evidence links in on-screen book, including mixed lessons.
+function teachingViewModeV28(r={},modeOverride='') {
+  const mode=modeOverride||teachingPublicClientV704649(r).hinhThucDay||'';
+  if(mode!=='Trực tuyến')return escapeHtml(mode);
+  // V29: only an explicitly saved online lesson exposes its evidence link.
+  if(r.hinhThucDay!=='Trực tuyến'||r.hinhThucSuyDien===true)return '<span>(Dạy trực tuyến)</span>';
+  const href=teachingEvidenceUrlV27(r),label='(Dạy trực tuyến)';
+  return href?`<a class="sodb-view-evidence-v28" data-sodb-evidence-link="1" href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer" title="Mở phòng học hoặc bản ghi của tiết này trong tab mới" aria-label="Mở minh chứng dạy trực tuyến${r.mon?' môn '+escapeHtml(r.mon):''}">${label}</a>`:`<span class="sodb-view-evidence-missing-v28" data-sodb-evidence-missing="1" title="Tiết này chưa có link phòng học hoặc bản ghi">${label} <small>· chưa có link</small></span>`;
+}
+function isTeachingEvidenceClickV28(event) {
+  if(!event.target?.closest?.('a[data-sodb-evidence-link], [data-sodb-evidence-missing]'))return false;
+  event.stopPropagation();
+  // Leave native anchor navigation intact, including Ctrl/Cmd-click and keyboard Enter.
+  return true;
 }

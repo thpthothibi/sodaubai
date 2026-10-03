@@ -281,3 +281,10 @@
 .my-lesson-absence-v704611{display:inline-flex;align-items:center;border:1px solid #f1aeb5;background:#fff5f5;color:#b02a37;border-radius:999px;padding:.08rem .35rem;font-size:.62rem;font-weight:700}
 .my-lessons-session-icon-v704611{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;font-size:18px;color:#e7f2ff}
 @media(max-width:767.98px){.my-lessons-grid-v704611{padding-left:0!important;padding-right:0!important}.my-lessons-grid-v704611 .workspace-session{border-radius:0}.my-lessons-grid-v704611 .workspace-grid{min-width:900px}.my-lesson-card-v704611 .workspace-lesson-entry>span{-webkit-line-clamp:2}}
+
+/* V28: on-screen evidence action, distinct from clicking a cell to enter a lesson. */
+a.sodb-view-evidence-v28{display:inline-block;color:#1558b0;font-weight:600;text-decoration:underline;text-underline-offset:3px;padding:3px 2px;border-radius:4px;cursor:pointer;overflow-wrap:anywhere}
+a.sodb-view-evidence-v28:hover{color:#083a85;background:#e9f2ff}
+a.sodb-view-evidence-v28:focus-visible{outline:2px solid #1558b0;outline-offset:3px}
+.sodb-view-evidence-missing-v28{color:#687586}
+.sodb-view-evidence-missing-v28 small{font-weight:400}

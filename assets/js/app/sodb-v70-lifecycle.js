@@ -154,7 +154,7 @@ function v702BuildArchivePrintHtml(res){
   rows.forEach(r=>{const key=`${String(r.thu||'')}|${v702NormBuoi(r.buoi)}|${Number(r.tiet||0)}`;const a=by.get(key)||[];a.push(r);by.set(key,a);});
   const days=['Thứ 2','Thứ 3','Thứ 4','Thứ 5','Thứ 6','Thứ 7'];let body='';
   days.forEach((day,di)=>{for(let i=0;i<10;i++){const buoi=i<5?'Sang':'Chieu',tiet=i<5?i+1:i-4,a=by.get(`${day}|${buoi}|${tiet}`)||[];
-    const join=(field,sep='<br>')=>a.map(x=>v700Esc(teachingFieldV704649(x,field))).filter(Boolean).join(sep);
+    const join=(field,sep='<br>')=>a.map(x=>teachingPrintFieldV27(x,field)).filter(Boolean).join(sep);
     const sig=a.map(x=>v702SigHtml(x.signatureUrl,x.giaoVien,'')).join('');
     body+=`<tr>${i===0?`<td rowspan="10" class="day">${v700Esc(day)}</td>`:''}<td>${buoi==='Sang'?'S':'C'}-${tiet}</td><td>${join('mon')}</td><td>${join('tietCT')}</td><td>${join('hsVang')}</td><td class="left">${join('bai')}</td><td class="left">${join('nhanXet')}</td><td>${join('hocTap')}</td><td>${join('kyLuat')}</td><td>${join('veSinh')}</td><td>${join('diemTB')}</td><td>${sig}</td></tr>`;
   }});

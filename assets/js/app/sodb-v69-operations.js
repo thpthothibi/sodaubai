@@ -324,7 +324,7 @@
       if(fieldName === "mon" && cellData && cellData.isTietTron && entries.length > 1 && index === 0){
         badge = `<span class="badge sodb-status-badge sodb-status-badge-mixed mixed-badge me-1"${popoverAttrsV7032('Tiết trộn',mixedPopoverTextV7032(cellData))}>TRỘN</span> `;
       }
-      return `<div class="mixed-entry">${badge}${escapeHtml(teachingFieldV704649(entry,fieldName))}</div>`;
+      return `<div class="mixed-entry">${badge}${teachingDisplayFieldV27(entry,fieldName)}</div>`;
     }).join("");
   }
 

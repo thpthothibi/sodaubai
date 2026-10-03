@@ -3858,3 +3858,10 @@ body.a3-tracuu-v56 #a3PrintRootV56 .signature-footer .signature-signer-name-v704
 }
 #printGVCNName:empty{min-height:0!important;margin-top:0!important;}
 .signature-signer-name-v7046531:empty{display:none!important;min-height:0!important;margin-top:0!important;}
+
+/* Interactive PDF evidence: never append href to paper. */
+.sodb-print-field-v27{display:none}
+@media print{.sodb-screen-field-v27{display:none!important}.sodb-print-field-v27{display:inline!important}a.sodb-pdf-evidence-v27,a.sodb-pdf-evidence-v27:visited{color:inherit!important;text-decoration:none!important}a.sodb-pdf-evidence-v27::after{content:none!important}}
+
+.sodb-online-label-v27{white-space:nowrap}
+@media print{body.a3-tracuu-v56 #a3PrintRootV56 .a3-one-line-v56:has(.sodb-online-label-v27){white-space:normal!important;max-height:none!important;-webkit-line-clamp:unset!important;overflow:visible!important}body.a3-tracuu-v56 #a3PrintRootV56 .a3-sync-mon-v704610:has(.sodb-online-label-v27){white-space:normal!important;overflow:visible!important}}

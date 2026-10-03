@@ -218,7 +218,7 @@ function renderA3MixedStackV704610(cellData,fieldName,prefixHtml=''){
       ? '<span class="badge sodb-status-badge sodb-status-badge-mixed mixed-badge me-1">TRỘN</span> '
       : '';
     const prefix=index===0?String(prefixHtml||''):'';
-    return `<div class="a3-sync-line-v704610 a3-sync-${String(fieldName||'').toLowerCase()}-v704610">${prefix}${mixedBadge}${escapeHtml(teachingFieldV704649(entry,fieldName))}</div>`;
+    return `<div class="a3-sync-line-v704610 a3-sync-${String(fieldName||'').toLowerCase()}-v704610">${prefix}${mixedBadge}${teachingPrintFieldV27(entry,fieldName)}</div>`;
   }).join('')}</div>`;
 }
 function renderA3FieldV704610(cellData,fieldName,prefixHtml=''){

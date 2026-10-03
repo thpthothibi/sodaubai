@@ -318,3 +318,21 @@ document.addEventListener('DOMContentLoaded',()=>{for(const id of ['onlinePlatfo
 function renderPlatformManagerV26(){const el=document.getElementById('platformManagerV26');if(!el)return;el.replaceChildren();for(const item of platformCatalogV26){const label=document.createElement('label');label.className='form-check form-check-inline';const cb=document.createElement('input');cb.type='checkbox';cb.className='form-check-input';cb.checked=item.enabled;cb.addEventListener('change',()=>togglePlatformV26(item,cb));const text=document.createElement('span');text.className='form-check-label';text.textContent=item.name;label.append(cb,text);el.append(label);}}
 async function refreshPlatformManagerV26(btn){btn.disabled=true;try{const r=await callSodbEdgeRpcV67('teachingDefaultV704649',[{platformCatalog:true},getAdminAuthV700()],15000);if(!r?.success)throw Error(r?.message||'Không tải được danh mục.');platformNamesV704638=r.platforms||[];platformCatalogV26=r.catalog||[];renderPlatformsV704638();renderPlatformManagerV26();}catch(e){showToastV9(e.message,'warning');}finally{btn.disabled=false;}}
 async function togglePlatformV26(item,cb){cb.disabled=true;try{const r=await callSodbEdgeRpcV67('teachingDefaultV704649',[{platformCatalog:true,setPlatformVisibility:{name:item.name,enabled:cb.checked}},getAdminAuthV700()],15000);if(!r?.success)throw Error(r?.message||'Không cập nhật được nền tảng.');platformNamesV704638=r.platforms||[];platformCatalogV26=r.catalog||[];renderPlatformsV704638();renderPlatformManagerV26();showToastV9('Đã cập nhật nền tảng gợi ý.','success');}catch(e){cb.checked=item.enabled;showToastV9(e.message,'warning');}finally{cb.disabled=false;}}
+
+// V70.4.6.49.6.3.27: real PDF URI annotations via browser print, no visible URL.
+function teachingEvidenceUrlV27(r={}) {
+  const raw=String(r.linkPhongHoc||r.link_phong_hoc||'').trim();
+  try {const u=new URL(raw);return u.protocol==='https:'&&!u.username&&!u.password?u.href:'';} catch(_e){return '';}
+}
+function teachingPrintFieldV27(r={},field) {
+  let text=String(r[field]||'');
+  if(field==='mon')text=text.replace(/^Online\s*[-–:]\s*/i,'').replace(/\s*\(Dạy trực tuyến\)\s*$/i,'');
+  const mode=teachingPublicClientV704649(r).hinhThucDay;
+  if(field!=='mon'||mode!=='Trực tuyến')return escapeHtml(text);
+  const href=teachingEvidenceUrlV27(r),label='<span class="sodb-online-label-v27">(Dạy trực tuyến)</span>';
+  return escapeHtml(text)+' '+(href?`<a class="sodb-pdf-evidence-v27" href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none">${label}</a>`:label);
+}
+function teachingDisplayFieldV27(r={},field) {
+  if(!['mon','nhanXet'].includes(field))return escapeHtml(teachingFieldV704649(r,field));
+  return `<span class="sodb-screen-field-v27">${escapeHtml(teachingFieldV704649(r,field))}</span><span class="sodb-print-field-v27">${teachingPrintFieldV27(r,field)}</span>`;
+}

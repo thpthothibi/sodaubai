@@ -225,7 +225,8 @@ function renderA3FieldV704610(cellData,fieldName,prefixHtml=''){
   if(a3PrintEntryCountV704610(cellData)>1){
     return renderA3MixedStackV704610(cellData,fieldName,prefixHtml);
   }
-  const content=`${prefixHtml||''}${renderMixedField(cellData,fieldName)}`;
+  const entry=a3PrintEntriesV704610(cellData)[0]||{};
+  const content=`${prefixHtml||''}<div class="mixed-entry">${teachingPrintFieldV27(entry,fieldName)}</div>`;
   if(fieldName==='mon')return `<div class="a3-cell-clamp-v56 a3-one-line-v56">${content}</div>`;
   if(fieldName==='tenBai')return `<div class="a3-cell-clamp-v56">${content}</div>`;
   return content;

@@ -434,6 +434,8 @@ async function quanLyKhbdDoiTacV704636(action='LIST',id=''){
   if(action!=='LIST'){showToastV9(res.message,'success');if(action==='SAVE'){document.getElementById('partnerPlanPasteV704636').value='';clearPartnerUploadV704637();}await quanLyKhbdDoiTacV704636();return;}
   if(document.getElementById('extSlotProgramV704645')?.value!==programId)return;
   box.innerHTML=(res.data||[]).length?'<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Tuần</th><th>Khối / Lớp</th><th>Tiết CT</th><th>Tên bài</th><th></th></tr></thead><tbody>'+(res.data||[]).map(x=>`<tr><td>${escV693(x.tuan)}</td><td>${escV693(x.khoi)} / ${escV693(x.lop)}</td><td>${escV693(x.tiet_ct)}</td><td>${escV693(x.ten_bai)}</td><td><button class="btn btn-sm btn-outline-secondary" onclick="quanLyKhbdDoiTacV704636('DISABLE','${escV693(x.id)}')">Ngừng</button></td></tr>`).join('')+'</tbody></table></div>':'Chưa có KHBD đối tác cho chương trình này.';
+  const selectedProgram=(batchCatalogV704645.programs||[]).find(x=>x.id===programId);
+  box.innerHTML=`<div class="alert alert-info py-2"><strong>KHBD đang xem: ${escV693(selectedProgram?.tenChuongTrinh||programId)}</strong> · Môn ${escV693(selectedProgram?.tenMon||'')}<br><button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="chonChuongTrinhKyThayV31()">Dùng chương trình này để ký thay</button></div>`+box.innerHTML;
  }catch(e){showToastV9(e?.message||'Không tải được KHBD đối tác.','warning');}
  finally{buttons.forEach(x=>x.disabled=false);}
 }
@@ -496,4 +498,11 @@ async function docFileKhbdDoiTacV704637(event){
   partnerUploadV704637={rows,programId};
   if(box)box.innerHTML=`<div class="alert alert-info py-2">Đã đọc <strong>${rows.length} bài</strong> từ ${escV693(file.name)}. Kiểm tra bên dưới rồi bấm <strong>Lưu danh sách bài</strong>. Chưa ghi vào hệ thống.</div><div class="table-responsive" style="max-height:320px;overflow:auto"><table class="table table-sm"><thead><tr><th>Tuần</th><th>Khối</th><th>Lớp</th><th>Tiết CT</th><th>Tên bài</th><th>Yêu cầu cần đạt</th></tr></thead><tbody>`+rows.map(x=>`<tr><td>${x.tuan}</td><td>${x.khoi}</td><td>${escV693(x.lop)}</td><td>${escV693(x.tietCT)}</td><td>${escV693(x.tenBai)}</td><td>${escV693(x.yeuCau)}</td></tr>`).join('')+'</tbody></table></div>';
  }catch(e){if(request!==partnerUploadRequestV704637)return;partnerUploadV704637=null;if(box)box.textContent=e?.message||'Không đọc được file.';showToastV9(e?.message||'Không đọc được file.','warning');}
+}
+
+function chonChuongTrinhKyThayV31(){
+ const id=document.getElementById('extSlotProgramV704645')?.value||'',sel=document.getElementById('batchProgramV704645');
+ if(!id||!sel)return;sel.value=id;batchPreviewV704645=[];renderBatchPreviewV704645();
+ sel.dispatchEvent(new Event('change',{bubbles:true}));sel.scrollIntoView({behavior:'smooth',block:'center'});
+ showToastV9('Đã chọn cùng chương trình. Bấm Xem trước ký thay để tải KHBD đúng tuần/khối.','info');
 }

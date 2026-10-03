@@ -1585,8 +1585,8 @@
 <div class="mt-3"><p class="small">Chọn file, ghép các cột với chương trình và nhân sự, xem trước rồi nhập. Lịch cũ của các chương trình/khối trong lần nhập được kết thúc vào ngày liền trước ngày áp dụng mới, kể cả lớp không còn trong file mới. File phải chứa toàn bộ TKB của các chương trình/khối được nhập. Các chương trình và khối khác được giữ nguyên.</p>
 <div class="row g-2"><div class="col-md-5"><label class="form-label" for="linkedFileV27">File Vietschool Theo môn (.xls/.xlsx)</label><input type="file" id="linkedFileV27" accept=".xls,.xlsx" class="form-control" onchange="readLinkedFileV27(this)"></div><div class="col-md-3"><label class="form-label" for="linkedFromV27">Ngày áp dụng</label><input type="date" id="linkedFromV27" class="form-control" oninput="invalidateLinkedPreviewV27()"></div><div class="col-md-2"><label class="form-label" for="linkedToV27">Ngày kết thúc</label><input type="date" id="linkedToV27" class="form-control" oninput="invalidateLinkedPreviewV27()"></div><div class="col-md-2"><label class="form-label" for="linkedSemesterV27">Học kỳ</label><select id="linkedSemesterV27" class="form-select" onchange="invalidateLinkedPreviewV27()"><option>HK1</option><option>HK2</option><option>CA_NAM</option></select></div></div>
 <div id="linkedMapV27" class="table-responsive mt-3"></div><div id="linkedStatusV27" class="small my-2" role="status"></div><div class="d-flex gap-2"><button type="button" class="btn btn-outline-primary" onclick="previewLinkedV27(this)">Xem trước TKB và lịch cũ sẽ đóng</button><button type="button" id="linkedSaveV27" class="btn btn-success" disabled onclick="saveLinkedV27(this)">Nhập TKB</button></div><div id="linkedPreviewV27" class="table-responsive mt-3"></div></div></details>
-<details id="partnerPlanManagerV704636" class="card p-3 mb-3 manage-external-slot-v704645"><summary class="fw-bold text-primary">KHBD đối tác — nhập và quản lý bài dạy</summary>
-<p class="small mt-2">Chọn chương trình ở phía trên. Admin/BGH nhập KHBD đối tác đã được nhà trường chấp thuận. Khi ký thay, chọn bài trên từng dòng để tự điền tiết CT và nội dung.</p>
+<details id="partnerPlanManagerV704636" class="card p-3 mb-3 manage-external-slot-v704645"><summary class="fw-bold text-primary">KHBD chương trình nhà trường / đối tác — nhập và quản lý bài dạy</summary>
+<p class="small mt-2">Chọn chương trình ở phía trên. Admin/BGH nhập KHBD cho đúng chương trình đã chọn; bài dùng được ngay, không cần duyệt thêm. Khi ký thay, chọn bài trên từng dòng để tự điền tiết CT và nội dung.</p>
 <p class="small">Dán từ Excel, không kèm tiêu đề, theo 6 cột: <strong>Tuần | Khối | Lớp | Tiết CT | Tên bài | Yêu cầu cần đạt</strong>. Cột cuối có thể bỏ trống. Lớp ghi <strong>*</strong> nếu dùng chung trong khối. Ví dụ: tuần 7, khối 10, lớp *, tiết CT 13, Unit 3 – Speaking.</p>
 <div class="border rounded p-3 mb-3 bg-light"><a class="btn btn-outline-success mb-2" href="assets/templates/MAU_KHBD_DOI_TAC.xlsx" download="MAU_KHBD_DOI_TAC.xlsx">Tải file Excel mẫu</a>
 <label class="form-label d-block fw-semibold" for="partnerUploadFileV704637">Chọn file Excel đã điền</label><input type="file" id="partnerUploadFileV704637" accept=".xlsx" class="form-control" onchange="docFileKhbdDoiTacV704637(event)">
@@ -2801,7 +2801,7 @@
 <script src="assets/js/app/sodb-v70-lifecycle.js?v=70.4.6.49.6.3.27"></script>
 <script src="assets/js/app/sodb-v69-bgh.js?v=70.4.6.49.2"></script>
 <script src="assets/js/app/sodb-v69-masterdata.js?v=70.4.6.49.2"></script>
-<script src="assets/js/app/sodb-v69-control.js?v=70.4.6.49.6.3.27"></script>
+<script src="assets/js/app/sodb-v69-control.js?v=70.4.6.49.6.3.31"></script>
 <script src="assets/js/app/sodb-v69-v694.js?v=70.4.6.49.2"></script>
 <script src="assets/js/app/sodb-v69-v695.js?v=70.4.6.49.2"></script>
 <script src="assets/js/app/sodb-v69-v6951.js?v=70.4.6.49.6.3.21"></script>

@@ -268,6 +268,7 @@
 
   function sodbEdgeRpcTimeoutV70463(method){
     const m=String(method||'');
+    if(m==='kyThayHangLoatV704645')return 180000;
     // V70.4.6.3: KHBD đã được tối ưu song song; 30s chỉ là ngưỡng an toàn cho cold start/mạng chậm.
     if(['getDanhSachBaiDayTheoMon','layKhbdCaNhanV67','chonKhbdCaNhanV67'].includes(m))return 30000;
     return 20000;
@@ -290,7 +291,7 @@
     }finally{clearTimeout(timeout);recordSodbPerfV6922('EDGE',perfAction,perfStart,perfOk);}
   }
   async function callSodbEdgeRpcV67(method,args,timeoutMs){
-    const data=await callSodbEdgeV66({action:'rpc',method:String(method||''),args:Array.isArray(args)?args:[]},timeoutMs);
+    const data=await callSodbEdgeV66({action:'rpc',method:String(method||''),args:Array.isArray(args)?args:[]},timeoutMs||sodbEdgeRpcTimeoutV70463(method));
     if(!data||data.success!==true)throw new Error(data&&data.message?sodbErrorTextV658(data.message):'Supabase V69 không thực hiện được yêu cầu.');
     return data.result;
   }

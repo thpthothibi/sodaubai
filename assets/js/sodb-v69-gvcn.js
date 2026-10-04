@@ -92,7 +92,9 @@
     STUDENT_EXCEPTION_OVERLAP:'Học sinh vừa thuộc nhóm vừa được khai báo ngoại lệ',
     STUDENT_EXCEPTION_STALE:'Ngoại lệ học sinh không còn phù hợp',
     SKIPPED_PERIOD:'Tiết đang được ghi nhận bỏ tiết',
-    TEACHER_ABSENT_UNRESOLVED:'Giáo viên vắng chưa có xử lý thay thế',
+    TEACHER_ABSENT_UNRESOLVED:'Giáo viên vắng chưa có hồ sơ hợp lệ',
+    APPROVED_TEACHER_ABSENCE:'Giáo viên nghỉ đã duyệt hợp lệ',
+    ABSENCE_OPERATION_PENDING:'Hồ sơ dạy thay/dạy bù chưa hoàn tất',
     GROUP_SLOT_AUTO_DETECTED:'Đã tự nhận diện tiết nhóm',
     EXCUSED_NO_CLASS:'Nghỉ hợp lệ',
     PROXY_SIGNATURE_VALID:'Đã ký thay hợp lệ',
@@ -146,6 +148,8 @@
       ${extra?row(`Học sinh còn sót trong nhóm${x?.extraCount?` (${x.extraCount})`:''}`,extra,'text-warning-emphasis'):''}
       ${row('Môn',x?.subject)}
       ${row('Chương trình',x?.programName)}
+      ${row('Hồ sơ dạy thay/bù',x?.operationCode)}
+      ${row('Người duyệt nghỉ',x?.approvedBy)}
       ${row('GV giảng dạy',x?.teacherName)}
       ${row('Người xác nhận',x?.proxySignerName?`${x.proxySignerName}${x.proxySignerTitle?' – '+x.proxySignerTitle:''}`:'')}
       ${row('Đợt ký',x?.batchCode)}
@@ -160,7 +164,7 @@
     if(morning)morning.textContent=`${Number(v.morning?.valid||0)}/${Number(v.morning?.expected||0)}`;
     if(afternoon)afternoon.textContent=`${Number(v.afternoon?.valid||0)}/${Number(v.afternoon?.expected||0)}`;
     const pass=String(v.status)==='PASS',fresh=!!v.storedFresh;
-    if(summary){const proxyText=Number(v.proxySignedCount||0)?` · ${Number(v.proxySignedCount||0)} tiết ký thay hợp lệ`:'';summary.className='alert '+(pass?(fresh?'alert-success':'alert-info'):'alert-warning')+' border py-2 mb-2';summary.innerHTML=pass?(fresh?`<b>ĐẠT</b> · ${v.validSlots}/${v.expectedSlots} ô hợp lệ${proxyText} · Đã kiểm tra ${escapeHtml(v.checkedAt||'')}`:`<b>Dữ liệu hiện tại đạt</b> ${v.validSlots}/${v.expectedSlots}${proxyText}, nhưng GVCN cần bấm <b>Kiểm tra sổ tuần</b> để xác nhận trước khi ký.`):`<b>CHƯA ĐẠT</b> · ${v.validSlots}/${v.expectedSlots} ô hợp lệ · ${v.blockingCount} lỗi chặn${v.warningCount?` · ${v.warningCount} cảnh báo`:''}${proxyText}. <span class="d-block small mt-1">Mỗi lỗi bên dưới ghi rõ nguyên nhân, vị trí cần kiểm tra và cách xử lý.</span>`;}
+    if(summary){const proxyText=(Number(v.proxySignedCount||0)?` · ${Number(v.proxySignedCount||0)} tiết ký thay hợp lệ`:'')+(Number(v.approvedAbsenceCount||0)?` · ${Number(v.approvedAbsenceCount||0)} tiết nghỉ đã duyệt hợp lệ`:'');summary.className='alert '+(pass?(fresh?'alert-success':'alert-info'):'alert-warning')+' border py-2 mb-2';summary.innerHTML=pass?(fresh?`<b>ĐẠT</b> · ${v.validSlots}/${v.expectedSlots} ô hợp lệ${proxyText} · Đã kiểm tra ${escapeHtml(v.checkedAt||'')}`:`<b>Dữ liệu hiện tại đạt</b> ${v.validSlots}/${v.expectedSlots}${proxyText}, nhưng GVCN cần bấm <b>Kiểm tra sổ tuần</b> để xác nhận trước khi ký.`):`<b>CHƯA ĐẠT</b> · ${v.validSlots}/${v.expectedSlots} ô hợp lệ · ${v.blockingCount} lỗi chặn${v.warningCount?` · ${v.warningCount} cảnh báo`:''}${proxyText}. <span class="d-block small mt-1">Mỗi lỗi bên dưới ghi rõ nguyên nhân, vị trí cần kiểm tra và cách xử lý.</span>`;}
     if(summary&&v.scheduleSource)summary.innerHTML+=`<div class="small mt-1">Đối chiếu ${v.scheduleSource==='TKB_CHINH_KHOA_VA_CHUONG_TRINH_NHA_TRUONG'?'TKB chính khóa và TKB chương trình nhà trường':'khung tiết dự phòng và TKB chương trình nhà trường'}; tiết chưa ghi hoặc chưa ký đủ sẽ chặn chốt tuần.</div>`;
     const list=Array.isArray(v.issues)?v.issues:[];
     const blockingList=list.filter(x=>x?.severity==='BLOCKING'),warningList=list.filter(x=>x?.severity==='WARNING'),infoList=list.filter(x=>x?.severity==='INFO');

@@ -160,7 +160,7 @@
     const summary=document.getElementById('gvcnValidationSummaryV7045'),issues=document.getElementById('gvcnValidationIssuesV7045');
     const morning=document.getElementById('gvcnMorningV7045'),afternoon=document.getElementById('gvcnAfternoonV7045');
     if(!v||!v.success){if(summary){summary.className='alert alert-warning border py-2 mb-2';summary.textContent='Chưa có kết quả kiểm tra.';}if(issues)issues.innerHTML='';return;}
-    if(v.validationRequired===false){if(morning)morning.textContent='Không áp dụng';if(afternoon)afternoon.textContent='Không áp dụng';if(summary){summary.className='alert alert-info border py-2 mb-2';summary.textContent=`Tuần ${Number(v.tuan)} trước mốc tuần ${Number(v.validationStartWeek||7)}: không áp dụng chặn chốt theo TKB. Các khóa tuần đã ký vẫn có hiệu lực.`;}if(issues)issues.innerHTML='';return;}
+    if(v.validationRequired===false){if(morning)morning.textContent='Không áp dụng';if(afternoon)afternoon.textContent='Không áp dụng';if(summary){summary.className='alert alert-info border py-2 mb-2';summary.textContent=v.message||`Tuần ${Number(v.tuan)}: không áp dụng chặn chốt theo TKB. Các khóa tuần đã ký vẫn có hiệu lực.`;}if(issues)issues.innerHTML='';return;}
     if(morning)morning.textContent=`${Number(v.morning?.valid||0)}/${Number(v.morning?.expected||0)}`;
     if(afternoon)afternoon.textContent=`${Number(v.afternoon?.valid||0)}/${Number(v.afternoon?.expected||0)}`;
     const pass=String(v.status)==='PASS',fresh=!!v.storedFresh;
@@ -191,7 +191,7 @@
       else if(staleNeedsUnlock&&v&&v.status==='PASS'&&v.storedFresh===true)hint.textContent='Kết quả kiểm tra PASS còn hiệu lực, nhưng tuần đã ký trước đó và đang ở trạng thái cần ký lại. Admin cần mở khóa tạm trước khi GVCN ký lại.';
       else if(staleNeedsUnlock)hint.textContent='Tuần đã từng được GVCN ký chốt nhưng dữ liệu sau đó thay đổi. Admin cần mở khóa tạm; sau đó GVCN kiểm tra lại và ký lại.';
       else if(!v)hint.textContent='Hãy tải dữ liệu và kiểm tra sổ tuần trước khi ký.';
-      else if(v.validationRequired===false)hint.textContent='Kiểm tra đủ chữ ký theo TKB áp dụng từ tuần 7. Tuần này có thể ký chốt nếu không bị khóa.';
+      else if(v.validationRequired===false)hint.textContent=(v.message||'Tuần này không áp dụng chặn chốt theo TKB.')+' Có thể ký chốt nếu không bị khóa.';
       else if(v.configurationRequired)hint.textContent='Chưa có TKB hoặc khung tiết Sáng/Chiều cho lớp này.';
       else if(v.status!=='PASS'){const first=(Array.isArray(v.issues)?v.issues:[]).find(x=>x?.severity==='BLOCKING');hint.textContent=first?`Bị chặn: ${gvcnIssueTitleV704644(first)}. ${first.message||''} Xem chi tiết ngay phía trên để biết nơi xử lý.`:`Còn ${v.blockingCount} lỗi chặn; xử lý xong rồi kiểm tra lại.`;}
       else if(!v.storedFresh)hint.textContent='Dữ liệu đạt nhưng cần bấm “Kiểm tra sổ tuần” để xác nhận kết quả hiện tại.';

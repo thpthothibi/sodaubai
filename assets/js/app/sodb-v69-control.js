@@ -208,6 +208,13 @@ function refreshTeachingOperationForInputV693(){
     currentInputOperationV693=res.found?res.operation:null;
     syncTeachingOperationFieldsV7042(currentInputOperationV693);
     renderInputOperationBannerV693(currentInputOperationV693);
+    // Hồ sơ tải nền chỉ làm mới KHBD khi tham số tra cứu thực sự thay đổi.
+    // Dạy bù cùng lớp/ngày/môn giữ nguyên bài và Tiết CT đang chọn.
+    try{
+      const lessonSelectDayBuFix=document.getElementById('tenBaiDaySelect');
+      if(lessonSelectDayBuFix && typeof lessonPlanCacheKeyV54==='function' && typeof loadDanhSachBaiDay==='function' && lessonSelectDayBuFix.dataset.loadedContextV70465321!==lessonPlanCacheKeyV54())loadDanhSachBaiDay();
+    }catch(err){console.warn('Không đồng bộ được danh sách KHBD sau khi tải hồ sơ điều hành',err);}
+
     if(currentInputOperationV693?.externalStaffId){const t=document.getElementById('proxySigningToggleV682');if(t){t.checked=true;configureProxySigningUiV682();loadProxyStaffOptionsV693();}}
     // V70.4.6.28: roster có thể đã bị từ chối trước khi hồ sơ DẠY THAY tải xong; tải lại ngay sau khi xác thực điều hành.
     if(currentInputOperationV693?.id && currentInputOperationV693?.loai==='DAY_THAY'){try{if(typeof refreshGroupAttendanceV6951==='function')refreshGroupAttendanceV6951();}catch(_e){}}

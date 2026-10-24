@@ -887,6 +887,13 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
 
   if(typeof validateAttendanceBeforeSaveV7013==='function' && !validateAttendanceBeforeSaveV7013()) return;
 
+  // Đổi ngữ cảnh thật: nạp lại KHBD, không gửi bài cũ và không báo lỗi chồng nhau.
+  const lessonSelectDayBuFix=document.getElementById('tenBaiDaySelect');
+  if(String(lessonSelectDayBuFix?.value||'').startsWith('PLAN_') && lessonSelectDayBuFix.dataset.loadedContextV70465321!==lessonPlanCacheKeyV54()){
+    loadDanhSachBaiDay(true);
+    showToastV9('Thông tin tiết học đã thay đổi. Đang tải lại danh sách; vui lòng chọn lại bài dạy rồi lưu.','warning');
+    return;
+  }
   let lesson1 = getSelectedLessonData();
   if (!lesson1 || !lesson1.tenBaiDay) {
     showToastV9('Vui lòng chọn hoặc nhập nội dung bài dạy.','danger');
@@ -1111,7 +1118,8 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
       document.getElementById('tuanHoc')?.value||'',
       document.getElementById('ngayDay')?.value||'',
       document.getElementById('proxyExternalStaffIdV693')?.value||'',
-      (typeof currentInputOperationV693!=='undefined'&&currentInputOperationV693?.id)||''
+      // Khóa cache theo đúng tham số RPC; mã hồ sơ tải nền không phải tham số tải KHBD.
+      document.getElementById('isDayThayV683')?.checked ? 'DAY_THAY' : 'NORMAL'
     ].join('|');
   }
 
@@ -1127,7 +1135,7 @@ document.getElementById('sodbForm').addEventListener('submit', function(e) {
     let khoi = document.getElementById('khoi').value;
     let tuan = document.getElementById('tuanHoc').value;
     let selectBai = document.getElementById('tenBaiDaySelect');
-    const khbdContextV7046517=[khoi,document.getElementById('lop')?.value||'',mon,tuan].join('|');
+    const khbdContextV7046517=lessonPlanCacheKeyV54();
     if(selectBai&&selectBai.dataset.khbdContextV7046517!==khbdContextV7046517){
       // Đổi tuần/lớp/môn phải xóa hoàn toàn lựa chọn hiển thị của ngữ cảnh cũ.
       // Tránh giữ chữ “Tồn Tuần ...” trong lúc dữ liệu tuần mới đang nạp.

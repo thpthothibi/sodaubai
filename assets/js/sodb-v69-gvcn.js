@@ -200,6 +200,31 @@
     }
   }
 
+  // GVCN_SIGNATURE_DISPLAY_V1: chữ ký lịch sử lấy từ chính bản chốt, không dùng ảnh hồ sơ mới để thay thế.
+  function gvcnSignatureDisplayUrlV1(raw){
+    const url=normalizeSignatureUrlV67_1(raw||'');
+    return /^(https?:\/\/|data:image\/|blob:)/i.test(url)?url:'';
+  }
+  function gvcnRenderStoredSignatureV1(closeRecord){
+    const img=document.getElementById('gvcnSigImage'),ph=document.getElementById('gvcnSigPlaceholder'),status=document.getElementById('gvcnSigStatusV681');
+    const closed=!!closeRecord;
+    const raw=closed?(closeRecord.signatureUrl||closeRecord.chuKyGVCN||closeRecord.kySo||''):(gvcnDangNhapInfo?.urlChuKy||urlGVCNGlobal||'');
+    const url=gvcnSignatureDisplayUrlV1(raw);
+    if(img)img.onerror=null;
+    if(url){
+      if(img){
+        img.onerror=function(){img.classList.add('d-none');if(ph){ph.textContent=closed?'Tuần đã ký chốt; chưa tải được ảnh chữ ký đã lưu. Bấm tải lại dữ liệu tuần.':'Chưa tải được ảnh chữ ký. Hãy tải lại trang.';ph.classList.remove('d-none');}};
+        setSignaturePreviewSrcV682(img,url);img.classList.remove('d-none');
+      }
+      ph?.classList.add('d-none');
+      if(status)status.textContent=closed?'Hiển thị chữ ký đã lưu cùng lần ký chốt.':'';
+    }else{
+      if(img){img.removeAttribute('src');img.classList.add('d-none');}
+      if(ph){ph.textContent=closed?'Tuần đã ký chốt; bản ghi chưa cung cấp ảnh chữ ký để hiển thị.':'Chưa có chữ ký';ph.classList.remove('d-none');}
+      if(status)status.textContent=closed?'Giữ nguyên trạng thái ký chốt. Cần kiểm tra chữ ký lưu trong bản ghi nếu ảnh vẫn không hiển thị.':'';
+    }
+  }
+
   function gvcnApplySummaryV681(payload,lockRes,validation){
     const res=payload&&payload.sodb?payload.sodb:payload;
     if(!res||!res.success)throw new Error((res&&res.message)||'Không tải được dữ liệu tuần.');
@@ -227,6 +252,7 @@
       if(meta)meta.textContent=`Đã ký chốt bởi ${chot.tenGVCN||'GVCN'}${chot.time?' · '+chot.time:''}`;
     }else if(meta)meta.textContent='';
     gvcnRenderSignatureNameV704653(chot?.tenGVCN||gvcnLastStaleCloseV704652?.tenGVCN||gvcnDangNhapInfo?.tenGVCN||gvcnDangNhapInfo?.tenGV||'');
+    gvcnRenderStoredSignatureV1(rawClose&&(rawClose.success||rawClose.exists||rawClose.stale)?rawClose:null);
     const state=gvcnWeekLabelV681(lockRes,chot,gvcnLastStaleCloseV704652);gvcnSetStateV681(state[0],state[1]);
     gvcnRenderValidationV7045(validation);
     gvcnApplyValidatorCloseStateV7045();

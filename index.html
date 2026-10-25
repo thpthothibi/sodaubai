@@ -2037,6 +2037,22 @@
 
               <!-- KHỐI 3: MỞ KHÓA TUẦN -->
               <div class="tab-pane fade" id="pills-unlock" role="tabpanel">
+                <section class="card border-primary-subtle mb-3" id="adminTkbExemptionCardV1" aria-labelledby="adminTkbExemptionTitleV1">
+                  <div class="card-header bg-primary-subtle d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <strong id="adminTkbExemptionTitleV1">Miễn kiểm tra TKB theo tuần</strong>
+                    <button type="button" class="btn btn-sm btn-outline-primary" id="adminTkbReloadV1">Tải lại cấu hình</button>
+                  </div>
+                  <div class="card-body">
+                    <p class="mb-2">Tích tuần cần bỏ kiểm tra TKB khi GVCN ký chốt. Áp dụng cho <b>tất cả lớp</b> trong năm học đang chọn; bỏ tích rồi lưu để kiểm tra lại.</p>
+                    <div class="d-flex flex-wrap gap-2 align-items-center mb-3"><span class="badge bg-primary fs-6" id="adminTkbYearV1">Chưa tải năm học</span><button type="button" class="btn btn-sm btn-outline-primary" id="adminTkbCurrentV1" disabled>Chọn tuần hiện tại</button><button type="button" class="btn btn-sm btn-outline-secondary" id="adminTkbClearV1" disabled>Bỏ chọn tất cả</button></div>
+                    <fieldset id="adminTkbWeeksFieldsetV1" disabled><legend class="fs-6">Các tuần miễn kiểm tra</legend><div id="adminTkbWeeksV1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px"></div>
+                      <label class="form-label mt-3" for="adminTkbReasonV1">Lý do / ghi chú (không bắt buộc)</label><textarea id="adminTkbReasonV1" class="form-control" rows="2" maxlength="500" placeholder="Ví dụ: Điều chỉnh lịch học, môn trộn và dạy bù thứ Bảy"></textarea>
+                    </fieldset>
+                    <div id="adminTkbStatusV1" class="small text-muted mt-3" role="status" aria-live="polite">Bấm Tải lại cấu hình để bắt đầu.</div>
+                    <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mt-3"><small class="text-muted">Chỉ miễn đối chiếu TKB; vẫn cần GVCN ký chốt. Tuần đã khóa giữ nguyên. Tuần 1–6 vốn đã được miễn theo quy định hiện tại.</small><button type="button" class="btn btn-primary fw-bold" id="adminTkbSaveV1" disabled>Lưu các tuần đã chọn</button></div>
+                  </div>
+                </section>
+
                 <div class="mx-auto" style="max-width: 920px;">
                   <div class="card border-danger-subtle mb-3">
                     <div class="card-header bg-danger-subtle fw-bold">Mở khóa một lớp / một tuần</div>
@@ -2793,7 +2809,7 @@
 <script src="assets/js/app/sodb-v69-core.js?v=70.4.6.49.6.3.21"></script>
 <script src="assets/js/app/sodb-v69-khbd.js?v=70.4.6.49.6.3.21"></script>
 <script src="assets/js/app/sodb-teaching-v704649.js?v=70.4.6.49.6.3.29"></script>
-<script src="assets/js/app/sodb-v69-operations.js?v=daybu-fix-20261024-1"></script>
+<script src="assets/js/app/sodb-v69-operations.js?v=admin-tkb-weeks-1"></script>
 <script src="assets/js/app/sodb-v69-print.js?v=70.4.6.49.6.3.30"></script>
 <script src="assets/js/app/sodb-v69-admin.js?v=70.4.6.49.6.3.21"></script>
 <script src="assets/js/app/sodb-v69-admin-students.js?v=70.4.6.49.2"></script>
@@ -2801,12 +2817,12 @@
 <script src="assets/js/app/sodb-v70-lifecycle.js?v=70.4.6.49.6.3.27"></script>
 <script src="assets/js/app/sodb-v69-bgh.js?v=70.4.6.49.2"></script>
 <script src="assets/js/app/sodb-v69-masterdata.js?v=70.4.6.49.2"></script>
-<script src="assets/js/app/sodb-v69-control.js?v=daybu-fix-20261024-1"></script>
+<script src="assets/js/app/sodb-v69-control.js?v=admin-tkb-weeks-1"></script>
 <script src="assets/js/app/sodb-v69-v694.js?v=70.4.6.49.2"></script>
 <script src="assets/js/app/sodb-v69-v695.js?v=70.4.6.49.2"></script>
 <script src="assets/js/app/sodb-v69-v6951.js?v=70.4.6.49.6.3.21"></script>
 <script src="assets/js/app/sodb-v69-ux.js?v=70.4.6.49.6.3.21"></script>
-<script src="assets/js/sodb-v69-gvcn.js?v=gvcn-signature-fix-1"></script>
+<script src="assets/js/sodb-v69-gvcn.js?v=admin-tkb-weeks-1"></script>
 <script src="assets/js/sodb-v69-reports.js?v=70.4.6.49.2"></script>
 <script src="assets/js/app/sodb-v70-timetable.js?v=70.4.6.49.6.3.17"></script>
 <script src="assets/js/app/sodb-v69-my-lessons.js?v=70.4.6.49.6.3.21"></script>
@@ -2815,5 +2831,6 @@
 <script src="assets/js/app/sodb-v69-print-ready.js?v=70.4.6.49.2"></script>
 <script src="assets/js/app/sodb-v69-print-ink.js?v=70.4.6.49.2"></script>
 <script src="assets/js/app/sodb-linked-import-v27.js?v=70.4.6.49.6.3.27"></script>
+<script src="assets/js/app/sodb-admin-tkb-weeks-v1.js?v=admin-tkb-weeks-1"></script>
 </body>
 </html>

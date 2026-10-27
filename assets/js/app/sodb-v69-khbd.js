@@ -428,7 +428,7 @@ function xuatExcelNhapTreGiamThi() {
         capNhatLoaiSoViewV24();
         onInputClassChangedV26();
       })
-      .withFailureHandler(function(){classCatalogRefreshingV29=false;})
+      .withFailureHandler(function(){classCatalogRefreshingV29=false;if(force===true)showToastV9('Không tải được danh mục lớp. Vui lòng thử lại.','warning');})
       .getDanhSachLopMoiV29(force===true);
   }
 

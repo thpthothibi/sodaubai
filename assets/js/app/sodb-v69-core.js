@@ -160,22 +160,25 @@ let varDiemTB = 10;
     }
     return `SỔ ĐẦU BÀI LỚP ${lop}`;
   }
+  // Catalog display fix 2026-10-27: keep stored class keys; show metadata labels.
+  function classDisplayLabelV20261027(lop){
+    return String(lop||'').trim();
+  }
+  function appendClassOptionsV20261027(select,list,assigned=false){
+    const groups=[['LOP_CHINH',assigned?'Lớp được phân công':'Lớp chính'],['CHUYEN_DE','Chuyên đề'],['GDTC','GDTC · Bóng chuyền / Cầu lông']];
+    groups.forEach(([type,label])=>{
+      const rows=list.filter(l=>loaiSoTheoLopV22(l)===type);if(!rows.length)return;
+      const g=document.createElement('optgroup');g.label=label;
+      rows.forEach(l=>g.appendChild(new Option(classDisplayLabelV20261027(l),l)));select.appendChild(g);
+    });
+  }
   function napLopVaoSelectV22(select,khoi,includeSpecial){
     if(!select)return;
-    select.innerHTML='';
-    const main=dsLopChinhTheoKhoiV22[khoi]||[];
-    const special=includeSpecial?(dsLopDacBietTheoKhoiV22[khoi]||[]):[];
-    if(main.length){
-      const g=document.createElement('optgroup');g.label='Lớp chính';
-      main.forEach(l=>g.appendChild(new Option(l,l)));select.appendChild(g);
-    }
-    if(special.length){
-      const g=document.createElement('optgroup');g.label='Lớp / nhóm dạy riêng';
-      special.forEach(l=>g.appendChild(new Option(l,l)));select.appendChild(g);
-    }
+    const previous=select.value;
+    const main=dsLopChinhTheoKhoiV22[khoi]||[],special=includeSpecial?(dsLopDacBietTheoKhoiV22[khoi]||[]):[];
+    select.innerHTML='';appendClassOptionsV20261027(select,[...new Set([...main,...special])]);
+    if([...select.options].some(o=>o.value===previous))select.value=previous;
   }
-
-
 
   /* ===== V39: LỌC KHỐI/LỚP THEO SHEET "Phân công dạy" ===== */
   function getClassGradeV39(lop){
@@ -256,10 +259,7 @@ let varDiemTB = 10;
     const list=allowed.filter(l=>getClassGradeV39(l)===String(khoi));
     select.innerHTML='';
     if(!list.length){select.add(new Option('-- Chưa có lớp được phân công --',''));return;}
-    const main=list.filter(l=>loaiSoTheoLopV22(l)==='LOP_CHINH');
-    const special=list.filter(l=>loaiSoTheoLopV22(l)!=='LOP_CHINH');
-    if(main.length){const g=document.createElement('optgroup');g.label='Lớp được phân công';main.forEach(l=>g.appendChild(new Option(l,l)));select.appendChild(g);}
-    if(special.length){const g=document.createElement('optgroup');g.label='Lớp / nhóm dạy riêng';special.forEach(l=>g.appendChild(new Option(l,l)));select.appendChild(g);}
+    appendClassOptionsV20261027(select,list,true);
   }
   function capNhatKhoiVaLopPhanCongV39(preserve){
     const monSel=document.getElementById('monHoc'),khoiSel=document.getElementById('khoi'),lopSel=document.getElementById('lop');
@@ -394,12 +394,37 @@ let varDiemTB = 10;
   function normalizeClassMetaV29(raw){
     const out={};
     Object.keys(raw||{}).forEach(k=>{
-      const m=raw[k];
-      if(!m)return;
-      const name=String(m.lop||k||'').trim();
-      if(name){const c={...m};if('subject' in c)c.subject=canonicalSubjectV6955(c.subject);if('monKhbd' in c)c.monKhbd=canonicalSubjectV6955(c.monKhbd);out[normalizeTextKey(name)]=c;}
+      const m=raw[k];if(!m||typeof m!=='object')return;
+      const name=String(m.lop||m.tenLop||m.ten_lop||k||'').trim();if(!name)return;
+      const typeKey=normalizeTextKey(m.type||m.nhomSo||m.nhom_so||'');
+      const type=typeKey.includes('chuyen de')?'CHUYEN_DE':(/gdtc|giao duc the chat|cau long|bong chuyen/.test(typeKey)?'GDTC':'LOP_CHINH');
+      out[normalizeTextKey(name)]={...m,lop:name,type,khoi:Number(m.khoi||0),subject:canonicalSubjectV6955(m.subject||m.monKhbd||m.mon_khbd||''),monKhbd:canonicalSubjectV6955(m.monKhbd||m.mon_khbd||m.subject||'')};
+    });return out;
+  }
+  // Rebuild all three lists from one response. Metadata recovers missing partitions,
+  // without guessing type/grade from BC/CL/subject abbreviations or adding permissions.
+  function applyCatalogDataV20261027(data){
+    if(!data||(!data.classMeta&&!data.classes&&!data.mainClasses&&!data.specialClasses))return false;
+    const meta=normalizeClassMetaV29(data.classMeta||{}),main={'10':[],'11':[],'12':[]},special={'10':[],'11':[],'12':[]},all={'10':[],'11':[],'12':[]};
+    const names=new Map();
+    const add=(raw,grade,type)=>{
+      const name=String(typeof raw==='object'?(raw?.lop||raw?.tenLop||raw?.ten_lop||''):raw||'').trim();if(!name)return;
+      const key=normalizeTextKey(name),m=meta[key]||{},prev=names.get(key)||{};
+      const resolvedGrade=Number(m.khoi||grade||prev.khoi||String(name).match(/^(10|11|12)/)?.[1]||0);
+      const resolvedType=meta[key]?.type||type||prev.type||'LOP_CHINH';
+      names.set(key,{...prev,...m,lop:m.lop||name,khoi:resolvedGrade,type:resolvedType});
+    };
+    ['classes','mainClasses','specialClasses'].forEach(field=>{
+      Object.entries(data[field]||{}).forEach(([grade,rows])=>{if(Array.isArray(rows))rows.forEach(raw=>add(raw,grade,field==='mainClasses'?'LOP_CHINH':null));});
     });
-    return out;
+    Object.values(meta).forEach(m=>add(m.lop,m.khoi,m.type));
+    names.forEach(m=>{
+      meta[normalizeTextKey(m.lop)]=m;
+      const grade=String(m.khoi);if(!all[grade])return;
+      all[grade].push(m.lop);(m.type==='LOP_CHINH'?main:special)[grade].push(m.lop);
+    });
+    classMetaV26=meta;dsLopChinhTheoKhoiV22=main;dsLopDacBietTheoKhoiV22=special;dsLopTheoKhoi=all;
+    return true;
   }
 
   function bootstrapCacheKeyV62(){
@@ -407,7 +432,7 @@ let varDiemTB = 10;
     const profile=login.profile||{};
     const account=String(profile.taiKhoan||profile.sdt||'guest').replace(/[^A-Za-z0-9_-]/g,'_').slice(0,60);
     const roles=(login.roles||[]).slice().sort().join('_')||'none';
-    return 'SODB_V63_BOOTSTRAP_'+account+'_'+roles;
+    return 'SODB_V20261027_BOOTSTRAP_'+account+'_'+roles;
   }
 
   function applyBootstrapV6(data){
@@ -418,14 +443,7 @@ let varDiemTB = 10;
     let fy=document.getElementById('cfgSchoolYearV4');if(fy)fy.value=cfg.schoolYear||'';
     let fw=document.getElementById('cfgWeek1V4');if(fw)fw.value=cfg.week1Start||'';
     let fs=document.getElementById('cfgTkbStrictV4');if(fs)fs.value=cfg.tkbStrict||'FALSE';
-    const mainCls=data.mainClasses||{}, specialCls=data.specialClasses||{}, cls=data.classes||{};
-    classMetaV26=normalizeClassMetaV29(data.classMeta||{});
-    ['10','11','12'].forEach(k=>{
-      if(Array.isArray(mainCls[k]))dsLopChinhTheoKhoiV22[k]=mainCls[k];
-      if(Array.isArray(specialCls[k]))dsLopDacBietTheoKhoiV22[k]=specialCls[k];
-      if(Array.isArray(cls[k]))dsLopTheoKhoi[k]=cls[k];
-      else dsLopTheoKhoi[k]=[...(dsLopChinhTheoKhoiV22[k]||[]),...(dsLopDacBietTheoKhoiV22[k]||[])];
-    });
+    applyCatalogDataV20261027(data);
     if(gvbmDangNhapInfo&&data.assignments){
       Object.assign(gvbmDangNhapInfo,{
         phanCongLopTheoMon:canonicalAssignmentMapV6955(data.assignments.phanCongLopTheoMon||gvbmDangNhapInfo.phanCongLopTheoMon||{}),
@@ -469,8 +487,8 @@ let varDiemTB = 10;
   function taiBootstrapV6(force){
     if(bootstrapLoadedV6&&!force)return;
     if(!force){
-      try{const raw=sessionStorage.getItem(bootstrapCacheKeyV62());if(raw){const x=JSON.parse(raw);if(x&&Date.now()-Number(x.ts||0)<600000)applyBootstrapV6(x.data);}}catch(e){}
-      if(bootstrapLoadedV6)return;
+      try{const raw=sessionStorage.getItem(bootstrapCacheKeyV62());if(raw){const x=JSON.parse(raw);if(x&&Date.now()-Number(x.ts||0)<600000){applyBootstrapV6(x.data);classCatalogLoadedAtV47=0;}}}catch(e){}
+      // Cached data gives immediate options; always revalidate against the server.
     }
     if(bootstrapPendingV47)return;
     bootstrapPendingV47=true;

@@ -296,13 +296,7 @@
 
   function applyClassCatalogV23(res){
     if(!res)return;
-    const mainCls=res.mainClasses||{}, specialCls=res.specialClasses||{}, cls=res.classes||{};
-    classMetaV26=normalizeClassMetaV29(res.classMeta||{});
-    ['10','11','12'].forEach(k=>{
-      dsLopChinhTheoKhoiV22[k]=mainCls[k]||[];
-      dsLopDacBietTheoKhoiV22[k]=specialCls[k]||[];
-      dsLopTheoKhoi[k]=cls[k]||[...(dsLopChinhTheoKhoiV22[k]||[]),...(dsLopDacBietTheoKhoiV22[k]||[])];
-    });
+    if(res.success===false||!applyCatalogDataV20261027(res))return;
     // V70.4.6.49.6.3.21: snapshot at response time, never at request time.
     const liveViewLop=document.getElementById('viewLop')?.value||'';
     chonKhoiLopView();

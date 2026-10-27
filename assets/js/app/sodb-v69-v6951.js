@@ -23,10 +23,10 @@ function getGroupAbsentStudentIdsV6951(){return groupRosterModeV701==='GROUP'?[.
 function getMainAbsentStudentIdsV701(){return groupRosterModeV701==='LOP_CHINH'?[...groupAbsentIdsV6951]:[];}
 function isAttendanceCompleteV701(){return !!document.getElementById('attendanceCompleteV701')?.checked;}
 function attendanceStudentLabelV701(x){
-  const ma=String(x.maHS||''),home=String(x.lopChuNhiem||'').trim();
-  return groupRosterModeV701==='GROUP'
-    ? `${escapeHtml(ma)} · Lớp CN ${escapeHtml(home||'—')}`
-    : escapeHtml(ma);
+  // Display the student's homeroom; keep maHS only as the attendance identity.
+  const home=String(x.lopChuNhiem||'').trim();
+  const mainClass=groupRosterModeV701==='LOP_CHINH'?String(document.getElementById('lop')?.value||'').trim():'';
+  return home||mainClass?`Lớp ${escapeHtml(home||mainClass)}`:'Chưa có thông tin lớp';
 }
 function syncAttendanceModeUiV7011(){
   const completeEl=document.getElementById('attendanceCompleteV701');

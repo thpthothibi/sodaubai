@@ -1,3 +1,32 @@
+// Miễn cảnh báo hồ sơ quá hạn tuần 10 năm học 2026–2027 (19–25/10/2026).
+// Chỉ lọc kết quả hiển thị; không sửa hồ sơ, tiết học hoặc chữ ký.
+function isWeek10OverdueAlertHTB2026(a){
+  if(!a || a.type!=='OP_OVERDUE')return false;
+  // Dùng ngày thực hiện trong cảnh báo, không dùng ngày tạo/mã hồ sơ.
+  const message=String(a.message||'');
+  const latest=message.match(/Ngày gần nhất:\s*(\d{4}-\d{2}-\d{2})(?!\d)/i);
+  if(!latest)return false;
+  const date=latest[1];
+  return date>='2026-10-19' && date<='2026-10-25';
+}
+function filterWeek10OverdueAlertsHTB2026(data){
+  if(!data || !Array.isArray(data.alerts))return data;
+  const removed=data.alerts.filter(isWeek10OverdueAlertHTB2026);
+  if(!removed.length)return data;
+  const alerts=data.alerts.filter(a=>!isWeek10OverdueAlertHTB2026(a));
+  const metrics={...(data.metrics||{})};
+  for(const [key,count] of Object.entries({
+    total:removed.length,
+    critical:removed.filter(a=>a.severity==='CRITICAL').length,
+    warning:removed.filter(a=>a.severity==='WARNING').length,
+    info:removed.filter(a=>a.severity==='INFO').length,
+    overdueOperations:removed.length
+  })){
+    if(Number.isFinite(Number(metrics[key])))metrics[key]=Math.max(0,Number(metrics[key])-count);
+  }
+  return {...data,alerts,metrics};
+}
+
 /* ========================================================================
    SODB V70.4.6.9 - CẢNH BÁO BGH/ADMIN: NHẸ, PHÂN ĐOẠN, CÓ CACHE
    - Mở Dashboard: chỉ tải SUMMARY nhẹ, không quét ma trận KHBD toàn trường.
@@ -85,6 +114,7 @@ function alertCardHtmlV695(a,compact=false){
   return `<div class="border rounded p-2 ${compact?'mb-2':'mb-2'} border-${sev.cls}-subtle bg-${sev.cls}-subtle bg-opacity-10"><div class="d-flex justify-content-between gap-2 align-items-start"><div class="min-w-0"><div class="d-flex flex-wrap gap-1 align-items-center"><span class="badge text-bg-${sev.cls}">${sev.label}</span><span class="badge text-bg-light border text-dark">${escV695(alertTypeLabelV695(a.type))}</span></div><div class="fw-bold mt-1">${escV695(a.title)}</div><div class="small text-muted">${escV695(a.message||'')}</div></div>${btn}</div></div>`;
 }
 function renderAutomaticAlertsV695(){
+  automaticAlertsV695=filterWeek10OverdueAlertsHTB2026(automaticAlertsV695);
   const d=automaticAlertsV695;if(!d)return;const m=d.metrics||{},alerts=d.alerts||[],partial=Array.isArray(d.partialErrors)&&d.partialErrors.length;
   const dash=document.getElementById('overviewAlertsV695');if(dash)dash.classList.toggle('d-none',!alertDashboardAllowedV69555());
   document.querySelectorAll('#overviewAlertMetricsV695 [data-alert-metric]').forEach(x=>x.textContent=String(m[x.dataset.alertMetric]??0));
@@ -94,6 +124,7 @@ function renderAutomaticAlertsV695(){
   renderAlertCenterV695();
 }
 function renderAlertCenterV695(){
+  automaticAlertsV695=filterWeek10OverdueAlertsHTB2026(automaticAlertsV695);
   const d=automaticAlertsV695;if(!d)return;const m=d.metrics||{},box=document.getElementById('alertCenterListV695'),partial=Array.isArray(d.partialErrors)&&d.partialErrors.length;
   document.querySelectorAll('#alertCenterMetricsV695 [data-alert-metric]').forEach(x=>x.textContent=String(m[x.dataset.alertMetric]??0));
   const st=document.getElementById('alertCenterStatusV695');if(st)st.textContent=`Ngày ${d.date} · Tuần ${d.week} · ${m.total||0} cảnh báo${d.scanMode==='FULL_STAGED'?' · rà soát đầy đủ':' · tóm tắt nhẹ'}${partial?' · có nhóm chưa cập nhật':''}${d.truncated?' (danh sách đã rút gọn)':''}`;

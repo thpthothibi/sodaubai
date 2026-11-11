@@ -95,7 +95,7 @@
     const hasRows=list.some(r=>sessionKey(r.buoi)===key);
     if(key==='DAY_BU'&&!hasRows)return '';
     const icon=key==='SANG'?'☀':'☾';
-    const header=days.map((d,i)=>`<th scope="col">${dayNames[i]}<small>${viDate(isoDate(d))}</small></th>`).join('');
+    const header=days.map((d,i)=>`<th scope="col">${dayNames[(d.getDay()+6)%7]}<small>${viDate(isoDate(d))}</small></th>`).join('');
     const trs=Array.from({length:4},(_,idx)=>{
       const period=idx+1;
       const cells=days.map(d=>{
@@ -114,7 +114,8 @@
     const week=Number($('myLessonsWeekV70468')?.value||loadedWeek||currentWeek()),start=parseIso(loadedFrom)||weekStart(week);
     const allDays=Array.from({length:7},(_,i)=>addDays(start,i));
     const sundayIso=isoDate(allDays[6]),showSunday=list.some(r=>String(r.ngay||'')===sundayIso);
-    const days=allDays.slice(0,showSunday?7:6),slotMap=groupBySlot(list);
+    const moved=sodbWeek13MovedV1(start),hasSaturday=rows.some(r=>String(r.ngay||'')===isoDate(allDays[5]));
+    const days=moved&&!hasSaturday?[...allDays.slice(0,5),allDays[6]]:allDays.slice(0,(showSunday||moved)?7:6),slotMap=groupBySlot(list);
     if(!list.length){
       mount.innerHTML=`${renderSession('Buổi sáng','SANG',days,slotMap,list)}${renderSession('Buổi chiều','CHIEU',days,slotMap,list)}`;
       return;
@@ -144,7 +145,7 @@
       $('myLessonsRangeV70468').textContent=`Tuần ${week} · ${viDate(res.from)} – ${viDate(res.to)} · ${actualCount} đã ghi${pendingCount?` · ${pendingCount} chưa ghi`:''}`;
       $('myLessonsUpdatedV70468').textContent='Cập nhật '+new Intl.DateTimeFormat('vi-VN',{hour:'2-digit',minute:'2-digit'}).format(new Date());
       const writeHint=canWriteLessons()?'Bấm ô “Chưa ghi” để mở Nhập tiết theo TKB; ô đã ghi mở lại dữ liệu Sổ đầu bài. Ô trống vẫn cho nhập thủ công.':'BGH đang xem lịch cá nhân ở chế độ chỉ xem; để nhập/sửa tiết cần có quyền GVBM.';
-      $('myLessonsStatusV70468').textContent=rows.length?writeHint:'Tuần này chưa có tiết đã ghi hoặc TKB chính khóa của bạn.';
+      $('myLessonsStatusV70468').textContent=[sodbWeek13NoticeV1(parseIso(loadedFrom)||weekStart(week)),rows.length?writeHint:'Tuần này chưa có tiết đã ghi hoặc TKB chính khóa của bạn.'].filter(Boolean).join(' ');
       loading=false;render();
     }catch(e){
       if(!isCurrent())return;

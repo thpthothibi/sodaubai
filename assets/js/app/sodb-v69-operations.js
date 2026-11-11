@@ -622,10 +622,7 @@
         return;
       }
 
-      const thuArrFull=[
-        {name:'Thứ 2',offset:0},{name:'Thứ 3',offset:1},{name:'Thứ 4',offset:2},
-        {name:'Thứ 5',offset:3},{name:'Thứ 6',offset:4},{name:'Thứ 7',offset:5}
-      ];
+      const thuArrFull = sodbBookDaysV1(res.matrix,mondayOfWeek);
       let out='';
       thuArrFull.forEach((thuObj,dayIdx)=>{
         const currentDate=new Date(mondayOfWeek);

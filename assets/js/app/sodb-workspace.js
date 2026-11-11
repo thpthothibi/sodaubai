@@ -65,12 +65,11 @@
     if (!current) return;
     document.querySelectorAll('.sodb-status-popover-v7032').forEach(el=>el.remove());
     const {res,context} = current, matrix = res.matrix || {};
-    const activeDays = days.slice(0,6);
-    if (Object.keys(matrix).some(k=>k.startsWith('Chủ Nhật_') && occupied(matrix[k]))) activeDays.push('Chủ Nhật');
+    const activeDays = sodbBookDaysV1(matrix,context.mondayOfWeek).map(d=>d.name);
     const filter = $('workspaceStatus').value;
     let matchCount = 0;
     $('workspaceWeekGrid').innerHTML = ['Sang','Chieu'].map((session,si)=>{
-      const header = activeDays.map((day,i)=>`<th scope="col">${dayLabels[i]}<small>${dateText(dateAt(context.mondayOfWeek,i))}</small></th>`).join('');
+      const header = activeDays.map((day,i)=>`<th scope="col">${dayLabels[days.indexOf(day)]}<small>${dateText(dateAt(context.mondayOfWeek,days.indexOf(day)))}</small></th>`).join('');
       const rows = Array.from({length:5},(_,i)=>{
         const period = i+1;
         return `<tr><th scope="row"><strong>Tiết ${period}</strong></th>${activeDays.map(day=>{
@@ -85,7 +84,9 @@
     }).join('');
     const total = Object.values(matrix).filter(occupied).length;
     $('workspaceBookStatus').textContent = !total ? `Chưa có dữ liệu lớp ${context.lop} – Tuần ${context.tuan}. Ô trống không có nghĩa là nghỉ học.` : filter === 'ALL' ? '' : `Có ${matchCount} ô tiết phù hợp với bộ lọc. Bản in A3 vẫn lấy đầy đủ dữ liệu tuần.`;
-    $('workspaceBookStatus').hidden = !!total && filter === 'ALL';
+    const calendarNotice=sodbWeek13NoticeV1(context.mondayOfWeek);
+    if(calendarNotice)$('workspaceBookStatus').textContent=calendarNotice+' '+$('workspaceBookStatus').textContent;
+    $('workspaceBookStatus').hidden = !calendarNotice && !!total && filter === 'ALL';
   }
   function openInputCellV7067(key){
     if(!current||!key)return;

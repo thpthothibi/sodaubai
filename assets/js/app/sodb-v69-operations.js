@@ -598,6 +598,18 @@
         tbody.innerHTML='<tr><td colspan="12" class="text-danger py-3 text-center">Không thể tải dữ liệu sổ đầu bài.</td></tr>';
         return;
       }
+      const printHeader=document.querySelector('#printPageSingle .so-header-print');
+      let holidayNote=document.getElementById('sodbHolidayPrintNoteV1');
+      if(printHeader&&!holidayNote){
+        holidayNote=document.createElement('div');
+        holidayNote.id='sodbHolidayPrintNoteV1';
+        holidayNote.className='so-subhead';
+        printHeader.append(holidayNote);
+      }
+      if(holidayNote){
+        holidayNote.textContent=sodbHolidayNoticeV1(res.holidayDates);
+        holidayNote.hidden=!holidayNote.textContent;
+      }
       if(res.foundCount===0){
         tbody.innerHTML=`<tr><td colspan="12" class="text-warning py-3 text-center">Chưa có dữ liệu lớp ${escapeHtml(lop)} - Tuần ${tuan}</td></tr>`;
         applyChotV10(payload&&payload.chot,res?.responsibleTeachers||[],!!(res?.compactBook||res?.bookType==='GDTC'||res?.bookType==='CHUYEN_DE'));

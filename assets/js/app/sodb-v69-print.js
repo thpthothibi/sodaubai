@@ -386,6 +386,7 @@ function layHtmlOnePageA3GiamThi(lop, tuan, bookMode) {
             <div class="fw-bold text-dark" style="font-size: 0.75rem;">TRƯỜNG THPT HỒ THỊ BI</div>
             <div class="so-title">${escapeHtml(bookTitle)}</div>
             <div class="so-subhead">Tuần: <strong>${tuan}</strong> &nbsp;&nbsp;|&nbsp;&nbsp; Năm học: ${escapeHtml(schoolYearText)}</div>
+            ${res.holidayDates?.length ? `<div class="so-subhead">${escapeHtml(sodbHolidayNoticeV1(res.holidayDates))}</div>` : ''}
           </div>
           <table class="${tableClass}">
             <thead><tr>

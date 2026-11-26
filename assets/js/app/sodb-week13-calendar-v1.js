@@ -13,6 +13,10 @@ function sodbBookDaysV1(matrix, monday) {
   if (!offsets.includes(6) && (has('Chủ Nhật') || sodbWeek13MovedV1(monday))) offsets.push(6);
   return offsets.map(offset => ({name: days[offset], offset}));
 }
+function sodbHolidayNoticeV1(dates) {
+  if (!Array.isArray(dates) || !dates.length) return '';
+  return 'Nghỉ lễ: ' + dates.map(date => String(date).split('-').reverse().join('/')).join(', ') + '.';
+}
 function sodbWeek13NoticeV1(monday) {
   return sodbWeek13MovedV1(monday) ? 'Tuần 13: lịch thứ Bảy 14/11/2026 chuyển sang Chủ nhật 15/11/2026 để dạy trực tuyến.' : '';
 }

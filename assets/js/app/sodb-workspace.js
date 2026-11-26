@@ -84,7 +84,7 @@
     }).join('');
     const total = Object.values(matrix).filter(occupied).length;
     $('workspaceBookStatus').textContent = !total ? `Chưa có dữ liệu lớp ${context.lop} – Tuần ${context.tuan}. Ô trống không có nghĩa là nghỉ học.` : filter === 'ALL' ? '' : `Có ${matchCount} ô tiết phù hợp với bộ lọc. Bản in A3 vẫn lấy đầy đủ dữ liệu tuần.`;
-    const calendarNotice=sodbWeek13NoticeV1(context.mondayOfWeek);
+    const calendarNotice=[sodbHolidayNoticeV1(res.holidayDates),sodbWeek13NoticeV1(context.mondayOfWeek)].filter(Boolean).join(' ');
     if(calendarNotice)$('workspaceBookStatus').textContent=calendarNotice+' '+$('workspaceBookStatus').textContent;
     $('workspaceBookStatus').hidden = !calendarNotice && !!total && filter === 'ALL';
   }

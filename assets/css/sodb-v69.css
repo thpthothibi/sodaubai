@@ -3879,3 +3879,21 @@ body.a3-tracuu-v56 #a3PrintRootV56 .signature-footer .book-bgh-signature .signat
   height: 18mm !important;
   min-height: 18mm !important;
 }
+
+@media print {
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-week-page-v56 > .summary-box:has(.book-bgh-signature) {
+    flex: 0 0 auto !important;
+    height: auto !important;
+    min-height: 35mm !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Leave room for the signature footer when the full book shows seven days. */
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-week-page-v56 > .table-sodb:not(.compact-special-book-v29):has(tbody > tr:nth-child(61)) tbody > tr:not(.a3-row-multi-v704610),
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-week-page-v56 > .table-sodb:not(.compact-special-book-v29):has(tbody > tr:nth-child(61)) tbody > tr:not(.a3-row-multi-v704610) > td {
+    height: 3.2mm !important;
+    min-height: 3.2mm !important;
+    max-height: 3.2mm !important;
+  }
+}

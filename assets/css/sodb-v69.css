@@ -3876,8 +3876,13 @@ body.a3-tracuu-v56 #a3PrintRootV56 .signature-footer .signature-signer-name-v704
 .signature-footer .book-bgh-signature .signature-space,
 #gtPrintPagesContainer .signature-footer .book-bgh-signature .signature-space,
 body.a3-tracuu-v56 #a3PrintRootV56 .signature-footer .book-bgh-signature .signature-space {
-  height: 18mm !important;
-  min-height: 18mm !important;
+  height: 15mm !important;
+  min-height: 15mm !important;
+}
+
+#printPageSingle > .summary-box:has(.book-bgh-signature),
+#gtPrintPagesContainer .a3-week-page-v56 > .summary-box:has(.book-bgh-signature) {
+  padding-bottom: 4mm !important;
 }
 
 @media print {
@@ -3895,6 +3900,7 @@ body.a3-tracuu-v56 #a3PrintRootV56 .signature-footer .book-bgh-signature .signat
     height: auto !important;
     min-height: 35mm !important;
     max-height: none !important;
+    padding-bottom: 4mm !important;
     overflow: visible !important;
     page-break-inside: avoid !important;
     break-inside: avoid-page !important;

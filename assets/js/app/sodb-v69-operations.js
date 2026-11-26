@@ -425,13 +425,16 @@
       return a.tiet-b.tiet;
     });
 
-    if(!rows.length){
+    if(!rows.length&&!res.holidayDates?.length){
       tbody.innerHTML='<tr><td colspan="12" class="text-warning py-3 text-center">Tuần này chưa có tiết phát sinh.</td></tr>';
       return;
     }
 
     const grouped={};
     rows.forEach(r=>(grouped[r.thu]||(grouped[r.thu]=[])).push(r));
+    for (const [day, offset] of Object.entries(dayOrder)) {
+      if (sodbIsHolidayV2(mondayOfWeek, offset, res.holidayDates)) grouped[day] ||= [];
+    }
     let out='';
     Object.keys(grouped).sort((a,b)=>(dayOrder[a]??99)-(dayOrder[b]??99)).forEach((thu,dayIdx)=>{
       const dayRows=grouped[thu];
@@ -439,13 +442,18 @@
       currentDate.setDate(mondayOfWeek.getDate()+(dayOrder[thu]??0));
       const dateFormatted=`${String(currentDate.getDate()).padStart(2,'0')}/${String(currentDate.getMonth()+1).padStart(2,'0')}`;
 
-      dayRows.forEach((r,i)=>{
+      if (!dayRows.length) {
+      out+=`<tr class="row-day-start"><td class="compact-day-v29 text-center align-middle"><div>${escapeHtml(thu)}</div><div>${dateFormatted}</div></td><td colspan="11" class="fw-bold text-center">Nghỉ lễ</td></tr>`;
+      return;
+    }
+
+    dayRows.forEach((r,i)=>{
         const c=r.cell||{};
         const sigCell=renderSignatureCell(c,true);
         const buoiLabel=r.buoi==='Sang'?'S':'C';
         out+=`<tr class="${i===0&&dayIdx>0?'row-day-start':''}">`;
         if(i===0){
-          out+=`<td rowspan="${dayRows.length}" class="compact-day-v29 text-center align-middle"><div>${escapeHtml(thu)}</div><div>${dateFormatted}</div></td>`;
+          out+=`<td rowspan="${dayRows.length}" class="compact-day-v29 text-center align-middle"><div>${escapeHtml(thu)}</div><div>${dateFormatted}</div>${sodbHolidayDayLabelV2(mondayOfWeek, dayOrder[thu], res.holidayDates)}</td>`;
         }
         out+=`
           <td class="compact-slot-v29"><span class="badge ${r.buoi==='Sang'?'text-primary':'text-danger'} buoi-tag">${buoiLabel}</span> ${r.tiet}</td>
@@ -610,7 +618,7 @@
         holidayNote.textContent=sodbHolidayNoticeV1(res.holidayDates);
         holidayNote.hidden=!holidayNote.textContent;
       }
-      if(res.foundCount===0){
+      if(res.foundCount===0&&!res.holidayDates?.length){
         tbody.innerHTML=`<tr><td colspan="12" class="text-warning py-3 text-center">Chưa có dữ liệu lớp ${escapeHtml(lop)} - Tuần ${tuan}</td></tr>`;
         applyChotV10(payload&&payload.chot,res?.responsibleTeachers||[],!!(res?.compactBook||res?.bookType==='GDTC'||res?.bookType==='CHUYEN_DE'));
         applyBghApprovalV684(payload&&payload.bghDuyet,payload&&payload.chot);
@@ -634,7 +642,7 @@
         return;
       }
 
-      const thuArrFull = sodbBookDaysV1(res.matrix,mondayOfWeek);
+      const thuArrFull = sodbBookDaysV1(res.matrix,mondayOfWeek,res.holidayDates);
       let out='';
       thuArrFull.forEach((thuObj,dayIdx)=>{
         const currentDate=new Date(mondayOfWeek);
@@ -651,7 +659,7 @@
           else if(i===5)rowClass='row-chieu-start';
 
           out+=`<tr class="${rowClass}">`;
-          if(i===0)out+=`<td rowspan="10" class="fw-bold align-middle bg-light text-center"><div>${thuObj.name}</div><div class="text-dark" style="font-size:.55rem;">${dateFormatted}</div></td>`;
+          if(i===0)out+=`<td rowspan="10" class="fw-bold align-middle bg-light text-center"><div>${thuObj.name}</div><div class="text-dark" style="font-size:.55rem;">${dateFormatted}</div>${sodbHolidayDayLabelV2(mondayOfWeek, thuObj.offset, res.holidayDates)}</td>`;
           out+=`
             <td class="fw-bold"><span class="badge ${buoi==='Sang'?'text-primary':'text-danger'} buoi-tag">${buoi==='Sang'?'S':'C'}</span> ${tiet}</td>
             <td class="text-left-cell">${renderPeriodStatusBadgeV683(cellData)}${renderMixedField(cellData,'mon')}</td>

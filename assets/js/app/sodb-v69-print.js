@@ -189,7 +189,7 @@ async function taiVaHienThiDanhSachTuanGiamThi(lop, dsTuan, bookMode) {
     const layout=(laSoGop5TuanV57()?document.getElementById('gtPrintLayoutV57')?.value:'ONE_WEEK')||'ONE_WEEK';
     const msg=layout==='FIVE_WEEKS'
       ? `Đã chuẩn bị ${loaded}/${dsTuan.length} tuần · khi in sẽ gộp tối đa 5 tuần / trang A3 - ${bookLabel}.`
-      : `Đã chuẩn bị ${loaded}/${dsTuan.length} tuần · 1 tuần / trang A3 - ${bookLabel}.`;
+      : `Đã chuẩn bị ${loaded}/${dsTuan.length} tuần · mỗi tuần vừa một trang A3 - ${bookLabel}.`;
     showToastV9(msg,'success');
   } else {
     container.innerHTML = `<div class="text-center py-5 text-warning fw-bold">⚠️ Không tìm thấy dữ liệu phù hợp cho lớp ${escapeHtml(lop)}!</div>`;

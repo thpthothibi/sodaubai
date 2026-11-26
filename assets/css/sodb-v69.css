@@ -3881,12 +3881,23 @@ body.a3-tracuu-v56 #a3PrintRootV56 .signature-footer .book-bgh-signature .signat
 }
 
 @media print {
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-week-page-v56 {
+    display: block !important;
+    overflow: visible !important;
+  }
+  body.a3-tracuu-v56 #a3PrintRootV56 .a3-week-page-v56 > .table-sodb {
+    transform-origin: top center;
+    transform: scaleY(var(--sodb-a3-table-scale, 1)) !important;
+    margin-bottom: var(--sodb-a3-table-offset, 0px) !important;
+  }
   body.a3-tracuu-v56 #a3PrintRootV56 .a3-week-page-v56 > .summary-box:has(.book-bgh-signature) {
     flex: 0 0 auto !important;
     height: auto !important;
     min-height: 35mm !important;
     max-height: none !important;
     overflow: visible !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid-page !important;
   }
 
   /* Leave room for the signature footer when the full book shows seven days. */
@@ -3896,4 +3907,35 @@ body.a3-tracuu-v56 #a3PrintRootV56 .signature-footer .book-bgh-signature .signat
     min-height: 3.2mm !important;
     max-height: 3.2mm !important;
   }
+}
+
+.signature-footer:has(> .book-bgh-signature) {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 44%));
+  grid-template-rows: auto auto auto;
+  justify-content: space-evenly;
+  align-items: stretch;
+}
+.signature-footer:has(> .book-bgh-signature) > .signature-box {
+  display: grid;
+  grid-row: span 3;
+  grid-template-rows: subgrid;
+  width: auto !important;
+  align-items: start;
+  text-align: center;
+}
+.signature-footer:has(> .book-bgh-signature) > .signature-box > .signature-title {
+  grid-row: 1;
+  align-self: end;
+}
+.signature-footer:has(> .book-bgh-signature) > .signature-box > .signature-space {
+  grid-row: 2;
+  place-self: center stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.signature-footer:has(> .book-bgh-signature) > .signature-box > :last-child {
+  grid-row: 3;
+  margin-top: .6mm !important;
 }

@@ -189,13 +189,14 @@
       const week=page.dataset.week||'';
       const table=page.querySelector('.table-sodb');
       const summary=page.querySelector('.summary-box');
+      const bghName=summary?.querySelector('.book-bgh-signature .signature-signer-name-v7046531')?.textContent.trim() || 'Chưa có tên người duyệt';
       const summaryText=summary?summary.innerText.replace(/\s+/g,' ').trim():'';
       const dtb=(summaryText.match(/Điểm TB tuần:\s*([^\s(]+)/i)||[])[1]||'';
       const chuaKy=(summaryText.match(/Chưa ký:\s*(\d+)/i)||[])[1]||'0';
       const vang=(summaryText.match(/Vắng:\s*([^|]+\|\s*[^\s]+)/i)||[])[1]||'';
       const rowCount=table?Math.max(1,table.querySelectorAll('tbody tr').length):1;
       const weight=Math.max(4,rowCount+3);
-      return `<section class="a3-special-week-block-v57" data-week="${escapeHtml(week)}" style="flex:${weight} 1 0">\n        <div class="a3-special-week-title-v57"><span>TUẦN ${escapeHtml(week)}</span><span>${escapeHtml(title)}</span></div>\n        ${table?table.outerHTML:'<div class="text-center">Không có dữ liệu</div>'}\n        <div class="a3-special-week-summary-v57"><span><strong>Vắng:</strong> ${escapeHtml(vang||'0 | 0')}</span><span><strong>ĐTB:</strong> ${escapeHtml(dtb||'0.0')}</span><span><strong>Chưa ký:</strong> ${escapeHtml(chuaKy)} tiết</span></div>\n      </section>`;
+      return `<section class="a3-special-week-block-v57" data-week="${escapeHtml(week)}" style="flex:${weight} 1 0">\n        <div class="a3-special-week-title-v57"><span>TUẦN ${escapeHtml(week)}</span><span>${escapeHtml(title)}</span></div>\n        ${table?table.outerHTML:'<div class="text-center">Không có dữ liệu</div>'}\n        <div class="a3-special-week-summary-v57"><span><strong>Vắng:</strong> ${escapeHtml(vang||'0 | 0')}</span><span><strong>ĐTB:</strong> ${escapeHtml(dtb||'0.0')}</span><span><strong>Chưa ký:</strong> ${escapeHtml(chuaKy)} tiết</span><span><strong>BGH:</strong> ${escapeHtml(bghName)}</span></div>\n      </section>`;
     }).join('');
     return `<div class="a3-special-multi-page-v57" data-book-mode="${escapeHtml(first.dataset.bookMode||'')}" style="--week-count-v57:${group.length}">\n      <div class="a3-special-multi-head-v57">\n        ${logo?`<img src="${escapeHtml(logo)}" alt="Logo" class="school-logo">`:''}\n        <div style="font-size:5.1pt;font-weight:800;line-height:1">SỞ GIÁO DỤC VÀ ĐÀO TẠO TP. HỒ CHÍ MINH</div>\n        <div style="font-size:5.6pt;font-weight:900;line-height:1">TRƯỜNG THPT HỒ THỊ BI</div>\n        <div class="a3-special-multi-title-v57">${escapeHtml(title)}</div>\n        <div class="a3-special-multi-sub-v57">${escapeHtml(range)} &nbsp;|&nbsp; Năm học: ${escapeHtml(schoolYear)}</div>\n      </div>\n      <div class="a3-special-weeks-grid-v57">${blocks}</div>\n    </div>`;
   }
@@ -231,7 +232,7 @@
     document.body.appendChild(root);
     document.body.classList.add('a3-tracuu-v56');
     const layout=(laSoGop5TuanV57()?document.getElementById('gtPrintLayoutV57')?.value:'ONE_WEEK')||'ONE_WEEK';
-    setBusyV13(true,layout==='FIVE_WEEKS'?'Đang gộp tối đa 5 tuần trên mỗi trang A3...':'Đang dàn mỗi tuần thành 1 trang A3...');
+    setBusyV13(true,layout==='FIVE_WEEKS'?'Đang gộp tối đa 5 tuần trên mỗi trang A3...':'Đang dàn bản in A3 theo tuần...');
     try{
       await preloadPrintImagesV14(root);
       await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));

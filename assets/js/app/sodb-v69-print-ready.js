@@ -44,6 +44,41 @@
       return ok||!signature;
     }finally{if(handler!==null)img.setAttribute('onerror',handler);}
   }
+  function fitA3WeekTables(root){
+    const weeks=[...root.querySelectorAll('.a3-week-page-v56')];
+    if(!weeks.length)return;
+    const printRules=[];
+    try{
+      // Measure using the same styles and cascade as A3, even before print preview opens.
+      for(const sheet of document.styleSheets){
+        if(!sheet.href||!new URL(sheet.href).pathname.endsWith('/assets/css/sodb-v69.css'))continue;
+        for(const rule of sheet.cssRules){
+          if(rule.media?.mediaText==='print'){
+            printRules.push(rule);
+            rule.media.mediaText='print, screen';
+          }
+        }
+      }
+      for(const week of weeks){
+        const table=week.querySelector(':scope > .table-sodb');
+        const summary=week.querySelector(':scope > .summary-box');
+        if(!table||!summary)continue;
+        table.style.removeProperty('--sodb-a3-table-scale');
+        table.style.removeProperty('--sodb-a3-table-offset');
+        const page=week.getBoundingClientRect(),body=table.getBoundingClientRect(),footer=summary.getBoundingClientRect();
+        if(!page.height||!body.height)throw new Error('Không đo được bố cục A3. Vui lòng tải lại bản in.');
+        const padding=parseFloat(getComputedStyle(week).paddingBottom)||0;
+        const available=page.bottom-padding-(footer.bottom-body.bottom)-body.top-2;
+        if(available<=0)throw new Error('Phần tổng kết quá dài để in trong một trang A3.');
+        if(body.height>available){
+          table.style.setProperty('--sodb-a3-table-scale',String(available/body.height));
+          table.style.setProperty('--sodb-a3-table-offset',String(available-body.height)+'px');
+        }
+      }
+    }finally{
+      for(const rule of printRules)rule.media.mediaText='print';
+    }
+  }
   window.preloadPrintImagesV14=async function(root){
     if(!root)return;
     const images=[...root.querySelectorAll('img')];
@@ -59,5 +94,6 @@
         await Promise.race([document.fonts.ready,new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('Phông chữ chưa sẵn sàng. Vui lòng thử in lại.')),10000);})]);
       }finally{clearTimeout(timer);}
     }
+    fitA3WeekTables(root);
   };
 })();

@@ -66,11 +66,11 @@ function stampHtmlV704649(approval){
 function bghTitleKeyV7046495(value){return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase().replace(/\s+/g,' ').trim();}
 const defaultBookBghNameV1 = 'Lê Thị Tuyết Phượng';
 function bookBghSignerV1(approval) {
-  const name = String(approval?.tenBGH || '').trim();
+  const name = String(approval?.tenBGH || '').trim() || String(approval?.ho_ten_bgh || '').trim();
   if (!approval?.success || bghTitleKeyV7046495(name) === bghTitleKeyV7046495(defaultBookBghNameV1)) {
     return {name: defaultBookBghNameV1, titleHtml: 'KT. HIỆU TRƯỞNG<br>PHÓ HIỆU TRƯỞNG'};
   }
-  return {name, titleHtml: bghSignatureTitleHtmlV7046495(approval)};
+  return {name: name || 'Chưa có tên người duyệt', titleHtml: bghSignatureTitleHtmlV7046495(approval)};
 }
 function bghSignatureTitleLinesV7046495(approval){
   if(!approval)return ['HIỆU TRƯỞNG'];

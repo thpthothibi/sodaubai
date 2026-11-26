@@ -480,17 +480,18 @@
   function applyBghApprovalV684(approval,chot){
     const space=document.getElementById('printBGHSigSpace'),name=document.getElementById('printBGHName'),title=document.getElementById('printBGHTitle'),panel=document.getElementById('bghWeekApprovalV684'),state=document.getElementById('bghApprovalStateV684'),note=document.getElementById('bghApprovalNoteV684'),meta=document.getElementById('bghApprovalMetaV684'),hint=document.getElementById('bghApprovalHintV684'),btn=document.getElementById('bghApproveBtnV684');
     const priorApproval=!!(approval&&approval.success),stale=priorApproval&&!!approval.dataChanged,hasApproval=priorApproval&&!stale;
-    if(title)title.innerHTML=(approval&&approval.success)?bghSignatureTitleHtmlV7046495(approval):'HIỆU TRƯỞNG';
-    if(space&&name){
+    const signer=bookBghSignerV1(approval);
+    if(title)title.innerHTML=signer.titleHtml;
+    if(name)name.textContent=signer.name;
+    if(space){
       if(hasApproval){
         const sigRaw=String(approval.chuKyBGH||approval.kySo||approval.signatureRef||''),sigUrl=normalizeSignatureUrlV67_1(sigRaw);
         if(sigUrl)space.innerHTML=`<img src="${escapeHtml(sigUrl)}" class="sig-bgh-print" alt="Chữ ký BGH" onerror="handleSignatureImageErrorV682(this)">`;
         else space.innerHTML='<span class="badge bg-primary" style="font-size:.55rem;">✓ Đã duyệt</span>';
         space.style.position='relative';space.innerHTML+=stampHtmlV704649(approval);
-        name.textContent=approval.tenBGH||'';
       }else if(stale){
-        space.innerHTML='<span class="badge bg-danger" style="font-size:.55rem;">⚠ Cần duyệt lại</span>';name.textContent='';
-      }else{space.innerHTML='<span class="text-muted" style="font-size:.55rem;">Chưa duyệt</span>';name.textContent='';}
+        space.innerHTML='<span class="badge bg-danger" style="font-size:.55rem;">⚠ Cần duyệt lại</span>';
+      }else{space.replaceChildren();}
     }
     const bgh=getBghSessionV684(),mode=String(document.getElementById('viewBookMode')?.value||'LOP_CHINH'),selectedClass=String(document.getElementById('viewLop')?.value||''),isGroup=['CHUYEN_DE','GDTC'].includes(String(loaiSoTheoLopV22(selectedClass)||'')); // V70.4.6.17
     if(panel)panel.classList.toggle('d-none',!(bgh&&bgh.sessionToken));if(!(bgh&&bgh.sessionToken))return;

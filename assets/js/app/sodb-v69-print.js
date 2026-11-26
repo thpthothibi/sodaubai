@@ -369,11 +369,12 @@ function layHtmlOnePageA3GiamThi(lop, tuan, bookMode) {
             sigSpaceHtml = '<span class="badge bg-success" style="font-size: 0.55rem;">✓ Đã ký chốt</span>';
           }
         }
-        let bghNameText='';
-        let bghSigSpaceHtml='<span class="text-muted" style="font-size:0.55rem;">Chưa duyệt</span>';
+        let bghSigSpaceHtml='';
         const bghResData=payload.bghDuyet&&payload.bghDuyet.success?payload.bghDuyet:null;
-        if(bghResData){
-          bghNameText=bghResData.tenBGH||'';
+        const bghSigner=bookBghSignerV1(bghResData);
+        if(bghResData?.dataChanged){
+          bghSigSpaceHtml='<span class="badge bg-danger" style="font-size:.55rem;">⚠ Cần duyệt lại</span>';
+        }else if(bghResData){
           const bghSigRaw=String(bghResData.chuKyBGH||bghResData.kySo||bghResData.signatureRef||'');
           const bghSigUrl=normalizeSignatureUrlV67_1(bghSigRaw);
           bghSigSpaceHtml=bghSigUrl
@@ -415,7 +416,7 @@ function layHtmlOnePageA3GiamThi(lop, tuan, bookMode) {
             <div><strong>${isSpecial?'Ý kiến GV phụ trách nhóm:':'Ý kiến GVCN:'}</strong> <span class="fst-italic text-secondary">${escapeHtml(ykienText)}</span></div>
             <div class="signature-footer">
               <div class="signature-box"><div class="signature-title">${isSpecial?'GIÁO VIÊN PHỤ TRÁCH NHÓM':'GIÁO VIÊN CHỦ NHIỆM'}</div><div class="signature-space">${sigSpaceHtml}</div><div class="fw-bold signature-signer-name-v7046531" style="font-size:8pt;">${escapeHtml(gvcnNameText)}</div></div>
-              <div class="signature-box"><div class="signature-title">${bghSignatureTitleHtmlV7046495(bghResData)}</div><div class="signature-space" style="position:relative">${bghSigSpaceHtml}${stampHtmlV704649(bghResData)}</div><div class="fw-bold signature-signer-name-v7046531" style="font-size:8pt;">${escapeHtml(bghNameText)}</div></div>
+              <div class="signature-box book-bgh-signature"><div class="signature-title">${bghSigner.titleHtml}</div><div class="signature-space" style="position:relative">${bghSigSpaceHtml}${stampHtmlV704649(bghResData)}</div><div class="fw-bold signature-signer-name-v7046531" style="font-size:8pt;">${escapeHtml(bghSigner.name)}</div></div>
             </div>
           </div>
         </div>`;

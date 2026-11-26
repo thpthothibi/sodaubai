@@ -3865,3 +3865,17 @@ body.a3-tracuu-v56 #a3PrintRootV56 .signature-footer .signature-signer-name-v704
 
 .sodb-online-label-v27{white-space:nowrap}
 @media print{body.a3-tracuu-v56 #a3PrintRootV56 .a3-one-line-v56:has(.sodb-online-label-v27){white-space:normal!important;max-height:none!important;-webkit-line-clamp:unset!important;overflow:visible!important}body.a3-tracuu-v56 #a3PrintRootV56 .a3-sync-mon-v704610:has(.sodb-online-label-v27){white-space:normal!important;overflow:visible!important}}
+
+.signature-footer .book-bgh-signature {
+  text-align: center;
+}
+.signature-footer .book-bgh-signature .signature-title {
+  height: auto;
+  line-height: 1.2;
+}
+.signature-footer .book-bgh-signature .signature-space,
+#gtPrintPagesContainer .signature-footer .book-bgh-signature .signature-space,
+body.a3-tracuu-v56 #a3PrintRootV56 .signature-footer .book-bgh-signature .signature-space {
+  height: 18mm !important;
+  min-height: 18mm !important;
+}
